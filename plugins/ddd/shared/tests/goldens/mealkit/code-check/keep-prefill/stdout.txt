@@ -1,0 +1,4 @@
+ddd-code deliverable check: <DDD_DIR>
+contexts designed: 3/3  aggregates: 1  scaffold.generated=False
+
+RESULT: OK

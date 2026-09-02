@@ -1,0 +1,302 @@
+{
+  "schema_version": 1,
+  "step": "discover",
+  "produced_by": "ddd-discover",
+  "produced_at": "2026-08-29T10:00:00Z",
+  "mode": "auto",
+  "depth": "light",
+  "inputs": [
+    "ddd/01-understand/understand.json"
+  ],
+  "assumptions": [
+    {
+      "id": "A1",
+      "text": "Example fixture; assumptions are illustrative",
+      "confidence": "high"
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q1",
+      "text": "Illustrative open question",
+      "blocking": false,
+      "owner": "domain expert"
+    }
+  ],
+  "plain_words": {
+    "what": "We walked the story of a week, in order, and wrote down every moment something happens.",
+    "decided": "5 events, from a household picking meals to a box going out. Two of them are the ones the business is paid for.",
+    "assumed": "Nothing goes wrong: no refunds, no missed deliveries, no card failures on the timeline yet.",
+    "riskiest": "The failure paths are where most real work hides. Adding them later can move a boundary we set below."
+  },
+  "actors": [
+    {
+      "id": "subscriber",
+      "name": "Subscriber",
+      "from_understand": "subscriber"
+    },
+    {
+      "id": "packer",
+      "name": "Packer",
+      "from_understand": "packer"
+    }
+  ],
+  "external_systems": [
+    {
+      "id": "stripe",
+      "name": "Stripe",
+      "description": "Payments"
+    },
+    {
+      "id": "courier",
+      "name": "Courier",
+      "description": "Delivery partner"
+    }
+  ],
+  "phases": [
+    {
+      "id": "subscribing",
+      "name": "Subscribing",
+      "order": 1
+    },
+    {
+      "id": "choosing",
+      "name": "Choosing meals",
+      "order": 2
+    },
+    {
+      "id": "fulfilling",
+      "name": "Fulfilling",
+      "order": 3
+    }
+  ],
+  "events": [
+    {
+      "id": "subscription-started",
+      "name": "Subscription Started",
+      "phase": "subscribing",
+      "sequence": 10,
+      "actor": "subscriber",
+      "triggered_by": "start-subscription",
+      "pivotal": true,
+      "data": [
+        "subscriptionId"
+      ],
+      "description": "Customer became a subscriber"
+    },
+    {
+      "id": "meals-chosen",
+      "name": "Meals Chosen",
+      "phase": "choosing",
+      "sequence": 20,
+      "actor": "subscriber",
+      "triggered_by": "choose-meals",
+      "pivotal": false,
+      "data": [
+        "subscriptionId",
+        "week",
+        "recipeIds"
+      ],
+      "description": "Weekly choice locked in"
+    },
+    {
+      "id": "week-charged",
+      "name": "Week Charged",
+      "phase": "choosing",
+      "sequence": 25,
+      "actor": "stripe",
+      "triggered_by": "charge-week",
+      "pivotal": false,
+      "data": [
+        "subscriptionId",
+        "week",
+        "amount"
+      ],
+      "description": "Payment taken"
+    },
+    {
+      "id": "box-packed",
+      "name": "Box Packed",
+      "phase": "fulfilling",
+      "sequence": 30,
+      "actor": "packer",
+      "triggered_by": "pack-box",
+      "pivotal": true,
+      "data": [
+        "boxId"
+      ],
+      "description": "Physical box ready"
+    },
+    {
+      "id": "box-shipped",
+      "name": "Box Shipped",
+      "phase": "fulfilling",
+      "sequence": 40,
+      "actor": "courier",
+      "triggered_by": "ship-box",
+      "pivotal": true,
+      "data": [
+        "boxId",
+        "tracking"
+      ],
+      "description": "Handed to courier"
+    }
+  ],
+  "commands": [
+    {
+      "id": "start-subscription",
+      "name": "Start Subscription",
+      "actor": "subscriber",
+      "produces": [
+        "subscription-started"
+      ],
+      "description": ""
+    },
+    {
+      "id": "choose-meals",
+      "name": "Choose Meals",
+      "actor": "subscriber",
+      "produces": [
+        "meals-chosen"
+      ],
+      "description": ""
+    },
+    {
+      "id": "charge-week",
+      "name": "Charge Week",
+      "actor": null,
+      "produces": [
+        "week-charged"
+      ],
+      "description": ""
+    },
+    {
+      "id": "pack-box",
+      "name": "Pack Box",
+      "actor": "packer",
+      "produces": [
+        "box-packed"
+      ],
+      "description": ""
+    },
+    {
+      "id": "ship-box",
+      "name": "Ship Box",
+      "actor": "packer",
+      "produces": [
+        "box-shipped"
+      ],
+      "description": ""
+    },
+    {
+      "id": "charge-card",
+      "name": "Charge Card",
+      "actor": null,
+      "produces": [],
+      "description": "Billing asks the payment provider to charge the subscriber's card for the week"
+    }
+  ],
+  "policies": [
+    {
+      "id": "charge-on-choice",
+      "name": "Whenever meals chosen, charge the week",
+      "when": "meals-chosen",
+      "then": [
+        "charge-week"
+      ],
+      "kind": "automatic"
+    },
+    {
+      "id": "pack-on-charge",
+      "name": "Whenever week charged, pack box",
+      "when": "week-charged",
+      "then": [
+        "pack-box"
+      ],
+      "kind": "automatic"
+    }
+  ],
+  "read_models": [
+    {
+      "id": "weekly-menu",
+      "name": "Weekly menu",
+      "informs": "choose-meals",
+      "used_by": "subscriber"
+    }
+  ],
+  "aggregate_candidates": [
+    {
+      "id": "subscription",
+      "name": "Subscription",
+      "handles": [
+        "start-subscription",
+        "choose-meals"
+      ],
+      "emits": [
+        "subscription-started",
+        "meals-chosen"
+      ]
+    },
+    {
+      "id": "box",
+      "name": "Box",
+      "handles": [
+        "pack-box",
+        "ship-box"
+      ],
+      "emits": [
+        "box-packed",
+        "box-shipped"
+      ]
+    }
+  ],
+  "pivotal_events": [
+    "subscription-started",
+    "box-packed",
+    "box-shipped"
+  ],
+  "hotspots": [
+    {
+      "id": "H1",
+      "text": "What happens if payment fails after meals are chosen?",
+      "near": "week-charged",
+      "kind": "unclear"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "S1",
+      "name": "Happy path weekly box",
+      "actors": [
+        "subscriber",
+        "packer"
+      ],
+      "events": [
+        "meals-chosen",
+        "week-charged",
+        "box-packed",
+        "box-shipped"
+      ]
+    }
+  ],
+  "glossary": [
+    {
+      "term": "Subscription",
+      "definition": "A customer's standing weekly order",
+      "avoid": [
+        "plan",
+        "membership"
+      ],
+      "context": null
+    },
+    {
+      "term": "Box",
+      "definition": "One week's delivery for one subscription",
+      "avoid": [
+        "order",
+        "shipment"
+      ],
+      "context": null
+    }
+  ]
+}

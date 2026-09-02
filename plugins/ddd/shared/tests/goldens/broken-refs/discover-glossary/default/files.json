@@ -1,0 +1,10 @@
+{
+  "changed": [
+    {
+      "path": "ddd/glossary.md",
+      "kind": "modified",
+      "content": "# Ubiquitous language — Meal-kit subscription\n\n## Shared\n**Subscription** - A customer's standing weekly order. _Avoid_: plan, membership\n**Box** - One week's delivery for one subscription. _Avoid_: order, shipment\n\n## Subscriptions context\n**Box** — …. _(differs from the shared meaning — a boundary)_\n\n## Billing context\n**Box** — …. _(differs from the shared meaning — a boundary)_\n\n## Fulfilment context\n**Box** — …. _(differs from the shared meaning — a boundary)_\n"
+    }
+  ],
+  "deleted": []
+}

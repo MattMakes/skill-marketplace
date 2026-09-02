@@ -1,0 +1,12 @@
+{
+  "root": "<ROOT>",
+  "language": null,
+  "framework": null,
+  "orm": null,
+  "bus": null,
+  "test_framework": null,
+  "evidence": [],
+  "src_dirs": [],
+  "test_dirs": [],
+  "hint": null
+}

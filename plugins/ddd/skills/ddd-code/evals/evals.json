@@ -1,0 +1,23 @@
+{
+  "skill_name": "ddd-code",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We finished the bounded context canvases yesterday (ddd/07-define is done). Now turn the design into code structure: I want the aggregates with their invariants, the ports and adapters per context, and an implementation plan I can hand to the team. It's a TypeScript/Node repo, no framework yet. Ask me if something's unclear.",
+      "expected_output": "Resolves ./ddd, reads define/strategize/connect/organise/discover JSON and the canvases, detects TypeScript from package.json, runs prefill per context, then presents two interactive checkpoints (aggregates & invariants for the core context with ≤4 questions; module layout & plan with ≤4 questions). Writes ddd/08-code/<context>/design.md for every context, aggregate-canvas-<id>.md only for domain-model contexts, implementation-plan.md (core first, thinnest slice to the pivotal event) and code.json with scaffold.generated=false; ddd validate --step code passes; ddd mark code done; closing summary names the hand-off to superpowers:writing-plans / dev-create-plan then TDD.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Run the last DDD step on ddd/ in auto mode — no questions. Python/FastAPI service, SQLAlchemy. Don't create any source files, just the design and the plan.",
+      "expected_output": "Auto mode: no questions asked. Detects python/fastapi/sqlalchemy, uses prefill --skeleton, fills invariants, value objects, state transitions and named tests for each domain-model aggregate, keeps transaction-script/active-record contexts free of aggregates, uses import-linter in the fitness test, writes design.md per context, canvases, plan and code.json with assumptions[] and open_questions[] populated and scaffold.generated=false; ddd code check and ddd validate report no errors; marks the step done (or draft if a blocking question remains) and prints absolute paths plus the hand-off.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Design the Order aggregate for our ordering context — aggregate design canvas, what's a real invariant vs just validation, repositories and ports, hexagonal layout — and scaffold the folder skeleton with failing tests in our Kotlin/Spring repo. We're continuing from ddd-define.",
+      "expected_output": "Reads the existing ddd/ workspace; produces the Order aggregate canvas (state transitions, enforced invariants vs validation rules, corrective policies, commands→events using discover ids, throughput/size), the ordering design.md with Spring Modulith/ArchUnit conventions from lang-java-kotlin.md, the plan, and code.json. Because scaffolding was explicitly requested: creates only folders, interface/type stubs and failing tests (no business logic), records them in scaffold.files with scaffold.generated=true, and never writes production logic. Validates and marks the step done.",
+      "files": []
+    }
+  ]
+}

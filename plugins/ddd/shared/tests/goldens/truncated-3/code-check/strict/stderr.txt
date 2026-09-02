@@ -1,0 +1,1 @@
+error: ddd/08-code/code.json missing or invalid JSON

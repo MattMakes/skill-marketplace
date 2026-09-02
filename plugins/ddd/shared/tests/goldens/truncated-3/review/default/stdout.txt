@@ -1,0 +1,3 @@
+review: wrote <DDD_DIR>/review.html (<KB> KB) - 3 step(s), 2 thing(s) needing a person, 0 that stop the work
+  [note] Step 1 (understand) left a note for step 2 (discover), which never names it.
+  [note] Step 1 (understand) left a note for step 3 (decompose), which never names it.

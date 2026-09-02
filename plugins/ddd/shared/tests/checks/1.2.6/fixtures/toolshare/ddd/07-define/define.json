@@ -1,0 +1,1033 @@
+{
+  "schema_version": 1,
+  "step": "define",
+  "produced_by": "ddd-define",
+  "produced_at": "2026-09-02T19:02:11Z",
+  "mode": "auto",
+  "depth": "light",
+  "inputs": [
+    "ddd/01-understand/understand.json",
+    "ddd/02-discover/discover.json",
+    "ddd/03-decompose/decompose.json",
+    "ddd/04-strategize/strategize.json",
+    "ddd/05-connect/connect.json",
+    "ddd/06-organise/organise.json",
+    "ddd/manifest.json",
+    "ddd/glossary.md"
+  ],
+  "assumptions": [
+    {
+      "id": "A1",
+      "text": "membership: 'conformist' guessed for external system clock (core contexts protect their model; others conform) — confirm",
+      "confidence": "low"
+    },
+    {
+      "id": "A4",
+      "text": "fees: 'conformist' guessed for external system clock (core contexts protect their model; others conform) — confirm",
+      "confidence": "low"
+    },
+    {
+      "id": "A5",
+      "text": "fees: 'conformist' guessed for external system email (core contexts protect their model; others conform) — confirm",
+      "confidence": "low"
+    },
+    {
+      "id": "A7",
+      "text": "Clock and email are conformist everywhere, including in the core: a scheduler and a mail API carry no domain model to protect against. Overrides the pre-fill's ACL guess (A2, A3).",
+      "confidence": "medium"
+    },
+    {
+      "id": "A8",
+      "text": "Fees wraps Stripe behind an anticorruption layer: charge/decline/refund vocabulary stops at the adapter and the ledger speaks in fee, balance and payment (overrides pre-fill A6).",
+      "confidence": "medium"
+    },
+    {
+      "id": "A9",
+      "text": "Business models guessed: lending revenue-generator (membership fees are paid for the right to borrow), membership cost-reducer, inventory cost-reducer, fees compliance-enforcer (it exists to make the rules bite, not to earn).",
+      "confidence": "medium"
+    },
+    {
+      "id": "A10",
+      "text": "Thresholds guessed where the brief has none: a 48-hour hold counted in calendar hours; three items includes items on loan only, not pending reservations; damage charge capped at replacement value.",
+      "confidence": "low"
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q1",
+      "text": "Fees vs lending competing criteria: fees wants a balance to block borrowing the moment it accrues, lending wants a paid-at-the-desk cash fee to unblock check-out in the same visit. With a synchronous read both hold only if cash is recorded before check-out - confirm that desk order.",
+      "blocking": false,
+      "owner": "coordinator"
+    },
+    {
+      "id": "Q2",
+      "text": "Is a query's producer the context that asks or the one that answers? The pre-fill read membership-current (producer lending) as contradicting R1 (membership upstream). Connect should say.",
+      "blocking": false,
+      "owner": "ddd-connect"
+    }
+  ],
+  "canvases": [
+    {
+      "context": "membership",
+      "name": "Membership",
+      "purpose": "Membership decides who is a member, at which rate, and until when: a resident applies, the coordinator approves a concession, the annual fee is paid and a 12-month membership starts; nightly, expired memberships lapse. It answers 'is this membership current?' for lending. It does not decide who may borrow (lending) and holds no fee balance (fees).",
+      "strategic_classification": {
+        "domain": "supporting",
+        "business_model": "cost-reducer",
+        "evolution": "product"
+      },
+      "domain_roles": [
+        "execution-context"
+      ],
+      "domain_roles_rationale": "Owns the membership aggregate and moves it applied -> started -> lapsed on commands from the member, the coordinator and the clock; the only human-in-the-loop step is concession approval. Card capture for the joining fee reuses fees' Stripe adapter.",
+      "inbound": [
+        {
+          "collaborator": "lending",
+          "relationship": "customer-supplier",
+          "messages": [
+            {
+              "id": "membership-current",
+              "kind": "query",
+              "name": "membership-current",
+              "payload": [
+                "memberId"
+              ],
+              "delivery": "sync",
+              "via": "in-process",
+              "sync": true
+            }
+          ]
+        },
+        {
+          "collaborator": "member",
+          "relationship": "user-interaction",
+          "messages": [
+            {
+              "id": "apply-for-membership",
+              "kind": "command",
+              "name": "Apply For Membership"
+            },
+            {
+              "id": "pay-membership-fee",
+              "kind": "command",
+              "name": "Pay Membership Fee"
+            }
+          ]
+        },
+        {
+          "collaborator": "coordinator",
+          "relationship": "user-interaction",
+          "messages": [
+            {
+              "id": "approve-concession",
+              "kind": "command",
+              "name": "Approve Concession"
+            }
+          ]
+        },
+        {
+          "collaborator": "clock",
+          "relationship": "conformist",
+          "messages": [
+            {
+              "id": "lapse-memberships",
+              "kind": "command",
+              "name": "Lapse Memberships"
+            }
+          ]
+        }
+      ],
+      "outbound": [],
+      "ubiquitous_language": [
+        {
+          "term": "Member",
+          "definition": "a person with contact details, a member number, a rate (standard or concession) and a term that expires",
+          "avoid": [
+            "user",
+            "customer",
+            "borrower"
+          ]
+        },
+        {
+          "term": "Membership",
+          "definition": "A member's 12-month right to borrow, started when the annual fee is paid",
+          "avoid": [
+            "subscription",
+            "account"
+          ]
+        }
+      ],
+      "business_decisions": [
+        "A membership starts the day the annual fee is received and expires 12 months later; on the nightly run an expired membership lapses and the member is no longer current.",
+        "The concession rate (GBP 15) applies only after the coordinator has approved the uploaded proof; until then the standard fee (GBP 40) is due.",
+        "A lapsed member may still return items and pay fees (understand Q1, assumed); only new borrowing needs a current membership."
+      ],
+      "assumptions": [
+        "[understand A4] Members are households, but the member number and borrowing limits attach to one named person. (confidence low)",
+        "[understand A5] About 400 members and 600 items over the first year (order of magnitude from a typical UK tool library). (confidence low)",
+        "[discover A1] Four phases (joining, borrowing, settling, maintaining) drafted from the capabilities; the tool lifecycle is placed last because it is a branch, not the member's story. (confidence medium)",
+        "[discover A3] Reservation expiry, due reminders, overdue marking, late-fee accrual and membership lapsing are all clock-fired; the schedules given are guesses. (confidence medium)",
+        "[discover A6] Failure paths beyond a card decline (Stripe webhook late, item lost and never returned, member disputes a fee) are not on the timeline. (confidence medium)",
+        "[decompose A2] Stripe is an adapter inside fees (and membership for the joining fee), not a wrapper context: the storm shows one Stripe event and no Stripe vocabulary of its own. (confidence medium)",
+        "[decompose A5] Fees and membership both record card payments but fees owns the member's balance; the membership fee is not part of the balance that blocks borrowing. (confidence medium)",
+        "[decompose A6] Lending owns the borrowing-eligibility rule (membership current, balance zero, no overdue, fewer than three out) and the member-standing read model. Two of the four facts are lending's own state; discover N2 says lending consumes the answer; discover Q3 and Q4, which change the rule, are lending questions. (confidence high)",
+        "[decompose A7] Lending obtains 'membership current' and 'balance zero' by direct read from membership and fees at check-out, not by a locally maintained projection - chosen for one Postgres, a modular monolith, two part-time devs and C2 (no babysitting). Mechanism, not boundary; connect confirms. (confidence medium)",
+        "[strategize A2] Membership is 'product' evolution but sourced build: a membership SaaS would not feed the eligibility rule or keep GDPR data (C4) inside the one Postgres (C3); it is three tables and a form. (confidence medium)",
+        "[strategize A3] Card payments (commodity) are an adapter inside fees and membership - transaction-script glue around Stripe, never a model of Stripe's problem (understand N3, C1). (confidence high)",
+        "[connect A5] One thin Stripe adapter is shared by fees and membership (decompose N3); membership's pay-membership-fee uses the same charge-card message. Not drawn at light depth. (confidence medium)",
+        "[define A1] 'conformist' guessed for external system clock (core contexts protect their model; others conform) — confirm"
+      ],
+      "verification_metrics": [
+        "Renewals completed within 30 days of expiry >= 70% (proxy for G2's payment behaviour).",
+        "membership-current answered in under 50 ms in-process (structural: it is on the check-out path).",
+        "No membership table is read by any other module except through membership-current."
+      ],
+      "open_questions": [
+        "[understand Q1] Does a lapsed membership block returns and fee payment, or only new borrowing?",
+        "[discover Q2] Is the late fee capped per loan at the item's replacement value, or per member across items?",
+        "[discover Q3] Can a member reserve a second item while one reservation is pending, and does a pending reservation count toward the three-item limit?",
+        "[discover Q4] Does an overdue item block renewal of the member's other loans?",
+        "[decompose Q1] Does an unpaid membership renewal count as 'owing' for borrowing purposes, or only late and damage fees?",
+        "[strategize Q1] Would the library accept myTurn (or similar) for membership and catalogue if lending and fees were built around it, or must everything be one system?",
+        "[discover H2 near item-checked-out — unclear] Who answers 'may this member borrow?' at check-out - membership status, fee balance, overdue loans and item count live in three different parts of the flow.",
+        "[connect CC2 — coupling, low] Check-out waits on two synchronous reads (membership, fees); the desk hot path depends on both being up. Accepted because all three live in one process (decompose D1)."
+      ],
+      "canvas_path": "ddd/07-define/membership/bounded-context-canvas.md",
+      "subdomains": [
+        "membership"
+      ],
+      "owning_team": "library-team",
+      "deployable": "app",
+      "implementation_pattern": "transaction-script"
+    },
+    {
+      "context": "inventory",
+      "name": "Inventory",
+      "purpose": "Inventory decides which tools exist as kinds and which physical items belong to each, and whether each item is fit to lend: volunteers add tools, tag donated items, inspect, repair and retire them. It tells lending which items may be offered (G1 indirectly: a fit item is a returnable item) and tells fees when an inspection fails after a loan. It does not hold availability (lending) or charge anyone (fees).",
+      "strategic_classification": {
+        "domain": "supporting",
+        "business_model": "cost-reducer",
+        "evolution": "custom"
+      },
+      "domain_roles": [
+        "execution-context"
+      ],
+      "domain_roles_rationale": "Owns the tool and item aggregates; every command comes from the maintenance volunteer; one manual policy reacts to a damaged return. No external system.",
+      "inbound": [
+        {
+          "collaborator": "lending",
+          "relationship": "customer-supplier",
+          "messages": [
+            {
+              "id": "item-returned",
+              "kind": "event",
+              "name": "Item Returned",
+              "payload": [
+                "loanId",
+                "itemId",
+                "memberId",
+                "returnedOn",
+                "condition"
+              ],
+              "delivery": "at-most-once",
+              "via": "in-process",
+              "sync": false
+            }
+          ]
+        },
+        {
+          "collaborator": "maintenance-volunteer",
+          "relationship": "user-interaction",
+          "messages": [
+            {
+              "id": "inspect-item",
+              "kind": "command",
+              "name": "Inspect Item",
+              "payload": [
+                "itemId",
+                "outcome",
+                "fault"
+              ],
+              "delivery": "sync",
+              "via": "http",
+              "sync": true
+            },
+            {
+              "id": "retire-item",
+              "kind": "command",
+              "name": "Retire Item",
+              "payload": [
+                "itemId",
+                "reason"
+              ],
+              "delivery": "sync",
+              "via": "http",
+              "sync": true
+            },
+            {
+              "id": "add-tool",
+              "kind": "command",
+              "name": "Add Tool"
+            },
+            {
+              "id": "tag-item",
+              "kind": "command",
+              "name": "Tag Item"
+            },
+            {
+              "id": "repair-item",
+              "kind": "command",
+              "name": "Repair Item"
+            }
+          ]
+        }
+      ],
+      "outbound": [
+        {
+          "collaborator": "fees",
+          "relationship": "customer-supplier",
+          "messages": [
+            {
+              "id": "item-failed-inspection",
+              "kind": "event",
+              "name": "Item Failed Inspection",
+              "payload": [
+                "itemId",
+                "toolId",
+                "fault",
+                "replacementValuePence",
+                "lastLoanId"
+              ],
+              "delivery": "at-most-once",
+              "via": "in-process",
+              "sync": false
+            }
+          ]
+        },
+        {
+          "collaborator": "lending",
+          "relationship": "published-language",
+          "messages": [
+            {
+              "id": "item-retired",
+              "kind": "event",
+              "name": "Item Retired",
+              "payload": [
+                "itemId",
+                "toolId",
+                "retiredOn"
+              ],
+              "delivery": "at-most-once",
+              "via": "in-process",
+              "sync": false
+            }
+          ]
+        }
+      ],
+      "ubiquitous_language": [
+        {
+          "term": "Tool",
+          "definition": "a catalogue kind with replacement value, safety notes and induction flag; owns its items",
+          "avoid": [
+            "product",
+            "asset"
+          ]
+        },
+        {
+          "term": "Item",
+          "definition": "one asset-tagged physical unit with a condition and a lifecycle (fit, in maintenance, retired)",
+          "avoid": [
+            "unit",
+            "copy",
+            "tool (at the desk)"
+          ]
+        },
+        {
+          "term": "Inspection",
+          "definition": "A maintenance volunteer's safety and condition check of an item; pass or fail",
+          "avoid": [
+            "check",
+            "audit"
+          ]
+        }
+      ],
+      "business_decisions": [
+        "An item returned with damage noted is inspected before it can be lent again; until the inspection passes it is not fit.",
+        "An item that fails inspection is either repaired (back to fit) or retired; a retired item leaves the catalogue view, keeps its loan history, and is published to lending as item-retired.",
+        "Every item belongs to exactly one tool kind, whose replacement value caps any late or damage fee for it."
+      ],
+      "assumptions": [
+        "[understand A5] About 400 members and 600 items over the first year (order of magnitude from a typical UK tool library). (confidence low)",
+        "[discover A1] Four phases (joining, borrowing, settling, maintaining) drafted from the capabilities; the tool lifecycle is placed last because it is a branch, not the member's story. (confidence medium)",
+        "[discover A5] Inspection after a return only happens when the volunteer notes damage (manual policy); routine inspections are on a schedule not stormed at light depth. (confidence low)",
+        "[discover A6] Failure paths beyond a card decline (Stripe webhook late, item lost and never returned, member disputes a fee) are not on the timeline. (confidence medium)",
+        "[decompose A1] Tool catalogue and tool maintenance are one context (inventory): the same volunteer drives both, 'Tool' (kind) and 'Item' (unit) are two terms in one model, and nothing shifts meaning between adding a tool and retiring an item. Split later if a separate catalogue editor appears. (confidence medium)",
+        "[decompose A3] Lending owns item availability (available / reserved / on loan); inventory owns item condition and lifecycle (in maintenance / retired) and tells lending which items exist and are fit to lend. (confidence medium)"
+      ],
+      "verification_metrics": [
+        "Items lent while marked not fit = 0 (structural: lending obeys inventory).",
+        "Median days from failed inspection to repaired-or-retired <= 14.",
+        "Every item has a tool kind and an asset tag (data completeness 100%)."
+      ],
+      "open_questions": [
+        "[discover Q1] Does a lost item (never returned) end as a damage charge at replacement value, and who declares it lost?",
+        "[discover Q2] Is the late fee capped per loan at the item's replacement value, or per member across items?",
+        "[discover Q3] Can a member reserve a second item while one reservation is pending, and does a pending reservation count toward the three-item limit?",
+        "[discover Q4] Does an overdue item block renewal of the member's other loans?",
+        "[decompose Q2] Should the catalogue (public browsing of tool kinds) be split from maintenance if a member-facing editor or a second volunteer role appears?",
+        "[decompose Q4] Must the Saturday desk check items out when the network or another part of the system is down?"
+      ],
+      "canvas_path": "ddd/07-define/inventory/bounded-context-canvas.md",
+      "subdomains": [
+        "inventory"
+      ],
+      "owning_team": "library-team",
+      "deployable": "app",
+      "implementation_pattern": "active-record"
+    },
+    {
+      "context": "lending",
+      "name": "Lending",
+      "purpose": "Lending decides who may borrow what, and until when: it holds reservations, checks items out and back in at the Saturday desk, renews once, reminds, and marks loans overdue, so that 90% of loans come back on time (G1). It owns the borrow decision (membership current, balance zero, no overdue, fewer than three out) and asks membership and fees for the two facts it does not hold. It does not know a member's contact details (membership), what an item is worth or whether it is fit (inventory), or what anyone owes (fees).",
+      "strategic_classification": {
+        "domain": "core",
+        "business_model": "revenue-generator",
+        "evolution": "custom"
+      },
+      "domain_roles": [
+        "execution-context"
+      ],
+      "domain_roles_rationale": "Owns the reservation and loan aggregates and moves them through hold -> checked out -> due -> overdue -> returned on commands from members, desk volunteers and the clock; both pivotal events of the storm are its. Clock and email are adapters inside it, not a gateway role.",
+      "inbound": [
+        {
+          "collaborator": "member",
+          "relationship": "user-interaction",
+          "messages": [
+            {
+              "id": "reserve-item",
+              "kind": "command",
+              "name": "Reserve Item",
+              "payload": [
+                "memberId",
+                "itemId"
+              ],
+              "delivery": "sync",
+              "via": "http",
+              "sync": true
+            },
+            {
+              "id": "renew-loan",
+              "kind": "command",
+              "name": "Renew Loan"
+            }
+          ]
+        },
+        {
+          "collaborator": "desk-volunteer",
+          "relationship": "user-interaction",
+          "messages": [
+            {
+              "id": "check-out-item",
+              "kind": "command",
+              "name": "Check Out Item",
+              "payload": [
+                "memberId",
+                "itemId",
+                "reservationId"
+              ],
+              "delivery": "sync",
+              "via": "http",
+              "sync": true
+            },
+            {
+              "id": "return-item",
+              "kind": "command",
+              "name": "Return Item",
+              "payload": [
+                "loanId",
+                "condition",
+                "note"
+              ],
+              "delivery": "sync",
+              "via": "http",
+              "sync": true
+            }
+          ]
+        },
+        {
+          "collaborator": "clock",
+          "relationship": "conformist",
+          "messages": [
+            {
+              "id": "send-due-reminders",
+              "kind": "command",
+              "name": "Send Due Reminders",
+              "payload": [
+                "asOfDate"
+              ],
+              "delivery": "at-least-once",
+              "via": "other",
+              "sync": false
+            },
+            {
+              "id": "mark-loans-overdue",
+              "kind": "command",
+              "name": "Mark Loans Overdue",
+              "payload": [
+                "asOfDate"
+              ],
+              "delivery": "at-least-once",
+              "via": "other",
+              "sync": false
+            },
+            {
+              "id": "expire-reservations",
+              "kind": "command",
+              "name": "Expire Reservations"
+            }
+          ]
+        },
+        {
+          "collaborator": "inventory",
+          "relationship": "published-language",
+          "messages": [
+            {
+              "id": "item-retired",
+              "kind": "event",
+              "name": "Item Retired",
+              "payload": [
+                "itemId",
+                "toolId",
+                "retiredOn"
+              ],
+              "delivery": "at-most-once",
+              "via": "in-process",
+              "sync": false
+            }
+          ]
+        }
+      ],
+      "outbound": [
+        {
+          "collaborator": "membership",
+          "relationship": "customer-supplier",
+          "messages": [
+            {
+              "id": "membership-current",
+              "kind": "query",
+              "name": "membership-current",
+              "payload": [
+                "memberId"
+              ],
+              "delivery": "sync",
+              "via": "in-process",
+              "sync": true
+            }
+          ]
+        },
+        {
+          "collaborator": "fees",
+          "relationship": "customer-supplier",
+          "messages": [
+            {
+              "id": "fee-balance",
+              "kind": "query",
+              "name": "fee-balance",
+              "payload": [
+                "memberId"
+              ],
+              "delivery": "sync",
+              "via": "in-process",
+              "sync": true
+            },
+            {
+              "id": "item-returned",
+              "kind": "event",
+              "name": "Item Returned",
+              "payload": [
+                "loanId",
+                "itemId",
+                "memberId",
+                "returnedOn",
+                "condition"
+              ],
+              "delivery": "at-most-once",
+              "via": "in-process",
+              "sync": false
+            },
+            {
+              "id": "loan-overdue",
+              "kind": "event",
+              "name": "Loan Overdue",
+              "payload": [
+                "loanId",
+                "itemId",
+                "memberId",
+                "dueOn",
+                "replacementValuePence"
+              ],
+              "delivery": "at-most-once",
+              "via": "in-process",
+              "sync": false
+            }
+          ]
+        },
+        {
+          "collaborator": "email",
+          "relationship": "conformist",
+          "messages": [
+            {
+              "id": "send-due-notice",
+              "kind": "command",
+              "name": "send-due-notice",
+              "payload": [
+                "memberId",
+                "loanId",
+                "itemName",
+                "dueOn"
+              ],
+              "delivery": "sync",
+              "via": "http",
+              "sync": true
+            }
+          ]
+        },
+        {
+          "collaborator": "inventory",
+          "relationship": "customer-supplier",
+          "messages": [
+            {
+              "id": "item-returned",
+              "kind": "event",
+              "name": "Item Returned",
+              "payload": [
+                "loanId",
+                "itemId",
+                "memberId",
+                "returnedOn",
+                "condition"
+              ],
+              "delivery": "at-most-once",
+              "via": "in-process",
+              "sync": false
+            }
+          ]
+        }
+      ],
+      "ubiquitous_language": [
+        {
+          "term": "Reservation",
+          "definition": "A 48-hour hold on an available item for one member",
+          "avoid": [
+            "booking",
+            "hold"
+          ]
+        },
+        {
+          "term": "Loan",
+          "definition": "One item in one member's hands from check-out to return, due in 14 days, renewable once by 7",
+          "avoid": [
+            "rental",
+            "hire",
+            "checkout"
+          ]
+        },
+        {
+          "term": "Due date",
+          "definition": "The day a loan must be returned by; the day after it the loan is overdue",
+          "avoid": [
+            "deadline",
+            "return date"
+          ]
+        },
+        {
+          "term": "Item",
+          "definition": "a lendable unit with an availability (available, reserved, on loan); condition is not modelled here"
+        },
+        {
+          "term": "Member",
+          "definition": "a borrower identified by member number with a standing (may borrow or not) - no contact details"
+        }
+      ],
+      "business_decisions": [
+        "A member may check an item out only if the membership is current, the fee balance is zero, no loan of theirs is overdue, and fewer than three of their loans are open; any one failing blocks the check-out with the reason (decompose D1, A10).",
+        "A loan is due 14 days after check-out; it may be renewed exactly once, by 7 days, and only if no other member holds a reservation on that item.",
+        "A reservation holds an available item for 48 hours (calendar, A10); when the hold passes the item is available again and a check-out against the expired hold is refused.",
+        "A loan whose due date has passed at the nightly run is overdue: the member cannot borrow more, and fees is told (loan-overdue) so accrual starts; the return (item-returned) stops it.",
+        "An item that inventory has retired or failed is never offered for reservation, even if it is physically on the shelf."
+      ],
+      "assumptions": [
+        "[understand A4] Members are households, but the member number and borrowing limits attach to one named person. (confidence low)",
+        "[understand A5] About 400 members and 600 items over the first year (order of magnitude from a typical UK tool library). (confidence low)",
+        "[discover A1] Four phases (joining, borrowing, settling, maintaining) drafted from the capabilities; the tool lifecycle is placed last because it is a branch, not the member's story. (confidence medium)",
+        "[discover A3] Reservation expiry, due reminders, overdue marking, late-fee accrual and membership lapsing are all clock-fired; the schedules given are guesses. (confidence medium)",
+        "[discover A6] Failure paths beyond a card decline (Stripe webhook late, item lost and never returned, member disputes a fee) are not on the timeline. (confidence medium)",
+        "[decompose A1] Tool catalogue and tool maintenance are one context (inventory): the same volunteer drives both, 'Tool' (kind) and 'Item' (unit) are two terms in one model, and nothing shifts meaning between adding a tool and retiring an item. Split later if a separate catalogue editor appears. (confidence medium)",
+        "[decompose A3] Lending owns item availability (available / reserved / on loan); inventory owns item condition and lifecycle (in maintenance / retired) and tells lending which items exist and are fit to lend. (confidence medium)",
+        "[decompose A5] Fees and membership both record card payments but fees owns the member's balance; the membership fee is not part of the balance that blocks borrowing. (confidence medium)",
+        "[decompose A6] Lending owns the borrowing-eligibility rule (membership current, balance zero, no overdue, fewer than three out) and the member-standing read model. Two of the four facts are lending's own state; discover N2 says lending consumes the answer; discover Q3 and Q4, which change the rule, are lending questions. (confidence high)",
+        "[decompose A7] Lending obtains 'membership current' and 'balance zero' by direct read from membership and fees at check-out, not by a locally maintained projection - chosen for one Postgres, a modular monolith, two part-time devs and C2 (no babysitting). Mechanism, not boundary; connect confirms. (confidence medium)",
+        "[strategize A1] Lending is the only core: both goals (G1 on-time returns, G2 fees collected) move on lending's rules and reminders; fees is scored 6/5 and stays supporting under rule 3. (confidence medium)",
+        "[connect A2] Minted commands discover lacks: send-due-notice (lending -> email), send-fee-notice (fees -> email), charge-card (fees -> stripe). Domain-language names; discover should adopt them on a re-run. (confidence high)",
+        "[connect A4] In-memory domain events are at-most-once: if the process dies between the lending write and the fees handler, the accrual starts the next nightly run, which re-derives overdue loans from lending's state. Acceptable at this scale. (confidence medium)",
+        "[define A2] 'anticorruption-layer' guessed for external system clock (core contexts protect their model; others conform) — confirm",
+        "[define A3] 'anticorruption-layer' guessed for external system email (core contexts protect their model; others conform) — confirm"
+      ],
+      "verification_metrics": [
+        "Share of loans returned by the due date >= 90% after 12 months (G1).",
+        "Zero check-outs recorded for a member who owed money or held an overdue item at that moment (structural: the borrow rule is applied in one place).",
+        "Reminder sent for 100% of loans two days before due; measured monthly.",
+        "No lending table or query touches membership or fees tables directly (structural: only the two queries cross)."
+      ],
+      "open_questions": [
+        "[understand Q2] Is the 48-hour reservation hold counted in calendar hours or only over desk opening days?",
+        "[discover Q1] Does a lost item (never returned) end as a damage charge at replacement value, and who declares it lost?",
+        "[discover Q2] Is the late fee capped per loan at the item's replacement value, or per member across items?",
+        "[discover Q3] Can a member reserve a second item while one reservation is pending, and does a pending reservation count toward the three-item limit?",
+        "[discover Q4] Does an overdue item block renewal of the member's other loans?",
+        "[decompose Q3] Does the coordinator need a list of everyone currently blocked from borrowing (not just a per-member check at the desk)? If yes, lending needs a maintained standing projection rather than a read at check-out.",
+        "[decompose Q4] Must the Saturday desk check items out when the network or another part of the system is down?",
+        "[strategize Q1] Would the library accept myTurn (or similar) for membership and catalogue if lending and fees were built around it, or must everything be one system?",
+        "[discover H1 near item-reserved — conflict] 'Tool' means the catalogue kind to a member browsing but the asset-tagged physical unit to a volunteer at the desk. Which one is reserved, and which one is retired?",
+        "[discover H2 near item-checked-out — unclear] Who answers 'may this member borrow?' at check-out - membership status, fee balance, overdue loans and item count live in three different parts of the flow.",
+        "[discover H4 near reservation-expired — unclear] Is the 48-hour hold counted in calendar hours or only across desk opening days? A Sunday reservation would expire before the desk opens.",
+        "[discover H5 near loan-overdue — missing] Nobody has said who declares an item lost after weeks overdue, or whether that ends as a damage charge at replacement value.",
+        "[connect CC2 — coupling, low] Check-out waits on two synchronous reads (membership, fees); the desk hot path depends on both being up. Accepted because all three live in one process (decompose D1).",
+        "[connect CC3 — coupling, medium] Lending and fees depend on each other: lending queries fees for the balance, fees consumes lending's loan-overdue and item-returned. Consumer-depends-on-producer both ways."
+      ],
+      "canvas_path": "ddd/07-define/lending/bounded-context-canvas.md",
+      "subdomains": [
+        "lending"
+      ],
+      "owning_team": "library-team",
+      "deployable": "app",
+      "implementation_pattern": "domain-model"
+    },
+    {
+      "context": "fees",
+      "name": "Fees",
+      "purpose": "Fees decides what a member owes and records how it is paid: it accrues GBP 1 per overdue item per day (capped at the item's replacement value), takes damage charges from the coordinator, applies waivers, and collects payment by card through Stripe or cash at the desk, so that 80% of fees are paid within 30 days (G2). It answers 'what is the balance?' for lending. It does not decide who may borrow (lending) or what an item is worth (inventory).",
+      "strategic_classification": {
+        "domain": "supporting",
+        "business_model": "compliance-enforcer",
+        "evolution": "custom"
+      },
+      "domain_roles": [
+        "execution-context",
+        "gateway"
+      ],
+      "domain_roles_rationale": "Owns the fee-account ledger and moves it through accrue -> charge -> pay -> waive; it is also the one place Stripe is called, so it carries the gateway role: idempotency keys, declines and late webhooks are its design problem (CC1).",
+      "inbound": [
+        {
+          "collaborator": "lending",
+          "relationship": "customer-supplier",
+          "messages": [
+            {
+              "id": "fee-balance",
+              "kind": "query",
+              "name": "fee-balance",
+              "payload": [
+                "memberId"
+              ],
+              "delivery": "sync",
+              "via": "in-process",
+              "sync": true
+            },
+            {
+              "id": "item-returned",
+              "kind": "event",
+              "name": "Item Returned",
+              "payload": [
+                "loanId",
+                "itemId",
+                "memberId",
+                "returnedOn",
+                "condition"
+              ],
+              "delivery": "at-most-once",
+              "via": "in-process",
+              "sync": false
+            },
+            {
+              "id": "loan-overdue",
+              "kind": "event",
+              "name": "Loan Overdue",
+              "payload": [
+                "loanId",
+                "itemId",
+                "memberId",
+                "dueOn",
+                "replacementValuePence"
+              ],
+              "delivery": "at-most-once",
+              "via": "in-process",
+              "sync": false
+            }
+          ]
+        },
+        {
+          "collaborator": "clock",
+          "relationship": "conformist",
+          "messages": [
+            {
+              "id": "accrue-late-fee",
+              "kind": "command",
+              "name": "Accrue Late Fee",
+              "payload": [
+                "asOfDate"
+              ],
+              "delivery": "at-least-once",
+              "via": "other",
+              "sync": false
+            }
+          ]
+        },
+        {
+          "collaborator": "member",
+          "relationship": "user-interaction",
+          "messages": [
+            {
+              "id": "pay-fee",
+              "kind": "command",
+              "name": "Pay Fee",
+              "payload": [
+                "memberId",
+                "amountPence",
+                "method"
+              ],
+              "delivery": "sync",
+              "via": "http",
+              "sync": true
+            }
+          ]
+        },
+        {
+          "collaborator": "inventory",
+          "relationship": "customer-supplier",
+          "messages": [
+            {
+              "id": "item-failed-inspection",
+              "kind": "event",
+              "name": "Item Failed Inspection",
+              "payload": [
+                "itemId",
+                "toolId",
+                "fault",
+                "replacementValuePence",
+                "lastLoanId"
+              ],
+              "delivery": "at-most-once",
+              "via": "in-process",
+              "sync": false
+            }
+          ]
+        },
+        {
+          "collaborator": "coordinator",
+          "relationship": "user-interaction",
+          "messages": [
+            {
+              "id": "charge-damage-fee",
+              "kind": "command",
+              "name": "Charge Damage Fee",
+              "payload": [
+                "memberId",
+                "itemId",
+                "amountPence",
+                "reason"
+              ],
+              "delivery": "sync",
+              "via": "http",
+              "sync": true
+            },
+            {
+              "id": "waive-fee",
+              "kind": "command",
+              "name": "Waive Fee"
+            }
+          ]
+        }
+      ],
+      "outbound": [
+        {
+          "collaborator": "email",
+          "relationship": "conformist",
+          "messages": [
+            {
+              "id": "send-fee-notice",
+              "kind": "command",
+              "name": "send-fee-notice",
+              "payload": [
+                "memberId",
+                "amountPence",
+                "reason",
+                "payLink"
+              ],
+              "delivery": "sync",
+              "via": "http",
+              "sync": true
+            }
+          ]
+        },
+        {
+          "collaborator": "stripe",
+          "relationship": "anticorruption-layer",
+          "messages": [
+            {
+              "id": "charge-card",
+              "kind": "command",
+              "name": "charge-card",
+              "payload": [
+                "amountPence",
+                "currency",
+                "memberRef",
+                "idempotencyKey"
+              ],
+              "delivery": "sync",
+              "via": "http",
+              "sync": true,
+              "response": {
+                "id": "charge-card",
+                "name": "charge-card",
+                "payload": [
+                  "amountPence",
+                  "currency",
+                  "memberRef",
+                  "idempotencyKey"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "ubiquitous_language": [
+        {
+          "term": "Late fee",
+          "definition": "GBP 1 per item per overdue day, capped at the item's replacement value",
+          "avoid": [
+            "fine",
+            "penalty"
+          ]
+        },
+        {
+          "term": "Balance",
+          "definition": "What a member owes in late and damage fees; must be zero to borrow",
+          "avoid": [
+            "debt",
+            "outstanding"
+          ]
+        },
+        {
+          "term": "Member",
+          "definition": "an account holder with a balance in pence; nothing else about the person"
+        },
+        {
+          "term": "Fee account",
+          "definition": "A member's running ledger of late fees, damage charges, payments and waivers; its balance is what the member owes"
+        }
+      ],
+      "business_decisions": [
+        "While a loan is overdue, each nightly run adds GBP 1 per item to the member's balance until the item is returned or the total for that loan reaches the item's replacement value (cap per loan, discover Q2 assumed).",
+        "A damage charge is set by the coordinator only, after a failed inspection, and never exceeds the item's replacement value.",
+        "A payment attempt is recorded as pending before Stripe is called with the attempt id as idempotency key; the outcome (paid or declined) is recorded once, and a later webhook with the same key changes nothing (CC1).",
+        "A cash payment at the desk is recorded by the volunteer as fee-paid with method cash; no Stripe call.",
+        "Only the coordinator may waive; a waiver records who and why."
+      ],
+      "assumptions": [
+        "[understand A4] Members are households, but the member number and borrowing limits attach to one named person. (confidence low)",
+        "[understand A5] About 400 members and 600 items over the first year (order of magnitude from a typical UK tool library). (confidence low)",
+        "[discover A1] Four phases (joining, borrowing, settling, maintaining) drafted from the capabilities; the tool lifecycle is placed last because it is a branch, not the member's story. (confidence medium)",
+        "[discover A2] Concession approval happens before the fee is paid (the rate decides the amount); the coordinator approves, not a desk volunteer. (confidence medium)",
+        "[discover A4] A cash payment at the desk is the same Fee Paid event with method=cash; the volunteer records it. No separate cash ledger is stormed. (confidence medium)",
+        "[discover A6] Failure paths beyond a card decline (Stripe webhook late, item lost and never returned, member disputes a fee) are not on the timeline. (confidence medium)",
+        "[decompose A2] Stripe is an adapter inside fees (and membership for the joining fee), not a wrapper context: the storm shows one Stripe event and no Stripe vocabulary of its own. (confidence medium)",
+        "[decompose A5] Fees and membership both record card payments but fees owns the member's balance; the membership fee is not part of the balance that blocks borrowing. (confidence medium)",
+        "[decompose A6] Lending owns the borrowing-eligibility rule (membership current, balance zero, no overdue, fewer than three out) and the member-standing read model. Two of the four facts are lending's own state; discover N2 says lending consumes the answer; discover Q3 and Q4, which change the rule, are lending questions. (confidence high)",
+        "[decompose A7] Lending obtains 'membership current' and 'balance zero' by direct read from membership and fees at check-out, not by a locally maintained projection - chosen for one Postgres, a modular monolith, two part-time devs and C2 (no babysitting). Mechanism, not boundary; connect confirms. (confidence medium)",
+        "[strategize A1] Lending is the only core: both goals (G1 on-time returns, G2 fees collected) move on lending's rules and reminders; fees is scored 6/5 and stays supporting under rule 3. (confidence medium)",
+        "[strategize A3] Card payments (commodity) are an adapter inside fees and membership - transaction-script glue around Stripe, never a model of Stripe's problem (understand N3, C1). (confidence high)",
+        "[strategize A4] No history-as-asset need: disputes over a fee are settled by the coordinator waiving it, so an append-only ledger table is enough and event sourcing is not justified. (confidence medium)",
+        "[connect A2] Minted commands discover lacks: send-due-notice (lending -> email), send-fee-notice (fees -> email), charge-card (fees -> stripe). Domain-language names; discover should adopt them on a re-run. (confidence high)",
+        "[connect A4] In-memory domain events are at-most-once: if the process dies between the lending write and the fees handler, the accrual starts the next nightly run, which re-derives overdue loans from lending's state. Acceptable at this scale. (confidence medium)",
+        "[upstream] … 1 more upstream assumptions name this context — see the step JSON files",
+        "[define A4] 'conformist' guessed for external system clock (core contexts protect their model; others conform) — confirm",
+        "[define A5] 'conformist' guessed for external system email (core contexts protect their model; others conform) — confirm",
+        "[define A6] 'conformist' guessed for external system stripe (core contexts protect their model; others conform) — confirm"
+      ],
+      "verification_metrics": [
+        "Share of fees paid within 30 days of charge >= 80% (G2).",
+        "Double charges per year = 0 (structural: idempotency at the Stripe adapter).",
+        "Every balance change traceable to an accrual, charge, payment or waiver row with an actor (auditability).",
+        "No other module writes to the ledger; fee-balance is the only read from outside."
+      ],
+      "open_questions": [
+        "[understand Q1] Does a lapsed membership block returns and fee payment, or only new borrowing?",
+        "[discover Q2] Is the late fee capped per loan at the item's replacement value, or per member across items?",
+        "[discover Q3] Can a member reserve a second item while one reservation is pending, and does a pending reservation count toward the three-item limit?",
+        "[discover Q4] Does an overdue item block renewal of the member's other loans?",
+        "[decompose Q1] Does an unpaid membership renewal count as 'owing' for borrowing purposes, or only late and damage fees?",
+        "[strategize Q1] Would the library accept myTurn (or similar) for membership and catalogue if lending and fees were built around it, or must everything be one system?",
+        "[strategize Q2] Do fee disputes happen often enough that a full history of every balance change (event-sourced ledger) would pay for itself?",
+        "[discover H2 near item-checked-out — unclear] Who answers 'may this member borrow?' at check-out - membership status, fee balance, overdue loans and item count live in three different parts of the flow.",
+        "[discover H3 near fee-paid — risk] Stripe may confirm or decline after the member has closed the page; cash is recorded by hand. Does the balance change on our record or on Stripe's word, and what if they disagree?",
+        "[connect CC1 — coupling, high] charge-card is called inside pay-fee: an external call inside the unit of work that records the payment. A timeout after Stripe charged but before fees wrote fee-paid would double-charge without the idempotency key.",
+        "[connect CC2 — coupling, low] Check-out waits on two synchronous reads (membership, fees); the desk hot path depends on both being up. Accepted because all three live in one process (decompose D1).",
+        "[connect CC3 — coupling, medium] Lending and fees depend on each other: lending queries fees for the balance, fees consumes lending's loan-overdue and item-returned. Consumer-depends-on-producer both ways."
+      ],
+      "canvas_path": "ddd/07-define/fees/bounded-context-canvas.md",
+      "subdomains": [
+        "fees"
+      ],
+      "owning_team": "library-team",
+      "deployable": "app",
+      "implementation_pattern": "active-record"
+    }
+  ],
+  "system_context_c4_mermaid": "C4Context\n  title System context - Toolshare community tool-lending library\n  Person(member, \"Member\", \"A resident household that pays the annual fee and borrows tools.\")\n  Person(desk_volunteer, \"Desk volunteer\", \"Runs the Saturday desk: checks tools out and in, takes cash, notes condition.\")\n  Person(maintenance_volunteer, \"Maintenance volunteer\", \"Inspects, repairs and retires tools; adds donated tools.\")\n  Person(coordinator, \"Coordinator\", \"Part-time staff member: approves concessions, waives fees, sets damage charges.\")\n  System(toolshare, \"Toolshare community tool-lending library\", \"A neighbourhood library where residents pay a small yearly fee and borrow tools instead of buying them.\")\n  System_Ext(stripe, \"Stripe\", \"Card payment provider; reports success or decline\")\n  System_Ext(email, \"Email provider\", \"Delivers reminders and notices\")\n  System_Ext(clock, \"Clock\", \"Scheduler for time-fired commands\")\n  Rel(member, toolshare, \"Apply For Membership, Pay Membership Fee, Reserve Item, Renew Loan, Pay Fee\")\n  Rel(coordinator, toolshare, \"Approve Concession, Charge Damage Fee, Waive Fee\")\n  Rel(clock, toolshare, \"Lapse Memberships, Send Due Reminders, Mark Loans Overdue, Expire Reservations, Accrue Late Fee\")\n  Rel(maintenance_volunteer, toolshare, \"Inspect Item, Retire Item, Add Tool, Tag Item, Repair Item\")\n  Rel(desk_volunteer, toolshare, \"Check Out Item, Return Item\")\n  Rel(toolshare, email, \"send-due-notice, send-fee-notice\")\n  Rel(toolshare, stripe, \"charge-card\")",
+  "quality_attributes": [
+    {
+      "context": "lending",
+      "attribute": "consistency",
+      "requirement": "The borrow rule is evaluated once, atomically with the check-out",
+      "priority": "high",
+      "scenario": "Two desk volunteers check out the same member's third and fourth item within a second -> exactly one succeeds and the other is refused with 'three items out'."
+    },
+    {
+      "context": "lending",
+      "attribute": "correctness",
+      "requirement": "Nightly overdue marking never misses a loan and never marks a returned one",
+      "priority": "high",
+      "scenario": "The nightly run is restarted mid-way -> after the rerun every loan past due is overdue exactly once and no returned loan is."
+    },
+    {
+      "context": "lending",
+      "attribute": "latency",
+      "requirement": "Check-out completes in under 2 s including the two in-process reads",
+      "priority": "medium",
+      "scenario": "Saturday 10:00 desk peak, 5 volunteers checking out concurrently -> each check-out is acknowledged within 2 s at p95 (I3: under five minutes per transaction)."
+    },
+    {
+      "context": "fees",
+      "attribute": "idempotency",
+      "requirement": "A payment attempt charges the card at most once",
+      "priority": "high",
+      "scenario": "Stripe times out after charging and the member retries -> the same attempt id is reused, Stripe returns the original outcome, one fee-paid is recorded (C1, CC1)."
+    }
+  ],
+  "notes_for_downstream": [
+    {
+      "id": "N1",
+      "text": "Lending's eligibility check needs two driven ports (MembershipStatus, FeeBalance) answered in-process by membership and fees; do not model them as repositories over another module's tables.",
+      "for": [
+        "code"
+      ],
+      "kind": "boundary"
+    }
+  ],
+  "plain_words": {
+    "what": "We wrote one page per part of the system (a bounded-context canvas) saying what it decides, for whom, which messages go in and out, and the rules it must keep.",
+    "decided": "4 canvases. Lending keeps the borrow rule in one place with 5 rules; fees keeps the money rules with 5, including 'charge a card at most once'. 4 quality demands, all on lending and fees.",
+    "assumed": "Thresholds nobody confirmed: a 48-hour hold in calendar hours, three items counts only items out, a lapsed member can still return and pay.",
+    "riskiest": "If the borrow rule's four facts are not all true at the same instant at the desk (cash paid then borrowed in one visit), the system will refuse or allow borrowing wrongly and volunteers will stop trusting it."
+  }
+}

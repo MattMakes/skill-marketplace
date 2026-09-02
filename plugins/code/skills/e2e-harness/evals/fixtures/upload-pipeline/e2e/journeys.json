@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "journeys": [
+    {
+      "id": "health-check",
+      "title": "Service reports healthy once dependencies are connected",
+      "description": "Cheapest possible signal that the stack booted correctly.",
+      "source": {
+        "docs": [
+          "README.md#check-service-health"
+        ]
+      },
+      "tags": [
+        "smoke"
+      ],
+      "steps": [
+        {
+          "kind": "http",
+          "name": "GET /health returns ok",
+          "resource": "service:uploads-api",
+          "method": "GET",
+          "path": "/health",
+          "expect_status": 200,
+          "expect_json_path": {
+            "status": "ok"
+          }
+        }
+      ]
+    },
+    {
+      "id": "upload-lands-in-blob-and-topic",
+      "title": "Accepted upload is stored as a blob and announced on the uploads topic",
+      "description": "POST returns 202 before the work happens, so the real assertions are the blob and the Kafka message.",
+      "source": {
+        "docs": [
+          "README.md#submit-an-upload",
+          "README.md#retrieve-upload-status"
+        ],
+        "inventory": [
+          "kafka:kafka",
+          "azure-storage:azurite"
+        ]
+      },
+      "tags": [
+        "async",
+        "critical"
+      ],
+      "steps": [
+        {
+          "kind": "http",
+          "name": "POST /uploads is accepted",
+          "resource": "service:uploads-api",
+          "method": "POST",
+          "path": "/uploads",
+          "body": {
+            "filename": "report.csv"
+          },
+          "expect_status": 202,
+          "expect_json_path": {
+            "status": "accepted"
+          },
+          "save_as": {
+            "uploadId": "id"
+          }
+        },
+        {
+          "kind": "await_blob",
+          "name": "blob <id>.json appears in the uploads container",
+          "resource": "azure-storage:azurite",
+          "container": "uploads",
+          "name_pattern": "^{{uploadId}}\\.json$",
+          "content_contains": "report.csv",
+          "timeout_ms": 30000
+        },
+        {
+          "kind": "await_message",
+          "name": "upload.stored is published to the uploads topic",
+          "resource": "kafka:kafka",
+          "target": "uploads",
+          "match_json_path": {
+            "event": "upload.stored",
+            "id": "{{uploadId}}"
+          },
+          "timeout_ms": 30000,
+          "from_beginning": true
+        },
+        {
+          "kind": "await_http",
+          "name": "GET /uploads/{id} flips from 404 to 200",
+          "resource": "service:uploads-api",
+          "method": "GET",
+          "path": "/uploads/{{uploadId}}",
+          "timeout_ms": 30000,
+          "interval_ms": 500,
+          "expect_status": 200,
+          "expect_json_path": {
+            "status": "stored"
+          }
+        }
+      ]
+    }
+  ]
+}

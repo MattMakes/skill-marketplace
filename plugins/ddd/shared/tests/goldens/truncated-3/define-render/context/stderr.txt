@@ -1,0 +1,1 @@
+error: <DDD_DIR>/07-define/define.json not found — run ddd define prefill --write first

@@ -1,0 +1,2 @@
+updated chart_mermaid and produced_at=<TS> in <DDD_DIR>/04-strategize/strategize.json
+wrote <DDD_DIR>/04-strategize/core-domain-chart.md

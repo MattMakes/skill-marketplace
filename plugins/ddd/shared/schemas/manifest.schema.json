@@ -1,0 +1,454 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "ddd/manifest.schema.json",
+  "title": "manifest.json",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "integer"
+    },
+    "project": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "ddd_dir": {
+      "type": "string"
+    },
+    "created": {
+      "type": "string"
+    },
+    "updated": {
+      "type": "string"
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "interactive",
+        "auto"
+      ]
+    },
+    "depth": {
+      "type": "string",
+      "enum": [
+        "light",
+        "standard",
+        "deep"
+      ]
+    },
+    "scale_target": {
+      "type": "object",
+      "properties": {
+        "deployables_min": {
+          "type": "integer"
+        },
+        "deployables_max": {
+          "type": "integer"
+        },
+        "teams": {
+          "type": "integer"
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "deployables_min",
+        "deployables_max"
+      ]
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "steps": {
+      "type": "object",
+      "properties": {
+        "understand": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "draft",
+                "done",
+                "skipped",
+                "stale"
+              ]
+            },
+            "updated": {
+              "type": "string"
+            },
+            "artifacts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "open_questions": {
+              "type": "integer"
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "interactive",
+                "auto"
+              ]
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "status"
+          ]
+        },
+        "discover": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "draft",
+                "done",
+                "skipped",
+                "stale"
+              ]
+            },
+            "updated": {
+              "type": "string"
+            },
+            "artifacts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "open_questions": {
+              "type": "integer"
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "interactive",
+                "auto"
+              ]
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "status"
+          ]
+        },
+        "decompose": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "draft",
+                "done",
+                "skipped",
+                "stale"
+              ]
+            },
+            "updated": {
+              "type": "string"
+            },
+            "artifacts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "open_questions": {
+              "type": "integer"
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "interactive",
+                "auto"
+              ]
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "status"
+          ]
+        },
+        "strategize": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "draft",
+                "done",
+                "skipped",
+                "stale"
+              ]
+            },
+            "updated": {
+              "type": "string"
+            },
+            "artifacts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "open_questions": {
+              "type": "integer"
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "interactive",
+                "auto"
+              ]
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "status"
+          ]
+        },
+        "connect": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "draft",
+                "done",
+                "skipped",
+                "stale"
+              ]
+            },
+            "updated": {
+              "type": "string"
+            },
+            "artifacts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "open_questions": {
+              "type": "integer"
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "interactive",
+                "auto"
+              ]
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "status"
+          ]
+        },
+        "organise": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "draft",
+                "done",
+                "skipped",
+                "stale"
+              ]
+            },
+            "updated": {
+              "type": "string"
+            },
+            "artifacts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "open_questions": {
+              "type": "integer"
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "interactive",
+                "auto"
+              ]
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "status"
+          ]
+        },
+        "define": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "draft",
+                "done",
+                "skipped",
+                "stale"
+              ]
+            },
+            "updated": {
+              "type": "string"
+            },
+            "artifacts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "open_questions": {
+              "type": "integer"
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "interactive",
+                "auto"
+              ]
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "status"
+          ]
+        },
+        "code": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "draft",
+                "done",
+                "skipped",
+                "stale"
+              ]
+            },
+            "updated": {
+              "type": "string"
+            },
+            "artifacts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "open_questions": {
+              "type": "integer"
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "interactive",
+                "auto"
+              ]
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "status"
+          ]
+        },
+        "contracts": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "draft",
+                "done",
+                "skipped",
+                "stale"
+              ]
+            },
+            "updated": {
+              "type": "string"
+            },
+            "artifacts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "open_questions": {
+              "type": "integer"
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "interactive",
+                "auto"
+              ]
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "status"
+          ]
+        }
+      },
+      "required": [
+        "understand",
+        "discover",
+        "decompose",
+        "strategize",
+        "connect",
+        "organise",
+        "define",
+        "code"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "project",
+    "ddd_dir",
+    "created",
+    "updated",
+    "mode",
+    "depth",
+    "scale_target",
+    "steps"
+  ]
+}

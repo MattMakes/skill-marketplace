@@ -1,0 +1,27 @@
+{
+  "engine": "fixed",
+  "width": 824,
+  "height": 580,
+  "nodes": {
+    "billing": {
+      "x": 148,
+      "y": 440,
+      "w": 128,
+      "h": 56
+    },
+    "fulfilment": {
+      "x": 280,
+      "y": 292,
+      "w": 152,
+      "h": 64
+    },
+    "subscriptions": {
+      "x": 412,
+      "y": 96,
+      "w": 176,
+      "h": 72
+    }
+  },
+  "groups": {},
+  "edges": {}
+}

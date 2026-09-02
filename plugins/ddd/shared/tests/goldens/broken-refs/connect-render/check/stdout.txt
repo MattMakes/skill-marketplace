@@ -1,0 +1,4 @@
+  info  messages[meals-chosen]: at-least-once without an `idempotency` note — say how consumers de-duplicate
+  info  messages[week-charged]: at-least-once without an `idempotency` note — say how consumers de-duplicate
+  info  1 flow(s) for depth light — expected 2–3; fine only if the system has fewer boundary-crossing scenarios
+RESULT: OK — 0 error(s), 0 warning(s), 3 note(s)

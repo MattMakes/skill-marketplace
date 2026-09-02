@@ -1,0 +1,548 @@
+{
+  "workspace": "<DDD_DIR>",
+  "manifest": {
+    "schema_version": 1,
+    "project": "mealkit",
+    "title": "Meal-kit subscription",
+    "ddd_dir": "ddd",
+    "created": "<TS>",
+    "updated": "<TS>",
+    "mode": "auto",
+    "depth": "light",
+    "scale_target": {
+      "deployables_min": 1,
+      "deployables_max": 3,
+      "teams": 1,
+      "notes": "solo dev"
+    },
+    "sources": [
+      "README.md"
+    ],
+    "steps": {
+      "understand": {
+        "status": "done",
+        "updated": "<TS>",
+        "mode": "auto"
+      },
+      "discover": {
+        "status": "done",
+        "updated": "<TS>",
+        "mode": "auto"
+      },
+      "decompose": {
+        "status": "done",
+        "updated": "<TS>",
+        "mode": "auto"
+      },
+      "strategize": {
+        "status": "pending"
+      },
+      "connect": {
+        "status": "pending"
+      },
+      "organise": {
+        "status": "pending"
+      },
+      "define": {
+        "status": "pending"
+      },
+      "code": {
+        "status": "pending"
+      },
+      "contracts": {
+        "status": "pending"
+      }
+    }
+  },
+  "missing_upstream": [
+    "strategize",
+    "connect",
+    "organise",
+    "define"
+  ],
+  "repo": {
+    "root": "<ROOT>",
+    "language": null,
+    "framework": null,
+    "orm": null,
+    "bus": null,
+    "test_framework": null,
+    "evidence": [],
+    "src_dirs": [],
+    "test_dirs": [],
+    "hint": null
+  },
+  "system_notes_for_code": [],
+  "system_quality_attributes": [],
+  "contexts": [
+    {
+      "context": "subscriptions",
+      "name": "Subscriptions",
+      "rationale": "Core",
+      "subdomains": [
+        {
+          "id": "subscriptions",
+          "type": null,
+          "implementation_pattern": null,
+          "sourcing": null,
+          "investment": null,
+          "evolution": null,
+          "rationale": null
+        }
+      ],
+      "resolved": {
+        "type": null,
+        "implementation_pattern": null,
+        "pattern_mixed": false,
+        "sourcing": [],
+        "needs_aggregates": false
+      },
+      "deployable": null,
+      "hosted_by": [],
+      "team": null,
+      "purpose": null,
+      "domain_roles": [],
+      "strategic_classification": null,
+      "commands": [
+        {
+          "id": "start-subscription",
+          "name": "Start Subscription",
+          "actor": "subscriber",
+          "actor_name": "Subscriber",
+          "actor_is_external": false,
+          "produces": [
+            "subscription-started"
+          ],
+          "description": ""
+        },
+        {
+          "id": "choose-meals",
+          "name": "Choose Meals",
+          "actor": "subscriber",
+          "actor_name": "Subscriber",
+          "actor_is_external": false,
+          "produces": [
+            "meals-chosen"
+          ],
+          "description": ""
+        }
+      ],
+      "events": [
+        {
+          "id": "subscription-started",
+          "name": "Subscription Started",
+          "pivotal": true,
+          "data": [
+            "subscriptionId"
+          ],
+          "triggered_by": "start-subscription",
+          "sequence": 10,
+          "description": "Customer became a subscriber"
+        },
+        {
+          "id": "meals-chosen",
+          "name": "Meals Chosen",
+          "pivotal": false,
+          "data": [
+            "subscriptionId",
+            "week",
+            "recipeIds"
+          ],
+          "triggered_by": "choose-meals",
+          "sequence": 20,
+          "description": "Weekly choice locked in"
+        }
+      ],
+      "aggregate_candidates": [
+        {
+          "id": "subscription",
+          "name": "Subscription",
+          "raw_name": "Subscription",
+          "root": "Subscription",
+          "handles": [
+            "start-subscription",
+            "choose-meals"
+          ],
+          "emits": [
+            "subscription-started",
+            "meals-chosen"
+          ],
+          "outside_this_context": []
+        }
+      ],
+      "policies": {
+        "reacts_here": [],
+        "feeds_elsewhere": [
+          {
+            "id": "charge-on-choice",
+            "name": "Whenever meals chosen, charge the week",
+            "when": "meals-chosen",
+            "then": [
+              "charge-week"
+            ],
+            "in_contexts": [
+              "billing"
+            ]
+          }
+        ]
+      },
+      "read_models": [
+        {
+          "id": "weekly-menu",
+          "name": "Weekly menu",
+          "informs": "choose-meals",
+          "used_by": "subscriber"
+        }
+      ],
+      "queries_asked": [],
+      "inbound": [],
+      "outbound": [],
+      "event_edges": {
+        "in": [],
+        "out": []
+      },
+      "command_vias": [],
+      "external_systems": {
+        "called": [],
+        "calling": []
+      },
+      "relationships": [
+        {
+          "id": "R1",
+          "upstream": "subscriptions",
+          "downstream": "billing",
+          "pattern": "customer-supplier",
+          "description": "Billing charges on meals chosen",
+          "role": "upstream",
+          "other": "billing",
+          "mechanism": null,
+          "mechanism_rationale": null
+        }
+      ],
+      "coupling_concerns": [],
+      "scenarios": [
+        "S1"
+      ],
+      "hotspots": [],
+      "terms": {
+        "Box": "the menu choice for a week",
+        "Subscription": "A customer's standing weekly order"
+      },
+      "business_decisions": [],
+      "canvas_assumptions": [],
+      "verification_metrics": [],
+      "canvas_open_questions": [],
+      "quality_attributes": [],
+      "canvas_path": null,
+      "notes": [],
+      "warnings": [],
+      "existing_design": null
+    },
+    {
+      "context": "billing",
+      "name": "Billing",
+      "rationale": "Thin wrapper",
+      "subdomains": [
+        {
+          "id": "billing",
+          "type": null,
+          "implementation_pattern": null,
+          "sourcing": null,
+          "investment": null,
+          "evolution": null,
+          "rationale": null
+        }
+      ],
+      "resolved": {
+        "type": null,
+        "implementation_pattern": null,
+        "pattern_mixed": false,
+        "sourcing": [],
+        "needs_aggregates": false
+      },
+      "deployable": null,
+      "hosted_by": [],
+      "team": null,
+      "purpose": null,
+      "domain_roles": [],
+      "strategic_classification": null,
+      "commands": [
+        {
+          "id": "charge-week",
+          "name": "Charge Week",
+          "actor": null,
+          "actor_name": null,
+          "actor_is_external": false,
+          "produces": [
+            "week-charged"
+          ],
+          "description": ""
+        },
+        {
+          "id": "charge-card",
+          "name": "Charge Card",
+          "actor": null,
+          "actor_name": null,
+          "actor_is_external": false,
+          "produces": [],
+          "description": "Billing asks the payment provider to charge the subscriber's card for the week"
+        }
+      ],
+      "events": [
+        {
+          "id": "week-charged",
+          "name": "Week Charged",
+          "pivotal": false,
+          "data": [
+            "subscriptionId",
+            "week",
+            "amount"
+          ],
+          "triggered_by": "charge-week",
+          "sequence": 25,
+          "description": "Payment taken"
+        }
+      ],
+      "aggregate_candidates": [],
+      "policies": {
+        "reacts_here": [
+          {
+            "id": "charge-on-choice",
+            "name": "Whenever meals chosen, charge the week",
+            "when": "meals-chosen",
+            "when_owned_by": "subscriptions",
+            "then": [
+              "charge-week"
+            ],
+            "kind": "automatic"
+          }
+        ],
+        "feeds_elsewhere": [
+          {
+            "id": "pack-on-charge",
+            "name": "Whenever week charged, pack box",
+            "when": "week-charged",
+            "then": [
+              "pack-box"
+            ],
+            "in_contexts": [
+              "fulfilment"
+            ]
+          }
+        ]
+      },
+      "read_models": [],
+      "queries_asked": [],
+      "inbound": [],
+      "outbound": [],
+      "event_edges": {
+        "in": [],
+        "out": []
+      },
+      "command_vias": [],
+      "external_systems": {
+        "called": [],
+        "calling": []
+      },
+      "relationships": [
+        {
+          "id": "R1",
+          "upstream": "subscriptions",
+          "downstream": "billing",
+          "pattern": "customer-supplier",
+          "description": "Billing charges on meals chosen",
+          "role": "downstream",
+          "other": "subscriptions",
+          "mechanism": null,
+          "mechanism_rationale": null
+        },
+        {
+          "id": "R2",
+          "upstream": "billing",
+          "downstream": "fulfilment",
+          "pattern": "published-language",
+          "description": "Fulfilment packs once charged",
+          "role": "upstream",
+          "other": "fulfilment",
+          "mechanism": null,
+          "mechanism_rationale": null
+        }
+      ],
+      "coupling_concerns": [],
+      "scenarios": [
+        "S1"
+      ],
+      "hotspots": [
+        {
+          "id": "H1",
+          "text": "What happens if payment fails after meals are chosen?",
+          "near": "week-charged",
+          "kind": "unclear"
+        }
+      ],
+      "terms": {},
+      "business_decisions": [],
+      "canvas_assumptions": [],
+      "verification_metrics": [],
+      "canvas_open_questions": [],
+      "quality_attributes": [],
+      "canvas_path": null,
+      "notes": [],
+      "warnings": [],
+      "existing_design": null
+    },
+    {
+      "context": "fulfilment",
+      "name": "Fulfilment",
+      "rationale": "Different actor and language",
+      "subdomains": [
+        {
+          "id": "fulfilment",
+          "type": null,
+          "implementation_pattern": null,
+          "sourcing": null,
+          "investment": null,
+          "evolution": null,
+          "rationale": null
+        }
+      ],
+      "resolved": {
+        "type": null,
+        "implementation_pattern": null,
+        "pattern_mixed": false,
+        "sourcing": [],
+        "needs_aggregates": false
+      },
+      "deployable": null,
+      "hosted_by": [],
+      "team": null,
+      "purpose": null,
+      "domain_roles": [],
+      "strategic_classification": null,
+      "commands": [
+        {
+          "id": "pack-box",
+          "name": "Pack Box",
+          "actor": "packer",
+          "actor_name": "Packer",
+          "actor_is_external": false,
+          "produces": [
+            "box-packed"
+          ],
+          "description": ""
+        },
+        {
+          "id": "ship-box",
+          "name": "Ship Box",
+          "actor": "packer",
+          "actor_name": "Packer",
+          "actor_is_external": false,
+          "produces": [
+            "box-shipped"
+          ],
+          "description": ""
+        }
+      ],
+      "events": [
+        {
+          "id": "box-packed",
+          "name": "Box Packed",
+          "pivotal": true,
+          "data": [
+            "boxId"
+          ],
+          "triggered_by": "pack-box",
+          "sequence": 30,
+          "description": "Physical box ready"
+        },
+        {
+          "id": "box-shipped",
+          "name": "Box Shipped",
+          "pivotal": true,
+          "data": [
+            "boxId",
+            "tracking"
+          ],
+          "triggered_by": "ship-box",
+          "sequence": 40,
+          "description": "Handed to courier"
+        }
+      ],
+      "aggregate_candidates": [
+        {
+          "id": "box",
+          "name": "Box",
+          "raw_name": "Box",
+          "root": "Box",
+          "handles": [
+            "pack-box",
+            "ship-box"
+          ],
+          "emits": [
+            "box-packed",
+            "box-shipped"
+          ],
+          "outside_this_context": []
+        }
+      ],
+      "policies": {
+        "reacts_here": [
+          {
+            "id": "pack-on-charge",
+            "name": "Whenever week charged, pack box",
+            "when": "week-charged",
+            "when_owned_by": "billing",
+            "then": [
+              "pack-box"
+            ],
+            "kind": "automatic"
+          }
+        ],
+        "feeds_elsewhere": []
+      },
+      "read_models": [],
+      "queries_asked": [],
+      "inbound": [],
+      "outbound": [],
+      "event_edges": {
+        "in": [],
+        "out": []
+      },
+      "command_vias": [],
+      "external_systems": {
+        "called": [],
+        "calling": []
+      },
+      "relationships": [
+        {
+          "id": "R2",
+          "upstream": "billing",
+          "downstream": "fulfilment",
+          "pattern": "published-language",
+          "description": "Fulfilment packs once charged",
+          "role": "downstream",
+          "other": "billing",
+          "mechanism": null,
+          "mechanism_rationale": null
+        }
+      ],
+      "coupling_concerns": [],
+      "scenarios": [
+        "S1"
+      ],
+      "hotspots": [],
+      "terms": {
+        "Box": "the packed physical parcel"
+      },
+      "business_decisions": [],
+      "canvas_assumptions": [],
+      "verification_metrics": [],
+      "canvas_open_questions": [],
+      "quality_attributes": [],
+      "canvas_path": null,
+      "notes": [],
+      "warnings": [],
+      "existing_design": null
+    }
+  ]
+}

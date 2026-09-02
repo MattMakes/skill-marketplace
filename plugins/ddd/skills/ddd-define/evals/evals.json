@@ -1,0 +1,23 @@
+{
+  "skill_name": "ddd-define",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We finished ddd-organise yesterday (ddd/06-organise/organise.json is there, two teams, four deployables). Now write the bounded context canvas for every context — I want one page per context that a dev can build from, the C4 system context, and the quality attributes for the core ones. Ask me where you're unsure, but keep it short.",
+      "expected_output": "Resolves ./ddd, confirms decompose/connect/strategize/organise exist via ddd validate --status, runs ddd define prefill --write and reads the per-context brief, then presents each context's purpose / domain roles / business decisions / verification metrics in 150–300-word sections with at most 4 targeted questions each (rules hiding in hotspots, business model, external-system relationship label, metric targets), runs a quality-attributes checkpoint for the core contexts, confirms assumptions and open questions, renders with ddd define render (one ddd/07-define/<ctx>/bounded-context-canvas.md per context in v5 layout, ddd/07-define/system-context.md with a Mermaid C4Context block, per-context sections in ddd/glossary.md), passes ddd validate --step define, marks the step done with ddd mark, and closes with paths, key findings, open questions and 'Next: /ddd-code'.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Run ddd-define in auto mode on ./ddd — no questions, just draft everything and tell me what you assumed.",
+      "expected_output": "Runs without asking anything: ddd define prefill --write --mode auto, fills every judgement field (purpose, roles + rationale, decisions rewritten from policy drafts plus invariants from hotspots, metrics, quality attributes for each core context) in define.json, logs every heuristic as an assumption with a confidence (business model, roles, conformist/ACL label for external systems, guessed thresholds) and every unasked question as an open question with a blocking flag, renders all canvases + system-context.md + glossary sections, passes the render lint and ddd validate --step define, marks define done (or draft if a blocking question remains), and prints the three checkpoints as status lines plus a closing summary naming /ddd-code.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Our 'ordering' context talks to Stripe and to the warehouse service. Give me its bounded context canvas — purpose, what comes in and goes out, the rules, and the glossary for it — so the coding agent can implement it without guessing.",
+      "expected_output": "Treats it as a ddd-define run scoped to one context: checks the workspace and predecessors, runs ddd define prefill --write --context ordering, assembles the canvas strictly from upstream ids (inbound/outbound grouped by collaborator with the decompose relationship pattern; Stripe labelled conformist or anticorruption-layer with an assumption; no invented message ids), writes a purpose stating what ordering decides and what it does not own, testable business decisions, term definitions with avoid-lists (conflicting meanings kept per context), metrics and quality attributes, renders ddd/07-define/ordering/bounded-context-canvas.md and the glossary section, validates, and — because other contexts still need canvases — either completes them or marks the step draft and says so.",
+      "files": []
+    }
+  ]
+}

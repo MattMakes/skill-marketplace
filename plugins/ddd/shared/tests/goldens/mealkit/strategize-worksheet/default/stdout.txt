@@ -1,0 +1,32 @@
+DDD workspace: <DDD_DIR> · project mealkit · mode auto · depth light · scale 1–3 deployables / 1 team(s)
+3 subdomains → core cap max(2, n // 2) = 2; decisive cores (both scores ≥ 8) should not exceed teams (1)
+value propositions: Pre-portioned weekly meals
+goals: G1 Grow active subscribers — active subscriptions → 10k (12 months)
+existing systems: Stripe (payments; integrate)
+alternatives (from understand): [{"id": "alt-supermarket-shop", "name": "Weekly supermarket shop and own recipes", "kind": "manual-process", "used_by": ["subscriber"], "strengths": "Cheap, flexible, no commitment", "weaknesses": "Planning and portioning take an evening a week; waste", "capabilities": ["cap-menu-planning"]}, {"id": "alt-rival-mealkit", "name": "Incumbent national meal-kit brand", "kind": "competitor", "used_by": ["subscriber"], "strengths": "Known brand, wide menu", "weaknesses": "Rigid weekly cut-off, poor swaps and pauses", "capabilities": ["cap-subscription-management", "cap-menu-planning", "cap-fulfilment"]}]
+regulatory constraints: C1 Food safety labelling
+upstream notes for strategize: none
+
+== subscriptions — Subscriptions  (Lifecycle and weekly choices)
+   context: subscriptions (ISH candidate; co-hosted: none; wraps: none)
+   capabilities: cap-menu-planning=custom, cap-subscription-management=product → least evolved: custom
+   events 2 (pivotal: subscription-started) / commands 2; policies on its events: charge-on-choice (meals-chosen → charge-week); hotspots near: none
+   aggregate candidates: subscription (handles 2, emits 2)
+   goals: G1 (D1 mention; statement mention); impacts: none; deliverables: D1 must mention "Weekly menu selection"
+   systems touched: none; constraints mentioning it: none
+
+== billing — Billing  (Charging weeks)
+   context: billing (ISH merge; co-hosted: none; wraps: none)
+   capabilities: none → least evolved: none — infer from existing systems / description and log it
+   events 1 (pivotal: none) / commands 2; policies on its events: pack-on-charge (week-charged → pack-box); hotspots near: H1 unclear @week-charged: What happens if payment fails after meals are chosen?
+   aggregate candidates: none
+   goals: none — say so in the rationale (goal_ids: []); impacts: none; deliverables: none
+   systems touched: Stripe (event actor; integrate); constraints mentioning it: none
+
+== fulfilment — Fulfilment  (Packing and shipping)
+   context: fulfilment (ISH candidate; co-hosted: none; wraps: none)
+   capabilities: cap-fulfilment=custom → least evolved: custom
+   events 2 (pivotal: box-packed, box-shipped) / commands 2; policies on its events: none; hotspots near: none
+   aggregate candidates: box (handles 2, emits 2)
+   goals: none — say so in the rationale (goal_ids: []); impacts: none; deliverables: none
+   systems touched: Courier (event actor); constraints mentioning it: none

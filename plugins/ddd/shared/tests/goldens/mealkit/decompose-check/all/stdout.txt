@@ -1,0 +1,23 @@
+DECOMPOSE CHECK — <DDD_DIR>/03-decompose/decompose.json
+contexts=3 subdomains=3 relationships=2   band for deployables 1–3: 2–6 (floor 1)
+context                 events  commands  aggregates  verdict    wraps             subdomains
+subscriptions           2       2         1           candidate  -                 subscriptions
+billing                 1       2         0           merge      -                 billing
+fulfilment              2       2         1           candidate  -                 fulfilment
+orphans: events=[] commands=[] aggregates=[]
+
+wrote produced_at, context_map_mermaid (in-place)
+produced_at = <TS>
+context_map_mermaid:
+flowchart LR
+  subscriptions["Subscriptions"]
+  billing["Billing"]
+  fulfilment["Fulfilment"]
+  subscriptions -->|"R1 customer-supplier"| billing
+  billing -->|"R2 published-language"| fulfilment
+
+glossary: nothing to add
+  (note) context 'billing' verdict=merge and no terms of its own — consider merging it into its neighbour (fewer, coarser contexts)
+  (note) context 'billing' ISH verdict=merge (a module, not a deployable) — no notes_for_downstream entry addressed to organise carries that decision
+
+RESULT: OK

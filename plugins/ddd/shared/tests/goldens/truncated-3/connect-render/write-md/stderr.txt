@@ -1,0 +1,1 @@
+error: <DDD_DIR>/05-connect/connect.json not found — draft connect.json first

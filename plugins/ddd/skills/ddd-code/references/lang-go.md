@@ -1,0 +1,11 @@
+# Go — what differs
+
+- **Value objects**: struct with unexported fields + constructor `func NewWeek(y, w int) (Week, error)`; no setters, pass by value; `==` on comparable structs or an `Equal` method. Ids as named types (`type RecipeID string`) with a constructor that validates.
+- **Aggregate root / entities**: struct with unexported fields in its own package (`internal/<context>/domain/subscription`); exported command methods returning `error` (and the event, or append to an unexported `events` slice with `PopEvents()`); defensive copies of child slices; `version int`.
+- **Domain events**: plain structs in the domain package; the application command handler publishes them after `repo.Save` via the `EventPublisher` interface (Watermill is a common adapter) — collect-then-publish is explicit, not automatic.
+- **Ports**: interfaces defined where they are *used* (`domain/subscription.Repository`, `app.EventPublisher`, `app.PaymentGateway`); implementations in packages named by technology (`adapters/postgres`, `adapters/stripe`, `adapters/memory`). Keep the domain package free of database, HTTP and logging imports.
+- **Dependency rule tooling**: `internal/` is compiler-enforced against other modules; inside the module use `go-arch-lint` (`.go-arch-lint.yml`: components `domain`, `app`, `adapters`, `ports`; `domain` may depend on nothing) or a small `go list -deps` test.
+- **Tests**: std `testing`, table-driven, `*_test.go` beside the code; `TestSubscription_ChooseMeals_RejectsSameWeekTwice`; `testify` optional; in-memory adapters in `adapters/memory`; integration tests with Docker/Testcontainers tagged `//go:build integration`.
+- **Layout (one context)**: `internal/<context>/{domain/<aggregate>/, app/{command,query}/, ports/{http,grpc,consumer}/, adapters/{postgres,memory,stripe}/}`; composition root `cmd/<deployable>/main.go` builds the app struct and wires adapters.
+
+Sources (accessed 2026-08-29): Three Dots Labs, *Go With The Domain* https://threedots.tech/go-with-the-domain/ and Wild Workouts https://github.com/ThreeDotsLabs/wild-workouts-go-ddd-example ; go-arch-lint https://github.com/fe3dback/go-arch-lint ; Ben Johnson, *Standard Package Layout* (medium.com/@benbjohnson/standard-package-layout-7cdbc8391fc1).

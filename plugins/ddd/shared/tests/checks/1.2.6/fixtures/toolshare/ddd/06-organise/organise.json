@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "step": "organise",
+  "produced_by": "ddd-organise",
+  "produced_at": "2026-09-02T19:01:31Z",
+  "mode": "auto",
+  "depth": "light",
+  "inputs": [
+    "ddd/03-decompose/decompose.json",
+    "ddd/05-connect/connect.json",
+    "ddd/04-strategize/strategize.json",
+    "ddd/01-understand/understand.json",
+    "ddd/manifest.json",
+    "ddd/glossary.md"
+  ],
+  "assumptions": [
+    {
+      "id": "A1",
+      "text": "One stream-aligned team of two part-time developers (manifest teams=1, C2); named 'library team'. No platform or enabling team exists.",
+      "confidence": "high"
+    },
+    {
+      "id": "A3",
+      "text": "The website is served by the same deployable (server-rendered pages); no separately released frontend bundle is evidenced, so none is listed.",
+      "confidence": "medium"
+    },
+    {
+      "id": "A2",
+      "text": "One deployable. Until D1 is closed the artifact builds option A: the five clock commands run on an in-process scheduler that calls the same entrypoints a human can call with an as-of date; each run takes a Postgres advisory lock and writes a job_run row.",
+      "confidence": "medium"
+    },
+    {
+      "id": "A4",
+      "text": "Missed runs must be visible without on-call: C2 forbids babysitting and strategize B1 measures on-time share after three months, which is only evidence if the reminder job provably ran. A job_run row is required under every option.",
+      "confidence": "high"
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q1",
+      "text": "Where will the app be hosted, and does that host offer a cron/scheduled-task facility (which would make option C free) or force a second process for scheduled work?",
+      "blocking": false,
+      "owner": "library team"
+    },
+    {
+      "id": "Q2",
+      "text": "Who would notice that a night's jobs did not run, and is a last-run line on the coordinator's screen enough, or is an emailed nightly summary needed?",
+      "blocking": false,
+      "owner": "coordinator"
+    }
+  ],
+  "notes_for_downstream": [
+    {
+      "id": "N1",
+      "text": "Decision D1 (who fires the clock commands) is open pending Q1; the default built is A. Code: every clock command is a driving port that takes asOfDate, can be called by hand, holds a Postgres advisory lock and writes a job_run row - with no assumption about who calls it (in-process scheduler, a worker, or a host cron), so any option can be taken at deploy time without touching the domain.",
+      "for": [
+        "code"
+      ],
+      "kind": "decision"
+    },
+    {
+      "id": "N2",
+      "text": "expire-reservations and lapse-memberships have no entry in connect messages[]; they appear only in connect N1 prose. Three of five clock commands carry payload, delivery and idempotency; connect should add the other two on a re-run so define and contracts see them.",
+      "for": [
+        "connect",
+        "define"
+      ],
+      "kind": "risk"
+    },
+    {
+      "id": "N3",
+      "text": "Supersedes the operative reading of connect N2: its outbox condition is a split by context. Organise splits by neither; the clock commands span three contexts, so even a same-code worker keeps loan-overdue and item-returned in-process. Do not re-run connect on this decision.",
+      "for": [
+        "connect"
+      ],
+      "kind": "decision"
+    }
+  ],
+  "teams": [
+    {
+      "id": "library-team",
+      "name": "Library team",
+      "type": "stream-aligned",
+      "size": 2,
+      "owns_contexts": [
+        "membership",
+        "inventory",
+        "lending",
+        "fees"
+      ],
+      "cognitive_load": "ok",
+      "notes": "Two part-time developers, no on-call (C2). Four modules in one deployable, one external integration (Stripe) plus email: within the rubric for a small team."
+    }
+  ],
+  "interactions": [],
+  "deployables": [
+    {
+      "id": "app",
+      "name": "Toolshare app",
+      "kind": "modular-monolith",
+      "contexts": [
+        "membership",
+        "inventory",
+        "lending",
+        "fees"
+      ],
+      "team": "library-team",
+      "data_store": "own",
+      "independent_deploy": true,
+      "rationale": "One team, one Postgres (C3), every cross-context hop in-process (connect); no runtime, scaling, regulatory or stack reason in the inputs to split any module. The clock commands run inside it on an in-process scheduler until D1 says otherwise."
+    }
+  ],
+  "topology_style": "modular-monolith",
+  "deployable_count": 1,
+  "scale_check": {
+    "target_min": 1,
+    "target_max": 3,
+    "within_target": true,
+    "note": "1 of a 1-3 target. Why not fewer: one is the minimum. Why not more: the only candidate is a same-code worker for the five clock commands (decision D1, open on Q1) - a second process for two part-time developers that buys starvation and double-run protection an advisory lock already gives; a same-code worker keeps loan-overdue and item-returned in-process (connect N2's outbox condition is a split by context, which no option does). inventory and lending are async-only inbound and cheap to extract later, but nothing in the inputs asks for it."
+  },
+  "plain_words": {
+    "what": "We decided who owns which part and how many separate programs get deployed.",
+    "decided": "One team of two owns all four parts. One program to deploy, holding all four modules and one database.",
+    "assumed": "That the nightly jobs (late fees, reminders, expiring holds) can run inside the same program on a timer, as long as every run is recorded and locked - who pulls the trigger (timer in the app or the host's cron) is left open until the host is known (D1).",
+    "riskiest": "If a night's jobs silently do not run and nobody built the run log, late fees stop accruing and reminders stop going out, and the 90% target cannot even be measured."
+  },
+  "decisions": [
+    {
+      "id": "D1",
+      "question": "Who fires the five clock-driven commands - an in-process scheduler, a same-code worker deployable, or the host's cron - and how is a missed run noticed?",
+      "kind": "topology",
+      "options": [
+        {
+          "id": "A",
+          "summary": "One modular monolith; a scheduler library in the app fires the five clock commands, each an entrypoint taking asOfDate, callable by hand, holding an advisory lock and writing a job_run row.",
+          "pros": [
+            "One deploy, one process, one log (C2, C3)",
+            "No process boundary, so connect's in-memory events stay valid"
+          ],
+          "cons": [
+            "A job that silently does not fire is invisible without monitoring",
+            "Two app instances would double-run jobs unless locked"
+          ],
+          "risks": [
+            "Late fees quietly stop accruing after a restart and nobody notices for weeks (G2)"
+          ],
+          "diagram": "ddd/06-organise/decisions/D1-A.json"
+        },
+        {
+          "id": "B",
+          "summary": "The monolith plus a separate scheduled worker deployable running the clock commands from the same code.",
+          "pros": [
+            "Jobs cannot be starved by web traffic and cannot double-run with a single worker",
+            "Worker failures are a visible, separate signal"
+          ],
+          "cons": [
+            "A second process to deploy and watch for two part-time developers",
+            "A second runtime to keep in version step; it buys starvation and double-run protection that an advisory lock and the existing idempotency keys already give (a same-code worker keeps loan-overdue and item-returned in-process)"
+          ],
+          "risks": [
+            "Distributed failure modes arrive before the library has any scale"
+          ],
+          "diagram": "ddd/06-organise/decisions/D1-B.json"
+        },
+        {
+          "id": "C",
+          "summary": "One monolith; the host's scheduled task invokes the same job entrypoints (app run-job <name> --as-of); no scheduler code in the repo.",
+          "pros": [
+            "No scheduler code and no second process; the host reports missed runs",
+            "Same in-process events as A"
+          ],
+          "cons": [
+            "Depends on the host offering cron (Q1)",
+            "Job endpoints must be protected and idempotent"
+          ],
+          "risks": [
+            "A host migration silently loses the schedule"
+          ],
+          "diagram": "ddd/06-organise/decisions/D1-C.json"
+        }
+      ],
+      "confidence": "medium",
+      "made_by": "strategist",
+      "would_flip_if": [
+        "the host offers a scheduled-task facility that alerts on a failed or missed run (take C)",
+        "the web app will run more than one instance, counting rolling deploys (advisory lock becomes mandatory; A loses its simplicity edge over C)",
+        "nobody would notice a missed night until the annual audit (a job_run row is not enough; an emailed nightly summary is a separate piece of work)"
+      ],
+      "records": {
+        "open_question": "Q1"
+      },
+      "rationale": "OPEN. Strategist recommendation: A, sharpened with three riders (asOfDate entrypoints, job_run row, advisory lock); C is a genuine upgrade if and only if Q1 says the host offers a scheduled-task facility that reports a failed or missed run, and A and C share one codebase so the switch is a deploy-time change. Left without `chosen` because the human who knows the host must make that call; the artifact builds A meanwhile (A2)."
+    }
+  ]
+}

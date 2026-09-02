@@ -1,0 +1,28 @@
+{
+  "fixture": "mealkit",
+  "command": [
+    "mark"
+  ],
+  "variant": "skipped",
+  "args": [
+    "--dir",
+    "ddd",
+    "strategize",
+    "skipped"
+  ],
+  "seed": {},
+  "twin": [
+    "python3",
+    "shared/scripts/mark_step.py"
+  ],
+  "cwd": "<ROOT>",
+  "env": {
+    "DDD_NO_RENDER": "1",
+    "TZ": "UTC",
+    "PYTHONIOENCODING": "utf-8",
+    "PYTHONHASHSEED": "0",
+    "NO_COLOR": "1"
+  },
+  "files_policy": "content",
+  "python": "Python 3.11.4"
+}

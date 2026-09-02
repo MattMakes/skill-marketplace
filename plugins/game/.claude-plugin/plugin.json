@@ -1,0 +1,17 @@
+{
+  "name": "game",
+  "displayName": "Game Dev Review Board",
+  "version": "1.0.0",
+  "description": "A review board for game work, backed by cited rules distilled from 38 game-development books. game-studio-cpo is the generalist entry point; the five auditors cover systems, balance and economy, code architecture, performance, and QA and ship-readiness.",
+  "author": {
+    "name": "Matt Scott"
+  },
+  "license": "MIT",
+  "keywords": [
+    "game-design",
+    "game-balance",
+    "unity",
+    "performance",
+    "code-review"
+  ]
+}

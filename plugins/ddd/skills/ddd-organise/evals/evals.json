@@ -1,0 +1,23 @@
+{
+  "skill_name": "ddd-organise",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We just finished ddd-connect for the meal-kit project (workspace ./ddd). I'm a solo developer — decide the teams and the deployment topology. Is it a modular monolith or do I need separate services?",
+      "expected_output": "Resolves ./ddd, reads decompose.json, connect.json, strategize.json, understand.json and the manifest (scale_target 1–3, teams 1), runs ddd organise brief. Drafts one stream-aligned team owning all contexts with an honest cognitive-load note, and one modular-monolith deployable with one module per context and the bought billing context as an adapter; notes that all cross-context traffic in connect is in-process. Interactive checkpoints ask at most four questions each (any concrete reason to split fulfilment? is the frontend hosted separately? data ownership) and never about formatting. Writes ddd/06-organise/organise.json (envelope, teams, interactions [], deployables, topology_style modular-monolith, deployable_count 1, scale_check within target with a why-not-fewer/why-not-more note) and ddd/06-organise/team-topology.md with the generated mermaid diagram; ddd validate --step organise passes with no errors; ddd mark organise done; closing summary names /ddd-define as the next step.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Should fulfilment be its own service? We have two teams: a product team of 5 and a warehouse team of 3, and the warehouse app has to keep packing when the office internet is down. The DDD workspace in ./ddd is done through step 5 (connect).",
+      "expected_output": "Two stream-aligned teams, each owning whole contexts (product team owns the core subscriptions context plus billing; warehouse team owns fulfilment); no context split across teams; interaction warehouse-team → product-team as x-as-a-service derived from the published-language relationship, no open-ended collaboration. Fulfilment becomes its own deployable justified by different runtime/uptime (must work when the office link is down) plus team autonomy — not by 'microservices are best practice' or by the ISH verdict — and the skill checks that fulfilment's inbound traffic is async so the split adds no synchronous hop. Two deployables, topology_style few-services, deployable_count 2, scale check against the manifest target with why-not-fewer/why-not-more, each deployable owning its own data store. Notes that connect.json marked the billing→fulfilment edge as in-process and logs an open question that connect is stale for that edge. Validator passes; next step /ddd-define.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Run ddd-organise in auto mode on ./ddd — no questions, just draft it.",
+      "expected_output": "No questions asked. Prints the three checkpoint status lines (inputs read; teams draft; deployables + scale draft). Prefers a modular monolith unless decompose/connect/strategize/understand contain a concrete driver from the split table (independent scaling, different runtime/uptime, regulatory isolation, team autonomy, tech stack); bought/generic contexts are adapters inside a deployable; no invented frontends or jobs. Every guess is recorded: assumptions[] with confidence (team size, single deployable, data store) and open_questions[] (e.g. whether an ISH-candidate context with async-only inbound needs its own runtime). organise.json has the full envelope with produced_at now, inputs listing the files actually read, deployable_count equal to the number of deployables, topology_style consistent with the count, scale_check mirroring the manifest target. ddd organise check and ddd validate --step organise pass with no errors; ddd mark organise done (or draft if a blocking question remains) with --mode auto; summary gives absolute paths and names /ddd-define.",
+      "files": []
+    }
+  ]
+}

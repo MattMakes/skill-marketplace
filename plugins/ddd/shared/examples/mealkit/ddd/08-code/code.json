@@ -1,0 +1,303 @@
+{
+  "schema_version": 1,
+  "step": "code",
+  "produced_by": "ddd-code",
+  "produced_at": "2026-08-29T10:00:00Z",
+  "mode": "auto",
+  "depth": "light",
+  "inputs": [
+    "ddd/07-define/define.json",
+    "ddd/07-define/subscriptions/bounded-context-canvas.md",
+    "ddd/07-define/billing/bounded-context-canvas.md",
+    "ddd/07-define/fulfilment/bounded-context-canvas.md",
+    "ddd/04-strategize/strategize.json",
+    "ddd/05-connect/connect.json",
+    "ddd/06-organise/organise.json",
+    "ddd/02-discover/discover.json",
+    "ddd/03-decompose/decompose.json",
+    "ddd/glossary.md"
+  ],
+  "assumptions": [
+    {
+      "id": "A1",
+      "text": "Example fixture; assumptions are illustrative",
+      "confidence": "high"
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q1",
+      "text": "Illustrative open question",
+      "blocking": false,
+      "owner": "domain expert"
+    }
+  ],
+  "plain_words": {
+    "what": "We turned the design into a build order: what to write first, and what each piece must protect.",
+    "decided": "One thing worth guarding carefully: a subscription. Everything else is plainer code.",
+    "assumed": "A week's choice can be locked in one go, so nothing has to be half-saved.",
+    "riskiest": "If locking a week ever needs several steps that can each fail, this shape has to change."
+  },
+  "language": "typescript",
+  "framework": "none",
+  "architecture_style": "hexagonal",
+  "contexts": [
+    {
+      "context": "subscriptions",
+      "implementation_pattern": "domain-model",
+      "deployable": "app",
+      "module_path": "src/subscriptions",
+      "aggregates": [
+        {
+          "id": "subscription",
+          "name": "Subscription",
+          "root_entity": "Subscription",
+          "entities": [
+            "WeekChoice"
+          ],
+          "value_objects": [
+            "Week",
+            "RecipeId"
+          ],
+          "invariants": [
+            "A week is chosen at most once",
+            "Choices lock at cutoff"
+          ],
+          "commands": [
+            "start-subscription",
+            "choose-meals"
+          ],
+          "events": [
+            "subscription-started",
+            "meals-chosen"
+          ],
+          "state_transitions": [
+            "active→paused→active",
+            "active→cancelled"
+          ],
+          "canvas_path": "ddd/08-code/subscriptions/aggregate-canvas-subscription.md"
+        }
+      ],
+      "domain_services": [],
+      "application_services": [
+        {
+          "name": "StartSubscription",
+          "command": "start-subscription",
+          "description": "Opens a household's subscription"
+        },
+        {
+          "name": "ChooseMeals",
+          "command": "choose-meals",
+          "description": "Locks a week's meals before cutoff"
+        }
+      ],
+      "ports": [
+        {
+          "name": "SubscriptionCommands",
+          "kind": "driving",
+          "description": "HTTP controller for start-subscription / choose-meals"
+        },
+        {
+          "name": "SubscriptionRepository",
+          "kind": "driven",
+          "description": "load/save the aggregate"
+        },
+        {
+          "name": "EventPublisher",
+          "kind": "driven",
+          "description": "publishes subscription-started / meals-chosen via the outbox"
+        }
+      ],
+      "adapters": [
+        {
+          "port": "SubscriptionCommands",
+          "implementation": "HttpSubscriptionController"
+        },
+        {
+          "port": "SubscriptionRepository",
+          "implementation": "PostgresSubscriptionRepository"
+        },
+        {
+          "port": "EventPublisher",
+          "implementation": "OutboxEventPublisher"
+        }
+      ],
+      "read_models": [
+        {
+          "name": "WeeklyMenu",
+          "source_events": [
+            "meals-chosen"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "invariant": "A week is chosen at most once",
+          "test": "choosing twice for the same week is rejected"
+        },
+        {
+          "invariant": "Choices lock at cutoff",
+          "test": "choose-meals after the week's cutoff is rejected"
+        },
+        {
+          "invariant": "contract: meals-chosen",
+          "test": "meals-chosen v1 carries subscriptionId, week, recipeIds and nothing else"
+        },
+        {
+          "invariant": "contract: subscription-started",
+          "test": "subscription-started v1 carries subscriptionId and nothing else"
+        }
+      ],
+      "design_path": "ddd/08-code/subscriptions/design.md"
+    },
+    {
+      "context": "billing",
+      "implementation_pattern": "transaction-script",
+      "deployable": "app",
+      "module_path": "src/billing",
+      "aggregates": [],
+      "domain_services": [],
+      "application_services": [
+        {
+          "name": "ChargeWeek",
+          "command": "charge-week",
+          "description": "Policy handler: on meals-chosen, charge the week"
+        },
+        {
+          "name": "ChargeCard",
+          "command": "charge-card",
+          "description": "Calls Stripe through the ACL"
+        }
+      ],
+      "ports": [
+        {
+          "name": "BillingEventHandlers",
+          "kind": "driving",
+          "description": "in-process subscriber to meals-chosen"
+        },
+        {
+          "name": "PaymentGateway",
+          "kind": "driven",
+          "description": "ACL around Stripe (charge-card)"
+        },
+        {
+          "name": "EventPublisher",
+          "kind": "driven",
+          "description": "publishes week-charged via the outbox"
+        }
+      ],
+      "adapters": [
+        {
+          "port": "PaymentGateway",
+          "implementation": "StripePaymentGateway"
+        },
+        {
+          "port": "EventPublisher",
+          "implementation": "OutboxEventPublisher"
+        }
+      ],
+      "read_models": [],
+      "tests": [
+        {
+          "invariant": "contract: week-charged",
+          "test": "week-charged v1 carries subscriptionId, week and nothing else"
+        },
+        {
+          "invariant": "idempotent: meals-chosen",
+          "test": "handling the same meals-chosen twice charges once"
+        }
+      ],
+      "design_path": "ddd/08-code/billing/design.md"
+    },
+    {
+      "context": "fulfilment",
+      "implementation_pattern": "active-record",
+      "deployable": "warehouse",
+      "module_path": "src/fulfilment",
+      "aggregates": [],
+      "domain_services": [],
+      "application_services": [
+        {
+          "name": "PackBox",
+          "command": "pack-box",
+          "description": "Creates the box with its picking list"
+        },
+        {
+          "name": "ShipBox",
+          "command": "ship-box",
+          "description": "Hands the box to the courier"
+        }
+      ],
+      "ports": [
+        {
+          "name": "FulfilmentEventHandlers",
+          "kind": "driving",
+          "description": "message-bus subscriber to week-charged"
+        },
+        {
+          "name": "PackerCommands",
+          "kind": "driving",
+          "description": "HTTP for pack-box / ship-box"
+        },
+        {
+          "name": "BoxRepository",
+          "kind": "driven",
+          "description": "active records for boxes"
+        },
+        {
+          "name": "CourierGateway",
+          "kind": "driven",
+          "description": "adapter to the courier API"
+        },
+        {
+          "name": "EventPublisher",
+          "kind": "driven",
+          "description": "publishes box-packed / box-shipped"
+        }
+      ],
+      "adapters": [
+        {
+          "port": "BoxRepository",
+          "implementation": "PostgresBoxRepository"
+        },
+        {
+          "port": "CourierGateway",
+          "implementation": "HttpCourierGateway"
+        },
+        {
+          "port": "EventPublisher",
+          "implementation": "OutboxEventPublisher"
+        }
+      ],
+      "read_models": [],
+      "tests": [
+        {
+          "invariant": "contract: box-packed",
+          "test": "box-packed v1 carries boxId and nothing else"
+        },
+        {
+          "invariant": "contract: box-shipped",
+          "test": "box-shipped v1 carries boxId, tracking and nothing else"
+        },
+        {
+          "invariant": "idempotent: week-charged",
+          "test": "handling the same week-charged twice packs one box"
+        }
+      ],
+      "design_path": "ddd/08-code/fulfilment/design.md"
+    }
+  ],
+  "scaffold": {
+    "generated": false,
+    "root": "src/",
+    "files": []
+  },
+  "handoff": {
+    "plan_path": "ddd/08-code/implementation-plan.md",
+    "suggested_next": [
+      "ddd-contracts",
+      "superpowers:writing-plans",
+      "superpowers:test-driven-development"
+    ]
+  }
+}

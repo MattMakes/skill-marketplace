@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ddd/09-contracts/schemas/week-charged.schema.json",
+  "title": "Week Charged",
+  "description": "Billing has collected the week's payment; the box may be packed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "subscriptionId",
+    "week"
+  ],
+  "properties": {
+    "subscriptionId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "The subscription that was charged."
+    },
+    "week": {
+      "type": "string",
+      "description": "ISO-8601 week that has been paid for, e.g. 2026-W36; with subscriptionId it is the de-duplication key."
+    }
+  }
+}

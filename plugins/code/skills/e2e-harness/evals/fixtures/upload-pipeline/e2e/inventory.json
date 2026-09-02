@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "root": "/workspace/skill-marketplace/plugins/code/skills/e2e-harness/evals/fixtures/upload-pipeline",
+  "probes_run": [
+    "compose",
+    "aspire",
+    "services",
+    "openapi",
+    "existing-tests"
+  ],
+  "resource_count": 4,
+  "counts_by_kind": {
+    "azure-storage": 1,
+    "kafka": 1,
+    "service": 2
+  },
+  "resources": [
+    {
+      "id": "azure-storage:azurite",
+      "kind": "azure-storage",
+      "name": "azurite",
+      "source": "docker-compose.yml",
+      "discovered_by": "docker-compose",
+      "image": "mcr.microsoft.com/azure-storage/azurite:latest",
+      "ports": [
+        {
+          "host": 10000,
+          "container": 10000
+        }
+      ],
+      "env_keys": [],
+      "default_port": 10000,
+      "host_port": 10000,
+      "base_url": "http://localhost:10000"
+    },
+    {
+      "id": "kafka:kafka",
+      "kind": "kafka",
+      "name": "kafka",
+      "source": "docker-compose.yml",
+      "discovered_by": "docker-compose",
+      "image": "apache/kafka:3.8.0",
+      "ports": [
+        {
+          "host": 9092,
+          "container": 9092
+        }
+      ],
+      "env_keys": [
+        "KAFKA_ADVERTISED_LISTENERS",
+        "KAFKA_AUTO_CREATE_TOPICS_ENABLE",
+        "KAFKA_CONTROLLER_LISTENER_NAMES",
+        "KAFKA_CONTROLLER_QUORUM_VOTERS",
+        "KAFKA_INTER_BROKER_LISTENER_NAME",
+        "KAFKA_LISTENERS",
+        "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP",
+        "KAFKA_NODE_ID",
+        "KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR",
+        "KAFKA_PROCESS_ROLES"
+      ],
+      "default_port": 9092,
+      "host_port": 9092,
+      "base_url": "http://localhost:9092"
+    },
+    {
+      "id": "service:svc",
+      "kind": "service",
+      "name": "svc",
+      "source": "svc/package.json",
+      "discovered_by": "lang-marker:package.json",
+      "language": "node",
+      "dir": "svc",
+      "entry": "index.js",
+      "port_hints": [
+        8080
+      ]
+    },
+    {
+      "id": "service:uploads-api",
+      "kind": "service",
+      "name": "uploads-api",
+      "source": "docker-compose.yml",
+      "discovered_by": "docker-compose",
+      "image": null,
+      "ports": [
+        {
+          "host": 8080,
+          "container": 8080
+        }
+      ],
+      "env_keys": [
+        "AZURE_BLOB_ENDPOINT",
+        "BLOB_CONTAINER",
+        "KAFKA_BROKER",
+        "PORT",
+        "UPLOADS_TOPIC"
+      ],
+      "host_port": 8080,
+      "base_url": "http://localhost:8080"
+    }
+  ],
+  "docs": {
+    "present": true,
+    "dir": "/workspace/skill-marketplace/plugins/code/skills/e2e-harness/evals/fixtures/upload-pipeline/docs",
+    "file_count": 1,
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/health",
+        "mentions": 2,
+        "first_seen": "README.md"
+      },
+      {
+        "method": "POST",
+        "path": "/uploads",
+        "mentions": 2,
+        "first_seen": "README.md"
+      },
+      {
+        "method": "GET",
+        "path": "/uploads/6f1c2f0e-1111-2222-3333-444455556666",
+        "mentions": 1,
+        "first_seen": "README.md"
+      },
+      {
+        "method": "GET",
+        "path": "/uploads/{id}",
+        "mentions": 1,
+        "first_seen": "README.md"
+      }
+    ],
+    "env_vars": [
+      {
+        "name": "AZURE_BLOB_ENDPOINT",
+        "mentions": 1
+      },
+      {
+        "name": "BLOB_CONTAINER",
+        "mentions": 1
+      },
+      {
+        "name": "KAFKA_BROKER",
+        "mentions": 1
+      },
+      {
+        "name": "UPLOADS_TOPIC",
+        "mentions": 1
+      }
+    ],
+    "base_urls": [
+      {
+        "url": "http://localhost:8080",
+        "mentions": 3
+      }
+    ],
+    "workflow_candidates": [
+      {
+        "title": "Check service health",
+        "source": "README.md",
+        "level": 2,
+        "summary": "GET /health returns 200 with {\"status\":\"ok\"} once the service has",
+        "mentions_endpoint": true,
+        "has_code_block": true
+      },
+      {
+        "title": "Retrieve upload status",
+        "source": "README.md",
+        "level": 2,
+        "summary": "GET /uploads/{id} returns 404 while the upload is still pending and 200",
+        "mentions_endpoint": true,
+        "has_code_block": true
+      },
+      {
+        "title": "Submit an upload",
+        "source": "README.md",
+        "level": 2,
+        "summary": "POST /uploads accepts a JSON body with a filename. The response is",
+        "mentions_endpoint": true,
+        "has_code_block": true
+      }
+    ],
+    "workflow_candidate_count": 3
+  },
+  "gaps": []
+}

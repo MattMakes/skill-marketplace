@@ -1,0 +1,129 @@
+{
+  "engine": "elk",
+  "width": 720,
+  "height": 248,
+  "nodes": {
+    "cmd:choose-meals": {
+      "x": 40,
+      "y": 152,
+      "w": 128,
+      "h": 56
+    },
+    "cmd:start-subscription": {
+      "x": 40,
+      "y": 64,
+      "w": 128,
+      "h": 56
+    },
+    "evt:meals-chosen": {
+      "x": 552,
+      "y": 64,
+      "w": 128,
+      "h": 56
+    },
+    "evt:subscription-started": {
+      "x": 552,
+      "y": 152,
+      "w": 128,
+      "h": 56
+    },
+    "subscription": {
+      "x": 240,
+      "y": 64,
+      "w": 240,
+      "h": 80
+    }
+  },
+  "groups": {
+    "subscriptions": {
+      "x": 24,
+      "y": 24,
+      "w": 672,
+      "h": 200
+    }
+  },
+  "edges": {
+    "choose-meals->subscription": {
+      "points": [
+        {
+          "x": 168,
+          "y": 180
+        },
+        {
+          "x": 178,
+          "y": 180
+        },
+        {
+          "x": 178,
+          "y": 117.3
+        },
+        {
+          "x": 240,
+          "y": 117.3
+        }
+      ],
+      "labelAt": {
+        "x": 209,
+        "y": 117.3
+      }
+    },
+    "start-subscription->subscription": {
+      "points": [
+        {
+          "x": 168,
+          "y": 91.3
+        },
+        {
+          "x": 240,
+          "y": 91.3
+        }
+      ],
+      "labelAt": {
+        "x": 204,
+        "y": 91.3
+      }
+    },
+    "subscription->meals-chosen": {
+      "points": [
+        {
+          "x": 480,
+          "y": 91.3
+        },
+        {
+          "x": 552,
+          "y": 91.3
+        }
+      ],
+      "labelAt": {
+        "x": 516,
+        "y": 91.3
+      }
+    },
+    "subscription->subscription-started": {
+      "points": [
+        {
+          "x": 480,
+          "y": 117.3
+        },
+        {
+          "x": 490,
+          "y": 117.3
+        },
+        {
+          "x": 490,
+          "y": 180
+        },
+        {
+          "x": 552,
+          "y": 180
+        }
+      ],
+      "labelAt": {
+        "x": 521,
+        "y": 180
+      }
+    }
+  },
+  "fingerprint": "ea427fc9-872d5073",
+  "optionsKey": "{\"direction\":\"RIGHT\",\"spacing\":\"comfortable\"}"
+}

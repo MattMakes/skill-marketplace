@@ -1,0 +1,1130 @@
+{
+  "workspace": "<DDD_DIR>",
+  "manifest": {
+    "schema_version": 1,
+    "project": "mealkit",
+    "title": "Meal-kit subscription",
+    "ddd_dir": "ddd",
+    "created": "<TS>",
+    "updated": "<TS>",
+    "mode": "auto",
+    "depth": "light",
+    "scale_target": {
+      "deployables_min": 1,
+      "deployables_max": 3,
+      "teams": 1,
+      "notes": "solo dev"
+    },
+    "sources": [
+      "README.md"
+    ],
+    "steps": {
+      "understand": {
+        "status": "done",
+        "updated": "<TS>",
+        "mode": "auto"
+      },
+      "discover": {
+        "status": "done",
+        "updated": "<TS>",
+        "mode": "auto"
+      },
+      "decompose": {
+        "status": "done",
+        "updated": "<TS>",
+        "mode": "auto"
+      },
+      "strategize": {
+        "status": "done",
+        "updated": "<TS>",
+        "mode": "auto"
+      },
+      "connect": {
+        "status": "done",
+        "updated": "<TS>",
+        "mode": "auto"
+      },
+      "organise": {
+        "status": "done",
+        "updated": "<TS>",
+        "mode": "auto"
+      },
+      "define": {
+        "status": "done",
+        "updated": "<TS>",
+        "mode": "auto"
+      },
+      "code": {
+        "status": "done",
+        "updated": "<TS>",
+        "mode": "auto"
+      },
+      "contracts": {
+        "status": "done",
+        "updated": "<TS>",
+        "mode": "auto",
+        "open_questions": 3,
+        "artifacts": [
+          "ddd/09-contracts/contracts.json",
+          "ddd/09-contracts/contracts.md",
+          "ddd/09-contracts/examples/charge-card.json",
+          "ddd/09-contracts/examples/choose-meals.json",
+          "ddd/09-contracts/examples/meals-chosen.json",
+          "ddd/09-contracts/examples/week-charged.json",
+          "ddd/09-contracts/schemas/charge-card.schema.json",
+          "ddd/09-contracts/schemas/choose-meals.schema.json",
+          "ddd/09-contracts/schemas/meals-chosen.schema.json",
+          "ddd/09-contracts/schemas/week-charged.schema.json"
+        ]
+      }
+    }
+  },
+  "missing_upstream": [],
+  "repo": {
+    "root": "<ROOT>",
+    "language": null,
+    "framework": null,
+    "orm": null,
+    "bus": null,
+    "test_framework": null,
+    "evidence": [],
+    "src_dirs": [],
+    "test_dirs": [],
+    "hint": null
+  },
+  "system_notes_for_code": [],
+  "system_quality_attributes": [],
+  "contexts": [
+    {
+      "context": "subscriptions",
+      "name": "Subscriptions",
+      "rationale": "Core",
+      "subdomains": [
+        {
+          "id": "subscriptions",
+          "type": "core",
+          "implementation_pattern": "domain-model",
+          "sourcing": "build",
+          "investment": "high",
+          "evolution": "custom",
+          "rationale": "G1 (grow active subscribers) is won or lost on how easily a household chooses and changes its weekly meals; no off-the-shelf subscription product models cut-offs, swaps and pauses the way we need, so this is the decisive core and gets a rich domain model."
+        }
+      ],
+      "resolved": {
+        "type": "core",
+        "implementation_pattern": "domain-model",
+        "pattern_mixed": false,
+        "sourcing": [
+          "build"
+        ],
+        "needs_aggregates": true
+      },
+      "deployable": {
+        "id": "app",
+        "name": "Meal-kit app",
+        "kind": "modular-monolith",
+        "data_store": "own",
+        "independent_deploy": true,
+        "contexts": [
+          "subscriptions",
+          "billing"
+        ]
+      },
+      "hosted_by": [],
+      "team": {
+        "id": "solo",
+        "name": "Founder",
+        "type": "stream-aligned"
+      },
+      "purpose": "Subscriptions decides which meals each household receives each week and keeps the standing order alive: it opens, pauses and cancels subscriptions and locks a week's choice before the cutoff, so that households keep choosing (G1). It does not charge the card (billing) or pack the box (fulfilment).",
+      "domain_roles": [
+        "execution-context"
+      ],
+      "strategic_classification": {
+        "domain": "core",
+        "business_model": "revenue-generator",
+        "evolution": "custom"
+      },
+      "commands": [
+        {
+          "id": "start-subscription",
+          "name": "Start Subscription",
+          "actor": "subscriber",
+          "actor_name": "Subscriber",
+          "actor_is_external": false,
+          "produces": [
+            "subscription-started"
+          ],
+          "description": ""
+        },
+        {
+          "id": "choose-meals",
+          "name": "Choose Meals",
+          "actor": "subscriber",
+          "actor_name": "Subscriber",
+          "actor_is_external": false,
+          "produces": [
+            "meals-chosen"
+          ],
+          "description": ""
+        }
+      ],
+      "events": [
+        {
+          "id": "subscription-started",
+          "name": "Subscription Started",
+          "pivotal": true,
+          "data": [
+            "subscriptionId"
+          ],
+          "triggered_by": "start-subscription",
+          "sequence": 10,
+          "description": "Customer became a subscriber"
+        },
+        {
+          "id": "meals-chosen",
+          "name": "Meals Chosen",
+          "pivotal": false,
+          "data": [
+            "subscriptionId",
+            "week",
+            "recipeIds"
+          ],
+          "triggered_by": "choose-meals",
+          "sequence": 20,
+          "description": "Weekly choice locked in"
+        },
+        {
+          "id": "subscription-teleported",
+          "name": null,
+          "pivotal": false,
+          "data": [],
+          "triggered_by": null,
+          "sequence": null,
+          "description": null
+        }
+      ],
+      "aggregate_candidates": [
+        {
+          "id": "subscription",
+          "name": "Subscription",
+          "raw_name": "Subscription",
+          "root": "Subscription",
+          "handles": [
+            "start-subscription",
+            "choose-meals"
+          ],
+          "emits": [
+            "subscription-started",
+            "meals-chosen"
+          ],
+          "outside_this_context": []
+        }
+      ],
+      "policies": {
+        "reacts_here": [],
+        "feeds_elsewhere": [
+          {
+            "id": "charge-on-choice",
+            "name": "Whenever meals chosen, charge the week",
+            "when": "meals-chosen",
+            "then": [
+              "charge-week"
+            ],
+            "in_contexts": [
+              "billing"
+            ]
+          }
+        ]
+      },
+      "read_models": [
+        {
+          "id": "weekly-menu",
+          "name": "Weekly menu",
+          "informs": "choose-meals",
+          "used_by": "subscriber"
+        }
+      ],
+      "queries_asked": [],
+      "inbound": [
+        {
+          "id": "choose-meals",
+          "kind": "command",
+          "from": "subscriber",
+          "to": "subscriptions",
+          "via": "http",
+          "via_basis": "flow F1 step 1",
+          "delivery": "sync",
+          "payload": [
+            "subscriptionId",
+            "week",
+            "recipeIds"
+          ],
+          "contract": "ui",
+          "cross_deployable": false,
+          "conflict": false,
+          "source": "connect"
+        }
+      ],
+      "outbound": [
+        {
+          "id": "meals-chosen",
+          "kind": "event",
+          "from": "subscriptions",
+          "to": "billing",
+          "via": "in-process",
+          "via_basis": "flow F1 step 2",
+          "delivery": "at-least-once",
+          "payload": [
+            "subscriptionId",
+            "week",
+            "recipeIds"
+          ],
+          "contract": "customer-supplier",
+          "cross_deployable": false,
+          "conflict": false,
+          "source": "connect"
+        }
+      ],
+      "event_edges": {
+        "in": [],
+        "out": [
+          {
+            "id": "meals-chosen",
+            "kind": "event",
+            "from": "subscriptions",
+            "to": "billing",
+            "via": "in-process",
+            "via_basis": "flow F1 step 2",
+            "delivery": "at-least-once",
+            "payload": [
+              "subscriptionId",
+              "week",
+              "recipeIds"
+            ],
+            "contract": "customer-supplier",
+            "cross_deployable": false,
+            "conflict": false,
+            "source": "connect"
+          }
+        ]
+      },
+      "command_vias": [
+        "http"
+      ],
+      "external_systems": {
+        "called": [],
+        "calling": []
+      },
+      "relationships": [
+        {
+          "id": "R1",
+          "upstream": "subscriptions",
+          "downstream": "billing",
+          "pattern": "customer-supplier",
+          "description": "Billing charges on meals chosen",
+          "role": "upstream",
+          "other": "billing",
+          "mechanism": "in-process-call",
+          "mechanism_rationale": "Same deployable"
+        }
+      ],
+      "coupling_concerns": [
+        {
+          "id": "CC1",
+          "text": "Fulfilment needs recipe details from subscriptions",
+          "contexts": [
+            "subscriptions",
+            "fulfilment"
+          ],
+          "severity": "medium"
+        }
+      ],
+      "scenarios": [
+        "S1"
+      ],
+      "hotspots": [],
+      "terms": {
+        "Box": "the menu choice for a week",
+        "Subscription": "A customer's standing weekly order"
+      },
+      "business_decisions": [
+        "A week can be chosen once; a second choice for the same week is rejected",
+        "Choices lock at the weekly cutoff; after it, default meals are assigned"
+      ],
+      "canvas_assumptions": [
+        "[define A1] Fixture: metrics are illustrative targets"
+      ],
+      "verification_metrics": [
+        "Business (G1): active subscriptions grow month on month; weekly choice completed by >90% of active households before cutoff",
+        "Boundary: zero cross-module reads of subscription tables from billing/fulfilment (CI check)"
+      ],
+      "canvas_open_questions": [],
+      "quality_attributes": [
+        {
+          "context": "subscriptions",
+          "attribute": "consistency",
+          "requirement": "A week is chosen at most once",
+          "priority": "high",
+          "scenario": "Double submit"
+        }
+      ],
+      "canvas_path": "ddd/07-define/subscriptions/bounded-context-canvas.md",
+      "notes": [],
+      "warnings": [],
+      "existing_design": {
+        "context": "subscriptions",
+        "implementation_pattern": "domain-model",
+        "deployable": "app",
+        "module_path": "src/subscriptions",
+        "aggregates": [
+          {
+            "id": "subscription",
+            "name": "Subscription",
+            "root_entity": "Subscription",
+            "entities": [
+              "WeekChoice"
+            ],
+            "value_objects": [
+              "Week",
+              "RecipeId"
+            ],
+            "invariants": [
+              "A week is chosen at most once",
+              "Choices lock at cutoff"
+            ],
+            "commands": [
+              "start-subscription",
+              "choose-meals"
+            ],
+            "events": [
+              "subscription-started",
+              "meals-chosen"
+            ],
+            "state_transitions": [
+              "active\u2192paused\u2192active",
+              "active\u2192cancelled"
+            ],
+            "canvas_path": "ddd/08-code/subscriptions/aggregate-canvas-subscription.md"
+          }
+        ],
+        "domain_services": [],
+        "application_services": [
+          {
+            "name": "StartSubscription",
+            "command": "start-subscription",
+            "description": "Opens a household's subscription"
+          },
+          {
+            "name": "ChooseMeals",
+            "command": "choose-meals",
+            "description": "Locks a week's meals before cutoff"
+          }
+        ],
+        "ports": [
+          {
+            "name": "SubscriptionCommands",
+            "kind": "driving",
+            "description": "HTTP controller for start-subscription / choose-meals"
+          },
+          {
+            "name": "SubscriptionRepository",
+            "kind": "driven",
+            "description": "load/save the aggregate"
+          },
+          {
+            "name": "EventPublisher",
+            "kind": "driven",
+            "description": "publishes subscription-started / meals-chosen via the outbox"
+          }
+        ],
+        "adapters": [
+          {
+            "port": "SubscriptionCommands",
+            "implementation": "HttpSubscriptionController"
+          },
+          {
+            "port": "SubscriptionRepository",
+            "implementation": "PostgresSubscriptionRepository"
+          },
+          {
+            "port": "EventPublisher",
+            "implementation": "OutboxEventPublisher"
+          }
+        ],
+        "read_models": [
+          {
+            "name": "WeeklyMenu",
+            "source_events": [
+              "meals-chosen"
+            ]
+          }
+        ],
+        "tests": [
+          {
+            "invariant": "A week is chosen at most once",
+            "test": "choosing twice for the same week is rejected"
+          },
+          {
+            "invariant": "Choices lock at cutoff",
+            "test": "choose-meals after the week's cutoff is rejected"
+          },
+          {
+            "invariant": "contract: meals-chosen",
+            "test": "meals-chosen v1 carries subscriptionId, week, recipeIds and nothing else"
+          },
+          {
+            "invariant": "contract: subscription-started",
+            "test": "subscription-started v1 carries subscriptionId and nothing else"
+          }
+        ],
+        "design_path": "ddd/08-code/subscriptions/design.md"
+      }
+    },
+    {
+      "context": "billing",
+      "name": "Billing",
+      "rationale": "Thin wrapper",
+      "subdomains": [
+        {
+          "id": "billing",
+          "type": "generic",
+          "implementation_pattern": "transaction-script",
+          "sourcing": "buy",
+          "investment": "low",
+          "evolution": "commodity",
+          "rationale": "Charging a card weekly is a solved problem (Stripe, commodity evolution); it moves no goal on its own, so buy the provider and keep our side a transaction script around the adapter."
+        }
+      ],
+      "resolved": {
+        "type": "generic",
+        "implementation_pattern": "transaction-script",
+        "pattern_mixed": false,
+        "sourcing": [
+          "buy"
+        ],
+        "needs_aggregates": false
+      },
+      "deployable": {
+        "id": "app",
+        "name": "Meal-kit app",
+        "kind": "modular-monolith",
+        "data_store": "own",
+        "independent_deploy": true,
+        "contexts": [
+          "subscriptions",
+          "billing"
+        ]
+      },
+      "hosted_by": [],
+      "team": {
+        "id": "solo",
+        "name": "Founder",
+        "type": "stream-aligned"
+      },
+      "purpose": "Billing takes the money for a chosen week: whenever meals are chosen it charges the household's card through Stripe and tells the rest of the system the week is paid. It owns no product rules \u2014 a failed charge is reported back to subscriptions, which decides what to do.",
+      "domain_roles": [
+        "execution-context"
+      ],
+      "strategic_classification": {
+        "domain": "generic",
+        "business_model": "cost-reducer",
+        "evolution": "commodity"
+      },
+      "commands": [
+        {
+          "id": "charge-week",
+          "name": "Charge Week",
+          "actor": null,
+          "actor_name": null,
+          "actor_is_external": false,
+          "produces": [
+            "week-charged"
+          ],
+          "description": ""
+        },
+        {
+          "id": "charge-card",
+          "name": "Charge Card",
+          "actor": null,
+          "actor_name": null,
+          "actor_is_external": false,
+          "produces": [],
+          "description": "Billing asks the payment provider to charge the subscriber's card for the week"
+        }
+      ],
+      "events": [
+        {
+          "id": "week-charged",
+          "name": "Week Charged",
+          "pivotal": false,
+          "data": [
+            "subscriptionId",
+            "week",
+            "amount"
+          ],
+          "triggered_by": "charge-week",
+          "sequence": 25,
+          "description": "Payment taken"
+        }
+      ],
+      "aggregate_candidates": [],
+      "policies": {
+        "reacts_here": [
+          {
+            "id": "charge-on-choice",
+            "name": "Whenever meals chosen, charge the week",
+            "when": "meals-chosen",
+            "when_owned_by": "subscriptions",
+            "then": [
+              "charge-week"
+            ],
+            "kind": "automatic"
+          }
+        ],
+        "feeds_elsewhere": [
+          {
+            "id": "pack-on-charge",
+            "name": "Whenever week charged, pack box",
+            "when": "week-charged",
+            "then": [
+              "pack-box"
+            ],
+            "in_contexts": [
+              "fulfilment"
+            ]
+          }
+        ]
+      },
+      "read_models": [],
+      "queries_asked": [],
+      "inbound": [
+        {
+          "id": "meals-chosen",
+          "kind": "event",
+          "from": "subscriptions",
+          "to": "billing",
+          "via": "in-process",
+          "via_basis": "flow F1 step 2",
+          "delivery": "at-least-once",
+          "payload": [
+            "subscriptionId",
+            "week",
+            "recipeIds"
+          ],
+          "contract": "customer-supplier",
+          "cross_deployable": false,
+          "conflict": false,
+          "source": "connect"
+        }
+      ],
+      "outbound": [
+        {
+          "id": "week-charged",
+          "kind": "event",
+          "from": "billing",
+          "to": "fulfilment",
+          "via": "message-bus",
+          "via_basis": "flow F1 step 4",
+          "delivery": "at-least-once",
+          "payload": [
+            "subscriptionId",
+            "week"
+          ],
+          "contract": "published-language",
+          "cross_deployable": true,
+          "conflict": false,
+          "source": "connect"
+        },
+        {
+          "id": "charge-card",
+          "kind": "command",
+          "from": "billing",
+          "to": "stripe",
+          "via": "http",
+          "via_basis": "flow F1 step 3",
+          "delivery": "sync",
+          "payload": [
+            "subscriptionId",
+            "week",
+            "amount",
+            "currency"
+          ],
+          "contract": "anticorruption-layer",
+          "cross_deployable": false,
+          "conflict": false,
+          "source": "connect"
+        }
+      ],
+      "event_edges": {
+        "in": [
+          {
+            "id": "meals-chosen",
+            "kind": "event",
+            "from": "subscriptions",
+            "to": "billing",
+            "via": "in-process",
+            "via_basis": "flow F1 step 2",
+            "delivery": "at-least-once",
+            "payload": [
+              "subscriptionId",
+              "week",
+              "recipeIds"
+            ],
+            "contract": "customer-supplier",
+            "cross_deployable": false,
+            "conflict": false,
+            "source": "connect"
+          }
+        ],
+        "out": [
+          {
+            "id": "week-charged",
+            "kind": "event",
+            "from": "billing",
+            "to": "fulfilment",
+            "via": "message-bus",
+            "via_basis": "flow F1 step 4",
+            "delivery": "at-least-once",
+            "payload": [
+              "subscriptionId",
+              "week"
+            ],
+            "contract": "published-language",
+            "cross_deployable": true,
+            "conflict": false,
+            "source": "connect"
+          }
+        ]
+      },
+      "command_vias": [],
+      "external_systems": {
+        "called": [
+          {
+            "id": "stripe",
+            "name": "Stripe"
+          }
+        ],
+        "calling": []
+      },
+      "relationships": [
+        {
+          "id": "R1",
+          "upstream": "subscriptions",
+          "downstream": "billing",
+          "pattern": "customer-supplier",
+          "description": "Billing charges on meals chosen",
+          "role": "downstream",
+          "other": "subscriptions",
+          "mechanism": "in-process-call",
+          "mechanism_rationale": "Same deployable"
+        },
+        {
+          "id": "R2",
+          "upstream": "billing",
+          "downstream": "fulfilment",
+          "pattern": "published-language",
+          "description": "Fulfilment packs once charged",
+          "role": "upstream",
+          "other": "fulfilment",
+          "mechanism": "async-events",
+          "mechanism_rationale": "Fulfilment may lag"
+        }
+      ],
+      "coupling_concerns": [],
+      "scenarios": [
+        "S1"
+      ],
+      "hotspots": [
+        {
+          "id": "H1",
+          "text": "What happens if payment fails after meals are chosen?",
+          "near": "week-charged",
+          "kind": "unclear"
+        }
+      ],
+      "terms": {
+        "Box": "\u2026"
+      },
+      "business_decisions": [
+        "A week is charged exactly once, on meals-chosen; retries are idempotent on subscriptionId+week",
+        "A declined card pauses the subscription and releases the week"
+      ],
+      "canvas_assumptions": [
+        "[define A1] Fixture: metrics are illustrative targets"
+      ],
+      "verification_metrics": [
+        "Business: failed charges retried and resolved within 24h for >95% of weeks",
+        "Boundary: every Stripe call goes through the PaymentGateway ACL (fitness test)"
+      ],
+      "canvas_open_questions": [],
+      "quality_attributes": [],
+      "canvas_path": "ddd/07-define/billing/bounded-context-canvas.md",
+      "notes": [],
+      "warnings": [],
+      "existing_design": {
+        "context": "billing",
+        "implementation_pattern": "transaction-script",
+        "deployable": "app",
+        "module_path": "src/billing",
+        "aggregates": [],
+        "domain_services": [],
+        "application_services": [
+          {
+            "name": "ChargeWeek",
+            "command": "charge-week",
+            "description": "Policy handler: on meals-chosen, charge the week"
+          },
+          {
+            "name": "ChargeCard",
+            "command": "charge-card",
+            "description": "Calls Stripe through the ACL"
+          }
+        ],
+        "ports": [
+          {
+            "name": "BillingEventHandlers",
+            "kind": "driving",
+            "description": "in-process subscriber to meals-chosen"
+          },
+          {
+            "name": "PaymentGateway",
+            "kind": "driven",
+            "description": "ACL around Stripe (charge-card)"
+          },
+          {
+            "name": "EventPublisher",
+            "kind": "driven",
+            "description": "publishes week-charged via the outbox"
+          }
+        ],
+        "adapters": [
+          {
+            "port": "PaymentGateway",
+            "implementation": "StripePaymentGateway"
+          },
+          {
+            "port": "EventPublisher",
+            "implementation": "OutboxEventPublisher"
+          }
+        ],
+        "read_models": [],
+        "tests": [
+          {
+            "invariant": "contract: week-charged",
+            "test": "week-charged v1 carries subscriptionId, week and nothing else"
+          },
+          {
+            "invariant": "idempotent: meals-chosen",
+            "test": "handling the same meals-chosen twice charges once"
+          }
+        ],
+        "design_path": "ddd/08-code/billing/design.md"
+      }
+    },
+    {
+      "context": "fulfilment",
+      "name": "Fulfilment",
+      "rationale": "Different actor and language",
+      "subdomains": [
+        {
+          "id": "fulfilment",
+          "type": "supporting",
+          "implementation_pattern": "active-record",
+          "sourcing": "build",
+          "investment": "medium",
+          "evolution": "product",
+          "rationale": "Packing and shipping must work but a competitor's box arrives just as well; supporting, active-record CRUD over boxes and picking lists, with a possible move to a WMS product later."
+        }
+      ],
+      "resolved": {
+        "type": "supporting",
+        "implementation_pattern": "active-record",
+        "pattern_mixed": false,
+        "sourcing": [
+          "build"
+        ],
+        "needs_aggregates": false
+      },
+      "deployable": {
+        "id": "warehouse",
+        "name": "Warehouse service",
+        "kind": "service",
+        "data_store": "own",
+        "independent_deploy": true,
+        "contexts": [
+          "fulfilment"
+        ]
+      },
+      "hosted_by": [],
+      "team": {
+        "id": "solo",
+        "name": "Founder",
+        "type": "stream-aligned"
+      },
+      "purpose": "Fulfilment turns a paid week into a physical box: it builds the picking list, packs the box in the warehouse and hands it to the courier with tracking, so the household gets what it chose. It never queries subscriptions; everything it needs arrives on week-charged.",
+      "domain_roles": [
+        "execution-context"
+      ],
+      "strategic_classification": {
+        "domain": "supporting",
+        "business_model": "cost-reducer",
+        "evolution": "custom"
+      },
+      "commands": [
+        {
+          "id": "pack-box",
+          "name": "Pack Box",
+          "actor": "packer",
+          "actor_name": "Packer",
+          "actor_is_external": false,
+          "produces": [
+            "box-packed"
+          ],
+          "description": ""
+        },
+        {
+          "id": "ship-box",
+          "name": "Ship Box",
+          "actor": "packer",
+          "actor_name": "Packer",
+          "actor_is_external": false,
+          "produces": [
+            "box-shipped"
+          ],
+          "description": ""
+        }
+      ],
+      "events": [
+        {
+          "id": "box-packed",
+          "name": "Box Packed",
+          "pivotal": true,
+          "data": [
+            "boxId"
+          ],
+          "triggered_by": "pack-box",
+          "sequence": 30,
+          "description": "Physical box ready"
+        },
+        {
+          "id": "box-shipped",
+          "name": "Box Shipped",
+          "pivotal": true,
+          "data": [
+            "boxId",
+            "tracking"
+          ],
+          "triggered_by": "ship-box",
+          "sequence": 40,
+          "description": "Handed to courier"
+        }
+      ],
+      "aggregate_candidates": [
+        {
+          "id": "box",
+          "name": "Box",
+          "raw_name": "Box",
+          "root": "Box",
+          "handles": [
+            "pack-box",
+            "ship-box"
+          ],
+          "emits": [
+            "box-packed",
+            "box-shipped"
+          ],
+          "outside_this_context": []
+        }
+      ],
+      "policies": {
+        "reacts_here": [
+          {
+            "id": "pack-on-charge",
+            "name": "Whenever week charged, pack box",
+            "when": "week-charged",
+            "when_owned_by": "billing",
+            "then": [
+              "pack-box"
+            ],
+            "kind": "automatic"
+          }
+        ],
+        "feeds_elsewhere": []
+      },
+      "read_models": [],
+      "queries_asked": [],
+      "inbound": [
+        {
+          "id": "week-charged",
+          "kind": "event",
+          "from": "billing",
+          "to": "fulfilment",
+          "via": "message-bus",
+          "via_basis": "flow F1 step 4",
+          "delivery": "at-least-once",
+          "payload": [
+            "subscriptionId",
+            "week"
+          ],
+          "contract": "published-language",
+          "cross_deployable": true,
+          "conflict": false,
+          "source": "connect"
+        }
+      ],
+      "outbound": [],
+      "event_edges": {
+        "in": [
+          {
+            "id": "week-charged",
+            "kind": "event",
+            "from": "billing",
+            "to": "fulfilment",
+            "via": "message-bus",
+            "via_basis": "flow F1 step 4",
+            "delivery": "at-least-once",
+            "payload": [
+              "subscriptionId",
+              "week"
+            ],
+            "contract": "published-language",
+            "cross_deployable": true,
+            "conflict": false,
+            "source": "connect"
+          }
+        ],
+        "out": []
+      },
+      "command_vias": [],
+      "external_systems": {
+        "called": [],
+        "calling": []
+      },
+      "relationships": [
+        {
+          "id": "R2",
+          "upstream": "billing",
+          "downstream": "fulfilment",
+          "pattern": "published-language",
+          "description": "Fulfilment packs once charged",
+          "role": "downstream",
+          "other": "billing",
+          "mechanism": "async-events",
+          "mechanism_rationale": "Fulfilment may lag"
+        }
+      ],
+      "coupling_concerns": [
+        {
+          "id": "CC1",
+          "text": "Fulfilment needs recipe details from subscriptions",
+          "contexts": [
+            "subscriptions",
+            "fulfilment"
+          ],
+          "severity": "medium"
+        }
+      ],
+      "scenarios": [
+        "S1"
+      ],
+      "hotspots": [],
+      "terms": {
+        "Box": "the packed physical parcel"
+      },
+      "business_decisions": [
+        "A box is packed only for a charged week",
+        "A box is shipped only after it is packed; tracking is recorded on shipment"
+      ],
+      "canvas_assumptions": [
+        "[define A1] Fixture: metrics are illustrative targets"
+      ],
+      "verification_metrics": [
+        "Business: boxes packed within 12h of week-charged for >99% of weeks; mis-picks <0.5%",
+        "Boundary: fulfilment reads recipe/picking data only from the week-charged payload or its own projection"
+      ],
+      "canvas_open_questions": [],
+      "quality_attributes": [],
+      "canvas_path": "ddd/07-define/fulfilment/bounded-context-canvas.md",
+      "notes": [],
+      "warnings": [],
+      "existing_design": {
+        "context": "fulfilment",
+        "implementation_pattern": "active-record",
+        "deployable": "warehouse",
+        "module_path": "src/fulfilment",
+        "aggregates": [],
+        "domain_services": [],
+        "application_services": [
+          {
+            "name": "PackBox",
+            "command": "pack-box",
+            "description": "Creates the box with its picking list"
+          },
+          {
+            "name": "ShipBox",
+            "command": "ship-box",
+            "description": "Hands the box to the courier"
+          }
+        ],
+        "ports": [
+          {
+            "name": "FulfilmentEventHandlers",
+            "kind": "driving",
+            "description": "message-bus subscriber to week-charged"
+          },
+          {
+            "name": "PackerCommands",
+            "kind": "driving",
+            "description": "HTTP for pack-box / ship-box"
+          },
+          {
+            "name": "BoxRepository",
+            "kind": "driven",
+            "description": "active records for boxes"
+          },
+          {
+            "name": "CourierGateway",
+            "kind": "driven",
+            "description": "adapter to the courier API"
+          },
+          {
+            "name": "EventPublisher",
+            "kind": "driven",
+            "description": "publishes box-packed / box-shipped"
+          }
+        ],
+        "adapters": [
+          {
+            "port": "BoxRepository",
+            "implementation": "PostgresBoxRepository"
+          },
+          {
+            "port": "CourierGateway",
+            "implementation": "HttpCourierGateway"
+          },
+          {
+            "port": "EventPublisher",
+            "implementation": "OutboxEventPublisher"
+          }
+        ],
+        "read_models": [],
+        "tests": [
+          {
+            "invariant": "contract: box-packed",
+            "test": "box-packed v1 carries boxId and nothing else"
+          },
+          {
+            "invariant": "contract: box-shipped",
+            "test": "box-shipped v1 carries boxId, tracking and nothing else"
+          },
+          {
+            "invariant": "idempotent: week-charged",
+            "test": "handling the same week-charged twice packs one box"
+          }
+        ],
+        "design_path": "ddd/08-code/fulfilment/design.md"
+      }
+    }
+  ]
+}

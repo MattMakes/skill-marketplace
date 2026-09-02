@@ -1,0 +1,50 @@
+{
+  "name": "mealkit-charge-card-valid",
+  "mustPass": true,
+  "value": {
+    "subscriptionId": "b7f3c1de-9a24-4f65-8d0b-2c5e7a1f4e93",
+    "week": "2026-W36",
+    "amount": 3450,
+    "currency": "GBP"
+  },
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "ddd/09-contracts/schemas/charge-card.schema.json",
+    "title": "Charge Card",
+    "description": "Billing asks Stripe to take the week's price from the household's saved card; a successful charge licenses week-charged, a decline pauses the subscription and releases the week.",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "subscriptionId",
+      "week",
+      "amount",
+      "currency"
+    ],
+    "properties": {
+      "subscriptionId": {
+        "type": "string",
+        "format": "uuid",
+        "description": "The subscription being charged; billing sends its own id, never Stripe's customer id."
+      },
+      "week": {
+        "type": "string",
+        "description": "ISO-8601 week being paid for, e.g. 2026-W36; sent with subscriptionId as the idempotency key."
+      },
+      "amount": {
+        "type": "integer",
+        "description": "The week's price in GBP minor units (pence), an integer and never a float: 3450 is £34.50. Connect's payload carries no currency field — the PaymentGateway adapter sets GBP on every charge (assumption A1)."
+      },
+      "currency": {
+        "type": "string",
+        "const": "GBP",
+        "description": "1.0 bills in GBP only. Pinned rather than described so a non-GBP week fails here instead of at Stripe."
+      }
+    }
+  },
+  "expect": {
+    "check": [],
+    "core": [],
+    "vocab": [],
+    "conditional": true
+  }
+}

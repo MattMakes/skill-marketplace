@@ -1,0 +1,23 @@
+{
+  "skill_name": "ddd-decompose",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We finished the event storm yesterday (it's in ddd/02-discover/discover.json — about 30 events across ordering, kitchen, delivery and billing). Now how should we break this up into bounded contexts? I keep going back and forth on whether the kitchen and delivery are one thing or two.",
+      "expected_output": "Resolves the ddd/ workspace to an absolute path, reads manifest/discover/understand/glossary, runs ddd decompose worksheet, and drafts subdomains + bounded contexts justified by language shifts, pivotal events and actor changes (not tables or org chart). Presents the candidate table in one section and asks at most 4 targeted questions, including a concrete one about the kitchen/delivery seam (does a word change meaning between them, is there a pivotal event with an actor change). Then drafts relationships with upstream/downstream and a named pattern each, asks ≤4 questions about contested ones, writes ddd/03-decompose/decompose.json and subdomains.md, runs ddd decompose check --write-map --sync-glossary, ddd validate --step decompose --status (RESULT: OK) and ddd mark decompose done, and closes with a summary naming /ddd-strategize as the next step.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "auto mode, no questions: run the decompose step for the project in ./ddd and draw the context map. Log whatever you had to assume.",
+      "expected_output": "Runs entirely without questions. Infers mode=auto and depth from the manifest, prints the three checkpoints as status lines, produces decompose.json with a valid envelope (produced_at later than discover's), every discover event/command owned by exactly one context, an ISH verdict per context, R1.. relationships with patterns and descriptions, a script-rendered context_map_mermaid, and subdomains.md. Conservative boundaries (fewer, coarser contexts; an external system is an adapter inside the context that uses it — recorded in that context's wraps/rationale — and gets a wrapper context of its own only with evidence of its own language or actor; the external system is never a relationship endpoint). Upstream notes_for_downstream addressed to decompose are consumed, and notes are emitted for define (language), organise (module decisions) and strategize (bought/generic). Every judgement call appears in assumptions[] with a confidence and every unasked question in open_questions[] with blocking true/false. Validator passes with no errors; step marked done (or draft if a blocking question remains); summary lists absolute paths, contexts, key relationships, assumptions, open questions and names /ddd-strategize next.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Our Rails monolith has grown into a mess — accounts, listings, bookings, payouts and messaging all in one app. Where should we draw the service boundaries? We're a team of five and want at most three deployables.",
+      "expected_output": "Recognises this as the decompose step and checks for ddd/02-discover/discover.json. If it is missing, follows modes.md §0: in interactive mode offers to run ddd-discover first, bootstrap from the repo (module names, models, existing vocabulary as boundary evidence) plus the user's description, or stop; does not silently invent an event storm. Once inputs exist, aims for 2–6 contexts for a 1–3 deployable target, treats the external payment provider as an adapter inside the context that uses it (or a wrapper context that is itself the ACL, only if the evidence — its own language or actor — supports it; never a relationship endpoint), keeps the legacy monolith on the map as big-ball-of-mud only while other contexts must integrate with it live, runs ISH on each candidate and records verdicts, and warns against splitting by table/entity (accounts as an 'entity service'). Explains that more contexts than deployables is fine (modules) and that ddd-organise decides the three deployables. Writes and validates the artifacts and hands off to /ddd-strategize.",
+      "files": []
+    }
+  ]
+}

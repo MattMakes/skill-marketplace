@@ -1,0 +1,7 @@
+DEFINE pre-fill — Meal-kit subscription: 3 context(s) (core: —), 0 deployable(s), topology —; mode=auto depth=light
+WARNING: connect.json missing — inbound/outbound derived from discover only (record as an assumption)
+WARNING: strategize.json missing — strategic classification left as TODO
+WARNING: organise.json missing — owning team / deployable unknown
+briefs → <DDD_DIR>/07-define/.prefill/: system.md 2.3 KB; subscriptions.md 4.0 KB (?); billing.md 3.5 KB (?); fulfilment.md 3.6 KB (?)
+C4 block: ok
+next: read system.md, then one context brief at a time (core first); --print [--context ID] echoes briefs to stdout; ddd define render removes .prefill/ after a full render

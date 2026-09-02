@@ -1,0 +1,125 @@
+{
+  "name": "combinators-refs",
+  "value": {
+    "a": {
+      "kind": "x",
+      "q": 1
+    },
+    "b": 3,
+    "c": "yes",
+    "d": {
+      "mode": "seeds"
+    },
+    "e": {
+      "z": 1
+    },
+    "f": "anything",
+    "g": 1
+  },
+  "schema": {
+    "$defs": {
+      "thing": {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "q": {
+            "$ref": "#/$defs/num"
+          }
+        }
+      },
+      "num": {
+        "type": "integer",
+        "minimum": 5
+      },
+      "chain": {
+        "$ref": "#/$defs/num"
+      }
+    },
+    "type": "object",
+    "properties": {
+      "a": {
+        "$ref": "#/$defs/thing"
+      },
+      "b": {
+        "allOf": [
+          {
+            "$ref": "#/$defs/chain"
+          },
+          {
+            "maximum": 2
+          }
+        ]
+      },
+      "c": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "const": "no"
+          }
+        ]
+      },
+      "d": {
+        "oneOf": [
+          {
+            "required": [
+              "mode"
+            ]
+          },
+          {
+            "type": "object"
+          }
+        ]
+      },
+      "e": {
+        "not": {
+          "required": [
+            "z"
+          ]
+        }
+      },
+      "f": {
+        "if": {
+          "type": "string"
+        },
+        "then": {
+          "minLength": 20
+        },
+        "else": {
+          "type": "integer"
+        }
+      },
+      "g": {
+        "if": {
+          "type": "string"
+        },
+        "then": {
+          "minLength": 20
+        }
+      },
+      "h": {
+        "$ref": "#/$defs/missing"
+      }
+    }
+  },
+  "expect": {
+    "check": [
+      "payload.a.q: 1 is below minimum 5",
+      "payload.b: 3 is below minimum 5",
+      "payload.b: 3 is above maximum 2",
+      "payload.c: matches none of the 2 anyOf alternatives",
+      "payload.d: matches 2 of the 2 oneOf alternatives (exactly one must match)",
+      "payload.e: matches the `not` subschema, which forbids it",
+      "payload.f: 8 character(s), minLength is 20"
+    ],
+    "core": [],
+    "vocab": [],
+    "conditional": true
+  }
+}

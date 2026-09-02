@@ -1,0 +1,18 @@
+{
+  "name": "ddd-blueprint",
+  "version": "2.17-blueprint.1",
+  "private": true,
+  "type": "module",
+  "description": "blueprint: JSON-IR diagram renderers (architecture / workflow / sequence / dataflow / lifecycle) vendored into the ddd plugin. Renamed copy of archify by tt-a1i (MIT); see NOTICE.md.",
+  "license": "MIT",
+  "bin": {
+    "blueprint": "./bin/blueprint.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "doctor": "node bin/blueprint.mjs doctor",
+    "render:examples": "node scripts/render-examples.mjs"
+  }
+}

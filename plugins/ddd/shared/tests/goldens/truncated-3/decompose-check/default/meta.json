@@ -1,0 +1,26 @@
+{
+  "fixture": "truncated-3",
+  "command": [
+    "decompose",
+    "check"
+  ],
+  "variant": "default",
+  "args": [
+    "ddd"
+  ],
+  "seed": {},
+  "twin": [
+    "python3",
+    "skills/ddd-decompose/scripts/decompose_check.py"
+  ],
+  "cwd": "<ROOT>",
+  "env": {
+    "DDD_NO_RENDER": "1",
+    "TZ": "UTC",
+    "PYTHONIOENCODING": "utf-8",
+    "PYTHONHASHSEED": "0",
+    "NO_COLOR": "1"
+  },
+  "files_policy": "content",
+  "python": "Python 3.11.4"
+}

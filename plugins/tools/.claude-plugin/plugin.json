@@ -1,0 +1,16 @@
+{
+  "name": "tools",
+  "displayName": "Matt's Toolkit",
+  "version": "1.0.0",
+  "description": "Small cross-cutting skills: divergent ideation, human-sounding prose, spaced-repetition decks, model and subagent routing, an engineering persona, plan verification before and after implementation, and completion discipline for long autonomous runs. Contains third-party skills under their own licenses — see README.",
+  "author": {
+    "name": "Matt Scott"
+  },
+  "keywords": [
+    "brainstorming",
+    "writing",
+    "verification",
+    "workflow",
+    "routing"
+  ]
+}

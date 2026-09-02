@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "step": "define",
+  "produced_by": "ddd-define",
+  "produced_at": "2026-08-29T10:00:00Z",
+  "mode": "auto",
+  "depth": "light",
+  "inputs": [
+    "ddd/03-decompose/decompose.json",
+    "ddd/05-connect/connect.json",
+    "ddd/04-strategize/strategize.json",
+    "ddd/06-organise/organise.json",
+    "ddd/02-discover/discover.json",
+    "ddd/01-understand/understand.json",
+    "ddd/glossary.md"
+  ],
+  "assumptions": [
+    {
+      "id": "A1",
+      "text": "Example fixture; assumptions are illustrative",
+      "confidence": "high"
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q1",
+      "text": "Illustrative open question",
+      "blocking": false,
+      "owner": "domain expert"
+    }
+  ],
+  "plain_words": {
+    "what": "We wrote one page per part: what it is for, what it decides, and how we would know it is healthy.",
+    "decided": "Three pages. Each names the rules it enforces and the words it owns.",
+    "assumed": "The cutoff time is a business rule that lives in subscriptions and nowhere else.",
+    "riskiest": "If the cutoff is really a fulfilment rule (when the warehouse must know), it is written in the wrong place."
+  },
+  "canvases": [
+    {
+      "context": "subscriptions",
+      "purpose": "Subscriptions decides which meals each household receives each week and keeps the standing order alive: it opens, pauses and cancels subscriptions and locks a week's choice before the cutoff, so that households keep choosing (G1). It does not charge the card (billing) or pack the box (fulfilment).",
+      "strategic_classification": {
+        "domain": "core",
+        "business_model": "revenue-generator",
+        "evolution": "custom"
+      },
+      "domain_roles": [
+        "execution-context"
+      ],
+      "inbound": [
+        {
+          "collaborator": "subscriber",
+          "relationship": "user-interaction",
+          "messages": [
+            {
+              "id": "choose-meals",
+              "kind": "command"
+            }
+          ]
+        }
+      ],
+      "outbound": [
+        {
+          "collaborator": "billing",
+          "relationship": "customer-supplier",
+          "messages": [
+            {
+              "id": "meals-chosen",
+              "kind": "event"
+            }
+          ]
+        }
+      ],
+      "ubiquitous_language": [
+        {
+          "term": "Box",
+          "definition": "…"
+        }
+      ],
+      "business_decisions": [
+        "A week can be chosen once; a second choice for the same week is rejected",
+        "Choices lock at the weekly cutoff; after it, default meals are assigned"
+      ],
+      "assumptions": [
+        "[define A1] Fixture: metrics are illustrative targets"
+      ],
+      "verification_metrics": [
+        "Business (G1): active subscriptions grow month on month; weekly choice completed by >90% of active households before cutoff",
+        "Boundary: zero cross-module reads of subscription tables from billing/fulfilment (CI check)"
+      ],
+      "open_questions": [],
+      "canvas_path": "ddd/07-define/subscriptions/bounded-context-canvas.md",
+      "domain_roles_rationale": "Execution context: it owns the subscription aggregate and takes the household's commands directly; the weekly cutoff is enforced here, not downstream."
+    },
+    {
+      "context": "billing",
+      "purpose": "Billing takes the money for a chosen week: whenever meals are chosen it charges the household's card through Stripe and tells the rest of the system the week is paid. It owns no product rules — a failed charge is reported back to subscriptions, which decides what to do.",
+      "strategic_classification": {
+        "domain": "generic",
+        "business_model": "cost-reducer",
+        "evolution": "commodity"
+      },
+      "domain_roles": [
+        "execution-context"
+      ],
+      "inbound": [
+        {
+          "collaborator": "subscriptions",
+          "relationship": "customer-supplier",
+          "messages": [
+            {
+              "id": "meals-chosen",
+              "kind": "event"
+            }
+          ]
+        }
+      ],
+      "outbound": [
+        {
+          "collaborator": "fulfilment",
+          "relationship": "published-language",
+          "messages": [
+            {
+              "id": "week-charged",
+              "kind": "event"
+            }
+          ]
+        }
+      ],
+      "ubiquitous_language": [
+        {
+          "term": "Box",
+          "definition": "…"
+        }
+      ],
+      "business_decisions": [
+        "A week is charged exactly once, on meals-chosen; retries are idempotent on subscriptionId+week",
+        "A declined card pauses the subscription and releases the week"
+      ],
+      "assumptions": [
+        "[define A1] Fixture: metrics are illustrative targets"
+      ],
+      "verification_metrics": [
+        "Business: failed charges retried and resolved within 24h for >95% of weeks",
+        "Boundary: every Stripe call goes through the PaymentGateway ACL (fitness test)"
+      ],
+      "open_questions": [],
+      "canvas_path": "ddd/07-define/billing/bounded-context-canvas.md",
+      "domain_roles_rationale": "Execution context around a bought capability: it reacts to meals-chosen and executes the charge through the Stripe ACL; no model of its own beyond the charge record."
+    },
+    {
+      "context": "fulfilment",
+      "purpose": "Fulfilment turns a paid week into a physical box: it builds the picking list, packs the box in the warehouse and hands it to the courier with tracking, so the household gets what it chose. It never queries subscriptions; everything it needs arrives on week-charged.",
+      "strategic_classification": {
+        "domain": "supporting",
+        "business_model": "cost-reducer",
+        "evolution": "custom"
+      },
+      "domain_roles": [
+        "execution-context"
+      ],
+      "inbound": [
+        {
+          "collaborator": "billing",
+          "relationship": "published-language",
+          "messages": [
+            {
+              "id": "week-charged",
+              "kind": "event"
+            }
+          ]
+        }
+      ],
+      "outbound": [],
+      "ubiquitous_language": [
+        {
+          "term": "Box",
+          "definition": "…"
+        }
+      ],
+      "business_decisions": [
+        "A box is packed only for a charged week",
+        "A box is shipped only after it is packed; tracking is recorded on shipment"
+      ],
+      "assumptions": [
+        "[define A1] Fixture: metrics are illustrative targets"
+      ],
+      "verification_metrics": [
+        "Business: boxes packed within 12h of week-charged for >99% of weeks; mis-picks <0.5%",
+        "Boundary: fulfilment reads recipe/picking data only from the week-charged payload or its own projection"
+      ],
+      "open_questions": [],
+      "canvas_path": "ddd/07-define/fulfilment/bounded-context-canvas.md",
+      "domain_roles_rationale": "Execution context: packers act on it directly and it owns the physical box's lifecycle; it consumes week-charged and never queries subscriptions."
+    }
+  ],
+  "system_context_c4_mermaid": "C4Context\n  Person(subscriber, \"Subscriber\")\n  System(app, \"Meal-kit app\")\n  Rel(subscriber, app, \"chooses meals\")",
+  "quality_attributes": [
+    {
+      "context": "subscriptions",
+      "attribute": "consistency",
+      "requirement": "A week is chosen at most once",
+      "priority": "high",
+      "scenario": "Double submit"
+    }
+  ]
+}

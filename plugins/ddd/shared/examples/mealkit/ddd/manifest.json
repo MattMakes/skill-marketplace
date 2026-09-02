@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "project": "mealkit",
+  "title": "Meal-kit subscription",
+  "ddd_dir": "ddd",
+  "created": "2026-08-29T10:00:00Z",
+  "updated": "2026-08-29T10:00:00Z",
+  "mode": "auto",
+  "depth": "light",
+  "scale_target": {
+    "deployables_min": 1,
+    "deployables_max": 3,
+    "teams": 1,
+    "notes": "solo dev"
+  },
+  "sources": [
+    "README.md"
+  ],
+  "steps": {
+    "understand": {
+      "status": "done",
+      "updated": "2026-08-29T10:00:00Z",
+      "mode": "auto"
+    },
+    "discover": {
+      "status": "done",
+      "updated": "2026-08-29T10:00:00Z",
+      "mode": "auto"
+    },
+    "decompose": {
+      "status": "done",
+      "updated": "2026-08-29T10:00:00Z",
+      "mode": "auto"
+    },
+    "strategize": {
+      "status": "done",
+      "updated": "2026-08-29T10:00:00Z",
+      "mode": "auto"
+    },
+    "connect": {
+      "status": "done",
+      "updated": "2026-08-29T10:00:00Z",
+      "mode": "auto"
+    },
+    "organise": {
+      "status": "done",
+      "updated": "2026-08-29T10:00:00Z",
+      "mode": "auto"
+    },
+    "define": {
+      "status": "done",
+      "updated": "2026-08-29T10:00:00Z",
+      "mode": "auto"
+    },
+    "code": {
+      "status": "done",
+      "updated": "2026-08-29T10:00:00Z",
+      "mode": "auto"
+    },
+    "contracts": {
+      "status": "done",
+      "updated": "2026-08-29T10:00:00Z",
+      "mode": "auto",
+      "open_questions": 3,
+      "artifacts": [
+        "ddd/09-contracts/contracts.json",
+        "ddd/09-contracts/contracts.md",
+        "ddd/09-contracts/examples/charge-card.json",
+        "ddd/09-contracts/examples/choose-meals.json",
+        "ddd/09-contracts/examples/meals-chosen.json",
+        "ddd/09-contracts/examples/week-charged.json",
+        "ddd/09-contracts/schemas/charge-card.schema.json",
+        "ddd/09-contracts/schemas/choose-meals.schema.json",
+        "ddd/09-contracts/schemas/meals-chosen.schema.json",
+        "ddd/09-contracts/schemas/week-charged.schema.json"
+      ]
+    }
+  }
+}

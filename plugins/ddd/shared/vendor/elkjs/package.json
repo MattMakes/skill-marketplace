@@ -1,0 +1,5 @@
+{
+  "type": "commonjs",
+  "private": true,
+  "description": "Scope marker only: plugins/ddd/package.json declares type=module, and elk.bundled.js is a UMD/CommonJS bundle. No dependencies."
+}

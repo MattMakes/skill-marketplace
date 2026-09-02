@@ -1,0 +1,14 @@
+# Ubiquitous language — Meal-kit subscription
+
+## Shared
+**Subscription** - A customer's standing weekly order. _Avoid_: plan, membership
+**Box** - One week's delivery for one subscription. _Avoid_: order, shipment
+
+## Subscriptions context
+**Box** — …. _(differs from the shared meaning — a boundary)_
+
+## Billing context
+**Box** — …. _(differs from the shared meaning — a boundary)_
+
+## Fulfilment context
+**Box** — …. _(differs from the shared meaning — a boundary)_

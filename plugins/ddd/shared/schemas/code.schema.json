@@ -1,0 +1,618 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "ddd/code.schema.json",
+  "title": "code.json",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "integer"
+    },
+    "step": {
+      "type": "string",
+      "enum": [
+        "understand",
+        "discover",
+        "decompose",
+        "strategize",
+        "connect",
+        "organise",
+        "define",
+        "code"
+      ]
+    },
+    "produced_by": {
+      "type": "string"
+    },
+    "produced_at": {
+      "type": "string"
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "interactive",
+        "auto"
+      ]
+    },
+    "depth": {
+      "type": "string",
+      "enum": [
+        "light",
+        "standard",
+        "deep"
+      ]
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "text",
+          "confidence"
+        ]
+      }
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "blocking": {
+            "type": "boolean"
+          },
+          "owner": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "text",
+          "blocking"
+        ]
+      }
+    },
+    "deprecated": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "collection": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "since": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "reason"
+        ]
+      }
+    },
+    "notes_for_downstream": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "for": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "language",
+              "boundary",
+              "process",
+              "risk",
+              "decision",
+              "other"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "text",
+          "for"
+        ]
+      }
+    },
+    "plain_words": {
+      "type": "object",
+      "description": "The step in plain language for a human reviewer: what it did, what it decided, what it assumed, and what would hurt most if the assumption is wrong. Rendered as the 'In plain words' section. See modes.md section 4.",
+      "required": [
+        "what",
+        "decided",
+        "assumed",
+        "riskiest"
+      ],
+      "properties": {
+        "what": {
+          "type": "string",
+          "description": "One or two sentences: what this step did and why anyone should care."
+        },
+        "decided": {
+          "type": "string",
+          "description": "The call this step made, in numbers where there are numbers."
+        },
+        "assumed": {
+          "type": "string",
+          "description": "The guess a human is most likely to overturn."
+        },
+        "riskiest": {
+          "type": "string",
+          "description": "What hurts most if that guess is wrong, and where it bites."
+        }
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "description": "Design calls this step had to argue rather than read off an upstream artifact, usually with the ddd-decision-strategist. Every option is kept, not only the winner, so a reviewer can see what was weighed. No 'chosen' means the decision is still open. Optional so old workspaces still validate. See artifact-contract.md section 3 and modes.md section 3b.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^D\\d+$",
+            "description": "Short code, unique within this step: D1, D2, ..."
+          },
+          "question": {
+            "type": "string",
+            "description": "The decision in one sentence, in plain words."
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "boundary",
+              "ownership",
+              "classification",
+              "sourcing",
+              "topology",
+              "integration",
+              "foundation"
+            ],
+            "description": "What sort of call it is: boundary (where a line goes, merge or split), ownership (which context owns an invariant or a piece of data), classification (core, supporting, generic), sourcing (build or buy), topology (teams, deployables), integration (sync vs async, message shape), foundation (language, framework, datastore, cloud: anything nothing upstream states)."
+          },
+          "options": {
+            "type": "array",
+            "minItems": 2,
+            "description": "The options that were weighed, normally three. Each one is real, distinct and defensible.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Option code, unique within the decision: A, B, C."
+                },
+                "summary": {
+                  "type": "string",
+                  "description": "The option in one sentence."
+                },
+                "pros": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Concrete, cited where possible."
+                },
+                "cons": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Concrete, including the cost of reversing it."
+                },
+                "risks": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Hidden risks: blast radius, reversibility, a canvas rule it would break."
+                },
+                "diagram": {
+                  "type": "string",
+                  "description": "Project-relative path to a diagram spec for this option, e.g. ddd/03-decompose/decisions/D1-A.architecture.json. The renderer draws all options of a decision side by side on one shared grid."
+                }
+              },
+              "required": [
+                "id",
+                "summary"
+              ]
+            }
+          },
+          "chosen": {
+            "type": "string",
+            "description": "The id of the option taken. Must be one of options[].id. Absent while the decision is open."
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "description": "How sure the step is about 'chosen'. Be honest; low is an answer."
+          },
+          "rationale": {
+            "type": "string",
+            "description": "Why the chosen option won, in three or four sentences, with the strongest argument against it."
+          },
+          "would_flip_if": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Facts that would change the call. Usually the strategist's three questions, restated as conditions."
+          },
+          "made_by": {
+            "type": "string",
+            "enum": [
+              "strategist",
+              "user",
+              "step"
+            ],
+            "description": "Who made the call: strategist (the step took the ddd-decision-strategist's recommendation), user (a human chose at a checkpoint), step (the step decided alone from the artifacts)."
+          },
+          "records": {
+            "type": "object",
+            "description": "Links to the envelope entries that carry this decision forward. A taken decision points at its assumption; an open, blocking one points at its open question instead of repeating it.",
+            "properties": {
+              "assumption": {
+                "type": "string",
+                "description": "Id of the assumptions[] entry in this step that records the chosen option, e.g. A4."
+              },
+              "open_question": {
+                "type": "string",
+                "description": "Id of the open_questions[] entry in this step that a human must answer, e.g. Q2."
+              }
+            }
+          },
+          "supersedes": {
+            "type": "string",
+            "description": "An earlier decision this one overturns, as <step>:<Did>, e.g. decompose:D1."
+          }
+        },
+        "required": [
+          "id",
+          "question",
+          "kind",
+          "options"
+        ]
+      }
+    },
+    "language": {
+      "type": "string"
+    },
+    "framework": {
+      "type": "string"
+    },
+    "architecture_style": {
+      "type": "string",
+      "enum": [
+        "hexagonal",
+        "onion",
+        "clean",
+        "vertical-slice",
+        "layered"
+      ]
+    },
+    "contexts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "context": {
+            "type": "string"
+          },
+          "implementation_pattern": {
+            "type": "string",
+            "enum": [
+              "transaction-script",
+              "active-record",
+              "domain-model",
+              "event-sourced-domain-model"
+            ]
+          },
+          "deployable": {
+            "type": "string"
+          },
+          "module_path": {
+            "type": "string"
+          },
+          "aggregates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "root_entity": {
+                  "type": "string"
+                },
+                "entities": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "value_objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "invariants": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "commands": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "events": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "state_transitions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "canvas_path": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "root_entity",
+                "invariants",
+                "commands",
+                "events"
+              ]
+            }
+          },
+          "domain_services": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "responsibility": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            }
+          },
+          "application_services": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "command": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            }
+          },
+          "ports": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "driving",
+                    "driven"
+                  ]
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "kind"
+              ]
+            }
+          },
+          "adapters": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "port": {
+                  "type": "string"
+                },
+                "implementation": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "port",
+                "implementation"
+              ]
+            }
+          },
+          "read_models": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "source_events": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "name"
+              ]
+            }
+          },
+          "tests": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "invariant": {
+                  "type": "string"
+                },
+                "test": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "invariant",
+                "test"
+              ]
+            }
+          },
+          "design_path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "context",
+          "implementation_pattern",
+          "deployable",
+          "module_path",
+          "aggregates",
+          "application_services",
+          "ports"
+        ]
+      }
+    },
+    "scaffold": {
+      "type": "object",
+      "properties": {
+        "generated": {
+          "type": "boolean"
+        },
+        "root": {
+          "type": "string"
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "generated"
+      ]
+    },
+    "handoff": {
+      "type": "object",
+      "properties": {
+        "plan_path": {
+          "type": "string"
+        },
+        "suggested_next": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "plan_path"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "step",
+    "produced_by",
+    "produced_at",
+    "mode",
+    "depth",
+    "inputs",
+    "assumptions",
+    "open_questions",
+    "language",
+    "architecture_style",
+    "contexts",
+    "scaffold",
+    "handoff"
+  ]
+}

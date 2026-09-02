@@ -1,0 +1,31 @@
+{
+  "fixture": "truncated-3",
+  "command": [
+    "review"
+  ],
+  "variant": "out-title",
+  "args": [
+    "ddd",
+    "-o",
+    "review-out.html",
+    "--title",
+    "Golden review",
+    "--no-diagrams"
+  ],
+  "seed": {},
+  "twin": [
+    "node",
+    "shared/bin/ddd.mjs",
+    "review"
+  ],
+  "cwd": "<ROOT>",
+  "env": {
+    "DDD_NO_RENDER": "1",
+    "TZ": "UTC",
+    "PYTHONIOENCODING": "utf-8",
+    "PYTHONHASHSEED": "0",
+    "NO_COLOR": "1"
+  },
+  "files_policy": "paths",
+  "node": "v25.5.0"
+}

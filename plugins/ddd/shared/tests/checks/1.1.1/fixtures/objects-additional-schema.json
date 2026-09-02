@@ -1,0 +1,26 @@
+{
+  "name": "objects-additional-schema",
+  "value": {
+    "a": "x",
+    "extra": 5
+  },
+  "schema": {
+    "type": "object",
+    "properties": {
+      "a": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": {
+      "type": "string"
+    }
+  },
+  "expect": {
+    "check": [
+      "payload.extra: expected string, got int"
+    ],
+    "core": [],
+    "vocab": [],
+    "conditional": false
+  }
+}

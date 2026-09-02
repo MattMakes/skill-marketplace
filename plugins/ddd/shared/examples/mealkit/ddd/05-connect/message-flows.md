@@ -1,0 +1,86 @@
+# Message flows — Meal-kit subscription
+
+## In plain words
+
+We drew the messages the three parts send each other to get one week done.
+
+**Decided:** 4 messages across 1 flow. One of them leaves our system entirely and goes to Stripe.
+
+**Assumed:** Events are delivered at least once, so a receiver may see the same one twice and must cope.
+
+**Riskiest:** If a message is delivered twice and billing does not notice, a household is charged twice.
+
+---
+
+_Step 5 of the DDD chain (connect) · produced 2026-08-29T10:00:00Z · mode auto · depth light · inputs: ddd/04-strategize/strategize.json, ddd/03-decompose/decompose.json_
+
+Rendered from `connect.json` by `ddd connect render`. The JSON is the chain (contract §7): edit it and re-render rather than editing tables here.
+
+**Scale target:** 1–3 deployables, 1 team(s) — solo dev. Mechanisms below assume the distances recorded per relationship; `ddd-organise` confirms or flips them.
+
+## How to read the diagrams
+
+| Arrow | Meaning |
+|---|---|
+| `->>` solid, filled head | synchronous command or query — the sender waits for the answer |
+| `-)` solid, open head | asynchronous message — an event published (or a command queued); sender continues |
+| `-->>` dotted | response to a query or command |
+| `opt …` | steps that only happen under that condition |
+
+Labels read `message-id (kind via mechanism)`. `via in-process` means both parties live in the same deployable (in-memory event or direct call); `message-bus` means an outbox-published event; `http`/`grpc` a network call.
+
+## Flows
+
+### F1 — Weekly box (scenario S1: Happy path weekly box)
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor subscriber as Subscriber
+  participant subscriptions as Subscriptions
+  participant billing as Billing
+  participant stripe as Stripe (external)
+  participant fulfilment as Fulfilment
+  subscriber->>subscriptions: choose-meals (command via http)
+  subscriptions-)billing: meals-chosen (event via in-process)
+  billing->>stripe: charge-card (command via http)
+  billing-)fulfilment: week-charged (event via message-bus)
+```
+
+| # | From | To | Message | Kind | Sync | Via |
+|---|---|---|---|---|---|---|
+| 1 | subscriber | subscriptions | `choose-meals` | command | yes | http |
+| 2 | subscriptions | billing | `meals-chosen` | event | no | in-process |
+| 3 | billing | stripe | `charge-card` | command | yes | http |
+| 4 | billing | fulfilment | `week-charged` | event | no | message-bus |
+
+## Message catalogue
+
+| Message | Kind | Producer | Consumers | Payload | Delivery | Contract type | Notes |
+|---|---|---|---|---|---|---|---|
+| `choose-meals` | command | subscriber | subscriptions | subscriptionId, week, recipeIds | sync | ui | idempotency: One accepted choice per (subscriptionId, week); a repeat for a chosen week is rejected; The household locks its meals for a week before the cutoff |
+| `meals-chosen` | event | subscriptions | billing | subscriptionId, week, recipeIds | at-least-once | customer-supplier | - |
+| `week-charged` | event | billing | fulfilment | subscriptionId, week | at-least-once | published-language | also via file (async, at-least-once): the warehouse also picks the week up from the nightly pick-list file |
+| `charge-card` | command | billing | stripe | subscriptionId, week, amount, currency | sync | anticorruption-layer | - |
+
+## Integration decisions (one per context-map relationship)
+
+| Relationship | Upstream → downstream | Pattern | Mechanism | Assumed distance | Rationale |
+|---|---|---|---|---|---|
+| R1 | subscriptions → billing | customer-supplier | in-process-call | - | Same deployable |
+| R2 | billing → fulfilment | published-language | async-events | - | Fulfilment may lag |
+
+## Coupling concerns
+
+- **CC1** (medium) — Fulfilment needs recipe details from subscriptions — contexts: subscriptions, fulfilment
+
+## Assumptions
+
+- **A1** (high) Example fixture; assumptions are illustrative
+
+## Open questions
+
+- **Q1** Illustrative open question — owner: domain expert
+
+---
+Next step: `/ddd-organise` groups contexts into teams and deployables using the coupling concerns and sync chains above.

@@ -1,0 +1,32 @@
+{
+  "fixture": "truncated-3",
+  "command": [
+    "discover",
+    "render"
+  ],
+  "variant": "out-split-title",
+  "args": [
+    "ddd/02-discover/discover.json",
+    "-o",
+    "ddd/02-discover/event-storm-alt.md",
+    "--split",
+    "always",
+    "--title",
+    "Storm"
+  ],
+  "seed": {},
+  "twin": [
+    "python3",
+    "skills/ddd-discover/scripts/render_event_storm.py"
+  ],
+  "cwd": "<ROOT>",
+  "env": {
+    "DDD_NO_RENDER": "1",
+    "TZ": "UTC",
+    "PYTHONIOENCODING": "utf-8",
+    "PYTHONHASHSEED": "0",
+    "NO_COLOR": "1"
+  },
+  "files_policy": "content",
+  "python": "Python 3.11.4"
+}

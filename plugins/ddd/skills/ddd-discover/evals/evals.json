@@ -1,0 +1,23 @@
+{
+  "skill_name": "ddd-discover",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We just finished ddd-understand for our clinic booking app (ddd/01-understand/understand.json is there, depth standard). Now event-storm the domain with me: what happens from a patient asking for an appointment through the visit being billed? I want to see the timeline and argue about it phase by phase.",
+      "expected_output": "Resolves ./ddd and interactive mode from the manifest; reads understand.json (actors, capabilities, existing systems) plus README/docs and lists them in inputs[]; drafts a 25-60 event timeline in 3-6 phases from the documents before asking anything; presents an inputs check, then one checkpoint per phase (table or numbered story with commands, policies, read models, hotspots) with at most 4 domain questions each, then a cross-cutting checkpoint on pivotal events, scenarios and glossary conflicts, then a final confirmation; writes ddd/02-discover/discover.json (contract 4.2 + envelope, kebab-case ids, sequences with gaps, 3-7 pivotal events, S1 happy path plus alternatives) and renders ddd/02-discover/event-storm.md with ddd discover render; seeds the ## Shared section of ddd/glossary.md with context-null terms and avoid words; runs ddd validate --step discover with 0 errors and ddd mark discover done; closes with absolute paths, key findings, open questions, and names /ddd-decompose as the next step.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Auto mode, no questions: map the business process of this repo into a big-picture event storm using whatever docs are here, then hand off to decompose.",
+      "expected_output": "Detects auto mode; if ddd/01-understand/understand.json is missing, invokes ddd-understand (or follows its SKILL.md) first rather than stopping; harvests events from README/docs/schemas/module names using the repo's own vocabulary; prints the three checkpoints as status lines without waiting; records every inference as assumptions[] with confidence and every unasked question as open_questions[] with blocking set honestly (phases drafted from capabilities logged as a medium-confidence assumption); produces valid discover.json, rendered event-storm.md, and seeded glossary.md; ddd validate --step discover passes with 0 errors; marks the step done (or draft if a blocking question remains, saying why); summary names /ddd-decompose.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Where are the hotspots in our returns process? Ops calls it a 'return', finance calls it a 'refund', and the warehouse says 'RMA' — we keep talking past each other. We have ddd/01-understand done.",
+      "expected_output": "Triggers ddd-discover (not a generic brainstorm); storms the returns flow as a timeline with past-tense events (Return Requested, Item Received, Refund Issued...) and imperative commands with actors; records the return/refund/RMA disagreement as a conflict hotspot near the event where the meaning changes and as glossary entries with avoid words rather than unifying the terms; explains that a word meaning different things to ops, finance and warehouse is a boundary finding for ddd-decompose; marks the pivotal events (e.g. Item Received, Refund Issued); asks at most 4 questions per checkpoint in interactive mode; writes and validates the discover artifacts and points to /ddd-decompose.",
+      "files": []
+    }
+  ]
+}

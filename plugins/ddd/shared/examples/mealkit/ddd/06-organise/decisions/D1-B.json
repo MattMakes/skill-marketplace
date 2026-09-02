@@ -1,0 +1,89 @@
+{
+  "format": "ddd-diagram-spec",
+  "version": 1,
+  "id": "teams-deployables",
+  "kind": "architecture",
+  "title": "Option B: split the warehouse service now",
+  "subtitle": "decision D1 option B, derived from the organise teams and deployables",
+  "source": {
+    "step": "organise",
+    "file": "organise.json"
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "app",
+        "label": "Meal-kit app",
+        "sublabel": "subscriptions · billing",
+        "kind": "deployable",
+        "deployKind": "modular-monolith",
+        "contexts": [
+          {
+            "id": "subscriptions",
+            "label": "Subscriptions"
+          },
+          {
+            "id": "billing",
+            "label": "Billing"
+          }
+        ],
+        "w": 200,
+        "h": 88,
+        "group": "solo",
+        "context": "",
+        "searchText": "app modular-monolith subscriptions billing",
+        "title": "Customer-facing app in the cloud"
+      },
+      {
+        "id": "warehouse",
+        "label": "Warehouse service",
+        "sublabel": "fulfilment",
+        "kind": "deployable",
+        "deployKind": "service",
+        "contexts": [
+          {
+            "id": "fulfilment",
+            "label": "Fulfilment"
+          }
+        ],
+        "w": 160,
+        "h": 88,
+        "group": "solo",
+        "context": "",
+        "searchText": "warehouse service fulfilment",
+        "title": "Runs on the warehouse network; keeps packing when the cloud link drops"
+      }
+    ],
+    "edges": [
+      {
+        "id": "app->warehouse",
+        "from": "app",
+        "to": "warehouse",
+        "kind": "dependency",
+        "rels": [
+          "R2 published language"
+        ],
+        "label": "R2 published language"
+      }
+    ],
+    "groups": [
+      {
+        "id": "solo",
+        "label": "Founder",
+        "sublabel": "stream-aligned · 1 person · load ok",
+        "kind": "team",
+        "members": [
+          "app",
+          "warehouse"
+        ]
+      }
+    ]
+  },
+  "layoutOptions": {
+    "direction": "RIGHT",
+    "spacing": "comfortable"
+  },
+  "notes": [
+    "2 of a 1-3 target. Why not fewer: the packing floor must keep working through a cloud outage."
+  ]
+}

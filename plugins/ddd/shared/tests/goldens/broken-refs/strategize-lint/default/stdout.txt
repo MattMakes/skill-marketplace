@@ -1,0 +1,2 @@
+WARN  strategize: fulfilment: rationale does not reference an understand goal (G1, G2, …) — add goal_ids: ["G1"] (or [] for none), or say 'no goal applies' in the rationale
+lint: 0 error(s), 1 warning(s), 0 note(s); 3 subdomains, core = ['subscriptions']

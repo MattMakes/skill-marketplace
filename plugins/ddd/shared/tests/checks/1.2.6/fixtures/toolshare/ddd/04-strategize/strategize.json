@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "step": "strategize",
+  "produced_by": "ddd-strategize",
+  "produced_at": "2026-09-02T18:49:59Z",
+  "mode": "auto",
+  "depth": "light",
+  "inputs": [
+    "ddd/03-decompose/decompose.json",
+    "ddd/01-understand/understand.json",
+    "ddd/02-discover/discover.json",
+    "ddd/manifest.json",
+    "ddd/glossary.md",
+    "CONTEXT.md"
+  ],
+  "assumptions": [
+    {
+      "id": "A1",
+      "text": "Lending is the only core: both goals (G1 on-time returns, G2 fees collected) move on lending's rules and reminders; fees is scored 6/5 and stays supporting under rule 3.",
+      "confidence": "medium"
+    },
+    {
+      "id": "A2",
+      "text": "Membership is 'product' evolution but sourced build: a membership SaaS would not feed the eligibility rule or keep GDPR data (C4) inside the one Postgres (C3); it is three tables and a form.",
+      "confidence": "medium"
+    },
+    {
+      "id": "A3",
+      "text": "Card payments (commodity) are an adapter inside fees and membership - transaction-script glue around Stripe, never a model of Stripe's problem (understand N3, C1).",
+      "confidence": "high"
+    },
+    {
+      "id": "A4",
+      "text": "No history-as-asset need: disputes over a fee are settled by the coordinator waiving it, so an append-only ledger table is enough and event sourcing is not justified.",
+      "confidence": "medium"
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q1",
+      "text": "Would the library accept myTurn (or similar) for membership and catalogue if lending and fees were built around it, or must everything be one system?",
+      "blocking": false,
+      "owner": "coordinator"
+    },
+    {
+      "id": "Q2",
+      "text": "Do fee disputes happen often enough that a full history of every balance change (event-sourced ledger) would pay for itself?",
+      "blocking": false,
+      "owner": "coordinator"
+    }
+  ],
+  "classifications": [
+    {
+      "subdomain": "lending",
+      "type": "core",
+      "business_differentiation": 8,
+      "model_complexity": 6,
+      "evolution": "custom",
+      "sourcing": "build",
+      "implementation_pattern": "domain-model",
+      "investment": "high",
+      "goal_ids": [
+        "G1",
+        "G2"
+      ],
+      "history_is_asset": false,
+      "rationale": "core - G1 (90% returned on time) is won or lost on reservation holds, the 14-day loan, one renewal and the three-item / no-overdue eligibility rule; today's alternative: the spreadsheet and paper book (alt-spreadsheet-signout) and myTurn's generic loan rules; rule 2 (diff >= 7); cplx 6 from time-driven state (hold expiry, due, overdue), eligibility assembled from three contexts and the renewal-only-if-unreserved rule.",
+      "future_direction": "decisive core; stays core - review in 12 months whether reminders alone deliver G1 and whether the rules need a smarter allocation (waiting lists)."
+    },
+    {
+      "subdomain": "fees",
+      "type": "supporting",
+      "business_differentiation": 6,
+      "model_complexity": 5,
+      "evolution": "custom",
+      "sourcing": "build",
+      "implementation_pattern": "active-record",
+      "investment": "medium",
+      "goal_ids": [
+        "G2"
+      ],
+      "history_is_asset": false,
+      "rationale": "supporting - G2 (80% of fees paid in 30 days) depends on it, but the rules (GBP 1 a day, cap at replacement value, waiver) are small; today's alternative: the cash tin and nobody chasing (alt-spreadsheet-signout); rule 3 (diff 6, cplx 5 < 6); cplx 5 from daily accrual, the cap and two payment channels; card capture is a commodity adapter (Stripe, C1).",
+      "future_direction": "stays supporting; a ledger table with append-only rows; move to an event-sourced ledger only if disputes become common (Q2)."
+    },
+    {
+      "subdomain": "inventory",
+      "type": "supporting",
+      "business_differentiation": 4,
+      "model_complexity": 4,
+      "evolution": "custom",
+      "sourcing": "build",
+      "implementation_pattern": "active-record",
+      "investment": "medium",
+      "goal_ids": [],
+      "history_is_asset": false,
+      "rationale": "supporting - no goal metric names it (goal_ids []), but lending cannot lend what inventory does not declare fit; today's alternative: the spreadsheet's tool tab (alt-spreadsheet-signout) and myTurn's catalogue; rule 3; cplx 4 from the item lifecycle (tagged, fit, in maintenance, retired) and the kind/unit split.",
+      "future_direction": "stays supporting; keep to a lifecycle with a status column; if catalogue browsing grows a public face, split the catalogue out (decompose Q2)."
+    },
+    {
+      "subdomain": "membership",
+      "type": "supporting",
+      "business_differentiation": 3,
+      "model_complexity": 3,
+      "evolution": "product",
+      "sourcing": "build",
+      "implementation_pattern": "transaction-script",
+      "investment": "low",
+      "goal_ids": [],
+      "history_is_asset": false,
+      "rationale": "supporting - no goal metric names it (goal_ids []); it must work, nobody notices excellence; today's alternative: myTurn (alt-myturn) does this well; rule 3 (diff 3, and not solved by an integrated system, so not generic); built rather than bought because C3 (one Postgres, one web application) and C4 (GDPR data in one place) make a separate membership product cost more than the three tables it replaces; cplx 3 from concession approval and lapsing.",
+      "future_direction": "table-stakes; keep as forms over data; revisit buying if the library federates with others (a non-goal today)."
+    }
+  ],
+  "core_domains": [
+    "lending"
+  ],
+  "bets": [
+    {
+      "id": "B1",
+      "text": "Reminders two days before and on the due date, plus a blocked check-out when overdue, are enough to lift on-time returns from today's guess of ~60% to 90%.",
+      "risk": "If members ignore email, G1 needs a different lever (SMS, deposits) and the lending rules change.",
+      "subdomains": [
+        "lending"
+      ],
+      "validate_by": "on-time share after 3 months of live loans"
+    }
+  ],
+  "chart_mermaid": "quadrantChart\n  title Core domain chart - Toolshare community tool-lending library\n  x-axis Low model complexity --> High model complexity\n  y-axis Low business differentiation --> High business differentiation\n  quadrant-1 Core - build a rich model\n  quadrant-2 Short-term or hidden core\n  quadrant-3 Generic - buy or adopt\n  quadrant-4 Supporting - suspect if complex\n  Lending: [0.60, 0.80]\n  Fees: [0.50, 0.60]\n  Inventory: [0.40, 0.40]\n  Membership: [0.30, 0.30]",
+  "plain_words": {
+    "what": "We decided where the design effort goes and what to buy instead of build.",
+    "decided": "Lending is the one core and gets a real model with tested rules. Fees, inventory and membership are kept simple. Card payments are Stripe behind a thin adapter.",
+    "assumed": "That fees is not a core: its rules are small and the goal it serves (fees collected) is mostly about lending blocking borrowers who owe money.",
+    "riskiest": "If fees turns out to be where the arguments are (disputes, waivers, cash versus card), it was under-invested and will need a rewrite into a proper ledger."
+  }
+}

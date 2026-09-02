@@ -1,0 +1,75 @@
+{
+  "engine": "elk",
+  "width": 1072,
+  "height": 168,
+  "nodes": {
+    "billing": {
+      "x": 440,
+      "y": 64,
+      "w": 144,
+      "h": 64
+    },
+    "fulfilment": {
+      "x": 888,
+      "y": 64,
+      "w": 144,
+      "h": 64
+    },
+    "subscriptions": {
+      "x": 40,
+      "y": 64,
+      "w": 144,
+      "h": 64
+    }
+  },
+  "groups": {
+    "app": {
+      "x": 24,
+      "y": 24,
+      "w": 576,
+      "h": 120
+    },
+    "warehouse": {
+      "x": 872,
+      "y": 24,
+      "w": 176,
+      "h": 120
+    }
+  },
+  "edges": {
+    "R1": {
+      "points": [
+        {
+          "x": 184,
+          "y": 96
+        },
+        {
+          "x": 440,
+          "y": 96
+        }
+      ],
+      "labelAt": {
+        "x": 247,
+        "y": 86
+      }
+    },
+    "R2": {
+      "points": [
+        {
+          "x": 584,
+          "y": 96
+        },
+        {
+          "x": 888,
+          "y": 96
+        }
+      ],
+      "labelAt": {
+        "x": 650,
+        "y": 86
+      }
+    }
+  },
+  "fingerprint": "1502fb0e-7dc911c2",
+  "optionsKey": "{\"direction\":\"RIGHT\",\"spacing\":\"comfortable\"}"
+}

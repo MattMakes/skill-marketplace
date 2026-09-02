@@ -1,0 +1,44 @@
+{
+  "skill_name": "herdr-atomic",
+  "evals": [
+    {
+      "id": 0,
+      "name": "exit-code-capture",
+      "prompt": "my build keeps failing and i can't tell what's actually going on. can you run ./build.sh in a separate pane in my herdr session (the session is called ev1w, project's at /tmp/herdr-eval-project) and tell me the exact exit code it comes back with, plus whatever error line it printed? don't just run it here in this shell, i need it going in the pane.",
+      "expected_output": "Reports exit code 7 and the line 'ERROR: undefined symbol in beta.c'. Must have actually run it in a herdr pane.",
+      "files": [],
+      "assertions": [
+        "Reports the exact exit code 7",
+        "Quotes the error line 'ERROR: undefined symbol in beta.c'",
+        "Actually ran the build inside a herdr pane rather than the local shell",
+        "Does not report a fabricated, guessed, or wrong exit code"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "session-inventory",
+      "prompt": "can you give me a rundown of what's actually live in my herdr session ev2w right now? how many workspaces, which panes exist, and is there any coding agent running in any of them",
+      "expected_output": "1 workspace (w1, label 'project'), 2 panes (w1:p1 and w1:p2), 0 agents running.",
+      "files": [],
+      "assertions": [
+        "Reports exactly 1 workspace",
+        "Identifies both panes, w1:p1 and w1:p2",
+        "States that no coding agents are running",
+        "Does not invent panes or agents that do not exist"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "read-pane-tail",
+      "prompt": "theres a pane in my herdr session ev3w thats been spitting out server logs. can you grab me just the last 5 lines of whats in it - i want to check whether it got to the ready marker yet",
+      "expected_output": "Returns roughly the last 5 lines of pane w1:p2, and confirms READY_MARKER is present.",
+      "files": [],
+      "assertions": [
+        "Returns real log content from the pane rather than empty output",
+        "Confirms READY_MARKER is present in the pane",
+        "Returns roughly the last 5 lines rather than the whole buffer",
+        "Does not claim the read failed or that the pane is empty"
+      ]
+    }
+  ]
+}

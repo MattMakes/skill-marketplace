@@ -1,0 +1,27 @@
+{
+  "fixture": "mealkit",
+  "command": [
+    "define",
+    "render"
+  ],
+  "variant": "force",
+  "args": [
+    "ddd",
+    "--force"
+  ],
+  "seed": {},
+  "twin": [
+    "python3",
+    "skills/ddd-define/scripts/render.py"
+  ],
+  "cwd": "<ROOT>",
+  "env": {
+    "DDD_NO_RENDER": "1",
+    "TZ": "UTC",
+    "PYTHONIOENCODING": "utf-8",
+    "PYTHONHASHSEED": "0",
+    "NO_COLOR": "1"
+  },
+  "files_policy": "content",
+  "python": "Python 3.11.4"
+}

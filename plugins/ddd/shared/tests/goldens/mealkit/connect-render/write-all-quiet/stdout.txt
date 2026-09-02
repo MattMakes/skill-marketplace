@@ -1,0 +1,2 @@
+wrote flows[].mermaid for 1 flow(s) → <DDD_DIR>/05-connect/connect.json
+wrote <DDD_DIR>/05-connect/message-flows.md

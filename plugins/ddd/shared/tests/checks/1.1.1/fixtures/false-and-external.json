@@ -1,0 +1,29 @@
+{
+  "name": "false-and-external",
+  "value": {
+    "a": 1,
+    "b": 2
+  },
+  "schema": {
+    "type": "object",
+    "properties": {
+      "a": false,
+      "b": {
+        "$ref": "other.json#/x",
+        "type": "string"
+      }
+    },
+    "items": true
+  },
+  "expect": {
+    "check": [
+      "payload.a: schema is `false` — nothing is allowed here",
+      "payload.b: expected string, got int"
+    ],
+    "core": null,
+    "vocab": [
+      "schema.properties.b.$ref: 'other.json#/x' is not a local reference (#/...) — this checker cannot follow it, so that subschema is never applied"
+    ],
+    "conditional": false
+  }
+}

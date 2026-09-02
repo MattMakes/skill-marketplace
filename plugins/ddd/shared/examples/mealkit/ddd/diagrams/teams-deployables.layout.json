@@ -1,0 +1,47 @@
+{
+  "engine": "elk",
+  "width": 672,
+  "height": 192,
+  "nodes": {
+    "app": {
+      "x": 40,
+      "y": 64,
+      "w": 168,
+      "h": 88
+    },
+    "warehouse": {
+      "x": 488,
+      "y": 64,
+      "w": 144,
+      "h": 88
+    }
+  },
+  "groups": {
+    "solo": {
+      "x": 24,
+      "y": 24,
+      "w": 624,
+      "h": 144
+    }
+  },
+  "edges": {
+    "app->warehouse": {
+      "points": [
+        {
+          "x": 208,
+          "y": 108
+        },
+        {
+          "x": 488,
+          "y": 108
+        }
+      ],
+      "labelAt": {
+        "x": 348,
+        "y": 98
+      }
+    }
+  },
+  "fingerprint": "c977b4d6-99aa029e",
+  "optionsKey": "{\"direction\":\"RIGHT\",\"spacing\":\"comfortable\"}"
+}

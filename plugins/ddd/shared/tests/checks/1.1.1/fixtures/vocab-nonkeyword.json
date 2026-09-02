@@ -1,0 +1,49 @@
+{
+  "name": "vocab-nonkeyword",
+  "expectVocabProblem": "'response' is not a JSON Schema keyword",
+  "value": {
+    "a": "x"
+  },
+  "schema": {
+    "type": "object",
+    "response": {
+      "type": "object"
+    },
+    "properties": {
+      "a": {
+        "type": "string",
+        "parameters": {}
+      }
+    },
+    "items": {
+      "example_value": 1
+    },
+    "oneOf": [
+      {
+        "typo": 1
+      },
+      {
+        "type": "object"
+      }
+    ],
+    "$defs": {
+      "d": {
+        "nope": true
+      }
+    }
+  },
+  "expect": {
+    "check": [
+      "payload: matches 2 of the 2 oneOf alternatives (exactly one must match)"
+    ],
+    "core": [],
+    "vocab": [
+      "schema: 'response' is not a JSON Schema keyword, so no validator reads it and whatever it says is unenforced (use a keyword, or move it into `description`)",
+      "schema.items: 'example_value' is not a JSON Schema keyword, so no validator reads it and whatever it says is unenforced (use a keyword, or move it into `description`)",
+      "schema.properties.a: 'parameters' is not a JSON Schema keyword, so no validator reads it and whatever it says is unenforced (use a keyword, or move it into `description`)",
+      "schema.$defs.d: 'nope' is not a JSON Schema keyword, so no validator reads it and whatever it says is unenforced (use a keyword, or move it into `description`)",
+      "schema.oneOf[0]: 'typo' is not a JSON Schema keyword, so no validator reads it and whatever it says is unenforced (use a keyword, or move it into `description`)"
+    ],
+    "conditional": true
+  }
+}

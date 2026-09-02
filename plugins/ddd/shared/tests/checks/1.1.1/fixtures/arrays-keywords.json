@@ -1,0 +1,116 @@
+{
+  "name": "arrays-keywords",
+  "value": {
+    "p": [
+      1,
+      "x",
+      3,
+      "y"
+    ],
+    "f": [
+      1,
+      2,
+      3
+    ],
+    "few": [
+      1
+    ],
+    "many": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "dup": [
+      {
+        "b": 1,
+        "a": "ü"
+      },
+      {
+        "a": "ü",
+        "b": 1
+      }
+    ],
+    "dup2": [
+      "x",
+      "x"
+    ],
+    "has": [
+      1,
+      2,
+      3
+    ],
+    "hasnot": [
+      "a"
+    ]
+  },
+  "schema": {
+    "type": "object",
+    "properties": {
+      "p": {
+        "type": "array",
+        "prefixItems": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "integer"
+          }
+        ],
+        "items": {
+          "type": "string"
+        }
+      },
+      "f": {
+        "prefixItems": [
+          {
+            "type": "integer"
+          }
+        ],
+        "items": false
+      },
+      "few": {
+        "minItems": 2
+      },
+      "many": {
+        "maxItems": 3
+      },
+      "dup": {
+        "uniqueItems": true
+      },
+      "dup2": {
+        "uniqueItems": true
+      },
+      "has": {
+        "contains": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "minContains": 3,
+        "maxContains": 1
+      },
+      "hasnot": {
+        "contains": {
+          "type": "integer"
+        }
+      }
+    }
+  },
+  "expect": {
+    "check": [
+      "payload.p[1]: expected integer, got str",
+      "payload.p[2]: expected string, got int",
+      "payload.f: 2 extra item(s) but items is `false`",
+      "payload.few: has 1 item(s), minItems is 2",
+      "payload.many: has 4 item(s), maxItems is 3",
+      "payload.dup: uniqueItems, but {\"a\": \"ü\", \"b\": 1} appears more than once",
+      "payload.dup2: uniqueItems, but \"x\" appears more than once",
+      "payload.has: 2 item(s) match `contains`, minContains is 3",
+      "payload.has: 2 item(s) match `contains`, maxContains is 1",
+      "payload.hasnot: 0 item(s) match `contains`, minContains is 1"
+    ],
+    "core": null,
+    "vocab": [],
+    "conditional": false
+  }
+}

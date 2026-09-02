@@ -1,0 +1,29 @@
+DDD workspace: <DDD_DIR>
+project=mealkit mode=auto depth=light scale_target={"deployables_min": 1, "deployables_max": 3, "teams": 1, "notes": "solo dev"}
+step        status    json  open Q  err  warn  updated
+understand  done      yes   1       0    0     <TS>
+discover    done      yes   1       0    0     <TS>
+decompose   stale     yes   1       1    1     <TS>
+strategize  stale     yes   1       0    1     <TS>
+connect     stale     yes   1       0    1     <TS>
+organise    stale     yes   1       0    1     <TS>
+define      stale     yes   1       0    1     <TS>
+code        stale     yes   1       0    1     <TS>
+contracts   stale     yes   3       0    1     <TS>
+next: ddd-decompose
+notes addressed to ddd-decompose from upstream:
+  [understand N1] (language) 'Box' means the week's menu choice to subscribers but the packed parcel to packers — treat as a boundary, not a synonym
+
+1 error(s):
+  [decompose] bounded_contexts[subscriptions].owns_events: unknown reference 'subscription-teleported'
+
+7 warning(s):
+  [decompose] stale: produced <TS> but 'discover' was re-produced <TS> — re-run ddd-decompose (hand edits: bump produced_at with ddd stamp)
+  [strategize] stale: produced <TS> but 'discover' was re-produced <TS> — re-run ddd-strategize (hand edits: bump produced_at with ddd stamp)
+  [connect] stale: produced <TS> but 'discover' was re-produced <TS> — re-run ddd-connect (hand edits: bump produced_at with ddd stamp)
+  [organise] stale: produced <TS> but 'discover' was re-produced <TS> — re-run ddd-organise (hand edits: bump produced_at with ddd stamp)
+  [define] stale: produced <TS> but 'discover' was re-produced <TS> — re-run ddd-define (hand edits: bump produced_at with ddd stamp)
+  [code] stale: produced <TS> but 'discover' was re-produced <TS> — re-run ddd-code (hand edits: bump produced_at with ddd stamp)
+  [contracts] stale: produced <TS> but 'discover' was re-produced <TS> — re-run ddd-contracts (hand edits: bump produced_at with ddd stamp)
+
+RESULT: FAIL

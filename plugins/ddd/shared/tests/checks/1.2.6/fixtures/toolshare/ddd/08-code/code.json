@@ -1,0 +1,860 @@
+{
+  "schema_version": 1,
+  "step": "code",
+  "produced_by": "ddd-code",
+  "produced_at": "2026-09-02T19:03:47Z",
+  "mode": "auto",
+  "depth": "light",
+  "inputs": [
+    "ddd/manifest.json",
+    "ddd/01-understand/understand.json",
+    "ddd/02-discover/discover.json",
+    "ddd/03-decompose/decompose.json",
+    "ddd/04-strategize/strategize.json",
+    "ddd/05-connect/connect.json",
+    "ddd/06-organise/organise.json",
+    "ddd/07-define/define.json",
+    "ddd/glossary.md",
+    "ddd/07-define/lending/bounded-context-canvas.md",
+    "ddd/07-define/membership/bounded-context-canvas.md",
+    "ddd/07-define/inventory/bounded-context-canvas.md",
+    "ddd/07-define/fees/bounded-context-canvas.md"
+  ],
+  "assumptions": [
+    {
+      "id": "A1",
+      "text": "No source code detected in /workspace/skill-marketplace/ddd-smoke-workspace and no stack named in README / manifest / understand constraints; language left 'undecided' and module paths kept neutral rather than inferred, because a language is baked into every path in this artifact",
+      "confidence": "high"
+    },
+    {
+      "id": "A2",
+      "text": "Persistence not detected; adapters assume postgres",
+      "confidence": "low"
+    },
+    {
+      "id": "A3",
+      "text": "Module paths are language-neutral (src/<context>) until the language is named (single deployable layout)",
+      "confidence": "high"
+    },
+    {
+      "id": "A3",
+      "text": "Clock commands are driving ports invoked by a scheduler adapter (connect N1, organise N1), not webhooks; the skeleton's <Context>Callbacks / ClockWebhookHandler entries were renamed to a SchedulerAdapter on <Context>Commands.",
+      "confidence": "high"
+    },
+    {
+      "id": "A4",
+      "text": "Only the loan aggregate carries transactional invariants; reservation is a small second aggregate (one hold per item) so a hold and a loan never share a transaction.",
+      "confidence": "medium"
+    },
+    {
+      "id": "A5",
+      "text": "send-due-reminders is an application service over the loans-due read model (no aggregate state changes; it emits due-reminder-sent per loan), handled_by transaction-script.",
+      "confidence": "medium"
+    },
+    {
+      "id": "A6",
+      "text": "The skeleton's generic EmailGateway / MembershipGateway / FeesGateway ports on lending were removed as duplicates of the purpose-named DueNoticeGateway / MembershipStatusGateway / FeeBalanceGateway (spotted on diagrams/aggregates-lending.png).",
+      "confidence": "high"
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q1",
+      "text": "Name the implementation language, framework and persistence. Nothing upstream states them and they were deliberately not inferred: every module path, port name and test name in this plan depends on the answer",
+      "blocking": true,
+      "owner": "tech lead"
+    },
+    {
+      "id": "Q2",
+      "text": "Should the membership fee card charge reuse fees' StripeGateway port directly (one adapter package imported by two modules) or should membership call fees' PayFee use case? The plan assumes the shared adapter package.",
+      "blocking": false,
+      "owner": "tech lead"
+    }
+  ],
+  "language": "undecided",
+  "framework": "none",
+  "architecture_style": "hexagonal",
+  "contexts": [
+    {
+      "context": "membership",
+      "implementation_pattern": "transaction-script",
+      "deployable": "app",
+      "module_path": "src/membership",
+      "aggregates": [],
+      "domain_services": [],
+      "application_services": [
+        {
+          "name": "ApplyForMembership",
+          "command": "apply-for-membership",
+          "description": "Online form: name, address, concession claim with proof"
+        },
+        {
+          "name": "ApproveConcession",
+          "command": "approve-concession",
+          "description": "Coordinator checks the uploaded proof"
+        },
+        {
+          "name": "PayMembershipFee",
+          "command": "pay-membership-fee",
+          "description": "Card through Stripe, or cash at the desk recorded by a volunteer"
+        },
+        {
+          "name": "StartMembership",
+          "command": "start-membership",
+          "description": "Issued by policy when the fee is paid"
+        },
+        {
+          "name": "LapseMemberships",
+          "command": "lapse-memberships",
+          "description": "Nightly: any membership past its expiry date lapses"
+        }
+      ],
+      "ports": [
+        {
+          "name": "MembershipCommands",
+          "kind": "driving",
+          "description": "use cases ApplyForMembership, ApproveConcession, PayMembershipFee, StartMembership, LapseMemberships; driven by Member, Coordinator, clock via in-process"
+        },
+        {
+          "name": "MembershipQueries",
+          "kind": "driving",
+          "description": "read models ConcessionQueue, MembershipCurrent"
+        },
+        {
+          "name": "MembershipStore",
+          "kind": "driven",
+          "description": "data access for the transaction-script use cases (tables/records of this context only)"
+        },
+        {
+          "name": "CardChargeGateway",
+          "kind": "driven",
+          "description": "the joining fee card charge; the same charge-card Stripe adapter package as fees (connect N1, Q2)"
+        },
+        {
+          "name": "Clock",
+          "kind": "driven",
+          "description": "expiry and lapsing dates"
+        }
+      ],
+      "adapters": [
+        {
+          "port": "MembershipStore",
+          "implementation": "InMemoryMembershipStore"
+        },
+        {
+          "port": "MembershipStore",
+          "implementation": "PostgresMembershipStore"
+        },
+        {
+          "port": "MembershipCommands",
+          "implementation": "SchedulerMembershipAdapter"
+        },
+        {
+          "port": "CardChargeGateway",
+          "implementation": "HttpStripeGateway (shared package)"
+        },
+        {
+          "port": "CardChargeGateway",
+          "implementation": "FakeStripeGateway"
+        },
+        {
+          "port": "Clock",
+          "implementation": "SystemClock"
+        }
+      ],
+      "read_models": [
+        {
+          "name": "ConcessionQueue",
+          "source_events": [
+            "membership-applied",
+            "concession-approved"
+          ]
+        },
+        {
+          "name": "MembershipCurrent",
+          "source_events": [
+            "membership-started",
+            "membership-lapsed"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "invariant": "a membership lapses the night after 12 months",
+          "test": "given started 2026-01-10, when lapse-memberships on 2027-01-11, then membership-lapsed"
+        },
+        {
+          "invariant": "concession rate needs approval",
+          "test": "given applied with concession not approved, when pay-membership-fee of 1500 pence, then rejected"
+        },
+        {
+          "invariant": "membership-current answers from this module's tables only",
+          "test": "fitness: src/membership reads no other module's schema"
+        }
+      ],
+      "design_path": "ddd/08-code/membership/design.md"
+    },
+    {
+      "context": "inventory",
+      "implementation_pattern": "active-record",
+      "deployable": "app",
+      "module_path": "src/inventory",
+      "aggregates": [],
+      "domain_services": [],
+      "application_services": [
+        {
+          "name": "AddTool",
+          "command": "add-tool",
+          "description": "A new kind of tool in the catalogue: name, category, replacement value, safety notes, induction needed"
+        },
+        {
+          "name": "TagItem",
+          "command": "tag-item",
+          "description": "A physical item (usually donated) gets an asset tag and a condition"
+        },
+        {
+          "name": "InspectItem",
+          "command": "inspect-item",
+          "description": "Safety and condition check, after a damaged return or on schedule"
+        },
+        {
+          "name": "RepairItem",
+          "command": "repair-item",
+          "description": "Repair Item (actor: Maintenance volunteer) → emits item-repaired"
+        },
+        {
+          "name": "RetireItem",
+          "command": "retire-item",
+          "description": "Beyond repair or unsafe; keeps its loan history"
+        }
+      ],
+      "ports": [
+        {
+          "name": "InventoryCommands",
+          "kind": "driving",
+          "description": "use cases AddTool, TagItem, InspectItem, RepairItem, RetireItem; driven by Maintenance volunteer via http"
+        },
+        {
+          "name": "InventoryEventHandlers",
+          "kind": "driving",
+          "description": "reacts to item-returned (policies inspect-on-damaged-return); transports: item-returned from lending via in-process"
+        },
+        {
+          "name": "InventoryStore",
+          "kind": "driven",
+          "description": "data access for the active-record use cases (tables/records of this context only)"
+        },
+        {
+          "name": "EventPublisher",
+          "kind": "driven",
+          "description": "publishes item-failed-inspection, item-retired (delivery: at-most-once); edges: item-failed-inspection → fees via in-process; item-retired → lending via in-process"
+        },
+        {
+          "name": "Clock",
+          "kind": "driven",
+          "description": "inspection and retirement dates"
+        }
+      ],
+      "adapters": [
+        {
+          "port": "InventoryCommands",
+          "implementation": "HttpInventoryController"
+        },
+        {
+          "port": "InventoryEventHandlers",
+          "implementation": "InProcessInventoryEventConsumer"
+        },
+        {
+          "port": "InventoryStore",
+          "implementation": "InMemoryInventoryStore"
+        },
+        {
+          "port": "InventoryStore",
+          "implementation": "PostgresInventoryStore"
+        },
+        {
+          "port": "EventPublisher",
+          "implementation": "InMemoryEventPublisher"
+        },
+        {
+          "port": "EventPublisher",
+          "implementation": "InProcessEventPublisher"
+        },
+        {
+          "port": "Clock",
+          "implementation": "SystemClock"
+        }
+      ],
+      "read_models": [
+        {
+          "name": "ItemsNeedingInspection",
+          "source_events": [
+            "item-returned",
+            "item-failed-inspection",
+            "item-repaired"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "invariant": "contract: item-failed-inspection",
+          "test": "published item-failed-inspection carries exactly itemId, toolId, fault, replacementValuePence, lastLoanId (connect.json payload) and nothing consumers did not ask for"
+        },
+        {
+          "invariant": "contract: item-retired",
+          "test": "published item-retired carries exactly itemId, toolId, retiredOn (connect.json payload) and nothing consumers did not ask for"
+        },
+        {
+          "invariant": "a retired item cannot be repaired or re-tagged",
+          "test": "given retired, when repair-item, then rejected"
+        },
+        {
+          "invariant": "a damaged return queues an inspection",
+          "test": "given item-returned with condition damaged, then item appears in ItemsNeedingInspection"
+        },
+        {
+          "invariant": "idempotent: item-returned",
+          "test": "consuming item-returned twice queues one inspection"
+        }
+      ],
+      "design_path": "ddd/08-code/inventory/design.md"
+    },
+    {
+      "context": "lending",
+      "implementation_pattern": "domain-model",
+      "deployable": "app",
+      "module_path": "src/lending",
+      "aggregates": [
+        {
+          "id": "reservation",
+          "name": "Reservation",
+          "root_entity": "Reservation",
+          "entities": [],
+          "value_objects": [
+            "ReservationId",
+            "ItemId",
+            "MemberId",
+            "HoldUntil"
+          ],
+          "invariants": [
+            "At most one live reservation exists per item",
+            "A reservation expires exactly 48 hours after it was placed"
+          ],
+          "commands": [
+            "reserve-item",
+            "expire-reservations"
+          ],
+          "events": [
+            "item-reserved",
+            "reservation-expired"
+          ],
+          "state_transitions": [
+            "held→expired (expire-reservations, when holdUntil passed)",
+            "held→fulfilled (check-out-item against this hold)"
+          ],
+          "canvas_path": "ddd/08-code/lending/aggregate-canvas-reservation.md"
+        },
+        {
+          "id": "loan",
+          "name": "Loan",
+          "root_entity": "Loan",
+          "entities": [],
+          "value_objects": [
+            "LoanId",
+            "ItemId",
+            "MemberId",
+            "DueDate",
+            "ReturnCondition"
+          ],
+          "invariants": [
+            "A loan is renewed at most once, and only while no other member holds a reservation on the item",
+            "A loan's due date is 14 days after check-out, plus 7 if renewed",
+            "A returned loan cannot be renewed, marked overdue or returned again",
+            "A loan is created only when BorrowEligibility allowed it at that instant"
+          ],
+          "commands": [
+            "check-out-item",
+            "renew-loan",
+            "mark-loans-overdue",
+            "return-item"
+          ],
+          "events": [
+            "item-checked-out",
+            "loan-renewed",
+            "loan-overdue",
+            "item-returned"
+          ],
+          "state_transitions": [
+            "open→renewed (renew-loan)",
+            "open→overdue (mark-loans-overdue, dueOn passed)",
+            "renewed→overdue (mark-loans-overdue)",
+            "open|renewed|overdue→returned (return-item)"
+          ],
+          "canvas_path": "ddd/08-code/lending/aggregate-canvas-loan.md"
+        }
+      ],
+      "domain_services": [
+        {
+          "name": "BorrowEligibility",
+          "description": "Combines membership-current, fee-balance and the member's open/overdue loans into allow/refuse with a reason; called by CheckOutItem before the Loan is created"
+        }
+      ],
+      "application_services": [
+        {
+          "name": "ReserveItem",
+          "command": "reserve-item",
+          "description": "Member picks an available item online; hold lasts 48 hours"
+        },
+        {
+          "name": "ExpireReservations",
+          "command": "expire-reservations",
+          "description": "Hourly: release holds past holdUntil"
+        },
+        {
+          "name": "CheckOutItem",
+          "command": "check-out-item",
+          "description": "At the desk: volunteer confirms member standing and hands the item over"
+        },
+        {
+          "name": "RenewLoan",
+          "command": "renew-loan",
+          "description": "Once, 7 days, only if nobody has reserved the item"
+        },
+        {
+          "name": "SendDueReminders",
+          "command": "send-due-reminders",
+          "description": "Daily: two days before and on the due date",
+          "handled_by": "transaction-script"
+        },
+        {
+          "name": "MarkLoansOverdue",
+          "command": "mark-loans-overdue",
+          "description": "Nightly: any loan past dueOn and not returned"
+        },
+        {
+          "name": "ReturnItem",
+          "command": "return-item",
+          "description": "At the desk: scan the tag, note the condition"
+        }
+      ],
+      "ports": [
+        {
+          "name": "LendingCommands",
+          "kind": "driving",
+          "description": "use cases ReserveItem, ExpireReservations, CheckOutItem, RenewLoan, SendDueReminders, MarkLoansOverdue, ReturnItem; driven by Member, clock, Desk volunteer via http"
+        },
+        {
+          "name": "LendingQueries",
+          "kind": "driving",
+          "description": "read models AvailableTools, MemberStanding, ItemsOnLoan"
+        },
+        {
+          "name": "LendingEventHandlers",
+          "kind": "driving",
+          "description": "reacts to item-retired (policies -); transports: item-retired from inventory via in-process"
+        },
+        {
+          "name": "ReservationRepository",
+          "kind": "driven",
+          "description": "load/save Reservation by id; optimistic concurrency"
+        },
+        {
+          "name": "LoanRepository",
+          "kind": "driven",
+          "description": "load/save Loan by id; optimistic concurrency"
+        },
+        {
+          "name": "EventPublisher",
+          "kind": "driven",
+          "description": "publishes item-returned, loan-overdue (delivery: at-most-once); edges: item-returned → inventory via in-process; item-returned → fees via in-process; loan-overdue → fees via in-process"
+        },
+        {
+          "name": "MembershipStatusGateway",
+          "kind": "driven",
+          "description": "membership-current query to membership (in-process, R1); answers current/expiresOn"
+        },
+        {
+          "name": "FeeBalanceGateway",
+          "kind": "driven",
+          "description": "fee-balance query to fees (in-process, R2); answers balancePence"
+        },
+        {
+          "name": "DueNoticeGateway",
+          "kind": "driven",
+          "description": "send-due-notice to the email provider (http, conformist)"
+        },
+        {
+          "name": "Clock",
+          "kind": "driven",
+          "description": "today's date for due, hold expiry and overdue rules"
+        },
+        {
+          "name": "IdGenerator",
+          "kind": "driven",
+          "description": "loanId / reservationId"
+        }
+      ],
+      "adapters": [
+        {
+          "port": "LendingCommands",
+          "implementation": "HttpLendingController"
+        },
+        {
+          "port": "LendingQueries",
+          "implementation": "HttpLendingQueryController"
+        },
+        {
+          "port": "LendingEventHandlers",
+          "implementation": "InProcessLendingEventConsumer"
+        },
+        {
+          "port": "ReservationRepository",
+          "implementation": "InMemoryReservationRepository"
+        },
+        {
+          "port": "ReservationRepository",
+          "implementation": "PostgresReservationRepository"
+        },
+        {
+          "port": "LoanRepository",
+          "implementation": "InMemoryLoanRepository"
+        },
+        {
+          "port": "LoanRepository",
+          "implementation": "PostgresLoanRepository"
+        },
+        {
+          "port": "EventPublisher",
+          "implementation": "InMemoryEventPublisher"
+        },
+        {
+          "port": "EventPublisher",
+          "implementation": "InProcessEventPublisher"
+        },
+        {
+          "port": "LendingCommands",
+          "implementation": "SchedulerLendingAdapter"
+        },
+        {
+          "port": "MembershipStatusGateway",
+          "implementation": "InProcessMembershipStatusGateway"
+        },
+        {
+          "port": "MembershipStatusGateway",
+          "implementation": "FakeMembershipStatusGateway"
+        },
+        {
+          "port": "FeeBalanceGateway",
+          "implementation": "InProcessFeeBalanceGateway"
+        },
+        {
+          "port": "FeeBalanceGateway",
+          "implementation": "FakeFeeBalanceGateway"
+        },
+        {
+          "port": "DueNoticeGateway",
+          "implementation": "HttpDueNoticeGateway"
+        },
+        {
+          "port": "DueNoticeGateway",
+          "implementation": "FakeDueNoticeGateway"
+        },
+        {
+          "port": "Clock",
+          "implementation": "SystemClock"
+        },
+        {
+          "port": "Clock",
+          "implementation": "FixedClock"
+        },
+        {
+          "port": "IdGenerator",
+          "implementation": "UuidIdGenerator"
+        }
+      ],
+      "read_models": [
+        {
+          "name": "AvailableTools",
+          "source_events": [
+            "item-tagged",
+            "item-repaired",
+            "item-failed-inspection",
+            "item-retired",
+            "item-reserved",
+            "reservation-expired",
+            "item-checked-out",
+            "item-returned"
+          ]
+        },
+        {
+          "name": "MemberStanding",
+          "source_events": [
+            "item-checked-out",
+            "item-returned",
+            "loan-overdue"
+          ]
+        },
+        {
+          "name": "ItemsOnLoan",
+          "source_events": [
+            "item-checked-out",
+            "loan-renewed",
+            "item-returned"
+          ]
+        },
+        {
+          "name": "LoansDue",
+          "source_events": [
+            "item-checked-out",
+            "loan-renewed",
+            "item-returned"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "invariant": "contract: item-returned",
+          "test": "published item-returned carries exactly loanId, itemId, memberId, returnedOn, condition (connect.json payload) and nothing consumers did not ask for"
+        },
+        {
+          "invariant": "contract: loan-overdue",
+          "test": "published loan-overdue carries exactly loanId, itemId, memberId, dueOn, replacementValuePence (connect.json payload) and nothing consumers did not ask for"
+        },
+        {
+          "invariant": "At most one live reservation exists per item",
+          "test": "At most one live reservation exists per item"
+        },
+        {
+          "invariant": "A reservation expires exactly 48 hours after it was placed",
+          "test": "A reservation expires exactly 48 hours after it was placed"
+        },
+        {
+          "invariant": "A loan is renewed at most once, and only while no other member holds a reservation on the item",
+          "test": "A loan is renewed at most once, and only while no other member holds a reservation on the item"
+        },
+        {
+          "invariant": "A loan's due date is 14 days after check-out, plus 7 if renewed",
+          "test": "A loan's due date is 14 days after check-out, plus 7 if renewed"
+        },
+        {
+          "invariant": "A returned loan cannot be renewed, marked overdue or returned again",
+          "test": "A returned loan cannot be renewed, marked overdue or returned again"
+        },
+        {
+          "invariant": "A loan is created only when BorrowEligibility allowed it at that instant",
+          "test": "A loan is created only when BorrowEligibility allowed it at that instant"
+        },
+        {
+          "invariant": "refuses check-out when membership is not current",
+          "test": "given FakeMembershipStatusGateway says lapsed, when check-out-item, then refused with reason membership"
+        },
+        {
+          "invariant": "refuses check-out when balance is not zero",
+          "test": "given FakeFeeBalanceGateway says 300 pence, when check-out-item, then refused with reason balance"
+        },
+        {
+          "invariant": "refuses a fourth open loan",
+          "test": "given three open loans, when check-out-item, then refused with reason three items out"
+        },
+        {
+          "invariant": "idempotent: item-retired",
+          "test": "consuming item-retired twice removes the item from AvailableTools once"
+        },
+        {
+          "invariant": "domain has no outward imports",
+          "test": "fitness: src/lending/domain imports only src/lending/domain"
+        }
+      ],
+      "design_path": "ddd/08-code/lending/design.md"
+    },
+    {
+      "context": "fees",
+      "implementation_pattern": "active-record",
+      "deployable": "app",
+      "module_path": "src/fees",
+      "aggregates": [],
+      "domain_services": [],
+      "application_services": [
+        {
+          "name": "AccrueLateFee",
+          "command": "accrue-late-fee",
+          "description": "Nightly for every overdue loan: GBP 1 per item per day, capped at replacement value"
+        },
+        {
+          "name": "ChargeDamageFee",
+          "command": "charge-damage-fee",
+          "description": "Up to the replacement value, for damage beyond fair wear"
+        },
+        {
+          "name": "PayFee",
+          "command": "pay-fee",
+          "description": "Card online through Stripe, or cash at the desk recorded by the volunteer"
+        },
+        {
+          "name": "WaiveFee",
+          "command": "waive-fee",
+          "description": "Coordinator's discretion"
+        }
+      ],
+      "ports": [
+        {
+          "name": "FeesCommands",
+          "kind": "driving",
+          "description": "use cases AccrueLateFee, ChargeDamageFee, PayFee, WaiveFee; driven by clock, Coordinator, Member via in-process, http"
+        },
+        {
+          "name": "FeesQueries",
+          "kind": "driving",
+          "description": "read models FeeBalance"
+        },
+        {
+          "name": "FeesEventHandlers",
+          "kind": "driving",
+          "description": "reacts to item-returned, loan-overdue, item-failed-inspection (policies accrue-on-overdue, charge-on-failed-inspection); transports: item-returned from lending via in-process; loan-overdue from lending via in-process; item-failed-inspection from inventory via in-process"
+        },
+        {
+          "name": "FeesStore",
+          "kind": "driven",
+          "description": "data access for the active-record use cases (tables/records of this context only)"
+        },
+        {
+          "name": "EmailGateway",
+          "kind": "driven",
+          "description": "anti-corruption layer to Email provider — rename by purpose (e.g. PaymentGateway); translate their model to ours here"
+        },
+        {
+          "name": "StripeGateway",
+          "kind": "driven",
+          "description": "anti-corruption layer to Stripe — rename by purpose (e.g. PaymentGateway); translate their model to ours here"
+        },
+        {
+          "name": "Clock",
+          "kind": "driven",
+          "description": "accrual date"
+        },
+        {
+          "name": "IdGenerator",
+          "kind": "driven",
+          "description": "payment attempt ids used as Stripe idempotency keys"
+        }
+      ],
+      "adapters": [
+        {
+          "port": "FeesCommands",
+          "implementation": "HttpFeesController"
+        },
+        {
+          "port": "FeesQueries",
+          "implementation": "HttpFeesQueryController"
+        },
+        {
+          "port": "FeesEventHandlers",
+          "implementation": "InProcessFeesEventConsumer"
+        },
+        {
+          "port": "FeesStore",
+          "implementation": "InMemoryFeesStore"
+        },
+        {
+          "port": "FeesStore",
+          "implementation": "PostgresFeesStore"
+        },
+        {
+          "port": "EmailGateway",
+          "implementation": "FakeEmailGateway"
+        },
+        {
+          "port": "EmailGateway",
+          "implementation": "HttpEmailGateway"
+        },
+        {
+          "port": "StripeGateway",
+          "implementation": "FakeStripeGateway"
+        },
+        {
+          "port": "StripeGateway",
+          "implementation": "HttpStripeGateway"
+        },
+        {
+          "port": "FeesCommands",
+          "implementation": "SchedulerFeesAdapter"
+        },
+        {
+          "port": "Clock",
+          "implementation": "SystemClock"
+        },
+        {
+          "port": "IdGenerator",
+          "implementation": "UuidIdGenerator"
+        }
+      ],
+      "read_models": [
+        {
+          "name": "FeeBalance",
+          "source_events": [
+            "late-fee-accrued",
+            "damage-fee-charged",
+            "fee-paid",
+            "fee-waived"
+          ]
+        },
+        {
+          "name": "OverdueLoans",
+          "source_events": [
+            "loan-overdue",
+            "item-returned"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "invariant": "accrual adds GBP 1 per overdue item per day until the cap",
+          "test": "given overdue 3 days on a GBP 2 item, when accrue-late-fee runs 3 nights, then balance is 200 pence"
+        },
+        {
+          "invariant": "accrual stops at return",
+          "test": "given item-returned consumed, when accrue-late-fee, then no late-fee-accrued for that loan"
+        },
+        {
+          "invariant": "a payment attempt charges the card at most once",
+          "test": "given a pending attempt, when pay-fee is retried with the same attempt id, then one charge-card call and one fee-paid"
+        },
+        {
+          "invariant": "damage charge never exceeds replacement value",
+          "test": "given replacement 5000 pence, when charge-damage-fee 6000, then rejected"
+        },
+        {
+          "invariant": "idempotent: loan-overdue",
+          "test": "consuming loan-overdue twice starts one accrual"
+        },
+        {
+          "invariant": "contract: fee-paid",
+          "test": "fee-paid carries memberId, amount, method, paymentRef"
+        }
+      ],
+      "design_path": "ddd/08-code/fees/design.md"
+    }
+  ],
+  "coined_terms": [],
+  "scaffold": {
+    "generated": false,
+    "root": "src/",
+    "files": []
+  },
+  "handoff": {
+    "plan_path": "ddd/08-code/implementation-plan.md",
+    "suggested_next": [
+      "ddd-contracts",
+      "superpowers:writing-plans",
+      "dev-create-plan",
+      "superpowers:test-driven-development"
+    ]
+  },
+  "deprecated": [],
+  "plain_words": {
+    "what": "We turned the design into a build plan: which module holds which rules, what talks to what through named 'ports', and which tests to write first.",
+    "decided": "Four modules in one program. Lending gets two proper domain objects (Loan with 4 invariants, Reservation with 2); the other three are simple records and scripts. 5 slices, lending first.",
+    "assumed": "That the nightly jobs are just functions a scheduler calls, so it does not matter yet who schedules them (organise D1 is open).",
+    "riskiest": "No programming language, framework or database has been named. We refused to guess: every path here is neutral, and the plan cannot be started until someone answers that one question."
+  }
+}

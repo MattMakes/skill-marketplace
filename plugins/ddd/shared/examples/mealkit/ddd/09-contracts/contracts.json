@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "step": "contracts",
+  "produced_by": "ddd-contracts",
+  "produced_at": "2026-08-29T10:00:00Z",
+  "mode": "auto",
+  "depth": "light",
+  "inputs": [
+    "ddd/05-connect/connect.json",
+    "ddd/07-define/define.json",
+    "ddd/06-organise/organise.json",
+    "ddd/03-decompose/decompose.json",
+    "ddd/02-discover/discover.json",
+    "ddd/glossary.md"
+  ],
+  "assumptions": [
+    {
+      "id": "A1",
+      "text": "charge-card's amount is the week's price in GBP minor units (pence), an integer: understand.json prices one weekly subscription fee for a single UK market, so no upstream step records a currency and the PaymentGateway adapter sets GBP on every Stripe charge.",
+      "confidence": "medium"
+    },
+    {
+      "id": "A2",
+      "text": "subscriptionId is an opaque UUID string in all four contracts; discover names the field but no upstream step fixes its shape, so format: uuid is an annotation on a string consumers must not parse.",
+      "confidence": "medium"
+    },
+    {
+      "id": "A3",
+      "text": "week is the ISO-8601 week the box is delivered in (2026-W36), not the delivery date, so subscriptions, billing and fulfilment can all key idempotency on the same (subscriptionId, week) pair.",
+      "confidence": "medium"
+    },
+    {
+      "id": "A4",
+      "text": "recipeIds are recipe-catalogue ids owned by subscriptions, carried as plain strings in the order the household chose them; no recipe detail (name, ingredients, allergens) crosses a context boundary.",
+      "confidence": "medium"
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q1",
+      "text": "Fulfilment has to pack recipes it cannot see: week-charged carries only subscriptionId and week (connect coupling concern CC1). Carry recipeIds on week-charged, or give fulfilment a projection fed by meals-chosen? The payload stays exactly as connect lists it until that is decided.",
+      "blocking": false,
+      "owner": "ddd-connect"
+    },
+    {
+      "id": "Q2",
+      "text": "connect's charge-card payload has no currency field, so the ACL fixes GBP (A1). Add an explicit ISO-4217 currency to the payload before a second market is priced — a wrong currency is a 2.0 and a refund run.",
+      "blocking": false,
+      "owner": "ddd-connect"
+    },
+    {
+      "id": "Q3",
+      "text": "May a week be chosen with an empty recipeIds list (a household skipping that week), or does skipping mean no choose-meals at all? recipeIds is required and non-empty in 1.0.",
+      "blocking": false,
+      "owner": "domain expert"
+    }
+  ],
+  "plain_words": {
+    "what": "We wrote down exactly what each message carries, so both ends can be built without a conversation.",
+    "decided": "3 messages get a written contract. 1 does not, because both ends ship inside the same app.",
+    "assumed": "We bill in pounds only. The schema now refuses anything else rather than letting it reach Stripe.",
+    "riskiest": "If a second currency arrives, that refusal fails a real charge. Better here than a silent wrong amount at Stripe."
+  },
+  "entries": [
+    {
+      "id": "choose-meals",
+      "kind": "command",
+      "name": "Choose Meals",
+      "description": "The household locks its meals for a week before the cutoff: accepting the command fixes that week's recipes and releases the week for charging.",
+      "entityStatus": "Draft",
+      "version": "1.0",
+      "domain": "subscriptions",
+      "owners": [
+        "solo"
+      ],
+      "consumers": [
+        "subscriptions"
+      ],
+      "reviewers": [
+        "solo"
+      ],
+      "pattern": "open-host-service",
+      "delivery": "sync",
+      "via": "http",
+      "schema": "ddd/09-contracts/schemas/choose-meals.schema.json",
+      "example": "ddd/09-contracts/examples/choose-meals.json",
+      "semantics": [
+        "One accepted choice per (subscriptionId, week); a repeat for a chosen week is rejected — retrying after a timeout is therefore safe and returns that rejection, never a second choice",
+        "Rejected once the week's cutoff has passed: from then on the week carries the default meals and no further choice is accepted"
+      ],
+      "termsOfUse": "Additive changes only within version 1.x; a removed or retyped field is 2.0. Browser and app clients cannot be force-upgraded, so a 2.0 endpoint runs alongside 1.x for at least 90 days after the last 1.x release.",
+      "glossary": "ddd/glossary.md#subscriptions-context",
+      "provenance": {
+        "connect": "choose-meals",
+        "relationship": null,
+        "flows": [
+          "F1"
+        ]
+      },
+      "client": "subscriber"
+    },
+    {
+      "id": "week-charged",
+      "kind": "event",
+      "name": "Week Charged",
+      "description": "Billing has collected the week's payment; the box may be packed.",
+      "entityStatus": "Draft",
+      "version": "1.0",
+      "domain": "billing",
+      "owners": [
+        "solo"
+      ],
+      "consumers": [
+        "fulfilment"
+      ],
+      "reviewers": [
+        "solo"
+      ],
+      "pattern": "published-language",
+      "delivery": "at-least-once",
+      "via": "message-bus",
+      "schema": "ddd/09-contracts/schemas/week-charged.schema.json",
+      "example": "ddd/09-contracts/examples/week-charged.json",
+      "semantics": [
+        "Emitted at most once per (subscriptionId, week); consumers must de-duplicate on that pair"
+      ],
+      "termsOfUse": "Additive changes only within version 1.x; a removed or retyped field is 2.0.",
+      "glossary": "ddd/glossary.md#billing-context",
+      "provenance": {
+        "connect": "week-charged",
+        "relationship": "R2",
+        "flows": [
+          "F1"
+        ]
+      },
+      "channels": [
+        {
+          "via": "file",
+          "sync": false,
+          "delivery": "at-least-once",
+          "note": "the warehouse also picks the week up from the nightly pick-list file"
+        }
+      ]
+    },
+    {
+      "id": "charge-card",
+      "kind": "command",
+      "name": "Charge Card",
+      "description": "Billing asks Stripe to take the week's price from the household's saved card; a successful charge licenses week-charged, a decline pauses the subscription and releases the week.",
+      "entityStatus": "Draft",
+      "version": "1.0",
+      "domain": "billing",
+      "owners": [
+        "stripe"
+      ],
+      "consumers": [
+        "stripe"
+      ],
+      "reviewers": [
+        "solo"
+      ],
+      "pattern": "anticorruption-layer",
+      "delivery": "sync",
+      "via": "http",
+      "schema": "ddd/09-contracts/schemas/charge-card.schema.json",
+      "example": "ddd/09-contracts/examples/charge-card.json",
+      "semantics": [
+        "Sent at most once per (subscriptionId, week) and retried under that same idempotency key, so a retry after a timeout never charges the card twice",
+        "A decline is an answer, not a transport failure: billing pauses the subscription and releases the week, and no week-charged follows for it",
+        "Billed in GBP only in 1.0: the schema pins currency, so a non-GBP week fails the contract rather than reaching Stripe"
+      ],
+      "termsOfUse": "Stripe owns the wire contract; this schema is our view of the message at the ACL boundary. Stripe API changes land in the PaymentGateway adapter — nothing else calls Stripe directly. Additive changes only within version 1.x; a removed or retyped field is 2.0.",
+      "glossary": "ddd/glossary.md#billing-context",
+      "provenance": {
+        "connect": "charge-card",
+        "relationship": null,
+        "flows": [
+          "F1"
+        ]
+      },
+      "inherited": true,
+      "direction": "outbound"
+    }
+  ],
+  "deprecated": [
+    {
+      "id": "meals-chosen",
+      "collection": "entries",
+      "reason": "subscriptions and billing both live in the 'app' deployable, so this is an in-process call, not a wire contract; covered by a test on the subscriptions module",
+      "since": "2026-08-29"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "changed": [
+    {
+      "path": "ddd/glossary-alt.md",
+      "kind": "added",
+      "content": "# Ubiquitous language: Words\n\n## Shared\n**Subscription** - A customer's standing weekly order. _Avoid_: plan, membership\n**Box** - One week's delivery for one subscription. _Avoid_: order, shipment\n"
+    }
+  ],
+  "deleted": []
+}

@@ -1,0 +1,444 @@
+{
+  "schema_version": 1,
+  "step": "understand",
+  "produced_by": "ddd-understand",
+  "produced_at": "2026-09-02T18:41:39Z",
+  "mode": "auto",
+  "depth": "light",
+  "inputs": [
+    "CONTEXT.md"
+  ],
+  "assumptions": [
+    {
+      "id": "A1",
+      "text": "Depth light and scale 1-3 deployables / 1 team come from the brief (two part-time developers); nothing suggests more.",
+      "confidence": "high"
+    },
+    {
+      "id": "A2",
+      "text": "Concession approval is a volunteer judgement on uploaded proof, not an automated check.",
+      "confidence": "medium"
+    },
+    {
+      "id": "A3",
+      "text": "Cash taken at the desk is recorded in the system by the volunteer; the cash tin itself is out of scope.",
+      "confidence": "medium"
+    },
+    {
+      "id": "A4",
+      "text": "Members are households, but the member number and borrowing limits attach to one named person.",
+      "confidence": "low"
+    },
+    {
+      "id": "A5",
+      "text": "About 400 members and 600 items over the first year (order of magnitude from a typical UK tool library).",
+      "confidence": "low"
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q1",
+      "text": "Does a lapsed membership block returns and fee payment, or only new borrowing?",
+      "blocking": false,
+      "owner": "coordinator"
+    },
+    {
+      "id": "Q2",
+      "text": "Is the 48-hour reservation hold counted in calendar hours or only over desk opening days?",
+      "blocking": false,
+      "owner": "coordinator"
+    },
+    {
+      "id": "Q3",
+      "text": "Who decides that damage exceeds fair wear and sets the charge - the desk volunteer or the coordinator?",
+      "blocking": false,
+      "owner": "coordinator"
+    }
+  ],
+  "notes_for_downstream": [
+    {
+      "id": "N1",
+      "text": "'Tool' means a catalogue entry (a kind of thing, e.g. 'cordless drill') to members browsing, but a specific asset-tagged item to volunteers at the desk and in maintenance. Keep 'tool' and 'item' apart; it is a boundary between catalogue and lending/maintenance.",
+      "for": [
+        "discover",
+        "decompose",
+        "define"
+      ],
+      "kind": "language"
+    },
+    {
+      "id": "N2",
+      "text": "Borrowing eligibility is a cross-cutting rule: membership current, fee balance zero, no overdue item, fewer than three items out. Which context owns the decision is a real design call - do not let three contexts each half-own it.",
+      "for": [
+        "discover",
+        "decompose",
+        "define"
+      ],
+      "kind": "boundary"
+    },
+    {
+      "id": "N3",
+      "text": "Card payments go through Stripe and card data never touches the system (constraint C1). Do not build payment processing; wrap the provider.",
+      "for": [
+        "strategize",
+        "connect"
+      ],
+      "kind": "decision"
+    },
+    {
+      "id": "N4",
+      "text": "Late fees accrue daily (GBP 1 per item per day, capped at replacement value) - accrual is time-driven, not user-driven, so something must run on a clock.",
+      "for": [
+        "discover",
+        "connect",
+        "organise"
+      ],
+      "kind": "process"
+    }
+  ],
+  "system": {
+    "name": "Toolshare",
+    "one_liner": "A neighbourhood library where residents pay a small yearly fee and borrow tools instead of buying them.",
+    "problem": "Members cannot tell whether a tool is in without phoning; volunteers lose track of who has what and forget to log returns; late fees go uncollected, so tools come back late and the library loses money.",
+    "why_now": "The library has outgrown a spreadsheet, a paper sign-out book and a cash tin; membership is growing and the volunteers are burning out on admin.",
+    "lifecycle": "greenfield"
+  },
+  "business_model": {
+    "customer_segments": [
+      "Local households that need a tool occasionally",
+      "Low-income households on concession rates"
+    ],
+    "value_propositions": [
+      "Borrow the tool you need for a fortnight for a fraction of its price",
+      "Know before you leave home whether a tool is in and reserve it"
+    ],
+    "channels": [
+      "Website (assumed)",
+      "Saturday-morning desk"
+    ],
+    "customer_relationships": [
+      "Self-service online, volunteer-assisted at the desk"
+    ],
+    "revenue_streams": [
+      "Annual membership fee (GBP 40, concession GBP 15)",
+      "Late and damage fees",
+      "Grants and donations (assumed)"
+    ],
+    "key_resources": [
+      "The tool stock (mostly donated)",
+      "Volunteers",
+      "The desk premises"
+    ],
+    "key_activities": [
+      "Lending and returns",
+      "Tool upkeep and safety inspection",
+      "Membership and fee collection"
+    ],
+    "key_partners": [
+      "Stripe for card payments",
+      "Tool donors",
+      "Local council or funder (assumed)"
+    ],
+    "cost_structure": [
+      "Replacement and repair of tools",
+      "Premises",
+      "Part-time coordinator"
+    ],
+    "value_proposition_links": [
+      {
+        "value_proposition": "Borrow the tool you need for a fortnight for a fraction of its price",
+        "capabilities": [
+          "cap-lending",
+          "cap-membership"
+        ],
+        "beats": [
+          "alt-buy-own-tool",
+          "alt-myturn"
+        ]
+      },
+      {
+        "value_proposition": "Know before you leave home whether a tool is in and reserve it",
+        "capabilities": [
+          "cap-tool-catalogue",
+          "cap-lending"
+        ],
+        "beats": [
+          "alt-phone-the-desk",
+          "alt-spreadsheet-signout"
+        ]
+      }
+    ]
+  },
+  "goals": [
+    {
+      "id": "G1",
+      "statement": "Tools come back on time",
+      "metric": "share of loans returned by the due date",
+      "target": "90%",
+      "horizon": "12 months after launch"
+    },
+    {
+      "id": "G2",
+      "statement": "Fees are actually collected",
+      "metric": "share of late and damage fees paid within 30 days of being charged",
+      "target": "80%",
+      "horizon": "12 months after launch"
+    }
+  ],
+  "actors": [
+    {
+      "id": "member",
+      "name": "Member",
+      "kind": "person",
+      "role": "primary",
+      "description": "A resident household that pays the annual fee and borrows tools.",
+      "goals": [
+        "G1",
+        "G2"
+      ]
+    },
+    {
+      "id": "desk-volunteer",
+      "name": "Desk volunteer",
+      "kind": "person",
+      "role": "secondary",
+      "description": "Runs the Saturday desk: checks tools out and in, takes cash, notes condition.",
+      "goals": [
+        "G1"
+      ]
+    },
+    {
+      "id": "maintenance-volunteer",
+      "name": "Maintenance volunteer",
+      "kind": "person",
+      "role": "secondary",
+      "description": "Inspects, repairs and retires tools; adds donated tools.",
+      "goals": [
+        "G1"
+      ]
+    },
+    {
+      "id": "coordinator",
+      "name": "Coordinator",
+      "kind": "person",
+      "role": "secondary",
+      "description": "Part-time staff member: approves concessions, waives fees, sets damage charges.",
+      "goals": [
+        "G2"
+      ]
+    },
+    {
+      "id": "stripe",
+      "name": "Stripe",
+      "kind": "system",
+      "role": "secondary",
+      "description": "Card payment provider; holds card data on our behalf.",
+      "goals": [
+        "G2"
+      ]
+    }
+  ],
+  "impacts": [
+    {
+      "id": "I1",
+      "actor": "member",
+      "change": "Returns the tool by the due date because a reminder arrives two days before",
+      "goal": "G1"
+    },
+    {
+      "id": "I2",
+      "actor": "member",
+      "change": "Pays a late fee online the week it is charged instead of waiting for the next desk visit",
+      "goal": "G2"
+    },
+    {
+      "id": "I3",
+      "actor": "desk-volunteer",
+      "change": "Records every return at the moment it happens, with condition, in under five minutes",
+      "goal": "G1"
+    }
+  ],
+  "deliverables": [
+    {
+      "id": "D1",
+      "impact": "I1",
+      "description": "Due-date reminder by email two days before and on the day",
+      "priority": "must"
+    },
+    {
+      "id": "D2",
+      "impact": "I1",
+      "description": "One seven-day renewal a member can do online when nobody has reserved the item",
+      "priority": "should"
+    },
+    {
+      "id": "D3",
+      "impact": "I2",
+      "description": "Pay-a-fee link in the late notice that charges the card",
+      "priority": "must"
+    },
+    {
+      "id": "D4",
+      "impact": "I3",
+      "description": "Desk return screen: scan the asset tag, tick condition, done",
+      "priority": "must"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "cap-membership",
+      "name": "Membership",
+      "description": "Joining, annual renewal, concession approval, lapsing, member standing.",
+      "evolution": "product"
+    },
+    {
+      "id": "cap-tool-catalogue",
+      "name": "Tool catalogue",
+      "description": "What tools exist as kinds, their replacement value, safety notes and induction needs, and which physical items belong to each.",
+      "evolution": "custom"
+    },
+    {
+      "id": "cap-lending",
+      "name": "Lending",
+      "description": "Reserving, checking out, renewing and returning items within the 14-day, three-items, no-overdue rules.",
+      "evolution": "custom"
+    },
+    {
+      "id": "cap-fees",
+      "name": "Fees",
+      "description": "Daily late-fee accrual capped at replacement value, damage charges, waivers, and a member's balance.",
+      "evolution": "custom"
+    },
+    {
+      "id": "cap-card-payments",
+      "name": "Card payments",
+      "description": "Taking a card payment for a fee or membership through a provider.",
+      "evolution": "commodity"
+    },
+    {
+      "id": "cap-tool-maintenance",
+      "name": "Tool maintenance",
+      "description": "Inspections, repairs, condition tracking and retirement of physical items.",
+      "evolution": "custom"
+    }
+  ],
+  "constraints": [
+    {
+      "id": "C1",
+      "kind": "regulatory",
+      "text": "PCI: card data never touches the library's systems; cards are handled by Stripe end to end."
+    },
+    {
+      "id": "C2",
+      "kind": "organisational",
+      "text": "Two part-time developers and no on-call; anything that needs babysitting will not be run."
+    },
+    {
+      "id": "C3",
+      "kind": "technical",
+      "text": "One Postgres database and a small web application are the agreed shape; no additional infrastructure budget."
+    },
+    {
+      "id": "C4",
+      "kind": "regulatory",
+      "text": "UK GDPR: member contact details and proof of concession are personal data with a retention limit."
+    }
+  ],
+  "non_goals": [
+    "Inter-library transfers or a network of libraries",
+    "A native mobile app",
+    "Selling tools or consumables",
+    "Volunteer rota scheduling"
+  ],
+  "existing_systems": [
+    {
+      "name": "Shared spreadsheet and paper sign-out book",
+      "role": "Today's record of members, tools and loans",
+      "will": "replace"
+    },
+    {
+      "name": "Stripe",
+      "role": "Card payment provider",
+      "will": "integrate"
+    },
+    {
+      "name": "Email provider (assumed)",
+      "role": "Sends reminders and notices",
+      "will": "integrate"
+    }
+  ],
+  "alternatives": [
+    {
+      "id": "alt-spreadsheet-signout",
+      "name": "Shared spreadsheet plus paper sign-out book",
+      "kind": "spreadsheet",
+      "used_by": [
+        "desk-volunteer",
+        "member"
+      ],
+      "strengths": "Free, everyone understands it, no training",
+      "weaknesses": "Nobody knows what is out, returns go unlogged, fees are never chased",
+      "capabilities": [
+        "cap-lending",
+        "cap-tool-catalogue",
+        "cap-fees"
+      ]
+    },
+    {
+      "id": "alt-phone-the-desk",
+      "name": "Phoning the desk to ask if a tool is in",
+      "kind": "manual-process",
+      "used_by": [
+        "member"
+      ],
+      "strengths": "Personal, works for people without internet",
+      "weaknesses": "Only works on Saturday mornings; no reservation, so the tool may be gone on arrival",
+      "capabilities": [
+        "cap-tool-catalogue",
+        "cap-lending"
+      ]
+    },
+    {
+      "id": "alt-buy-own-tool",
+      "name": "Buying or hiring the tool",
+      "kind": "do-nothing",
+      "used_by": [
+        "member"
+      ],
+      "strengths": "Immediate, keep it as long as you like",
+      "weaknesses": "Expensive for a one-off job; storage; waste",
+      "capabilities": [
+        "cap-lending"
+      ]
+    },
+    {
+      "id": "alt-myturn",
+      "name": "myTurn (hosted lending-library software)",
+      "kind": "incumbent-product",
+      "used_by": [
+        "coordinator"
+      ],
+      "strengths": "Runs many tool libraries today; membership, catalogue and card payments out of the box",
+      "weaknesses": "Per-member pricing; generic loan rules; cannot express this library's fee cap, concession approval or desk workflow without workarounds",
+      "capabilities": [
+        "cap-membership",
+        "cap-tool-catalogue",
+        "cap-lending",
+        "cap-card-payments"
+      ]
+    }
+  ],
+  "scale_target": {
+    "deployables_min": 1,
+    "deployables_max": 3,
+    "teams": 1,
+    "users": "hundreds of members, about twenty volunteers",
+    "notes": "one team of two part-time devs, modular monolith preferred, single Postgres"
+  },
+  "plain_words": {
+    "what": "We wrote down why the tool library needs a system, who uses it, what success looks like in numbers, and how big the build may get.",
+    "decided": "Two goals: 90% of loans back on time and 80% of fees paid within 30 days. One team, 1 to 3 deployable parts. Six capabilities; card payments are bought, not built.",
+    "assumed": "That the library's own lending and fee rules (14 days, three items, GBP 1 a day capped) are the thing worth building, and that a hosted product like myTurn cannot express them well enough.",
+    "riskiest": "If myTurn or similar fits after all, most of the custom build below is wasted and the library should have configured a product instead."
+  }
+}

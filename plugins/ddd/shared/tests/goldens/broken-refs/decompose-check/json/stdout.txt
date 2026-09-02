@@ -1,0 +1,60 @@
+{
+  "ok": false,
+  "errors": [
+    "event 'subscription-teleported' is not in discover.json"
+  ],
+  "warnings": [
+    "produced_at <TS> is not later than discover's <TS> — run with --stamp (ddd validate will mark decompose stale)"
+  ],
+  "notes": [
+    "context 'billing' verdict=merge and no terms of its own — consider merging it into its neighbour (fewer, coarser contexts)",
+    "context 'billing' ISH verdict=merge (a module, not a deployable) — no notes_for_downstream entry addressed to organise carries that decision"
+  ],
+  "matrix": [
+    {
+      "context": "subscriptions",
+      "events": 3,
+      "commands": 2,
+      "aggregates": 1,
+      "subdomains": [
+        "subscriptions"
+      ],
+      "verdict": "candidate",
+      "wraps": []
+    },
+    {
+      "context": "billing",
+      "events": 1,
+      "commands": 2,
+      "aggregates": 0,
+      "subdomains": [
+        "billing"
+      ],
+      "verdict": "merge",
+      "wraps": []
+    },
+    {
+      "context": "fulfilment",
+      "events": 2,
+      "commands": 2,
+      "aggregates": 1,
+      "subdomains": [
+        "fulfilment"
+      ],
+      "verdict": "candidate",
+      "wraps": []
+    }
+  ],
+  "orphans": {
+    "events": [],
+    "commands": [],
+    "aggregates": []
+  },
+  "duplicates": {
+    "events": {},
+    "commands": {},
+    "aggregates": {}
+  },
+  "straddling_aggregates": [],
+  "written": {}
+}

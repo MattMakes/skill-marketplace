@@ -1,0 +1,23 @@
+{
+  "skill_name": "ddd-strategize",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We finished ddd-decompose for our clinic-booking SaaS — ddd/03-decompose/decompose.json has six subdomains (scheduling, patient-records, reminders, billing, identity, reporting). Which of these are core vs supporting vs generic, what should we build versus buy, and where should our two senior engineers spend their time? Draw the core domain chart.",
+      "expected_output": "Runs step 4 interactively against ./ddd: reads decompose.json, understand.json (goals, capability evolution, existing systems) and the manifest; scores every subdomain 0-10 on business differentiation and model complexity; presents the draft table and asks at most 4 targeted questions about scores/types (e.g. is scheduling where the clinic beats competitors), then at most 4 about sourcing/patterns (e.g. buy identity and billing; does scheduling need audit history); classifies a minority as core (likely scheduling), reminders/identity/billing as generic → buy with transaction-script glue, patient-records/reporting as supporting with active-record or transaction-script; every rationale names a goal id from understand.json; writes ddd/04-strategize/strategize.json (envelope + classifications + core_domains + bets + chart_mermaid) and core-domain-chart.md with a mermaid quadrantChart (x = complexity, y = differentiation) and the classification table; runs ddd strategize render, ddd strategize lint, ddd validate --step strategize (exit 0) and ddd mark; closes with absolute paths, the one-line classification, the investment call (seniors on scheduling), open questions and the next step /ddd-connect.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Our team wants to build our own payment ledger and notification engine because 'money needs an audit trail'. We already have decompose.json in ddd/. Are those really core domains? Should billing be event-sourced? Just draft it, no questions.",
+      "expected_output": "Detects auto mode ('no questions'), resolves ./ddd, reads the chain artifacts, and applies the type gate before the audit/money question: billing and notifications score low on differentiation (no goal metric depends on them; commodity evolution; Stripe/SaaS vendors exist) so they are generic → buy → transaction-script, explicitly rejecting event-sourced-domain-model for a generic payments wrapper; keeps event sourcing only for a core subdomain whose history is an asset (disputes, 'state as of', analytics) and says so in its rationale; core remains the minority; logs the disagreement with the team as assumptions (with confidence) and open questions (with owner), prints the three checkpoint status lines without waiting, writes both artifacts, passes lint and ddd validate --step strategize, marks the step (draft if a blocking question remains), and ends with a summary naming /ddd-connect as the next step.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Run ddd-strategize in auto mode on /tmp/acme/ddd, depth deep. This is the orchestrator; produce valid artifacts and report back.",
+      "expected_output": "Uses /tmp/acme/ddd as the workspace (prints the absolute path), takes depth deep from the instruction/manifest, checks decompose.json exists (otherwise runs ddd-decompose first per modes.md §0), gathers inputs and lists them in `inputs`; classifies every subdomain with scores, type, evolution (least-evolved capability rule), sourcing, pattern, investment, goal-linked rationale and future direction; adds deep-only material: purpose_alignment quadrant and chart_pattern per subdomain, an investment_summary, at least one bet with risk and validate_by, and a short wardley_narrative; core is the minority (demotions logged as assumptions); renders core-domain-chart.md via ddd strategize render --update-json, runs ddd strategize lint (no errors; warnings resolved or justified), ddd validate --step strategize exit 0, ddd mark strategize done --mode auto; final report lists absolute paths, core domains, build/buy calls, contexts that will get aggregates, open questions and the next step /ddd-connect.",
+      "files": []
+    }
+  ]
+}

@@ -1,0 +1,335 @@
+{
+  "engine": "fixed",
+  "width": 1016,
+  "height": 432,
+  "nodes": {
+    "box-packed": {
+      "x": 744,
+      "y": 228,
+      "w": 112,
+      "h": 56
+    },
+    "box-shipped": {
+      "x": 872,
+      "y": 228,
+      "w": 112,
+      "h": 56
+    },
+    "charge-card": {
+      "x": 576,
+      "y": 144,
+      "w": 112,
+      "h": 56
+    },
+    "charge-on-choice": {
+      "x": 320,
+      "y": 312,
+      "w": 112,
+      "h": 56
+    },
+    "charge-week": {
+      "x": 448,
+      "y": 144,
+      "w": 112,
+      "h": 56
+    },
+    "charge-week@stripe": {
+      "x": 448,
+      "y": 60,
+      "w": 112,
+      "h": 56
+    },
+    "choose-meals": {
+      "x": 320,
+      "y": 144,
+      "w": 112,
+      "h": 56
+    },
+    "choose-meals@subscriber": {
+      "x": 320,
+      "y": 60,
+      "w": 112,
+      "h": 56
+    },
+    "meals-chosen": {
+      "x": 320,
+      "y": 228,
+      "w": 112,
+      "h": 56
+    },
+    "pack-box": {
+      "x": 744,
+      "y": 144,
+      "w": 112,
+      "h": 56
+    },
+    "pack-box@packer": {
+      "x": 744,
+      "y": 60,
+      "w": 112,
+      "h": 56
+    },
+    "pack-on-charge": {
+      "x": 448,
+      "y": 312,
+      "w": 112,
+      "h": 56
+    },
+    "ship-box": {
+      "x": 872,
+      "y": 144,
+      "w": 112,
+      "h": 56
+    },
+    "ship-box@packer": {
+      "x": 872,
+      "y": 60,
+      "w": 112,
+      "h": 56
+    },
+    "start-subscription": {
+      "x": 32,
+      "y": 144,
+      "w": 112,
+      "h": 56
+    },
+    "start-subscription@subscriber": {
+      "x": 32,
+      "y": 60,
+      "w": 112,
+      "h": 56
+    },
+    "subscription-started": {
+      "x": 32,
+      "y": 228,
+      "w": 112,
+      "h": 56
+    },
+    "week-charged": {
+      "x": 448,
+      "y": 228,
+      "w": 112,
+      "h": 56
+    },
+    "weekly-menu": {
+      "x": 200,
+      "y": 144,
+      "w": 112,
+      "h": 56
+    }
+  },
+  "groups": {},
+  "edges": {
+    "charge-on-choice->charge-week": {
+      "points": [
+        {
+          "x": 432,
+          "y": 340
+        },
+        {
+          "x": 440,
+          "y": 340
+        },
+        {
+          "x": 440,
+          "y": 172
+        },
+        {
+          "x": 448,
+          "y": 172
+        }
+      ],
+      "labelAt": null
+    },
+    "charge-week->week-charged": {
+      "points": [
+        {
+          "x": 504,
+          "y": 200
+        },
+        {
+          "x": 504,
+          "y": 228
+        }
+      ],
+      "labelAt": null
+    },
+    "charge-week@stripe->charge-week": {
+      "points": [
+        {
+          "x": 504,
+          "y": 116
+        },
+        {
+          "x": 504,
+          "y": 144
+        }
+      ],
+      "labelAt": null
+    },
+    "choose-meals->meals-chosen": {
+      "points": [
+        {
+          "x": 376,
+          "y": 200
+        },
+        {
+          "x": 376,
+          "y": 228
+        }
+      ],
+      "labelAt": null
+    },
+    "choose-meals@subscriber->choose-meals": {
+      "points": [
+        {
+          "x": 376,
+          "y": 116
+        },
+        {
+          "x": 376,
+          "y": 144
+        }
+      ],
+      "labelAt": null
+    },
+    "meals-chosen->charge-on-choice": {
+      "points": [
+        {
+          "x": 376,
+          "y": 284
+        },
+        {
+          "x": 376,
+          "y": 312
+        }
+      ],
+      "labelAt": null
+    },
+    "pack-box->box-packed": {
+      "points": [
+        {
+          "x": 800,
+          "y": 200
+        },
+        {
+          "x": 800,
+          "y": 228
+        }
+      ],
+      "labelAt": null
+    },
+    "pack-box@packer->pack-box": {
+      "points": [
+        {
+          "x": 800,
+          "y": 116
+        },
+        {
+          "x": 800,
+          "y": 144
+        }
+      ],
+      "labelAt": null
+    },
+    "pack-on-charge->pack-box": {
+      "points": [
+        {
+          "x": 560,
+          "y": 340
+        },
+        {
+          "x": 736,
+          "y": 340
+        },
+        {
+          "x": 736,
+          "y": 172
+        },
+        {
+          "x": 744,
+          "y": 172
+        }
+      ],
+      "labelAt": null
+    },
+    "ship-box->box-shipped": {
+      "points": [
+        {
+          "x": 928,
+          "y": 200
+        },
+        {
+          "x": 928,
+          "y": 228
+        }
+      ],
+      "labelAt": null
+    },
+    "ship-box@packer->ship-box": {
+      "points": [
+        {
+          "x": 928,
+          "y": 116
+        },
+        {
+          "x": 928,
+          "y": 144
+        }
+      ],
+      "labelAt": null
+    },
+    "start-subscription->subscription-started": {
+      "points": [
+        {
+          "x": 88,
+          "y": 200
+        },
+        {
+          "x": 88,
+          "y": 228
+        }
+      ],
+      "labelAt": null
+    },
+    "start-subscription@subscriber->start-subscription": {
+      "points": [
+        {
+          "x": 88,
+          "y": 116
+        },
+        {
+          "x": 88,
+          "y": 144
+        }
+      ],
+      "labelAt": null
+    },
+    "week-charged->pack-on-charge": {
+      "points": [
+        {
+          "x": 504,
+          "y": 284
+        },
+        {
+          "x": 504,
+          "y": 312
+        }
+      ],
+      "labelAt": null
+    },
+    "weekly-menu->choose-meals": {
+      "points": [
+        {
+          "x": 312,
+          "y": 172
+        },
+        {
+          "x": 320,
+          "y": 172
+        }
+      ],
+      "labelAt": null
+    }
+  }
+}

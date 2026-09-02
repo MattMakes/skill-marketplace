@@ -1,0 +1,7 @@
+lint: OK
+wrote <DDD_DIR>/07-define/subscriptions/bounded-context-canvas.md
+wrote <DDD_DIR>/07-define/billing/bounded-context-canvas.md
+wrote <DDD_DIR>/07-define/fulfilment/bounded-context-canvas.md
+wrote <DDD_DIR>/07-define/system-context.md
+wrote <DDD_DIR>/glossary.md
+removed <DDD_DIR>/07-define/.prefill (pre-fill briefs are scaffolding; re-run ddd define prefill to regenerate them)

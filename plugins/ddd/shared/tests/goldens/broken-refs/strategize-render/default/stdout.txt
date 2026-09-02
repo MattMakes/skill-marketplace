@@ -1,0 +1,1 @@
+wrote <DDD_DIR>/04-strategize/core-domain-chart.md

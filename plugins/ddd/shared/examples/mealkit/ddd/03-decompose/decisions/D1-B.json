@@ -1,0 +1,86 @@
+{
+  "format": "ddd-diagram-spec",
+  "version": 1,
+  "id": "context-map",
+  "kind": "architecture",
+  "title": "Option B: billing folded into subscriptions as a payment policy",
+  "subtitle": "decision D1 option B, derived from the decompose context map",
+  "source": {
+    "step": "decompose",
+    "file": "decompose.json"
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "subscriptions",
+        "label": "Subscriptions",
+        "sublabel": "core domain, owns the charge",
+        "kind": "context",
+        "tag": "core",
+        "searchText": "subscriptions subscriptions Box billing payment policy"
+      },
+      {
+        "id": "fulfilment",
+        "label": "Fulfilment",
+        "sublabel": "supporting domain",
+        "kind": "context",
+        "searchText": "fulfilment fulfilment Box"
+      },
+      {
+        "id": "stripe",
+        "label": "Stripe",
+        "sublabel": "external",
+        "kind": "external",
+        "context": "",
+        "searchText": "stripe payment provider"
+      }
+    ],
+    "edges": [
+      {
+        "id": "R2",
+        "from": "subscriptions",
+        "to": "fulfilment",
+        "kind": "event",
+        "label": "published language",
+        "pattern": "published-language",
+        "title": "Fulfilment packs once the subscription week is charged"
+      },
+      {
+        "id": "R3",
+        "from": "subscriptions",
+        "to": "stripe",
+        "kind": "command",
+        "label": "conformist",
+        "pattern": "conformist",
+        "title": "The payment policy calls Stripe directly and takes its types"
+      }
+    ],
+    "groups": [
+      {
+        "id": "app",
+        "label": "Meal-kit app",
+        "sublabel": "modular-monolith · team Founder",
+        "kind": "deployable",
+        "members": [
+          "subscriptions"
+        ]
+      },
+      {
+        "id": "warehouse",
+        "label": "Warehouse service",
+        "sublabel": "service · team Founder",
+        "kind": "deployable",
+        "members": [
+          "fulfilment"
+        ]
+      }
+    ]
+  },
+  "layoutOptions": {
+    "direction": "RIGHT",
+    "spacing": "comfortable"
+  },
+  "notes": [
+    "One context fewer, but Stripe's charge, refund and decline types sit inside the core model."
+  ]
+}

@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "step": "connect",
+  "produced_by": "ddd-connect",
+  "produced_at": "2026-08-29T10:00:00Z",
+  "mode": "auto",
+  "depth": "light",
+  "inputs": [
+    "ddd/04-strategize/strategize.json",
+    "ddd/03-decompose/decompose.json"
+  ],
+  "assumptions": [
+    {
+      "id": "A1",
+      "text": "Example fixture; assumptions are illustrative",
+      "confidence": "high"
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q1",
+      "text": "Illustrative open question",
+      "blocking": false,
+      "owner": "domain expert"
+    }
+  ],
+  "plain_words": {
+    "what": "We drew the messages the three parts send each other to get one week done.",
+    "decided": "4 messages across 1 flow. One of them leaves our system entirely and goes to Stripe.",
+    "assumed": "Events are delivered at least once, so a receiver may see the same one twice and must cope.",
+    "riskiest": "If a message is delivered twice and billing does not notice, a household is charged twice."
+  },
+  "flows": [
+    {
+      "id": "F1",
+      "name": "Weekly box",
+      "scenario": "S1",
+      "steps": [
+        {
+          "seq": 1,
+          "from": "subscriber",
+          "to": "subscriptions",
+          "message": "choose-meals",
+          "kind": "command",
+          "sync": true,
+          "via": "http"
+        },
+        {
+          "seq": 2,
+          "from": "subscriptions",
+          "to": "billing",
+          "message": "meals-chosen",
+          "kind": "event",
+          "sync": false,
+          "via": "in-process"
+        },
+        {
+          "seq": 3,
+          "from": "billing",
+          "to": "stripe",
+          "message": "charge-card",
+          "kind": "command",
+          "sync": true,
+          "via": "http"
+        },
+        {
+          "seq": 4,
+          "from": "billing",
+          "to": "fulfilment",
+          "message": "week-charged",
+          "kind": "event",
+          "sync": false,
+          "via": "message-bus"
+        }
+      ],
+      "mermaid": "sequenceDiagram\n  autonumber\n  actor subscriber as Subscriber\n  participant subscriptions as Subscriptions\n  participant billing as Billing\n  participant stripe as Stripe (external)\n  participant fulfilment as Fulfilment\n  subscriber->>subscriptions: choose-meals (command via http)\n  subscriptions-)billing: meals-chosen (event via in-process)\n  billing->>stripe: charge-card (command via http)\n  billing-)fulfilment: week-charged (event via message-bus)"
+    }
+  ],
+  "messages": [
+    {
+      "id": "choose-meals",
+      "kind": "command",
+      "producer": "subscriber",
+      "consumers": [
+        "subscriptions"
+      ],
+      "contract": "ui",
+      "payload": [
+        "subscriptionId",
+        "week",
+        "recipeIds"
+      ],
+      "delivery": "sync",
+      "description": "The household locks its meals for a week before the cutoff",
+      "idempotency": "One accepted choice per (subscriptionId, week); a repeat for a chosen week is rejected"
+    },
+    {
+      "id": "meals-chosen",
+      "kind": "event",
+      "producer": "subscriptions",
+      "consumers": [
+        "billing"
+      ],
+      "contract": "customer-supplier",
+      "payload": [
+        "subscriptionId",
+        "week",
+        "recipeIds"
+      ],
+      "delivery": "at-least-once"
+    },
+    {
+      "id": "week-charged",
+      "kind": "event",
+      "producer": "billing",
+      "consumers": [
+        "fulfilment"
+      ],
+      "contract": "published-language",
+      "payload": [
+        "subscriptionId",
+        "week"
+      ],
+      "delivery": "at-least-once",
+      "channels": [
+        {
+          "via": "file",
+          "sync": false,
+          "delivery": "at-least-once",
+          "note": "the warehouse also picks the week up from the nightly pick-list file"
+        }
+      ]
+    },
+    {
+      "id": "charge-card",
+      "kind": "command",
+      "producer": "billing",
+      "consumers": [
+        "stripe"
+      ],
+      "contract": "anticorruption-layer",
+      "payload": [
+        "subscriptionId",
+        "week",
+        "amount",
+        "currency"
+      ],
+      "delivery": "sync"
+    }
+  ],
+  "integration_patterns": [
+    {
+      "relationship": "R1",
+      "mechanism": "in-process-call",
+      "rationale": "Same deployable"
+    },
+    {
+      "relationship": "R2",
+      "mechanism": "async-events",
+      "rationale": "Fulfilment may lag"
+    }
+  ],
+  "coupling_concerns": [
+    {
+      "id": "CC1",
+      "text": "Fulfilment needs recipe details from subscriptions",
+      "contexts": [
+        "subscriptions",
+        "fulfilment"
+      ],
+      "severity": "medium"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "format": "ddd-diagram-spec",
+  "version": 1,
+  "id": "teams-deployables",
+  "kind": "architecture",
+  "title": "Option A: one modular monolith now",
+  "subtitle": "decision D1 option A, derived from the organise teams and deployables",
+  "source": {
+    "step": "organise",
+    "file": "organise.json"
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "app",
+        "label": "Meal-kit app",
+        "sublabel": "subscriptions · billing · fulfilment",
+        "kind": "deployable",
+        "deployKind": "modular-monolith",
+        "contexts": [
+          {
+            "id": "subscriptions",
+            "label": "Subscriptions"
+          },
+          {
+            "id": "billing",
+            "label": "Billing"
+          },
+          {
+            "id": "fulfilment",
+            "label": "Fulfilment"
+          }
+        ],
+        "w": 260,
+        "h": 88,
+        "group": "solo",
+        "context": "",
+        "searchText": "app modular-monolith subscriptions billing fulfilment",
+        "title": "One deploy; fulfilment is a module reached over the warehouse VPN"
+      }
+    ],
+    "edges": [],
+    "groups": [
+      {
+        "id": "solo",
+        "label": "Founder",
+        "sublabel": "stream-aligned · 1 person · load ok",
+        "kind": "team",
+        "members": [
+          "app"
+        ]
+      }
+    ]
+  },
+  "layoutOptions": {
+    "direction": "RIGHT",
+    "spacing": "comfortable"
+  },
+  "notes": [
+    "1 of a 1-3 target. Why not more: no runtime evidence yet, one person deploys."
+  ]
+}

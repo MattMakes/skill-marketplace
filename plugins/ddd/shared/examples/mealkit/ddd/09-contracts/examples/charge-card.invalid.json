@@ -1,0 +1,11 @@
+[
+  {
+    "why": "a non-GBP week: 1.0 has no FX handling, so this must fail the contract, not reach Stripe",
+    "payload": {
+      "subscriptionId": "b7f3c1de-9a24-4f65-8d0b-2c5e7a1f4e93",
+      "week": "2026-W36",
+      "amount": 3450,
+      "currency": "USD"
+    }
+  }
+]

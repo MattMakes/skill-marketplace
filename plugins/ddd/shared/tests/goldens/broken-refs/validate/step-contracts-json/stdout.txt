@@ -1,0 +1,90 @@
+{
+  "ddd_dir": "<DDD_DIR>",
+  "ok": true,
+  "errors": [],
+  "warnings": [],
+  "info": [],
+  "steps": [
+    {
+      "step": "understand",
+      "status": "done",
+      "artifact": true,
+      "updated": "<TS>",
+      "open_questions": 1,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "step": "discover",
+      "status": "done",
+      "artifact": true,
+      "updated": "<TS>",
+      "open_questions": 1,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "step": "decompose",
+      "status": "done",
+      "artifact": true,
+      "updated": "<TS>",
+      "open_questions": 1,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "step": "strategize",
+      "status": "done",
+      "artifact": true,
+      "updated": "<TS>",
+      "open_questions": 1,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "step": "connect",
+      "status": "done",
+      "artifact": true,
+      "updated": "<TS>",
+      "open_questions": 1,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "step": "organise",
+      "status": "done",
+      "artifact": true,
+      "updated": "<TS>",
+      "open_questions": 1,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "step": "define",
+      "status": "done",
+      "artifact": true,
+      "updated": "<TS>",
+      "open_questions": 1,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "step": "code",
+      "status": "done",
+      "artifact": true,
+      "updated": "<TS>",
+      "open_questions": 1,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "step": "contracts",
+      "status": "done",
+      "artifact": true,
+      "updated": "<TS>",
+      "open_questions": 3,
+      "errors": 0,
+      "warnings": 0
+    }
+  ]
+}

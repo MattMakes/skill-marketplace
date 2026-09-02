@@ -1,0 +1,16 @@
+DDD workspace: <DDD_DIR>
+validated decompose: 0 error(s), 0 warning(s)
+project=mealkit mode=auto depth=light scale_target={"deployables_min": 1, "deployables_max": 3, "teams": 1, "notes": "solo dev"}
+step        status    json  open Q  err  warn  updated
+understand  done      yes   1       0    0     <TS>
+discover    done      yes   1       0    0     <TS>
+decompose   done      yes   1       0    0     <TS>
+strategize  pending   -     0       0    0     
+connect     pending   -     0       0    0     
+organise    pending   -     0       0    0     
+define      pending   -     0       0    0     
+code        pending   -     0       0    0     
+contracts   pending   -     0       0    0     
+next: ddd-strategize
+
+RESULT: OK

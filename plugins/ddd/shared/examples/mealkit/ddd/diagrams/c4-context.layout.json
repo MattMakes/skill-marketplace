@@ -1,0 +1,62 @@
+{
+  "engine": "elk",
+  "width": 1024,
+  "height": 152,
+  "nodes": {
+    "stripe": {
+      "x": 856,
+      "y": 48,
+      "w": 144,
+      "h": 64
+    },
+    "subscriber": {
+      "x": 24,
+      "y": 48,
+      "w": 144,
+      "h": 64
+    },
+    "system": {
+      "x": 392,
+      "y": 24,
+      "w": 248,
+      "h": 104
+    }
+  },
+  "groups": {},
+  "edges": {
+    "subscriber->system": {
+      "points": [
+        {
+          "x": 168,
+          "y": 78
+        },
+        {
+          "x": 392,
+          "y": 78
+        }
+      ],
+      "labelAt": {
+        "x": 216,
+        "y": 68
+      }
+    },
+    "system->stripe": {
+      "points": [
+        {
+          "x": 640,
+          "y": 78
+        },
+        {
+          "x": 856,
+          "y": 78
+        }
+      ],
+      "labelAt": {
+        "x": 685,
+        "y": 68
+      }
+    }
+  },
+  "fingerprint": "c82052c-62aa221a",
+  "optionsKey": "{\"direction\":\"RIGHT\",\"spacing\":\"comfortable\"}"
+}

@@ -1,0 +1,2 @@
+updated <DDD_DIR>/manifest.json
+mode=interactive depth=deep scale_target={"deployables_min": 1, "deployables_max": 3, "teams": 2, "notes": "solo dev"}

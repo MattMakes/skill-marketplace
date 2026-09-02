@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "step": "organise",
+  "produced_by": "ddd-organise",
+  "produced_at": "2026-08-29T10:00:00Z",
+  "mode": "auto",
+  "depth": "light",
+  "inputs": [
+    "ddd/05-connect/connect.json",
+    "ddd/03-decompose/decompose.json"
+  ],
+  "assumptions": [
+    {
+      "id": "A1",
+      "text": "Example fixture; assumptions are illustrative",
+      "confidence": "high"
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q1",
+      "text": "Illustrative open question",
+      "blocking": false,
+      "owner": "domain expert"
+    }
+  ],
+  "plain_words": {
+    "what": "We decided who owns what, and how many separate things get deployed.",
+    "decided": "One person owns everything. Two deployables: the app (subscriptions and billing together) and the warehouse.",
+    "assumed": "Subscriptions and billing can live in one app. They change together and one person runs both.",
+    "riskiest": "That pairing is why one message below needs no contract. Split them later and it becomes a real seam that does."
+  },
+  "teams": [
+    {
+      "id": "solo",
+      "name": "Founder",
+      "type": "stream-aligned",
+      "size": 1,
+      "owns_contexts": [
+        "subscriptions",
+        "billing",
+        "fulfilment"
+      ],
+      "cognitive_load": "ok",
+      "notes": ""
+    }
+  ],
+  "interactions": [],
+  "deployables": [
+    {
+      "id": "app",
+      "name": "Meal-kit app",
+      "kind": "modular-monolith",
+      "contexts": [
+        "subscriptions",
+        "billing"
+      ],
+      "team": "solo",
+      "data_store": "own",
+      "independent_deploy": true,
+      "rationale": "One team, one deploy"
+    },
+    {
+      "id": "warehouse",
+      "name": "Warehouse service",
+      "kind": "service",
+      "contexts": [
+        "fulfilment"
+      ],
+      "team": "solo",
+      "data_store": "own",
+      "independent_deploy": true,
+      "rationale": "Runs on the warehouse network with different uptime/latency needs than the customer app; integrated by async events (week-charged) so the app never blocks on it"
+    }
+  ],
+  "topology_style": "few-services",
+  "deployable_count": 2,
+  "scale_check": {
+    "target_min": 1,
+    "target_max": 3,
+    "within_target": true,
+    "note": "2 of a 1–3 target: fulfilment runs on the warehouse network with different uptime needs (understand C1 / hotspot H1), so it is split; billing stays in the app as a Stripe adapter. Why not fewer: on-site runtime. Why not more: one team, no scaling evidence."
+  },
+  "decisions": [
+    {
+      "id": "D1",
+      "question": "One modular monolith or split the warehouse service now?",
+      "kind": "topology",
+      "options": [
+        {
+          "id": "A",
+          "summary": "One modular monolith now; fulfilment is a module reached from the warehouse over the network.",
+          "pros": [
+            "One deploy, one database, one log to read at 2am",
+            "Nothing to split until a real runtime constraint shows up"
+          ],
+          "cons": [
+            "A cloud outage stops packing on the warehouse floor",
+            "Warehouse latency and uptime needs are ignored until they bite"
+          ],
+          "risks": [
+            "The fulfilment module quietly reaches into subscription tables and the seam disappears"
+          ],
+          "diagram": "ddd/06-organise/decisions/D1-A.json"
+        },
+        {
+          "id": "B",
+          "summary": "Split the warehouse service now so packing runs on the warehouse network.",
+          "pros": [
+            "Packing keeps working when the cloud link drops",
+            "Fulfilment can deploy on the warehouse schedule, not the app schedule"
+          ],
+          "cons": [
+            "Two deploys and two data stores for one person",
+            "week-charged needs a real contract and an outbox from day one"
+          ],
+          "risks": [
+            "Distributed failure modes (duplicate box-packed, lost events) arrive before the business has a second site"
+          ],
+          "diagram": "ddd/06-organise/decisions/D1-B.json"
+        },
+        {
+          "id": "C",
+          "summary": "One modular monolith with a warehouse module boundary enforced by a fitness test, split when the runtime need is proven.",
+          "pros": [
+            "Cheapest now; the split stays possible because the test keeps the seam clean",
+            "The decision waits for evidence instead of guessing"
+          ],
+          "cons": [
+            "Still one runtime, so the outage problem is only deferred",
+            "Someone must keep the fitness test honest"
+          ],
+          "risks": [
+            "The test passes while the shared database still couples the modules underneath"
+          ]
+        }
+      ],
+      "confidence": "low",
+      "would_flip_if": [
+        "The warehouse network is proven unreliable enough that packing must survive a cloud outage",
+        "A second warehouse or a packing partner appears and needs its own deploy",
+        "The founder hires a second developer who can carry a separate service"
+      ],
+      "made_by": "strategist",
+      "records": {
+        "open_question": "Q1"
+      }
+    }
+  ]
+}

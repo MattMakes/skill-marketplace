@@ -1,0 +1,42 @@
+ORGANISE BRIEF — Meal-kit subscription  (ddd-dir: <DDD_DIR>)
+mode=auto depth=light scale_target: deployables 1–3, teams 1, users ?, notes "solo dev"
+Inputs present: manifest.json, 01-understand/understand.json, 03-decompose/decompose.json, 04-strategize/strategize.json, 05-connect/connect.json
+
+Upstream notes addressed to organise (contract §3 — a `decision` note is evidence; never re-emit one you merely agree with):
+  (none)
+
+Constraints (understand):
+  C1 [regulatory] Food safety labelling
+Existing systems: Stripe (payments, integrate)
+Channels (frontend evidence): Web app
+
+Bounded contexts (decompose × strategize):
+  id             type        sourcing  pattern             cx  ISH        aggr  ev/cmd
+  subscriptions  core        build     domain-model        6   candidate  1     2/2
+  billing        generic     buy       transaction-script  2   merge      0     1/2
+  fulfilment     supporting  build     active-record       4   candidate  1     2/2
+
+Relationships (decompose → connect mechanism):
+  R1 subscriptions → billing  customer-supplier  in-process-call  "Same deployable"
+  R2 billing → fulfilment  published-language  async-events  "Fulfilment may lag"
+
+Cross-context traffic (connect flows):
+  subscriptions → billing  meals-chosen  event  async  via in-process  (F1#2)
+  billing → fulfilment  week-charged  event  async  via message-bus  (F1#4)
+  Sync chains (≥3 contexts in a row): none
+  Via summary: in-process ×1, message-bus ×1
+
+Coupling concerns (connect):
+  CC1 [medium] subscriptions,fulfilment — Fulfilment needs recipe details from subscriptions
+
+Teams in manifest scale_target: 1
+Previous organise.json: teams ['solo'], deployables ['app', 'warehouse'] (re-run → keep these ids, add a `deprecated` list for removals)
+
+Hints:
+  - bought/generic contexts → adapter module inside a deployable, not a deployable of their own: billing
+  - ISH candidates (eligible for extraction, NOT a mandate): subscriptions, fulfilment
+  - ISH verdict 'merge' (never a deployable on its own): billing
+  - some cross-context traffic is over the network → connect assumed separate deployables for those edges; confirm or revise
+  - async-only inbound (cheap to extract later): billing, fulfilment
+  - core contexts (strongest stream-aligned team; never split ownership): subscriptions
+  - regulatory constraints present (C1) — check whether any demands physical isolation

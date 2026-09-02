@@ -1,0 +1,337 @@
+{
+  "ddd_dir": "<DDD_DIR>",
+  "project": "mealkit",
+  "mode": "auto",
+  "depth": "light",
+  "scale_target": {
+    "deployables_min": 1,
+    "deployables_max": 3,
+    "teams": 1,
+    "notes": "solo dev"
+  },
+  "context_band": {
+    "floor": 1,
+    "aim_min": 2,
+    "aim_max": 6,
+    "basis": "deployables 1\u20133"
+  },
+  "upstream_notes": [
+    {
+      "from": "understand",
+      "id": "N1",
+      "kind": "language",
+      "text": "'Box' means the week's menu choice to subscribers but the packed parcel to packers \u2014 treat as a boundary, not a synonym"
+    }
+  ],
+  "timeline": [
+    {
+      "phase": "subscribing",
+      "name": "Subscribing",
+      "events": [
+        {
+          "id": "subscription-started",
+          "sequence": 10,
+          "actor": "subscriber",
+          "triggered_by": "start-subscription",
+          "pivotal": true
+        }
+      ]
+    },
+    {
+      "phase": "choosing",
+      "name": "Choosing meals",
+      "events": [
+        {
+          "id": "meals-chosen",
+          "sequence": 20,
+          "actor": "subscriber",
+          "triggered_by": "choose-meals",
+          "pivotal": false
+        },
+        {
+          "id": "week-charged",
+          "sequence": 25,
+          "actor": "stripe",
+          "triggered_by": "charge-week",
+          "pivotal": false
+        }
+      ]
+    },
+    {
+      "phase": "fulfilling",
+      "name": "Fulfilling",
+      "events": [
+        {
+          "id": "box-packed",
+          "sequence": 30,
+          "actor": "packer",
+          "triggered_by": "pack-box",
+          "pivotal": true
+        },
+        {
+          "id": "box-shipped",
+          "sequence": 40,
+          "actor": "courier",
+          "triggered_by": "ship-box",
+          "pivotal": true
+        }
+      ]
+    }
+  ],
+  "events_without_known_phase": [],
+  "swimlanes": {
+    "subscriber": {
+      "events": [
+        "subscription-started",
+        "meals-chosen"
+      ],
+      "commands": [
+        "start-subscription",
+        "choose-meals"
+      ]
+    },
+    "stripe": {
+      "events": [
+        "week-charged"
+      ],
+      "commands": []
+    },
+    "packer": {
+      "events": [
+        "box-packed"
+      ],
+      "commands": [
+        "pack-box",
+        "ship-box"
+      ]
+    },
+    "courier": {
+      "events": [
+        "box-shipped"
+      ],
+      "commands": []
+    },
+    "(none)": {
+      "events": [],
+      "commands": [
+        "charge-week",
+        "charge-card"
+      ]
+    }
+  },
+  "aggregate_candidates": [
+    {
+      "id": "subscription",
+      "handles": [
+        "start-subscription",
+        "choose-meals"
+      ],
+      "emits": [
+        "subscription-started",
+        "meals-chosen"
+      ]
+    },
+    {
+      "id": "box",
+      "handles": [
+        "pack-box",
+        "ship-box"
+      ],
+      "emits": [
+        "box-packed",
+        "box-shipped"
+      ]
+    }
+  ],
+  "not_in_any_aggregate": {
+    "events": [
+      "week-charged"
+    ],
+    "commands": [
+      "charge-week",
+      "charge-card"
+    ]
+  },
+  "policies": [
+    {
+      "id": "charge-on-choice",
+      "kind": "automatic",
+      "when": "meals-chosen",
+      "when_phase": "choosing",
+      "when_actor": "subscriber",
+      "then": [
+        {
+          "command": "charge-week",
+          "produces": [
+            "week-charged"
+          ],
+          "phases": [
+            "choosing"
+          ],
+          "actors": [
+            "stripe"
+          ]
+        }
+      ],
+      "crosses": [
+        "actor"
+      ],
+      "hint": "relationship candidate: owner of the 'when' event is UPSTREAM of the owner of the 'then' command"
+    },
+    {
+      "id": "pack-on-charge",
+      "kind": "automatic",
+      "when": "week-charged",
+      "when_phase": "choosing",
+      "when_actor": "stripe",
+      "then": [
+        {
+          "command": "pack-box",
+          "produces": [
+            "box-packed"
+          ],
+          "phases": [
+            "fulfilling"
+          ],
+          "actors": [
+            "packer"
+          ]
+        }
+      ],
+      "crosses": [
+        "actor",
+        "phase"
+      ],
+      "hint": "relationship candidate: owner of the 'when' event is UPSTREAM of the owner of the 'then' command"
+    }
+  ],
+  "commands_without_actor": [
+    {
+      "id": "charge-week",
+      "produces": [
+        "week-charged"
+      ],
+      "hint": "policy-driven (actor null): own it in the context that owns its produced event(s)"
+    },
+    {
+      "id": "charge-card",
+      "produces": [],
+      "hint": "policy-driven (actor null): own it in the context that owns its produced event(s)"
+    }
+  ],
+  "external_systems": [
+    {
+      "id": "stripe",
+      "name": "Stripe",
+      "events_acted": [
+        "week-charged"
+      ],
+      "commands_acted": [],
+      "terms": [],
+      "hint": "evidence: acts on 1 event(s) / 0 command(s), no distinct terms \u2014 a wrapper context only if these carry their own language or a distinct actor drives them; otherwise an adapter inside the context that owns them (record `wraps` there)"
+    },
+    {
+      "id": "courier",
+      "name": "Courier",
+      "events_acted": [
+        "box-shipped"
+      ],
+      "commands_acted": [],
+      "terms": [],
+      "hint": "evidence: acts on 1 event(s) / 0 command(s), no distinct terms \u2014 a wrapper context only if these carry their own language or a distinct actor drives them; otherwise an adapter inside the context that owns them (record `wraps` there)"
+    }
+  ],
+  "existing_systems": [
+    {
+      "name": "Stripe",
+      "role": "payments",
+      "will": "integrate",
+      "hint": "see external 'stripe' above \u2014 same evidence rule"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "cap-subscription-management",
+      "name": "Subscription management",
+      "evolution": "product",
+      "description": "Sign up, pause, cancel"
+    },
+    {
+      "id": "cap-menu-planning",
+      "name": "Menu planning",
+      "evolution": "custom",
+      "description": "Weekly menu and choices"
+    },
+    {
+      "id": "cap-fulfilment",
+      "name": "Fulfilment",
+      "evolution": "custom",
+      "description": "Pack and ship boxes"
+    }
+  ],
+  "regulatory_constraints": [
+    {
+      "id": "C1",
+      "kind": "regulatory",
+      "text": "Food safety labelling"
+    }
+  ],
+  "glossary_seeds": [
+    {
+      "term": "Subscription",
+      "definition": "A customer's standing weekly order",
+      "avoid": [
+        "plan",
+        "membership"
+      ],
+      "context": null
+    },
+    {
+      "term": "Box",
+      "definition": "One week's delivery for one subscription",
+      "avoid": [
+        "order",
+        "shipment"
+      ],
+      "context": null
+    }
+  ],
+  "hotspots": [
+    {
+      "id": "H1",
+      "kind": "unclear",
+      "near": "week-charged",
+      "near_phase": "choosing",
+      "text": "What happens if payment fails after meals are chosen?",
+      "hint": ""
+    }
+  ],
+  "read_models": [
+    {
+      "id": "weekly-menu",
+      "informs": "choose-meals",
+      "used_by": "subscriber"
+    }
+  ],
+  "coverage_checklist": {
+    "events": [
+      "box-packed",
+      "box-shipped",
+      "meals-chosen",
+      "subscription-started",
+      "week-charged"
+    ],
+    "commands": [
+      "charge-card",
+      "charge-week",
+      "choose-meals",
+      "pack-box",
+      "ship-box",
+      "start-subscription"
+    ],
+    "aggregates": [
+      "box",
+      "subscription"
+    ]
+  }
+}

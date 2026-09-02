@@ -1,0 +1,572 @@
+{
+  "schema_version": 1,
+  "step": "decompose",
+  "produced_by": "ddd-decompose",
+  "produced_at": "2026-09-02T18:49:31Z",
+  "mode": "auto",
+  "depth": "light",
+  "inputs": [
+    "ddd/02-discover/discover.json",
+    "ddd/01-understand/understand.json",
+    "ddd/glossary.md",
+    "ddd/manifest.json",
+    "CONTEXT.md"
+  ],
+  "assumptions": [
+    {
+      "id": "A1",
+      "text": "Tool catalogue and tool maintenance are one context (inventory): the same volunteer drives both, 'Tool' (kind) and 'Item' (unit) are two terms in one model, and nothing shifts meaning between adding a tool and retiring an item. Split later if a separate catalogue editor appears.",
+      "confidence": "medium"
+    },
+    {
+      "id": "A2",
+      "text": "Stripe is an adapter inside fees (and membership for the joining fee), not a wrapper context: the storm shows one Stripe event and no Stripe vocabulary of its own.",
+      "confidence": "medium"
+    },
+    {
+      "id": "A3",
+      "text": "Lending owns item availability (available / reserved / on loan); inventory owns item condition and lifecycle (in maintenance / retired) and tells lending which items exist and are fit to lend.",
+      "confidence": "medium"
+    },
+    {
+      "id": "A4",
+      "text": "The spreadsheet and paper book are imported once and retired; they are not a live legacy context on the map.",
+      "confidence": "high"
+    },
+    {
+      "id": "A5",
+      "text": "Fees and membership both record card payments but fees owns the member's balance; the membership fee is not part of the balance that blocks borrowing.",
+      "confidence": "medium"
+    },
+    {
+      "id": "A6",
+      "text": "Lending owns the borrowing-eligibility rule (membership current, balance zero, no overdue, fewer than three out) and the member-standing read model. Two of the four facts are lending's own state; discover N2 says lending consumes the answer; discover Q3 and Q4, which change the rule, are lending questions.",
+      "confidence": "high"
+    },
+    {
+      "id": "A7",
+      "text": "Lending obtains 'membership current' and 'balance zero' by direct read from membership and fees at check-out, not by a locally maintained projection - chosen for one Postgres, a modular monolith, two part-time devs and C2 (no babysitting). Mechanism, not boundary; connect confirms.",
+      "confidence": "medium"
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q1",
+      "text": "Does an unpaid membership renewal count as 'owing' for borrowing purposes, or only late and damage fees?",
+      "blocking": false,
+      "owner": "coordinator"
+    },
+    {
+      "id": "Q2",
+      "text": "Should the catalogue (public browsing of tool kinds) be split from maintenance if a member-facing editor or a second volunteer role appears?",
+      "blocking": false,
+      "owner": "coordinator"
+    },
+    {
+      "id": "Q3",
+      "text": "Does the coordinator need a list of everyone currently blocked from borrowing (not just a per-member check at the desk)? If yes, lending needs a maintained standing projection rather than a read at check-out.",
+      "blocking": false,
+      "owner": "coordinator"
+    },
+    {
+      "id": "Q4",
+      "text": "Must the Saturday desk check items out when the network or another part of the system is down?",
+      "blocking": false,
+      "owner": "coordinator"
+    }
+  ],
+  "notes_for_downstream": [
+    {
+      "id": "N1",
+      "text": "Sharpens discover N1: 'Item' means an availability status (available, reserved, on loan) inside lending, but a physical condition and lifecycle (fit, in maintenance, retired) inside inventory. Two meanings, two canvases; the glossary carries both.",
+      "for": [
+        "define"
+      ],
+      "kind": "language"
+    },
+    {
+      "id": "N2",
+      "text": "inventory and membership are ISH 'merge'-class modules (own language, no standalone product); lending and fees are candidates. At 1-3 deployables expect a modular monolith with at most a separate scheduled worker.",
+      "for": [
+        "organise"
+      ],
+      "kind": "decision"
+    },
+    {
+      "id": "N3",
+      "text": "Card payment adapter (Stripe) is called from two contexts (fees for late/damage fees, membership for the joining fee). Either share one thin adapter or route the membership fee through fees - decide at connect.",
+      "for": [
+        "connect",
+        "code"
+      ],
+      "kind": "boundary"
+    },
+    {
+      "id": "N4",
+      "text": "Eligibility has one owner: lending. Membership and fees are upstream suppliers of one fact each; lending is the customer. Connect: prefer a synchronous read at this scale; move to a subscribed projection only if fees or membership becomes a separate deployable, if a cross-member 'who is blocked' list is required (Q3), or if the desk must work degraded (Q4). Define: the member-standing entry belongs to lending, with membership-current and fee-balance as inbound.",
+      "for": [
+        "connect",
+        "organise",
+        "define"
+      ],
+      "kind": "decision"
+    },
+    {
+      "id": "N5",
+      "text": "Narrows understand cap-membership, which lists 'member standing' under Membership: membership owns membership status; lending owns standing and the borrow decision. Resolves discover H2 and closes understand N2 / discover N2.",
+      "for": [
+        "define"
+      ],
+      "kind": "boundary"
+    }
+  ],
+  "subdomains": [
+    {
+      "id": "membership",
+      "name": "Membership",
+      "description": "Joining, concession approval, the annual fee, the 12-month term and lapsing.",
+      "capabilities": [
+        "cap-membership"
+      ],
+      "events": [
+        "membership-applied",
+        "concession-approved",
+        "membership-fee-paid",
+        "membership-started",
+        "membership-lapsed"
+      ],
+      "commands": [
+        "apply-for-membership",
+        "approve-concession",
+        "pay-membership-fee",
+        "start-membership",
+        "lapse-memberships"
+      ],
+      "terms": [
+        "Member",
+        "Membership"
+      ],
+      "heuristics_applied": [
+        "pivotal-event",
+        "actor",
+        "regulatory"
+      ],
+      "rationale": "Closed by the pivotal event membership-started; the coordinator (concession) and the member drive it; it holds the GDPR-sensitive contact details and proof (C4)."
+    },
+    {
+      "id": "inventory",
+      "name": "Inventory",
+      "description": "What tools exist as kinds, which physical items belong to each, their condition, inspection, repair and retirement.",
+      "capabilities": [
+        "cap-tool-catalogue",
+        "cap-tool-maintenance"
+      ],
+      "events": [
+        "tool-added",
+        "item-tagged",
+        "item-passed-inspection",
+        "item-failed-inspection",
+        "item-repaired",
+        "item-retired"
+      ],
+      "commands": [
+        "add-tool",
+        "tag-item",
+        "inspect-item",
+        "repair-item",
+        "retire-item"
+      ],
+      "terms": [
+        "Tool",
+        "Item",
+        "Inspection"
+      ],
+      "heuristics_applied": [
+        "actor",
+        "data-ownership",
+        "language-boundary"
+      ],
+      "rationale": "One actor (maintenance volunteer) owns every fact about a tool's existence and condition; 'Item' here means a physical unit with a condition, not a thing on loan."
+    },
+    {
+      "id": "lending",
+      "name": "Lending",
+      "description": "Reserving, checking out, renewing, reminding, going overdue and returning items, under the 14-day / three-item / no-overdue rules.",
+      "capabilities": [
+        "cap-lending"
+      ],
+      "events": [
+        "item-reserved",
+        "reservation-expired",
+        "item-checked-out",
+        "loan-renewed",
+        "due-reminder-sent",
+        "loan-overdue",
+        "item-returned"
+      ],
+      "commands": [
+        "reserve-item",
+        "expire-reservations",
+        "check-out-item",
+        "renew-loan",
+        "send-due-reminders",
+        "mark-loans-overdue",
+        "return-item"
+      ],
+      "terms": [
+        "Reservation",
+        "Loan",
+        "Due date"
+      ],
+      "heuristics_applied": [
+        "pivotal-event",
+        "language-boundary",
+        "rate-of-change"
+      ],
+      "rationale": "Two pivotal events (item-checked-out, item-returned) bound it; its words (loan, reservation, due date) appear nowhere else; its rules are the ones the library will keep tuning."
+    },
+    {
+      "id": "fees",
+      "name": "Fees",
+      "description": "Late-fee accrual, damage charges, waivers, the member's balance and taking payment for it.",
+      "capabilities": [
+        "cap-fees",
+        "cap-card-payments"
+      ],
+      "events": [
+        "late-fee-accrued",
+        "damage-fee-charged",
+        "card-payment-failed",
+        "fee-paid",
+        "fee-waived"
+      ],
+      "commands": [
+        "accrue-late-fee",
+        "charge-damage-fee",
+        "pay-fee",
+        "waive-fee"
+      ],
+      "terms": [
+        "Late fee",
+        "Balance"
+      ],
+      "heuristics_applied": [
+        "pivotal-event",
+        "data-ownership",
+        "external-system"
+      ],
+      "rationale": "Closed by the pivotal event fee-paid; only this part may change what a member owes; it is where Stripe is adapted (C1)."
+    }
+  ],
+  "bounded_contexts": [
+    {
+      "id": "membership",
+      "name": "Membership",
+      "subdomains": [
+        "membership"
+      ],
+      "owns_events": [
+        "membership-applied",
+        "concession-approved",
+        "membership-fee-paid",
+        "membership-started",
+        "membership-lapsed"
+      ],
+      "owns_commands": [
+        "apply-for-membership",
+        "approve-concession",
+        "pay-membership-fee",
+        "start-membership",
+        "lapse-memberships"
+      ],
+      "owns_aggregates": [
+        "membership"
+      ],
+      "terms": [
+        {
+          "term": "Member",
+          "meaning_here": "a person with contact details, a member number, a rate (standard or concession) and a term that expires"
+        }
+      ],
+      "wraps": [
+        "stripe"
+      ],
+      "independent_service_check": {
+        "sense_check": "yes",
+        "brand": "no",
+        "revenue": "partial",
+        "cost_tracking": "partial",
+        "data": "yes",
+        "user_personas": "yes",
+        "cognitive_load": "yes",
+        "verdict": "candidate"
+      },
+      "rationale": "Its own language (member, concession, term) and its own data; a module inside the monolith at this scale."
+    },
+    {
+      "id": "inventory",
+      "name": "Inventory",
+      "subdomains": [
+        "inventory"
+      ],
+      "owns_events": [
+        "tool-added",
+        "item-tagged",
+        "item-passed-inspection",
+        "item-failed-inspection",
+        "item-repaired",
+        "item-retired"
+      ],
+      "owns_commands": [
+        "add-tool",
+        "tag-item",
+        "inspect-item",
+        "repair-item",
+        "retire-item"
+      ],
+      "owns_aggregates": [
+        "tool",
+        "item"
+      ],
+      "terms": [
+        {
+          "term": "Item",
+          "meaning_here": "one asset-tagged physical unit with a condition and a lifecycle (fit, in maintenance, retired)"
+        },
+        {
+          "term": "Tool",
+          "meaning_here": "a catalogue kind with replacement value, safety notes and induction flag; owns its items"
+        }
+      ],
+      "wraps": [],
+      "independent_service_check": {
+        "sense_check": "yes",
+        "brand": "no",
+        "revenue": "no",
+        "cost_tracking": "partial",
+        "data": "yes",
+        "user_personas": "yes",
+        "cognitive_load": "yes",
+        "verdict": "candidate"
+      },
+      "rationale": "The maintenance volunteer's world; nobody else changes a tool's existence or condition."
+    },
+    {
+      "id": "lending",
+      "name": "Lending",
+      "subdomains": [
+        "lending"
+      ],
+      "owns_events": [
+        "item-reserved",
+        "reservation-expired",
+        "item-checked-out",
+        "loan-renewed",
+        "due-reminder-sent",
+        "loan-overdue",
+        "item-returned"
+      ],
+      "owns_commands": [
+        "reserve-item",
+        "expire-reservations",
+        "check-out-item",
+        "renew-loan",
+        "send-due-reminders",
+        "mark-loans-overdue",
+        "return-item"
+      ],
+      "owns_aggregates": [
+        "reservation",
+        "loan"
+      ],
+      "terms": [
+        {
+          "term": "Item",
+          "meaning_here": "a lendable unit with an availability (available, reserved, on loan); condition is not modelled here"
+        },
+        {
+          "term": "Member",
+          "meaning_here": "a borrower identified by member number with a standing (may borrow or not) - no contact details"
+        }
+      ],
+      "wraps": [
+        "email"
+      ],
+      "independent_service_check": {
+        "sense_check": "yes",
+        "brand": "yes",
+        "revenue": "partial",
+        "cost_tracking": "yes",
+        "data": "yes",
+        "user_personas": "yes",
+        "cognitive_load": "yes",
+        "verdict": "candidate"
+      },
+      "rationale": "The core of the library: the rules members and volunteers argue about live here."
+    },
+    {
+      "id": "fees",
+      "name": "Fees",
+      "subdomains": [
+        "fees"
+      ],
+      "owns_events": [
+        "late-fee-accrued",
+        "damage-fee-charged",
+        "card-payment-failed",
+        "fee-paid",
+        "fee-waived"
+      ],
+      "owns_commands": [
+        "accrue-late-fee",
+        "charge-damage-fee",
+        "pay-fee",
+        "waive-fee"
+      ],
+      "owns_aggregates": [
+        "fee-account"
+      ],
+      "terms": [
+        {
+          "term": "Member",
+          "meaning_here": "an account holder with a balance in pence; nothing else about the person"
+        }
+      ],
+      "wraps": [
+        "stripe"
+      ],
+      "independent_service_check": {
+        "sense_check": "yes",
+        "brand": "no",
+        "revenue": "yes",
+        "cost_tracking": "yes",
+        "data": "yes",
+        "user_personas": "partial",
+        "cognitive_load": "yes",
+        "verdict": "candidate"
+      },
+      "rationale": "Money: its own ledger language, the Stripe adapter behind it, and the only place a balance changes."
+    }
+  ],
+  "relationships": [
+    {
+      "id": "R1",
+      "upstream": "membership",
+      "downstream": "lending",
+      "pattern": "customer-supplier",
+      "description": "At check-out lending asks membership whether the membership is current (memberId -> current until); lending also consumes membership-started / membership-lapsed to know who exists. Lending is the customer and can ask for fields; contact details and concession proof never cross."
+    },
+    {
+      "id": "R2",
+      "upstream": "fees",
+      "downstream": "lending",
+      "pattern": "customer-supplier",
+      "description": "At check-out lending asks fees for the member's balance (memberId -> pence owed); it never reads the ledger. Lending is the customer of that answer; fees keeps the ledger model private."
+    },
+    {
+      "id": "R3",
+      "upstream": "lending",
+      "downstream": "fees",
+      "pattern": "customer-supplier",
+      "description": "Fees accrues on loan-overdue (loanId, daysLate, item replacement value cap) and stops on item-returned; fees is a customer of what lending publishes and can ask for fields it needs."
+    },
+    {
+      "id": "R4",
+      "upstream": "inventory",
+      "downstream": "lending",
+      "pattern": "published-language",
+      "description": "Lending learns which items exist and are fit to lend from item-tagged, item-repaired, item-failed-inspection and item-retired; it never edits condition."
+    },
+    {
+      "id": "R5",
+      "upstream": "lending",
+      "downstream": "inventory",
+      "pattern": "customer-supplier",
+      "description": "A return with damage noted (item-returned.condition) is what triggers an inspection; inventory needs the condition note and the loan reference in that event."
+    },
+    {
+      "id": "R6",
+      "upstream": "inventory",
+      "downstream": "fees",
+      "pattern": "customer-supplier",
+      "description": "A failed inspection after a loan lets the coordinator charge damage up to the tool's replacement value; fees needs itemId, fault and replacement value from inventory."
+    }
+  ],
+  "context_map_mermaid": "flowchart LR\n  membership[\"Membership\"]\n  inventory[\"Inventory\"]\n  lending[\"Lending\"]\n  fees[\"Fees\"]\n  membership -->|\"R1 customer-supplier\"| lending\n  fees -->|\"R2 customer-supplier\"| lending\n  lending -->|\"R3 customer-supplier\"| fees\n  inventory -->|\"R4 published-language\"| lending\n  lending -->|\"R5 customer-supplier\"| inventory\n  inventory -->|\"R6 customer-supplier\"| fees",
+  "plain_words": {
+    "what": "We cut the library into four parts, each a place where one word keeps one meaning (a bounded context): membership, inventory, lending, fees.",
+    "decided": "Four contexts, six relationships. Lending is the middle: it owns 'may this member borrow?' and asks membership and fees for the two facts it does not hold. Card payments are an adapter inside fees, not a part of their own.",
+    "assumed": "That tool catalogue and tool maintenance belong together (same volunteer, same tools), and that 'item' means availability to lending but condition to inventory.",
+    "riskiest": "If the who-may-borrow rule does not belong in lending, the check-out flow, the canvases and the contracts after this all point the wrong way."
+  },
+  "decisions": [
+    {
+      "id": "D1",
+      "question": "Which context owns 'may this member borrow right now?'",
+      "kind": "ownership",
+      "options": [
+        {
+          "id": "A",
+          "summary": "Lending keeps a local member-standing read model built from membership and fees events and decides alone at check-out.",
+          "pros": [
+            "Lending answers with no call out; survives membership or fees being down",
+            "A cross-member 'who is blocked' list is cheap"
+          ],
+          "cons": [
+            "A projection table, handlers for six event types and a rebuild path - real machinery for two part-time devs (C2)",
+            "If handlers run async, cash paid at the desk then borrowing in the same visit can show a stale balance (I3)"
+          ],
+          "risks": [
+            "A projection is the thing that needs babysitting; drift goes unnoticed until someone who owes money borrows"
+          ],
+          "diagram": "ddd/03-decompose/decisions/D1-A.json"
+        },
+        {
+          "id": "B",
+          "summary": "Membership owns standing, consumes loan and fee events, and publishes standing-changed for lending to obey.",
+          "pros": [
+            "Matches cap-membership as understand wrote it ('member standing')",
+            "One place a volunteer asks about a member"
+          ],
+          "cons": [
+            "Membership must consume seven loan and fee events it has no business in",
+            "Lending calls membership which depends on lending: a cycle",
+            "Two of the four facts are already lending's own state"
+          ],
+          "risks": [
+            "This is the boundary line organise and every contract inherit; reversing it later re-runs six steps"
+          ],
+          "diagram": "ddd/03-decompose/decisions/D1-B.json"
+        },
+        {
+          "id": "C",
+          "summary": "Lending queries membership and fees synchronously inside the check-out request; nothing is duplicated.",
+          "pros": [
+            "Two queries, no new table, no handlers, no rebuild; always exact",
+            "Fits C3 (one Postgres) and the modular-monolith preference"
+          ],
+          "cons": [
+            "Runtime coupling: if fees or membership becomes its own deployable the desk hot path gains a network hop",
+            "Cannot list everyone who is blocked without scanning"
+          ],
+          "risks": [
+            "Cheap to undo: add the projection later, owner unchanged"
+          ],
+          "diagram": "ddd/03-decompose/decisions/D1-C.sequence.json"
+        }
+      ],
+      "chosen": "C",
+      "confidence": "medium",
+      "made_by": "strategist",
+      "rationale": "Lending owns the rule (high confidence): two of the four facts are its own state, discover N2 says it consumes the answer, and every open question that changes the rule is a lending question. The mechanism is a direct read at check-out rather than a projection (medium): at one Postgres and two part-time developers, six event handlers and a rebuild path buy nothing a single database does not already give.",
+      "would_flip_if": [
+        "fees or membership is put in a separate deployable by organise",
+        "someone needs 'who is blocked right now' as a list, not a per-member check",
+        "the Saturday desk must check items out while the network or another part is down"
+      ],
+      "records": {
+        "assumption": "A7"
+      }
+    }
+  ]
+}

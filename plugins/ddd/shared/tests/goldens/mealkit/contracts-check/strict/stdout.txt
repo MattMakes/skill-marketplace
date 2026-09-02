@@ -1,0 +1,4 @@
+contracts check: 3 entrie(s) against 3 cross-party message(s)
+  i 1 message(s) stay inside one deployable, so no wire contract is demanded (cover them with code-level tests): meals-chosen (subscriptions → billing, in app)
+0 error(s), 0 warning(s)
+RESULT: OK

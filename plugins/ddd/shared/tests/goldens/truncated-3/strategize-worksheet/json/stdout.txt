@@ -1,0 +1,281 @@
+{
+  "ddd_dir": "<DDD_DIR>",
+  "project": "mealkit",
+  "mode": "auto",
+  "depth": "light",
+  "scale_target": {
+    "deployables_min": 1,
+    "deployables_max": 3,
+    "teams": 1,
+    "notes": "solo dev"
+  },
+  "teams": 1,
+  "subdomain_count": 3,
+  "core_cap": 2,
+  "value_propositions": [
+    "Pre-portioned weekly meals"
+  ],
+  "goals": [
+    {
+      "id": "G1",
+      "statement": "Grow active subscribers",
+      "metric": "active subscriptions",
+      "target": "10k",
+      "horizon": "12 months"
+    }
+  ],
+  "existing_systems": [
+    {
+      "name": "Stripe",
+      "role": "payments",
+      "will": "integrate",
+      "alternative_today": false
+    }
+  ],
+  "alternatives": [
+    {
+      "id": "alt-supermarket-shop",
+      "name": "Weekly supermarket shop and own recipes",
+      "kind": "manual-process",
+      "used_by": [
+        "subscriber"
+      ],
+      "strengths": "Cheap, flexible, no commitment",
+      "weaknesses": "Planning and portioning take an evening a week; waste",
+      "capabilities": [
+        "cap-menu-planning"
+      ]
+    },
+    {
+      "id": "alt-rival-mealkit",
+      "name": "Incumbent national meal-kit brand",
+      "kind": "competitor",
+      "used_by": [
+        "subscriber"
+      ],
+      "strengths": "Known brand, wide menu",
+      "weaknesses": "Rigid weekly cut-off, poor swaps and pauses",
+      "capabilities": [
+        "cap-subscription-management",
+        "cap-menu-planning",
+        "cap-fulfilment"
+      ]
+    }
+  ],
+  "regulatory_constraints": [
+    {
+      "id": "C1",
+      "text": "Food safety labelling"
+    }
+  ],
+  "upstream_notes": [],
+  "subdomains": [
+    {
+      "id": "subscriptions",
+      "name": "Subscriptions",
+      "description": "Lifecycle and weekly choices",
+      "contexts": [
+        {
+          "id": "subscriptions",
+          "co_hosted": [],
+          "wraps": [],
+          "ish_verdict": "candidate"
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "cap-menu-planning",
+          "name": "Menu planning",
+          "evolution": "custom",
+          "known": true
+        },
+        {
+          "id": "cap-subscription-management",
+          "name": "Subscription management",
+          "evolution": "product",
+          "known": true
+        }
+      ],
+      "least_evolved": "custom",
+      "events": [
+        {
+          "id": "subscription-started",
+          "pivotal": true,
+          "known": true
+        },
+        {
+          "id": "meals-chosen",
+          "pivotal": false,
+          "known": true
+        }
+      ],
+      "commands": [
+        "start-subscription",
+        "choose-meals"
+      ],
+      "policies_on_its_events": [
+        {
+          "id": "charge-on-choice",
+          "when": "meals-chosen",
+          "then": [
+            "charge-week"
+          ],
+          "kind": "automatic"
+        }
+      ],
+      "hotspots_near": [],
+      "aggregate_candidates": [
+        {
+          "id": "subscription",
+          "handles": [
+            "start-subscription",
+            "choose-meals"
+          ],
+          "emits": [
+            "subscription-started",
+            "meals-chosen"
+          ]
+        }
+      ],
+      "goals": {
+        "G1": [
+          "D1 mention",
+          "statement mention"
+        ]
+      },
+      "impacts": [],
+      "deliverables": [
+        {
+          "id": "D1",
+          "priority": "must",
+          "impact": "I1",
+          "goal": "G1",
+          "how": "mention",
+          "description": "Weekly menu selection"
+        }
+      ],
+      "systems": [],
+      "constraints_mentioning": []
+    },
+    {
+      "id": "billing",
+      "name": "Billing",
+      "description": "Charging weeks",
+      "contexts": [
+        {
+          "id": "billing",
+          "co_hosted": [],
+          "wraps": [],
+          "ish_verdict": "merge"
+        }
+      ],
+      "capabilities": [],
+      "least_evolved": null,
+      "events": [
+        {
+          "id": "week-charged",
+          "pivotal": false,
+          "known": true
+        }
+      ],
+      "commands": [
+        "charge-week",
+        "charge-card"
+      ],
+      "policies_on_its_events": [
+        {
+          "id": "pack-on-charge",
+          "when": "week-charged",
+          "then": [
+            "pack-box"
+          ],
+          "kind": "automatic"
+        }
+      ],
+      "hotspots_near": [
+        {
+          "id": "H1",
+          "kind": "unclear",
+          "near": "week-charged",
+          "text": "What happens if payment fails after meals are chosen?"
+        }
+      ],
+      "aggregate_candidates": [],
+      "goals": {},
+      "impacts": [],
+      "deliverables": [],
+      "systems": [
+        {
+          "name": "Stripe",
+          "via": "event actor",
+          "will": "integrate"
+        }
+      ],
+      "constraints_mentioning": []
+    },
+    {
+      "id": "fulfilment",
+      "name": "Fulfilment",
+      "description": "Packing and shipping",
+      "contexts": [
+        {
+          "id": "fulfilment",
+          "co_hosted": [],
+          "wraps": [],
+          "ish_verdict": "candidate"
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "cap-fulfilment",
+          "name": "Fulfilment",
+          "evolution": "custom",
+          "known": true
+        }
+      ],
+      "least_evolved": "custom",
+      "events": [
+        {
+          "id": "box-packed",
+          "pivotal": true,
+          "known": true
+        },
+        {
+          "id": "box-shipped",
+          "pivotal": true,
+          "known": true
+        }
+      ],
+      "commands": [
+        "pack-box",
+        "ship-box"
+      ],
+      "policies_on_its_events": [],
+      "hotspots_near": [],
+      "aggregate_candidates": [
+        {
+          "id": "box",
+          "handles": [
+            "pack-box",
+            "ship-box"
+          ],
+          "emits": [
+            "box-packed",
+            "box-shipped"
+          ]
+        }
+      ],
+      "goals": {},
+      "impacts": [],
+      "deliverables": [],
+      "systems": [
+        {
+          "name": "Courier",
+          "via": "event actor",
+          "will": null
+        }
+      ],
+      "constraints_mentioning": []
+    }
+  ]
+}

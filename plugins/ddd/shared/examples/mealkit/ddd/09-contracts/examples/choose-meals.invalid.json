@@ -1,0 +1,20 @@
+[
+  {
+    "why": "recipeIds is empty, but the description says a week's box is never empty in 1.0",
+    "payload": {
+      "subscriptionId": "8f14e45f-ceea-467a-9575-28d1bcd8a5f1",
+      "week": "2026-W36",
+      "recipeIds": []
+    }
+  },
+  {
+    "why": "week is not an ISO-8601 week, so billing and fulfilment would key different weeks",
+    "payload": {
+      "subscriptionId": "8f14e45f-ceea-467a-9575-28d1bcd8a5f1",
+      "week": "September",
+      "recipeIds": [
+        "r-thai-green-curry"
+      ]
+    }
+  }
+]

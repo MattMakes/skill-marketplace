@@ -1,0 +1,12 @@
+# Python — what differs
+
+- **Value objects**: `@dataclass(frozen=True)` (structural `__eq__`/`__hash__`), validation in `__post_init__` raising a domain error; `NewType("RecipeId", str)` for ids. If SQLAlchemy classical mapping touches a class, use `unsafe_hash=True` and keep the mapped class *outside* `domain/` (imperative mapping in `adapters/orm.py`).
+- **Aggregate root / entities**: plain classes, `_private` attributes, `@property` read access, command methods (`subscription.choose_meals(week, recipes, now)`); entity `__eq__` by id; `version: int` for optimistic concurrency; `events: list[Event]` collected on the root.
+- **Domain events**: frozen dataclasses in `domain/events.py`; a Unit of Work collects `events` from seen aggregates after `commit()` and hands them to a message bus / `EventPublisher` port (cosmicpython pattern).
+- **Ports**: `typing.Protocol` classes (`class SubscriptionRepository(Protocol): def get(self, id) -> Subscription | None: ...`) in `application/ports.py` or `domain/ports.py`; adapters in `adapters/`. Wire with a small composition root or `dependency-injector` containers.
+- **Dependency rule tooling**: `import-linter` (`.importlinter`: `type = forbidden`, `source_modules = <pkg>.<context>.domain`, `forbidden_modules = <pkg>.<context>.adapters, sqlalchemy, fastapi, django`; a `layers` contract for domain < application < adapters). Run with `lint-imports` in CI.
+- **Tests**: `pytest`, `tests/<context>/{domain,application,contracts,adapters}/test_*.py`; names `test_rejects_choosing_the_same_week_twice`; use-case tests pass fake repositories/publishers; adapter tests use a real DB via a fixture.
+- **Layout (one context)**: `src/<project>/<context>/{domain/{model.py|<aggregate>.py,events.py,errors.py},application/{commands.py,queries.py,policies.py,ports.py,unit_of_work.py},adapters/{repository.py,orm.py,publisher.py,gateways.py},entrypoints/{http.py,consumers.py}}`; composition root `src/<project>/main.py`.
+- **Framework note**: FastAPI/Django live only in `entrypoints/` and `adapters/`; Django ORM models are adapters (map to/from domain objects) unless the context is active-record by design.
+
+Sources (accessed 2026-08-29): Percival & Gregory, *Architecture Patterns with Python* — https://www.cosmicpython.com/book/chapter_02_repository , https://www.cosmicpython.com/book/chapter_06_uow ; import-linter https://import-linter.readthedocs.io/en/v2.7/contract_types.html ; python-dependency-injector https://python-dependency-injector.ets-labs.org/ .

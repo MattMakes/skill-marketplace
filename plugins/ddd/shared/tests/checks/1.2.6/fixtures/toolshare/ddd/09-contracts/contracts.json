@@ -1,0 +1,554 @@
+{
+  "schema_version": 1,
+  "step": "contracts",
+  "produced_by": "ddd-contracts",
+  "produced_at": "2026-09-02T19:08:23Z",
+  "mode": "auto",
+  "depth": "light",
+  "inputs": [
+    "ddd/05-connect/connect.json",
+    "ddd/07-define/define.json",
+    "ddd/06-organise/organise.json",
+    "ddd/03-decompose/decompose.json",
+    "ddd/02-discover/discover.json",
+    "ddd/glossary.md"
+  ],
+  "assumptions": [
+    {
+      "id": "A1",
+      "text": "All money is GBP in integer pence (minor units); no other currency exists for this library.",
+      "confidence": "high"
+    },
+    {
+      "id": "A2",
+      "text": "Enums closed from canvas decisions: pay-fee.method card|cash (fees decision 4), return-item.condition good|fair-wear|damaged (desk screen D4), inspect-item.outcome passed|failed, charge-card.response.outcome succeeded|declined (Stripe outcome as our adapter reports it).",
+      "confidence": "medium"
+    },
+    {
+      "id": "A3",
+      "text": "Six messages (fee-balance, membership-current, item-returned, loan-overdue, item-failed-inspection, item-retired) stay inside the single deployable and get no wire contract; the code-level contract: and idempotent: tests in code.json cover them.",
+      "confidence": "high"
+    },
+    {
+      "id": "A4",
+      "text": "Ids are opaque strings: member numbers M-nnnn, asset tags, uuids for loans/reservations/attempts; formats are annotations only.",
+      "confidence": "medium"
+    },
+    {
+      "id": "A5",
+      "text": "payLink is a path relative to the app origin, not an absolute URL, so notices survive a hostname change.",
+      "confidence": "medium"
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q1",
+      "text": "pay-fee carries memberId, amountPence, method but no paymentAttemptId, yet the idempotency rule keys on it; should connect add paymentAttemptId to the payload (concern CC1)?",
+      "blocking": false,
+      "owner": "ddd-connect"
+    },
+    {
+      "id": "Q2",
+      "text": "expire-reservations and lapse-memberships (clock commands) have no connect message and therefore no contract here (organise N2).",
+      "blocking": false,
+      "owner": "ddd-connect"
+    }
+  ],
+  "entries": [
+    {
+      "id": "reserve-item",
+      "kind": "command",
+      "name": "Reserve Item",
+      "description": "A member asks lending to hold an available item for 48 hours; on success the item is reserved for them and nobody else can check it out.",
+      "entityStatus": "Draft",
+      "version": "1.0",
+      "domain": "lending",
+      "owners": [
+        "library-team"
+      ],
+      "consumers": [
+        "lending"
+      ],
+      "reviewers": [
+        "library-team"
+      ],
+      "pattern": "open-host-service",
+      "delivery": "sync",
+      "via": "http",
+      "schema": "ddd/09-contracts/schemas/reserve-item.schema.json",
+      "example": "ddd/09-contracts/examples/reserve-item.json",
+      "semantics": [
+        "One live reservation per (memberId, itemId); a repeat returns the existing hold",
+        "A hold lasts 48 calendar hours (define A10); a check-out against an expired hold is refused"
+      ],
+      "termsOfUse": "Additive changes only within version 1.x; a removed or retyped field is 2.0.",
+      "glossary": "ddd/glossary.md#lending-context",
+      "provenance": {
+        "connect": "reserve-item",
+        "relationship": null,
+        "flows": [
+          "F1"
+        ]
+      },
+      "client": "member"
+    },
+    {
+      "id": "check-out-item",
+      "kind": "command",
+      "name": "Check Out Item",
+      "description": "The desk volunteer asks lending to hand an item to a member; lending checks the borrow rule (membership current, balance zero, no overdue, fewer than three out) and, if allowed, opens a 14-day loan.",
+      "entityStatus": "Draft",
+      "version": "1.0",
+      "domain": "lending",
+      "owners": [
+        "library-team"
+      ],
+      "consumers": [
+        "lending"
+      ],
+      "reviewers": [
+        "library-team"
+      ],
+      "pattern": "open-host-service",
+      "delivery": "sync",
+      "via": "http",
+      "schema": "ddd/09-contracts/schemas/check-out-item.schema.json",
+      "example": "ddd/09-contracts/examples/check-out-item.json",
+      "semantics": [
+        "One open loan per itemId; a repeat for an item already out is rejected",
+        "Refused, with the failing reason, unless membership is current, balance is zero, no loan is overdue and fewer than three loans are open (lending decision 1)",
+        "The borrow rule is evaluated atomically with the check-out; two concurrent check-outs for a member's third item cannot both succeed"
+      ],
+      "termsOfUse": "Additive changes only within version 1.x; a removed or retyped field is 2.0.",
+      "glossary": "ddd/glossary.md#lending-context",
+      "provenance": {
+        "connect": "check-out-item",
+        "relationship": null,
+        "flows": [
+          "F1"
+        ]
+      },
+      "client": "desk-volunteer"
+    },
+    {
+      "id": "send-due-reminders",
+      "kind": "command",
+      "name": "Send Due Reminders",
+      "description": "The scheduler asks lending to send reminders for every loan due in two days or today; lending decides which loans and calls the email provider.",
+      "entityStatus": "Draft",
+      "version": "1.0",
+      "domain": "lending",
+      "owners": [
+        "clock"
+      ],
+      "consumers": [
+        "lending"
+      ],
+      "reviewers": [
+        "library-team"
+      ],
+      "pattern": "conformist",
+      "delivery": "at-least-once",
+      "via": "other",
+      "schema": "ddd/09-contracts/schemas/send-due-reminders.schema.json",
+      "example": "ddd/09-contracts/examples/send-due-reminders.json",
+      "semantics": [
+        "One notice per (loanId, reminderKind, date)",
+        "Re-running for the same asOfDate sends nothing new: one notice per (loanId, reminderKind, date)"
+      ],
+      "termsOfUse": "The external party owns the wire contract; our adapter in the handling context translates. Additive changes only within version 1.x; a removed or retyped field is 2.0.",
+      "glossary": "ddd/glossary.md#lending-context",
+      "provenance": {
+        "connect": "send-due-reminders",
+        "relationship": null,
+        "flows": [
+          "F1"
+        ]
+      },
+      "inherited": true,
+      "direction": "inbound"
+    },
+    {
+      "id": "send-due-notice",
+      "kind": "command",
+      "name": "Send Due Notice",
+      "description": "Lending asks the email provider to tell a member their item is due; the provider owns the wire format, our adapter translates.",
+      "entityStatus": "Draft",
+      "version": "1.0",
+      "domain": "lending",
+      "owners": [
+        "email"
+      ],
+      "consumers": [
+        "email"
+      ],
+      "reviewers": [
+        "library-team"
+      ],
+      "pattern": "conformist",
+      "delivery": "sync",
+      "via": "http",
+      "schema": "ddd/09-contracts/schemas/send-due-notice.schema.json",
+      "example": "ddd/09-contracts/examples/send-due-notice.json",
+      "semantics": [
+        "Provider de-duplicates on (loanId, dueOn, kind)",
+        "Provider de-duplicates on (loanId, dueOn, kind); a redelivery is harmless"
+      ],
+      "termsOfUse": "The external party owns the wire contract; our adapter in the handling context translates. Additive changes only within version 1.x; a removed or retyped field is 2.0.",
+      "glossary": "ddd/glossary.md#lending-context",
+      "provenance": {
+        "connect": "send-due-notice",
+        "relationship": null,
+        "flows": [
+          "F1"
+        ]
+      },
+      "inherited": true,
+      "direction": "outbound"
+    },
+    {
+      "id": "return-item",
+      "kind": "command",
+      "name": "Return Item",
+      "description": "The desk volunteer records that a loan's item is back and in what condition; the loan closes, accrual stops, and a damaged condition queues an inspection.",
+      "entityStatus": "Draft",
+      "version": "1.0",
+      "domain": "lending",
+      "owners": [
+        "library-team"
+      ],
+      "consumers": [
+        "lending"
+      ],
+      "reviewers": [
+        "library-team"
+      ],
+      "pattern": "open-host-service",
+      "delivery": "sync",
+      "via": "http",
+      "schema": "ddd/09-contracts/schemas/return-item.schema.json",
+      "example": "ddd/09-contracts/examples/return-item.json",
+      "semantics": [
+        "A loan is returned once; a repeat is a no-op",
+        "A returned loan cannot be renewed, marked overdue or returned again",
+        "condition 'damaged' queues an inspection in inventory before the item is lent again"
+      ],
+      "termsOfUse": "Additive changes only within version 1.x; a removed or retyped field is 2.0.",
+      "glossary": "ddd/glossary.md#lending-context",
+      "provenance": {
+        "connect": "return-item",
+        "relationship": null,
+        "flows": [
+          "F1",
+          "F2"
+        ]
+      },
+      "client": "desk-volunteer"
+    },
+    {
+      "id": "mark-loans-overdue",
+      "kind": "command",
+      "name": "Mark Loans Overdue",
+      "description": "The scheduler asks lending to mark every loan past its due date overdue as of the given date; each affected loan blocks further borrowing and starts accrual in fees.",
+      "entityStatus": "Draft",
+      "version": "1.0",
+      "domain": "lending",
+      "owners": [
+        "clock"
+      ],
+      "consumers": [
+        "lending"
+      ],
+      "reviewers": [
+        "library-team"
+      ],
+      "pattern": "conformist",
+      "delivery": "at-least-once",
+      "via": "other",
+      "schema": "ddd/09-contracts/schemas/mark-loans-overdue.schema.json",
+      "example": "ddd/09-contracts/examples/mark-loans-overdue.json",
+      "semantics": [
+        "A loan goes overdue once",
+        "Idempotent per asOfDate: a loan goes overdue once; a returned loan is never marked"
+      ],
+      "termsOfUse": "The external party owns the wire contract; our adapter in the handling context translates. Additive changes only within version 1.x; a removed or retyped field is 2.0.",
+      "glossary": "ddd/glossary.md#lending-context",
+      "provenance": {
+        "connect": "mark-loans-overdue",
+        "relationship": null,
+        "flows": [
+          "F2"
+        ]
+      },
+      "inherited": true,
+      "direction": "inbound"
+    },
+    {
+      "id": "accrue-late-fee",
+      "kind": "command",
+      "name": "Accrue Late Fee",
+      "description": "The scheduler asks fees to add one day's late fee (GBP 1 per item, capped at replacement value) for every overdue loan as of the given date.",
+      "entityStatus": "Draft",
+      "version": "1.0",
+      "domain": "fees",
+      "owners": [
+        "clock"
+      ],
+      "consumers": [
+        "fees"
+      ],
+      "reviewers": [
+        "library-team"
+      ],
+      "pattern": "conformist",
+      "delivery": "at-least-once",
+      "via": "other",
+      "schema": "ddd/09-contracts/schemas/accrue-late-fee.schema.json",
+      "example": "ddd/09-contracts/examples/accrue-late-fee.json",
+      "semantics": [
+        "One accrual row per (loanId, date)",
+        "One accrual row per (loanId, date); accrual stops at the item's replacement value and at item-returned (fees decision 1)"
+      ],
+      "termsOfUse": "The external party owns the wire contract; our adapter in the handling context translates. Additive changes only within version 1.x; a removed or retyped field is 2.0.",
+      "glossary": "ddd/glossary.md#fees-context",
+      "provenance": {
+        "connect": "accrue-late-fee",
+        "relationship": null,
+        "flows": [
+          "F2"
+        ]
+      },
+      "inherited": true,
+      "direction": "inbound"
+    },
+    {
+      "id": "send-fee-notice",
+      "kind": "command",
+      "name": "Send Fee Notice",
+      "description": "Fees asks the email provider to tell a member about a fee and give them a link to pay; the provider owns the wire format.",
+      "entityStatus": "Draft",
+      "version": "1.0",
+      "domain": "fees",
+      "owners": [
+        "email"
+      ],
+      "consumers": [
+        "email"
+      ],
+      "reviewers": [
+        "library-team"
+      ],
+      "pattern": "conformist",
+      "delivery": "sync",
+      "via": "http",
+      "schema": "ddd/09-contracts/schemas/send-fee-notice.schema.json",
+      "example": "ddd/09-contracts/examples/send-fee-notice.json",
+      "semantics": [
+        "Provider de-duplicates on (memberId, feeId)"
+      ],
+      "termsOfUse": "The external party owns the wire contract; our adapter in the handling context translates. Additive changes only within version 1.x; a removed or retyped field is 2.0.",
+      "glossary": "ddd/glossary.md#fees-context",
+      "provenance": {
+        "connect": "send-fee-notice",
+        "relationship": null,
+        "flows": [
+          "F2",
+          "F3"
+        ]
+      },
+      "inherited": true,
+      "direction": "outbound"
+    },
+    {
+      "id": "pay-fee",
+      "kind": "command",
+      "name": "Pay Fee",
+      "description": "A member (card, online) or the desk volunteer on their behalf (cash) pays against the balance; on success the balance falls and, if it reaches zero, borrowing is unblocked.",
+      "entityStatus": "Draft",
+      "version": "1.0",
+      "domain": "fees",
+      "owners": [
+        "library-team"
+      ],
+      "consumers": [
+        "fees"
+      ],
+      "reviewers": [
+        "library-team"
+      ],
+      "pattern": "open-host-service",
+      "delivery": "sync",
+      "via": "http",
+      "schema": "ddd/09-contracts/schemas/pay-fee.schema.json",
+      "example": "ddd/09-contracts/examples/pay-fee.json",
+      "semantics": [
+        "Client-supplied paymentAttemptId; a repeat returns the first outcome",
+        "A repeat with the same paymentAttemptId returns the first outcome and charges nothing (fees decision 3)",
+        "method cash makes no Stripe call and is recorded by the desk volunteer"
+      ],
+      "termsOfUse": "Additive changes only within version 1.x; a removed or retyped field is 2.0.",
+      "glossary": "ddd/glossary.md#fees-context",
+      "provenance": {
+        "connect": "pay-fee",
+        "relationship": null,
+        "flows": [
+          "F2"
+        ]
+      },
+      "client": "member"
+    },
+    {
+      "id": "charge-card",
+      "kind": "command",
+      "name": "Charge Card",
+      "description": "Fees asks Stripe to charge a card for a fee amount; Stripe owns the API, our adapter sends currency, minor units and the attempt id as idempotency key and never sees card data (C1).",
+      "entityStatus": "Draft",
+      "version": "1.0",
+      "domain": "fees",
+      "owners": [
+        "stripe"
+      ],
+      "consumers": [
+        "stripe"
+      ],
+      "reviewers": [
+        "library-team"
+      ],
+      "pattern": "anticorruption-layer",
+      "delivery": "sync",
+      "via": "http",
+      "schema": "ddd/09-contracts/schemas/charge-card.schema.json",
+      "example": "ddd/09-contracts/examples/charge-card.json",
+      "semantics": [
+        "Stripe idempotency key = paymentAttemptId",
+        "Retry with the same idempotencyKey returns the original outcome; a later webhook with the same key changes nothing (CC1)",
+        "amountPence is GBP minor units; card data never crosses this boundary (C1)"
+      ],
+      "termsOfUse": "Stripe owns the wire contract; changes land in fees' StripeGateway adapter (ACL) and never in the ledger model. Additive changes only within version 1.x; a removed or retyped field is 2.0.",
+      "glossary": "ddd/glossary.md#fees-context",
+      "provenance": {
+        "connect": "charge-card",
+        "relationship": null,
+        "flows": [
+          "F2"
+        ]
+      },
+      "inherited": true,
+      "direction": "outbound"
+    },
+    {
+      "id": "inspect-item",
+      "kind": "command",
+      "name": "Inspect Item",
+      "description": "The maintenance volunteer records an inspection outcome for an item; a failure takes the item out of lending and may lead to a damage charge.",
+      "entityStatus": "Draft",
+      "version": "1.0",
+      "domain": "inventory",
+      "owners": [
+        "library-team"
+      ],
+      "consumers": [
+        "inventory"
+      ],
+      "reviewers": [
+        "library-team"
+      ],
+      "pattern": "open-host-service",
+      "delivery": "sync",
+      "via": "http",
+      "schema": "ddd/09-contracts/schemas/inspect-item.schema.json",
+      "example": "ddd/09-contracts/examples/inspect-item.json",
+      "semantics": [
+        "outcome failed takes the item out of lending until repaired or retired (inventory decisions 1-2)"
+      ],
+      "termsOfUse": "Additive changes only within version 1.x; a removed or retyped field is 2.0.",
+      "glossary": "ddd/glossary.md#inventory-context",
+      "provenance": {
+        "connect": "inspect-item",
+        "relationship": null,
+        "flows": [
+          "F3"
+        ]
+      },
+      "client": "maintenance-volunteer"
+    },
+    {
+      "id": "charge-damage-fee",
+      "kind": "command",
+      "name": "Charge Damage Fee",
+      "description": "The coordinator adds a damage charge to a member's balance after a failed inspection; never above the item's replacement value.",
+      "entityStatus": "Draft",
+      "version": "1.0",
+      "domain": "fees",
+      "owners": [
+        "library-team"
+      ],
+      "consumers": [
+        "fees"
+      ],
+      "reviewers": [
+        "library-team"
+      ],
+      "pattern": "open-host-service",
+      "delivery": "sync",
+      "via": "http",
+      "schema": "ddd/09-contracts/schemas/charge-damage-fee.schema.json",
+      "example": "ddd/09-contracts/examples/charge-damage-fee.json",
+      "semantics": [
+        "Rejected when amountPence exceeds the item's replacement value (fees decision 2); only the coordinator may issue it"
+      ],
+      "termsOfUse": "Additive changes only within version 1.x; a removed or retyped field is 2.0.",
+      "glossary": "ddd/glossary.md#fees-context",
+      "provenance": {
+        "connect": "charge-damage-fee",
+        "relationship": null,
+        "flows": [
+          "F3"
+        ]
+      },
+      "client": "coordinator"
+    },
+    {
+      "id": "retire-item",
+      "kind": "command",
+      "name": "Retire Item",
+      "description": "The maintenance volunteer retires an item; it leaves the catalogue view, keeps its history, and lending stops offering it.",
+      "entityStatus": "Draft",
+      "version": "1.0",
+      "domain": "inventory",
+      "owners": [
+        "library-team"
+      ],
+      "consumers": [
+        "inventory"
+      ],
+      "reviewers": [
+        "library-team"
+      ],
+      "pattern": "open-host-service",
+      "delivery": "sync",
+      "via": "http",
+      "schema": "ddd/09-contracts/schemas/retire-item.schema.json",
+      "example": "ddd/09-contracts/examples/retire-item.json",
+      "semantics": [
+        "A retired item is published to lending as item-retired and is never re-offered; its loan history is kept"
+      ],
+      "termsOfUse": "Additive changes only within version 1.x; a removed or retyped field is 2.0.",
+      "glossary": "ddd/glossary.md#inventory-context",
+      "provenance": {
+        "connect": "retire-item",
+        "relationship": null,
+        "flows": [
+          "F3"
+        ]
+      },
+      "client": "maintenance-volunteer"
+    }
+  ],
+  "plain_words": {
+    "what": "For every message that crosses a real boundary - a person to the app, the app to Stripe or the email provider, the scheduler to the app - we wrote down the exact fields, an example, who owns it and the rules the other side may rely on.",
+    "decided": "13 contracts: 7 for screens people use, 6 inherited from outside systems (Stripe, email, the scheduler). 6 messages between modules inside the one program get no contract; tests cover them instead.",
+    "assumed": "All money is British pence as whole numbers, and the payment method is only card or cash.",
+    "riskiest": "pay-fee has no attempt id in its payload even though the no-double-charge rule depends on one; if that gap is not closed in connect, a retry can charge a card twice."
+  }
+}

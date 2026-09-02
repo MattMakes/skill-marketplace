@@ -1,0 +1,78 @@
+{
+  "name": "enum-const-repr",
+  "value": {
+    "s": "it's",
+    "t": "café \"quoted\"",
+    "u": "plain",
+    "n": 2,
+    "b": true,
+    "o": {
+      "k": [
+        1,
+        "x"
+      ]
+    },
+    "m": null
+  },
+  "schema": {
+    "type": "object",
+    "properties": {
+      "s": {
+        "enum": [
+          "a",
+          "b's"
+        ]
+      },
+      "t": {
+        "enum": [
+          "café",
+          "naïve"
+        ]
+      },
+      "u": {
+        "enum": [
+          "plain",
+          "other"
+        ]
+      },
+      "n": {
+        "enum": [
+          1,
+          3,
+          2.5
+        ]
+      },
+      "b": {
+        "enum": [
+          1
+        ]
+      },
+      "o": {
+        "const": {
+          "k": [
+            1,
+            "y"
+          ]
+        }
+      },
+      "m": {
+        "const": null
+      }
+    }
+  },
+  "expect": {
+    "check": [
+      "payload.s: \"it's\" not in ['a', \"b's\"]",
+      "payload.t: 'café \"quoted\"' not in ['café', 'naïve']",
+      "payload.n: 2 not in [1, 3, 2.5]",
+      "payload.o: {'k': [1, 'x']} is not the required const {'k': [1, 'y']}"
+    ],
+    "core": [
+      "payload.s: \"it's\" not in ['a', \"b's\"]",
+      "payload.t: 'café \"quoted\"' not in ['café', 'naïve']",
+      "payload.n: 2 not in [1, 3, 2.5]"
+    ],
+    "vocab": [],
+    "conditional": true
+  }
+}

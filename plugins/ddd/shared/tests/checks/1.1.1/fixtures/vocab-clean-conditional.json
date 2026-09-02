@@ -1,0 +1,31 @@
+{
+  "name": "vocab-clean-conditional",
+  "mustPass": true,
+  "value": {
+    "a": "x"
+  },
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "x",
+    "title": "T",
+    "description": "d",
+    "type": "object",
+    "properties": {
+      "a": {
+        "type": "string",
+        "description": "s",
+        "examples": [
+          "x"
+        ],
+        "format": "x"
+      }
+    },
+    "dependentRequired": {}
+  },
+  "expect": {
+    "check": [],
+    "core": [],
+    "vocab": [],
+    "conditional": true
+  }
+}

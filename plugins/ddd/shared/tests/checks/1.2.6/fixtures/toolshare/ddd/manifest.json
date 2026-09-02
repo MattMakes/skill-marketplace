@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "project": "toolshare",
+  "title": "Toolshare community tool-lending library",
+  "ddd_dir": "ddd",
+  "created": "2026-09-02T18:39:45Z",
+  "updated": "2026-09-02T19:08:23Z",
+  "mode": "auto",
+  "depth": "light",
+  "scale_target": {
+    "deployables_min": 1,
+    "deployables_max": 3,
+    "teams": 1,
+    "notes": "one team of two part-time devs, modular monolith preferred, single Postgres"
+  },
+  "sources": [
+    "CONTEXT.md"
+  ],
+  "steps": {
+    "understand": {
+      "status": "done",
+      "updated": "2026-09-02T18:41:50Z",
+      "mode": "auto",
+      "open_questions": 3,
+      "artifacts": [
+        "ddd/01-understand/understand.json",
+        "ddd/01-understand/understand.md"
+      ]
+    },
+    "discover": {
+      "status": "done",
+      "updated": "2026-09-02T18:44:13Z",
+      "mode": "auto",
+      "open_questions": 4,
+      "artifacts": [
+        "ddd/02-discover/discover.json",
+        "ddd/02-discover/event-storm.md"
+      ]
+    },
+    "decompose": {
+      "status": "done",
+      "updated": "2026-09-02T18:49:31Z",
+      "mode": "auto",
+      "open_questions": 4,
+      "artifacts": [
+        "ddd/03-decompose/decisions/D1-A.json",
+        "ddd/03-decompose/decisions/D1-B.json",
+        "ddd/03-decompose/decisions/D1-C.sequence.json",
+        "ddd/03-decompose/decompose.json",
+        "ddd/03-decompose/subdomains.md"
+      ]
+    },
+    "strategize": {
+      "status": "done",
+      "updated": "2026-09-02T18:50:10Z",
+      "mode": "auto",
+      "open_questions": 2,
+      "artifacts": [
+        "ddd/04-strategize/core-domain-chart.md",
+        "ddd/04-strategize/strategize.json"
+      ]
+    },
+    "connect": {
+      "status": "done",
+      "updated": "2026-09-02T18:52:11Z",
+      "mode": "auto",
+      "open_questions": 2,
+      "artifacts": [
+        "ddd/05-connect/connect.json",
+        "ddd/05-connect/message-flows.md"
+      ]
+    },
+    "organise": {
+      "status": "done",
+      "updated": "2026-09-02T19:01:33Z",
+      "mode": "auto",
+      "open_questions": 2,
+      "artifacts": [
+        "ddd/06-organise/decisions/D1-A.json",
+        "ddd/06-organise/decisions/D1-B.json",
+        "ddd/06-organise/decisions/D1-C.json",
+        "ddd/06-organise/organise.json",
+        "ddd/06-organise/team-topology.md"
+      ]
+    },
+    "define": {
+      "status": "done",
+      "updated": "2026-09-02T19:02:11Z",
+      "mode": "auto",
+      "open_questions": 2,
+      "artifacts": [
+        "ddd/07-define/define.json",
+        "ddd/07-define/fees/bounded-context-canvas.md",
+        "ddd/07-define/inventory/bounded-context-canvas.md",
+        "ddd/07-define/lending/bounded-context-canvas.md",
+        "ddd/07-define/membership/bounded-context-canvas.md",
+        "ddd/07-define/system-context.md"
+      ]
+    },
+    "code": {
+      "status": "draft",
+      "updated": "2026-09-02T19:03:47Z",
+      "mode": "auto",
+      "open_questions": 2,
+      "artifacts": [
+        "ddd/08-code/code.json",
+        "ddd/08-code/fees/design.md",
+        "ddd/08-code/implementation-plan.md",
+        "ddd/08-code/inventory/design.md",
+        "ddd/08-code/lending/aggregate-canvas-loan.md",
+        "ddd/08-code/lending/aggregate-canvas-reservation.md",
+        "ddd/08-code/lending/design.md",
+        "ddd/08-code/membership/design.md"
+      ]
+    },
+    "contracts": {
+      "status": "done",
+      "updated": "2026-09-02T19:08:23Z",
+      "mode": "auto",
+      "open_questions": 2,
+      "artifacts": [
+        "ddd/09-contracts/contracts.json",
+        "ddd/09-contracts/contracts.md",
+        "ddd/09-contracts/examples/accrue-late-fee.json",
+        "ddd/09-contracts/examples/charge-card.json",
+        "ddd/09-contracts/examples/charge-card.response.invalid.json",
+        "ddd/09-contracts/examples/charge-card.response.json",
+        "ddd/09-contracts/examples/charge-damage-fee.json",
+        "ddd/09-contracts/examples/check-out-item.json",
+        "ddd/09-contracts/examples/inspect-item.json",
+        "ddd/09-contracts/examples/mark-loans-overdue.json",
+        "ddd/09-contracts/examples/pay-fee.invalid.json",
+        "ddd/09-contracts/examples/pay-fee.json",
+        "ddd/09-contracts/examples/reserve-item.json",
+        "ddd/09-contracts/examples/retire-item.json",
+        "ddd/09-contracts/examples/return-item.json",
+        "ddd/09-contracts/examples/send-due-notice.json",
+        "ddd/09-contracts/examples/send-due-reminders.json",
+        "ddd/09-contracts/examples/send-fee-notice.json",
+        "ddd/09-contracts/schemas/accrue-late-fee.schema.json",
+        "ddd/09-contracts/schemas/charge-card.response.schema.json",
+        "ddd/09-contracts/schemas/charge-card.schema.json",
+        "ddd/09-contracts/schemas/charge-damage-fee.schema.json",
+        "ddd/09-contracts/schemas/check-out-item.schema.json",
+        "ddd/09-contracts/schemas/inspect-item.schema.json",
+        "ddd/09-contracts/schemas/mark-loans-overdue.schema.json",
+        "ddd/09-contracts/schemas/pay-fee.schema.json",
+        "ddd/09-contracts/schemas/reserve-item.schema.json",
+        "ddd/09-contracts/schemas/retire-item.schema.json",
+        "ddd/09-contracts/schemas/return-item.schema.json",
+        "ddd/09-contracts/schemas/send-due-notice.schema.json",
+        "ddd/09-contracts/schemas/send-due-reminders.schema.json",
+        "ddd/09-contracts/schemas/send-fee-notice.schema.json"
+      ]
+    }
+  }
+}

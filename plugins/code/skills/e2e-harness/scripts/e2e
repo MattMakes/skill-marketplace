@@ -1,0 +1,544 @@
+#!/usr/bin/env python3
+"""e2e - build and run end-to-end tests across a polyglot system.
+
+Four phases, three artifacts, one seam.
+
+    setup     probe the repo, write e2e/config.json, install the runner
+    discover  probe repo + docs, write e2e/inventory.json          [deterministic]
+    journeys  scaffold / validate e2e/journeys.json                [AI writes this]
+    build     journeys.json + inventory.json -> Playwright specs   [deterministic]
+    run       up -> readiness gate -> playwright -> report -> down [deterministic]
+
+Only journeys.json needs judgment. Everything before it is a probe over files on
+disk, and everything after it is a template. That seam is deliberate: it keeps
+the non-deterministic surface to one reviewable, diffable, schema-checked file.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from e2elib import codegen, docsmine, inventory as inv, journeys as jn, runner  # noqa: E402
+from e2elib.paths import Paths  # noqa: E402
+
+SKILL_DIR = Path(__file__).resolve().parent.parent
+TEMPLATES = SKILL_DIR / "assets" / "templates"
+
+ADAPTER_PACKAGES = {
+    "kafka": "kafkajs",
+    "azure-storage": "@azure/storage-blob",
+    "eventhubs": "@azure/event-hubs",
+    "servicebus": "@azure/service-bus",
+    "s3": "@aws-sdk/client-s3",
+    "aws-localstack": "@aws-sdk/client-s3",
+}
+
+OK, WARN, BAD, INFO = "✓", "⚠", "✗", "•"
+
+
+def say(msg: str = "") -> None:
+    print(msg, flush=True)
+
+
+def die(msg: str, code: int = 1):
+    print(f"{BAD} {msg}", file=sys.stderr, flush=True)
+    raise SystemExit(code)
+
+
+def read_json(p: Path) -> Any:
+    return json.loads(p.read_text(encoding="utf-8"))
+
+
+def write_json(p: Path, doc: Any) -> None:
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(doc, indent=2, sort_keys=False) + "\n", encoding="utf-8")
+
+
+def load_config(paths: Paths) -> dict[str, Any]:
+    if not paths.config.is_file():
+        die(f"No {paths.rel(paths.config)}. Run `e2e setup` first.")
+    return read_json(paths.config)
+
+
+def load_inventory(paths: Paths) -> dict[str, Any]:
+    if not paths.inventory.is_file():
+        die(f"No {paths.rel(paths.inventory)}. Run `e2e discover` first.")
+    return read_json(paths.inventory)
+
+
+# ==========================================================================
+# setup
+# ==========================================================================
+BOOT_CANDIDATES = [
+    ("aspire.config.json", "aspire run", "aspire"),
+    ("docker-compose.yml", "docker compose up -d", "docker compose down -v"),
+    ("docker-compose.yaml", "docker compose up -d", "docker compose down -v"),
+    ("compose.yml", "docker compose up -d", "docker compose down -v"),
+    ("compose.yaml", "docker compose up -d", "docker compose down -v"),
+]
+
+
+def detect_boot(root: Path) -> tuple[str | None, str | None, str]:
+    """Guess how to start the system. Recorded as a guess -- `run` will not use
+    it until the user confirms, because launching the wrong command is worse
+    than stopping to ask."""
+    for name, up, down in BOOT_CANDIDATES:
+        if (root / name).is_file():
+            if name == "aspire.config.json":
+                return "aspire run", None, f"found {name} (aspire runs in the foreground; see notes)"
+            return up, down, f"found {name}"
+    pkg = root / "package.json"
+    if pkg.is_file():
+        try:
+            scripts = (read_json(pkg).get("scripts") or {})
+            for cand in ("dev", "start", "serve"):
+                if cand in scripts:
+                    return f"npm run {cand}", None, f"found package.json script '{cand}'"
+        except json.JSONDecodeError:
+            pass
+    return None, None, "no compose file, Aspire config, or package.json script found"
+
+
+def cmd_setup(args) -> int:
+    root = Path(args.root).resolve()
+    paths = Paths(root)
+    paths.work.mkdir(parents=True, exist_ok=True)
+
+    docs_dir = Path(args.docs).resolve() if args.docs else None
+    up, down, why = detect_boot(root)
+
+    existing = read_json(paths.config) if paths.config.is_file() else {}
+    config: dict[str, Any] = {
+        "schema_version": 1,
+        "root": str(root),
+        "docs_dir": str(docs_dir) if docs_dir else existing.get("docs_dir"),
+        "up": existing.get("up", up),
+        "down": existing.get("down", down),
+        "up_detached": existing.get("up_detached", True),
+        "up_confirmed": existing.get("up_confirmed", False),
+        "readiness_timeout_s": existing.get("readiness_timeout_s", 180),
+        "readiness": existing.get("readiness", []),
+        "extra_resources": existing.get("extra_resources", []),
+        "playwright": existing.get("playwright", {"workers": 1, "retries": 0, "timeout_ms": 60000}),
+    }
+    write_json(paths.config, config)
+
+    say(f"{OK} wrote {paths.rel(paths.config)}")
+    say(f"  boot command: {config['up'] or '(none detected)'}   [{why}]")
+    effective_docs = Path(config["docs_dir"]) if config.get("docs_dir") else None
+    if effective_docs:
+        kept = " (kept from existing config)" if not docs_dir else ""
+        say(f"  docs dir:     {effective_docs}{kept}"
+            + ("" if effective_docs.is_dir() else "   " + WARN + " does not exist"))
+    else:
+        say(f"  {WARN} no docs folder set. `discover` requires one; this skill "
+            "builds journeys from collected documentation. Pass --docs <dir>.")
+
+    if args.install:
+        rc = install_runner(root, paths)
+        if rc != 0:
+            return rc
+    else:
+        say(f"  {INFO} run `e2e setup --install` to install Playwright + adapter packages")
+
+    say()
+    say(f"{WARN} `run` will not execute the boot command until you confirm it.")
+    say(f"  Check `up` in {paths.rel(paths.config)}, then either set "
+        '"up_confirmed": true or pass --yes to `e2e run`.')
+    return 0
+
+
+def install_runner(root: Path, paths: Paths) -> int:
+    """Install Playwright plus whichever adapter clients this repo actually needs."""
+    if not shutil.which("npm"):
+        die("npm not found. Install Node.js 20+ first.")
+
+    pkgs = ["@playwright/test", "typescript"]
+    if paths.inventory.is_file():
+        kinds = {r.get("kind") for r in read_json(paths.inventory).get("resources", [])}
+        extra = sorted({ADAPTER_PACKAGES[k] for k in kinds if k in ADAPTER_PACKAGES})
+        pkgs += extra
+        if extra:
+            say(f"  adapter packages for discovered resources: {', '.join(extra)}")
+    else:
+        say(f"  {INFO} no inventory yet -- installing base packages only. "
+            "Re-run after `discover` to add adapter clients.")
+
+    if not (root / "package.json").is_file():
+        say("  no package.json at root; creating a private one for test deps")
+        write_json(root / "package.json",
+                   {"name": "e2e-harness-host", "private": True, "version": "0.0.0"})
+
+    say(f"  installing: {' '.join(pkgs)}")
+    r = runner.run_shell(f"npm install --no-audit --no-fund --save-dev {' '.join(pkgs)}",
+                         root, timeout=900)
+    if r.returncode != 0:
+        say((r.stderr or r.stdout or "")[-2000:])
+        die("npm install failed")
+    say(f"{OK} node packages installed")
+
+    r = runner.run_shell("npx playwright install chromium", root, timeout=900)
+    say(f"{OK} playwright browser installed" if r.returncode == 0
+        else f"{WARN} `npx playwright install chromium` failed; browser journeys will not run")
+    return 0
+
+
+# ==========================================================================
+# discover
+# ==========================================================================
+def cmd_discover(args) -> int:
+    root = Path(args.root).resolve()
+    paths = Paths(root)
+    config = load_config(paths)
+
+    docs_dir = Path(args.docs).resolve() if args.docs else (
+        Path(config["docs_dir"]).resolve() if config.get("docs_dir") else None)
+
+    # One gate, checked once: no docs is only fatal when the caller has not
+    # explicitly accepted ungrounded journeys. Checking `docs_dir` separately
+    # made --allow-no-docs unreachable in exactly the case it exists for.
+    findings = (
+        docsmine.mine(docs_dir) if docs_dir
+        else {"present": False, "reason": "no docs folder configured", "dir": None}
+    )
+    if not findings.get("present"):
+        if not args.allow_no_docs:
+            die(f"{findings.get('reason', 'docs unavailable')}. This skill builds "
+                "journeys from collected documentation -- run `e2e setup --docs <dir>` "
+                "first, or pass --docs. To inventory code only, pass --allow-no-docs "
+                "and accept that the journeys will be ungrounded.")
+        say(f"{WARN} proceeding without documentation "
+            f"({findings.get('reason', 'docs unavailable')}).")
+        say("  Journeys built from code alone test what the code does, not what the "
+            "system promises, so they cannot find a behavioural bug. Re-run "
+            "`discover` once docs exist.")
+
+    doc = inv.discover(root, findings)
+
+    for extra in config.get("extra_resources", []):
+        if isinstance(extra, dict) and extra.get("id"):
+            extra.setdefault("discovered_by", "config:extra_resources")
+            doc["resources"].append(extra)
+    doc["resources"].sort(key=lambda r: r["id"])
+    doc["resource_count"] = len(doc["resources"])
+
+    write_json(paths.inventory, doc)
+    say(f"{OK} wrote {paths.rel(paths.inventory)}")
+    say(f"  {doc['resource_count']} resources: "
+        + ", ".join(f"{k}×{v}" for k, v in doc["counts_by_kind"].items()))
+    if findings.get("present"):
+        say(f"  docs: {findings['file_count']} files, "
+            f"{len(findings['endpoints'])} endpoints, "
+            f"{findings['workflow_candidate_count']} workflow candidates")
+    for g in doc["gaps"]:
+        say(f"  {WARN} {g}")
+    say()
+    say(f"  next: `e2e journeys scaffold`, fill it in, then `e2e journeys validate`")
+    return 0
+
+
+# ==========================================================================
+# journeys
+# ==========================================================================
+def cmd_journeys(args) -> int:
+    paths = Paths(Path(args.root).resolve())
+
+    if args.action == "scaffold":
+        inventory = load_inventory(paths)
+        if paths.journeys.is_file() and not args.force:
+            die(f"{paths.rel(paths.journeys)} already exists. Use --force to overwrite.")
+        write_json(paths.journeys, jn.scaffold(inventory))
+        say(f"{OK} wrote {paths.rel(paths.journeys)}")
+        say(f"  Replace the example journey with real ones grounded in the docs.")
+        say(f"  Resource ids and the step vocabulary are in the file; the full")
+        say(f"  reference is references/journeys-schema.md.")
+        return 0
+
+    if args.action == "kinds":
+        for name in sorted(jn.STEP_KINDS):
+            spec = jn.STEP_KINDS[name]
+            say(f"{name}")
+            say(f"  {spec['doc']}")
+            say(f"  required: {', '.join(sorted(spec['required'])) or '(none)'}")
+            say(f"  optional: {', '.join(sorted(spec['optional'])) or '(none)'}")
+            kinds = jn.STEP_RESOURCE_KINDS.get(name) or set()
+            if kinds:
+                say(f"  resource kinds: {', '.join(sorted(kinds))}")
+            say()
+        return 0
+
+    # validate
+    if not paths.journeys.is_file():
+        die(f"No {paths.rel(paths.journeys)}. Run `e2e journeys scaffold` first.")
+    inventory = read_json(paths.inventory) if paths.inventory.is_file() else None
+    if inventory is None:
+        say(f"{WARN} no inventory.json -- resource ids cannot be checked")
+    try:
+        doc = jn.load(paths.journeys)
+    except jn.ValidationError as e:
+        die(str(e))
+
+    errors, warnings = jn.validate(doc, inventory)
+    for w in warnings:
+        say(f"{WARN} {w}")
+    if errors:
+        for e in errors:
+            say(f"{BAD} {e}")
+        say()
+        die(f"{len(errors)} error(s). `build` is blocked until these are fixed.")
+
+    n = len(doc.get("journeys", []))
+    steps = sum(len(j.get("steps", [])) for j in doc.get("journeys", []))
+    say(f"{OK} {paths.rel(paths.journeys)} is valid: {n} journeys, {steps} steps")
+    if warnings:
+        say(f"  {len(warnings)} warning(s) above -- not blocking")
+    return 0
+
+
+# ==========================================================================
+# build
+# ==========================================================================
+def cmd_build(args) -> int:
+    root = Path(args.root).resolve()
+    paths = Paths(root)
+    inventory = load_inventory(paths)
+
+    if not paths.journeys.is_file():
+        die(f"No {paths.rel(paths.journeys)}. Run `e2e journeys scaffold`, fill it "
+            "in, then `e2e journeys validate`.")
+    try:
+        doc = jn.load(paths.journeys)
+    except jn.ValidationError as e:
+        die(str(e))
+
+    errors, warnings = jn.validate(doc, inventory)
+    if errors:
+        for e in errors:
+            say(f"{BAD} {e}")
+        die(f"{len(errors)} validation error(s). Refusing to generate tests from an "
+            "invalid journeys file -- a bad step would produce a test that passes "
+            "for the wrong reason.")
+    for w in warnings:
+        say(f"{WARN} {w}")
+
+    # Regenerate from scratch so a deleted journey leaves no orphan spec behind.
+    if paths.generated.is_dir():
+        shutil.rmtree(paths.generated)
+    paths.generated.mkdir(parents=True, exist_ok=True)
+    paths.support.mkdir(parents=True, exist_ok=True)
+
+    files = codegen.build(doc, inventory)
+    for rel, content in sorted(files.items()):
+        target = paths.tests / rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(content, encoding="utf-8")
+        say(f"{OK} {paths.rel(target)}")
+
+    harness_src = TEMPLATES / "harness.ts"
+    shutil.copyfile(harness_src, paths.support / "harness.ts")
+    say(f"{OK} {paths.rel(paths.support / 'harness.ts')}")
+
+    config = load_config(paths)
+    pw = config.get("playwright", {})
+    cfg = (TEMPLATES / "playwright.config.ts").read_text(encoding="utf-8")
+    cfg = (cfg.replace("__WORKERS__", str(pw.get("workers", 1)))
+              .replace("__RETRIES__", str(pw.get("retries", 0)))
+              .replace("__TIMEOUT__", str(pw.get("timeout_ms", 60000))))
+    (paths.work / "playwright.config.ts").write_text(cfg, encoding="utf-8")
+    say(f"{OK} {paths.rel(paths.work / 'playwright.config.ts')}")
+
+    say()
+    say(f"  {len(doc['journeys'])} journeys generated. Next: `e2e run`")
+    return 0
+
+
+# ==========================================================================
+# run
+# ==========================================================================
+def cmd_run(args) -> int:
+    root = Path(args.root).resolve()
+    paths = Paths(root)
+    config = load_config(paths)
+    inventory = load_inventory(paths)
+
+    if not paths.generated.is_dir() or not any(paths.generated.glob("*.spec.ts")):
+        die("No generated tests. Run `e2e build` first.")
+
+    proc = None
+    started = False
+    result: dict[str, Any] = {"up": None, "readiness": None, "tests": None}
+
+    try:
+        if not args.no_up:
+            up = config.get("up")
+            if not up:
+                die("No `up` command in config.json. Set it to the command that "
+                    "boots the system -- the harness will not guess.")
+            if not config.get("up_confirmed") and not args.yes:
+                die(f"Boot command is not confirmed:\n    {up}\n"
+                    f"Review it, then set \"up_confirmed\": true in "
+                    f"{paths.rel(paths.config)} or re-run with --yes.")
+            say(f"{INFO} up: {up}")
+            if config.get("up_detached", True):
+                proc = runner.run_shell(up, root, detach=True)
+                started = True
+                result["up"] = {"command": up, "mode": "detached", "pid": proc.pid}
+            else:
+                r = runner.run_shell(up, root, timeout=args.up_timeout)
+                started = r.returncode == 0
+                result["up"] = {"command": up, "mode": "blocking", "returncode": r.returncode}
+                if r.returncode != 0:
+                    say((r.stderr or r.stdout or "")[-2000:])
+                    die("boot command failed")
+            say(f"{OK} boot command started")
+
+        targets = runner.readiness_targets(inventory, config)
+        say(f"{INFO} readiness gate: {len(targets)} target(s), "
+            f"timeout {config.get('readiness_timeout_s', 180)}s")
+        ready, status = runner.wait_ready(targets, config.get("readiness_timeout_s", 180))
+        result["readiness"] = {"ready": ready, "targets": status}
+        if not ready:
+            not_ready = [s["id"] for s in status if not s["ready"]]
+            say(f"{BAD} not ready: {', '.join(not_ready)}")
+            if not args.ignore_readiness:
+                die("Readiness gate failed. Tests would be flaky against a "
+                    "half-booted system. Use --ignore-readiness to run anyway.")
+        else:
+            say(f"{OK} all resources ready")
+
+        cmd = ["npx", "playwright", "test",
+               "--config", str(paths.work / "playwright.config.ts"),
+               "--reporter", f"json,line"]
+        if args.filter:
+            cmd += ["--grep", args.filter]
+        env = {"PLAYWRIGHT_JSON_OUTPUT_NAME": str(paths.artifacts / "playwright.json")}
+        paths.artifacts.mkdir(parents=True, exist_ok=True)
+        say(f"{INFO} {' '.join(cmd)}")
+        r = runner.run_shell(" ".join(cmd), root, env=env, timeout=args.test_timeout)
+        say(r.stdout[-6000:] if r.stdout else "")
+        if r.stderr:
+            say(r.stderr[-2000:])
+
+        parsed = runner.parse_playwright_report(paths.artifacts / "playwright.json")
+        result["tests"] = parsed
+        result["exit_code"] = r.returncode
+
+    finally:
+        if started and not args.keep_up:
+            down = config.get("down")
+            if down:
+                say(f"{INFO} down: {down}")
+                runner.run_shell(down, root, timeout=300)
+            elif proc is not None:
+                say(f"{INFO} terminating detached boot process {proc.pid}")
+                try:
+                    os.killpg(os.getpgid(proc.pid), 15)
+                except (ProcessLookupError, PermissionError):
+                    proc.terminate()
+        elif args.keep_up:
+            say(f"{INFO} leaving the system up (--keep-up)")
+
+    write_json(paths.report, result)
+    say()
+    say(f"{OK} wrote {paths.rel(paths.report)}")
+    t = result.get("tests") or {}
+    if t.get("parsed"):
+        say(f"  {t['passed']} passed, {t['failed']} failed, of {t['total']}")
+        for test in t["tests"]:
+            if test["status"] != "passed":
+                say(f"  {BAD} {test['title']}: {(test.get('error') or '').splitlines()[:1]}")
+    return 0 if (result.get("exit_code") == 0) else 1
+
+
+# ==========================================================================
+# doctor / status
+# ==========================================================================
+def cmd_doctor(args) -> int:
+    root = Path(args.root).resolve()
+    paths = Paths(root)
+    config = read_json(paths.config) if paths.config.is_file() else {}
+    failed = 0
+    for c in runner.doctor(root, config):
+        mark = OK if c["ok"] else WARN
+        say(f"{mark} {c['check']}: {c['detail']}")
+        if not c["ok"]:
+            failed += 1
+            if c["fix"]:
+                say(f"    fix: {c['fix']}")
+    say()
+    say(f"{failed} check(s) need attention" if failed else f"{OK} environment looks good")
+    return 0
+
+
+def cmd_status(args) -> int:
+    paths = Paths(Path(args.root).resolve())
+    steps = [
+        ("config.json", paths.config, "e2e setup --docs <dir>"),
+        ("inventory.json", paths.inventory, "e2e discover"),
+        ("journeys.json", paths.journeys, "e2e journeys scaffold"),
+        ("generated tests", paths.generated, "e2e build"),
+        ("report.json", paths.report, "e2e run"),
+    ]
+    nxt = None
+    for label, p, how in steps:
+        exists = p.is_dir() if label == "generated tests" else p.is_file()
+        say(f"{OK if exists else INFO} {label:<18} {'present' if exists else 'missing'}")
+        if not exists and nxt is None:
+            nxt = how
+    say()
+    say(f"  next: {nxt}" if nxt else "  pipeline complete -- re-run `e2e run` any time")
+    return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    p = argparse.ArgumentParser(prog="e2e", description=__doc__,
+                                formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--root", default=".", help="repo root (default: cwd)")
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    s = sub.add_parser("setup", help="detect the stack and write config.json")
+    s.add_argument("--docs", help="folder of collected documentation")
+    s.add_argument("--install", action="store_true", help="install Playwright + adapters")
+    s.set_defaults(func=cmd_setup)
+
+    s = sub.add_parser("discover", help="probe repo + docs -> inventory.json")
+    s.add_argument("--docs", help="override the configured docs folder")
+    s.add_argument("--allow-no-docs", action="store_true",
+                   help="inventory code only; journeys will be ungrounded")
+    s.set_defaults(func=cmd_discover)
+
+    s = sub.add_parser("journeys", help="scaffold / validate the journeys file")
+    s.add_argument("action", choices=["scaffold", "validate", "kinds"])
+    s.add_argument("--force", action="store_true", help="overwrite an existing file")
+    s.set_defaults(func=cmd_journeys)
+
+    s = sub.add_parser("build", help="journeys.json -> Playwright specs")
+    s.set_defaults(func=cmd_build)
+
+    s = sub.add_parser("run", help="up -> readiness -> tests -> report -> down")
+    s.add_argument("--no-up", action="store_true", help="assume the system is already running")
+    s.add_argument("--keep-up", action="store_true", help="skip teardown")
+    s.add_argument("--yes", action="store_true", help="confirm the boot command")
+    s.add_argument("--ignore-readiness", action="store_true")
+    s.add_argument("--filter", help="only journeys whose title matches this regex")
+    s.add_argument("--up-timeout", type=int, default=600)
+    s.add_argument("--test-timeout", type=int, default=1800)
+    s.set_defaults(func=cmd_run)
+
+    sub.add_parser("doctor", help="environment preflight").set_defaults(func=cmd_doctor)
+    sub.add_parser("status", help="where am I in the pipeline").set_defaults(func=cmd_status)
+
+    args = p.parse_args(argv)
+    return args.func(args)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,81 @@
+wrote <DDD_DIR>/08-code/.prefill/billing.md (3.8 KB)
+# Billing (`billing`) — generic, pattern **transaction-script**, sourcing buy
+Deployable `app` (modular-monolith, data store own) · team `solo` · canvas
+  `ddd/07-define/billing/bounded-context-canvas.md`
+Aggregates needed: **NO — use cases + persistence only**. Purpose: Billing takes the money for a chosen week:
+  whenever meals are chosen it charges the household's card through Stripe and tells the rest of the system
+  the week is paid. It owns no product rules — a failed charge is reported back to subscriptions, which
+  decides what to do. Domain roles: execution-context. Scenarios: S1.
+Subdomains: `billing` generic/transaction-script — Charging a card weekly is a solved problem (Stripe,
+  commodity evolution); it moves no goal on its own, so buy the provider and keep our side a transaction scri…
+
+## Commands owned
+| id | actor | produces | description |
+|---|---|---|---|
+| charge-week |  | week-charged |  |
+| charge-card |  |  | Billing asks the payment provider to charge the subscriber's card for the week |
+
+## Events owned
+| id | pivotal | data | triggered_by |
+|---|---|---|---|
+| week-charged | no | subscriptionId, week, amount | charge-week |
+
+## Aggregate candidates (discover) — root = discover id, pascal-cased
+_none_
+
+## Policies
+Runs here (when → then):
+| id | when | when_owned_by | then | kind |
+|---|---|---|---|---|
+| charge-on-choice | meals-chosen | subscriptions | charge-week | automatic |
+Feeds elsewhere (owned event → their command):
+| id | when | then | in_contexts |
+|---|---|---|---|
+| pack-on-charge | week-charged | pack-box | fulfilment |
+
+## Message edges (one row per message; every producer → consumer edge keeps its own transport; `response` steps folded away)
+Transport per edge: flow step > integration decision of the relationship > deployables. Only an in-process edge across
+deployables is a problem (see Warnings); mixed transports on one context are normal.
+### Inbound
+| id | kind | from: via (basis) | delivery | payload | source |
+|---|---|---|---|---|---|
+| meals-chosen | event | subscriptions: in-process (flow F1 step 2) | at-least-once | subscriptionId, week, recipeIds | connect |
+### Outbound
+| id | kind | to: via (basis) | delivery | payload | source |
+|---|---|---|---|---|---|
+| week-charged | event | fulfilment: message-bus (flow F1 step 4) | at-least-once | subscriptionId, week | connect |
+| charge-card | command | stripe: http (flow F1 step 3) | sync | subscriptionId, week, amount, currency | connect |
+
+Command transports in: none in flows (human actors → assume http) · external systems we call (→ gateway port):
+  stripe · external systems that initiate a command/event toward us (→ callbacks port): none
+
+## Read models
+Local (owned by this context — become `read_models[]`, fill `source_events`):
+_none_
+Queries this context sends to others (→ driven gateway port, not a local read model):
+_none_
+
+## Relationships & integration mechanism
+| id | role | other | pattern | mechanism |
+|---|---|---|---|---|
+| R1 | downstream | subscriptions | customer-supplier | in-process-call |
+| R2 | upstream | fulfilment | published-language | async-events |
+
+## Language here
+- **Box** — …
+## Business decisions (canvas)
+- A week is charged exactly once, on meals-chosen; retries are idempotent on subscriptionId+week
+- A declined card pauses the subscription and releases the week
+## Quality attributes (this context; system-wide ones are in the index)
+_none_
+
+## Hotspots near owned events/commands
+| id | kind | near | text |
+|---|---|---|---|
+| H1 | unclear | week-charged | What happens if payment fails after meals are chosen? |
+
+## Coupling concerns
+_none_
+
+## Existing design (re-run — keep ids) aggregates: []; services: ['ChargeWeek', 'ChargeCard']; module_path:
+  src/billing

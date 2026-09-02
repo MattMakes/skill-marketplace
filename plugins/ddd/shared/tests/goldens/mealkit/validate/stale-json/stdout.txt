@@ -1,0 +1,119 @@
+{
+  "ddd_dir": "<DDD_DIR>",
+  "ok": true,
+  "errors": [],
+  "warnings": [
+    [
+      "decompose",
+      "stale: produced <TS> but 'discover' was re-produced <TS> \u2014 re-run ddd-decompose (hand edits: bump produced_at with ddd stamp)"
+    ],
+    [
+      "strategize",
+      "stale: produced <TS> but 'discover' was re-produced <TS> \u2014 re-run ddd-strategize (hand edits: bump produced_at with ddd stamp)"
+    ],
+    [
+      "connect",
+      "stale: produced <TS> but 'discover' was re-produced <TS> \u2014 re-run ddd-connect (hand edits: bump produced_at with ddd stamp)"
+    ],
+    [
+      "organise",
+      "stale: produced <TS> but 'discover' was re-produced <TS> \u2014 re-run ddd-organise (hand edits: bump produced_at with ddd stamp)"
+    ],
+    [
+      "define",
+      "stale: produced <TS> but 'discover' was re-produced <TS> \u2014 re-run ddd-define (hand edits: bump produced_at with ddd stamp)"
+    ],
+    [
+      "code",
+      "stale: produced <TS> but 'discover' was re-produced <TS> \u2014 re-run ddd-code (hand edits: bump produced_at with ddd stamp)"
+    ],
+    [
+      "contracts",
+      "stale: produced <TS> but 'discover' was re-produced <TS> \u2014 re-run ddd-contracts (hand edits: bump produced_at with ddd stamp)"
+    ]
+  ],
+  "info": [],
+  "steps": [
+    {
+      "step": "understand",
+      "status": "done",
+      "artifact": true,
+      "updated": "<TS>",
+      "open_questions": 1,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "step": "discover",
+      "status": "done",
+      "artifact": true,
+      "updated": "<TS>",
+      "open_questions": 1,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "step": "decompose",
+      "status": "stale",
+      "artifact": true,
+      "updated": "<TS>",
+      "open_questions": 1,
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "step": "strategize",
+      "status": "stale",
+      "artifact": true,
+      "updated": "<TS>",
+      "open_questions": 1,
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "step": "connect",
+      "status": "stale",
+      "artifact": true,
+      "updated": "<TS>",
+      "open_questions": 1,
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "step": "organise",
+      "status": "stale",
+      "artifact": true,
+      "updated": "<TS>",
+      "open_questions": 1,
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "step": "define",
+      "status": "stale",
+      "artifact": true,
+      "updated": "<TS>",
+      "open_questions": 1,
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "step": "code",
+      "status": "stale",
+      "artifact": true,
+      "updated": "<TS>",
+      "open_questions": 1,
+      "errors": 0,
+      "warnings": 1
+    },
+    {
+      "step": "contracts",
+      "status": "stale",
+      "artifact": true,
+      "updated": "<TS>",
+      "open_questions": 3,
+      "errors": 0,
+      "warnings": 1
+    }
+  ]
+}

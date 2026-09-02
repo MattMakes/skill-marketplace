@@ -1,0 +1,4 @@
+lint: OK
+wrote <DDD_DIR>/07-define/billing/bounded-context-canvas.md
+wrote <DDD_DIR>/07-define/system-context.md
+wrote <DDD_DIR>/glossary.md

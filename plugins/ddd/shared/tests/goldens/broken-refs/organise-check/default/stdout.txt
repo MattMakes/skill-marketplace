@@ -1,0 +1,3 @@
+organise check — <DDD_DIR>: 1 team(s), 2 deployable(s), 3 context(s)
+  [warning] deployable 'app' rationale is too thin — name the reason from references/deployable-split-decisions.md
+RESULT: OK (0 errors, 1 warnings)

@@ -1,0 +1,110 @@
+DEFINE pre-fill — Meal-kit subscription: 3 context(s) (core: —), 0 deployable(s), topology —; mode=auto depth=light
+WARNING: connect.json missing — inbound/outbound derived from discover only (record as an assumption)
+WARNING: strategize.json missing — strategic classification left as TODO
+WARNING: organise.json missing — owning team / deployable unknown
+briefs → <DDD_DIR>/07-define/.prefill/: system.md 2.2 KB; billing.md 3.5 KB (?)
+C4 block: ok
+next: read system.md, then one context brief at a time (core first); --print [--context ID] echoes briefs to stdout; ddd define render removes .prefill/ after a full render
+
+# DEFINE brief — system: Meal-kit subscription
+workspace:
+  <DDD_DIR>;
+  inputs: ddd/01-understand/understand.json, ddd/02-discover/discover.json, ddd/03-decompose/decompose.json,
+  ddd/manifest.json, ddd/glossary.md
+mode=auto depth=light contexts=3 (core: —) deployables=0 topology=None
+WARNING: connect.json missing — inbound/outbound derived from discover only (record as an assumption)
+WARNING: strategize.json missing — strategic classification left as TODO
+WARNING: organise.json missing — owning team / deployable unknown
+
+## Facts (for system-context.md)
+- Title: Meal-kit subscription — Weekly meal kits delivered to subscribers
+- Actors: Subscriber (`subscriber`, actor); Packer (`packer`, actor)
+- External systems: Stripe (`stripe`) — Payments; Courier (`courier`) — Delivery partner
+- Existing systems (understand): Stripe (payments, will integrate)
+- Deployables: —
+- Teams: —
+- Relationships: R1 subscriptions→billing customer-supplier; R2 billing→fulfilment published-language
+- Goals: G1 Grow active subscribers (active subscriptions → 10k)
+- Constraints: C1 [regulatory] Food safety labelling
+
+## C4 context block (generated from the canvases' rows; lint: ok)
+
+```mermaid
+C4Context
+  title System context - Meal-kit subscription
+  Person(subscriber, "Subscriber", "Household receiving boxes")
+  Person(packer, "Packer", "Warehouse staff")
+  System(mealkit, "Meal-kit subscription", "Weekly meal kits delivered to subscribers")
+  System_Ext(stripe, "Stripe", "Payments")
+  System_Ext(courier, "Courier", "Delivery partner")
+  Rel(subscriber, mealkit, "Start Subscription, Choose Meals")
+  Rel(packer, mealkit, "Pack Box, Ship Box")
+```
+
+## This pre-fill's own envelope entries (already cited on the canvases they apply to)
+- A1 (low): connect.json missing — inbound/outbound derived from discover only (record as an assumption)
+- A2 (low): strategize.json missing — strategic classification left as TODO
+- A3 (low): organise.json missing — owning team / deployable unknown
+
+## Context briefs (read one at a time, core first)
+- `ddd/07-define/.prefill/billing.md` — Billing, ?
+
+# DEFINE brief — Billing (`billing`)
+mode=auto depth=light domain=?. Everything below is FACT from upstream unless marked (suggested)/(draft).
+  Judgement to write: purpose, role rationale, business decisions (rewrite drafts, add invariants),
+  verification metrics, quality attributes (core first), every TODO term.
+
+## Facts
+- Subdomains: `billing` — Charging weeks (rationale: Wraps Stripe; heuristics: external-system)
+- Decompose rationale: Thin wrapper; ISH verdict: merge
+- Capabilities: —
+- Classification (strategize): domain=None evolution=None pattern=— sourcing=— investment=—; rationale: —;
+  future: —
+- Business model (suggested): cost-reducer — choose revenue-generator / engagement-creator /
+  compliance-enforcer / cost-reducer
+- Team: — (`—`, —, load —); deployable: — (`—`, —, data store —, shared with: nobody)
+- Owns commands: `charge-week` Charge Week (actor system/policy); `charge-card` Charge Card (actor
+  system/policy)
+- Owns events: `week-charged` Week Charged [subscriptionId, week, amount]
+- Aggregate candidates: — (none: probably not a domain model)
+- Read models informing its commands: — (add `read_models: [{name, informs, note}]` to the canvas if one is
+  missing)
+- Scenarios touching it: S1 Happy path weekly box
+- Suggested domain roles: gateway — because decompose applied the external-system heuristic, but no external
+  message endpoint is recorded — check connect
+- Role evidence: external systems as message endpoints: none; decompose heuristics: external-system;
+  aggregates owned: none; commands from people: 0 of 2; policy reactions owned: 1; read models: 0
+
+## Inbound (collaborator → this context)
+- **Subscriptions** (`subscriptions`, bounded context; relationship: customer-supplier R1)
+  - `meals-chosen` Meals Chosen — event; via ?, sync ?; payload: subscriptionId, week, recipeIds [policy
+    charge-on-choice]
+
+## Outbound (this context → collaborator)
+- **Fulfilment** (`fulfilment`, bounded context; relationship: published-language R2)
+  - `week-charged` Week Charged — event; via ?, sync ?; payload: subscriptionId, week, amount [policy
+    pack-on-charge]
+
+## Terms (one meaning per term here; define every TODO)
+- **Box** — …. _(differs from the shared meaning — a boundary)_ [glossary.md context section]
+
+## Decisions — drafts from policies (rewrite each as condition → outcome; add invariants)
+- [draft from policy charge-on-choice] Whenever 'Meals Chosen' (event from subscriptions) → 'Charge Week'
+  (automatic)
+- Hotspots near it: H1 [unclear] What happens if payment fails after meals are chosen?
+- Coupling concerns: —
+
+## Pre-filled canvas assumptions and open questions (carried items name this context; `[define …]` = this pre-fill's own)
+- assumption: [define A1] connect.json missing — inbound/outbound derived from discover only (record as an
+  assumption)
+- assumption: [define A2] strategize.json missing — strategic classification left as TODO
+- assumption: [define A3] organise.json missing — owning team / deployable unknown
+- question: [discover H1 near week-charged — unclear] What happens if payment fails after meals are chosen?
+- Not carried: 3 upstream assumption(s) and 3 question(s) do not name `billing` — read the upstream step JSON
+  (inputs listed in system.md) if a canvas needs one.
+
+## Hints for purpose, metrics, quality attributes
+- Goals via its actors: — (none linked; pick a system goal from understand)
+- Impacts via its actors: —
+- Constraints (system-wide): C1 [regulatory] Food safety labelling
+- Quality-attribute hints: —

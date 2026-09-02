@@ -1,0 +1,48 @@
+# connect inputs — Meal-kit subscription
+workspace: <DDD_DIR>  |  mode: auto  |  depth: light (2–3 flows)
+scale_target: {"deployables_min": 1, "deployables_max": 3, "teams": 1, "notes": "solo dev"}
+**distance hint: co-located** — scale_target 1–3 deployables: default is one deployable → in-process calls and in-memory domain events; split only for cause
+
+## Upstream notes addressed to connect / organise (contract §3 — follow them; do not re-emit them)
+(none)
+
+## Bounded contexts (from decompose + strategize)
+| id | name | type | pattern | sourcing | investment | ISH | owns events | owns commands |
+|---|---|---|---|---|---|---|---|---|
+| subscriptions | Subscriptions | core | domain-model | build | high | candidate | subscription-started, meals-chosen, subscription-teleported | start-subscription, choose-meals |
+| billing | Billing | generic | transaction-script | buy | low | merge | week-charged | charge-week, charge-card |
+| fulfilment | Fulfilment | supporting | active-record | build | medium | candidate | box-packed, box-shipped | pack-box, ship-box |
+
+## Cross-context policies = integration points (policy `when` owned by one context, `then` by another)
+- **charge-on-choice** (automatic) whenever `meals-chosen` @subscriptions → `charge-week` @billing  — relationship: R1
+- **pack-on-charge** (automatic) whenever `week-charged` @billing → `pack-box` @fulfilment  — relationship: R2
+
+## Scenarios (from discover) — candidates for flows
+| id | name | actors | contexts touched (in order) | crosses boundary | cross policies |
+|---|---|---|---|---|---|
+| S1 | Happy path weekly box | subscriber, packer | subscriptions → billing → fulfilment | yes | charge-on-choice, pack-on-charge |
+
+Pick 2–3 flows: happy path first, then alternatives that cross a boundary, then one flow per cross-context policy not already covered. A scenario that needs more than 9 messages becomes several flows sharing its id, split at pivotal events. Hotspots below are candidate failure-path flows (deep) or open questions.
+
+## Relationships (from decompose) — one integration decision each
+| id | upstream → downstream | pattern | policies | scenarios | proposed distance (why) → mechanism (verify!) |
+|---|---|---|---|---|---|
+| R1 | subscriptions → billing | customer-supplier | charge-on-choice | S1 | **co-located** (scale target; ISH merge: billing; ISH candidate: subscriptions) → in-process-call (in-memory domain events from upstream, direct call when an answer is needed) |
+| R2 | billing → fulfilment | published-language | pack-on-charge | S1 | **co-located** (scale target; ISH merge: billing; ISH candidate: fulfilment) → in-process-call (in-memory domain events with a versioned event type) |
+
+## External systems (discover) and existing systems (understand)
+- `stripe` Stripe — Payments; actor of events ['week-charged'], commands -
+- `courier` Courier — Delivery partner; actor of events ['box-shipped'], commands -
+- existing: Stripe (payments) — will: integrate
+
+## Read models (candidate queries when the data is owned by another context)
+- `weekly-menu` Weekly menu informs `choose-meals` @subscriptions used by subscriber
+
+## Hotspots near boundary-crossing events (candidate failure paths / open questions)
+- H1 (unclear) near `week-charged`: What happens if payment fails after meals are chosen?
+
+## Party ids usable in flows[].steps[].from/to and messages[].producer/consumers
+- contexts: subscriptions, billing, fulfilment
+- actors: subscriber, packer
+- external systems: stripe, courier
+- a party discover never named (a depot, a scanner, a clerk): declare it in connect.json `parties[]` (contract §4.5: id, name, kind actor|external-system, description) — never borrow a stand-in id

@@ -1,0 +1,65 @@
+{
+  "name": "valid-basic",
+  "mustPass": true,
+  "value": {
+    "id": "order-1",
+    "kind": "command",
+    "tags": [
+      "a",
+      "b"
+    ],
+    "n": 3,
+    "ok": true,
+    "nested": {
+      "x": null
+    }
+  },
+  "schema": {
+    "type": "object",
+    "required": [
+      "id",
+      "kind"
+    ],
+    "properties": {
+      "id": {
+        "type": "string"
+      },
+      "kind": {
+        "type": "string",
+        "enum": [
+          "command",
+          "event"
+        ]
+      },
+      "tags": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "n": {
+        "type": "integer"
+      },
+      "ok": {
+        "type": "boolean"
+      },
+      "nested": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "expect": {
+    "check": [],
+    "core": [],
+    "vocab": [],
+    "conditional": false
+  }
+}

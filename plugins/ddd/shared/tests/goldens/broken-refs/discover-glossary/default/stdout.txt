@@ -1,0 +1,1 @@
+wrote <DDD_DIR>/glossary.md: 2 shared terms

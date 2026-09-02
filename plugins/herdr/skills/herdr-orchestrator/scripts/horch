@@ -1,0 +1,1520 @@
+#!/usr/bin/env python3
+"""horch - orchestration layer over the `herdr` terminal workspace manager.
+
+Gives an orchestrator session a fleet of worker CLI agents laid out in a
+2-row x N-column grid to the right of a pinned orchestrator pane, plus a
+persistent ledger of tasks, workers and session ids.
+
+Every worker task must be written to a briefing FILE first; `assign` and
+`spawn` refuse inline task text by design.
+"""
+
+from __future__ import annotations
+
+import argparse
+import fcntl
+import json
+import os
+import re
+import shlex
+import subprocess
+import sys
+import time
+import uuid
+from contextlib import contextmanager
+from datetime import datetime, timezone
+from pathlib import Path
+
+HERDR = os.environ.get("HERDR_BIN_PATH") or "herdr"
+STATE_DIRNAME = ".herdr-orchestrator"
+LEDGER_VERSION = 1
+
+# Effort is how hard a worker thinks before it acts. The tier picks the mind;
+# the effort picks how hard that mind works. A fully-specified briefing is a
+# substitute for reasoning, so a precise brief lets you drop a level.
+CLAUDE_EFFORTS = ["low", "medium", "high", "xhigh", "max"]
+CODEX_EFFORTS = ["minimal", "low", "medium", "high"]
+
+EFFORT_GUIDE = {
+    "minimal": "Trivial single-file edits that are spelled out exactly.",
+    "low": "Mechanical and fully specified, no decisions: renames, a test that "
+           "mirrors an existing one, applying a described diff, run-and-report.",
+    "medium": "Ordinary implementation with local judgment: write a function to "
+              "spec, fix a clearly diagnosed bug, straightforward tests.",
+    "high": "Work that needs a plan held in mind: multi-file features, refactors "
+            "with taste, subtle bugs, migrations, performance fixes.",
+    "xhigh": "Open-ended reasoning: architecture, ambiguous root-cause hunts, "
+             "tricky algorithms, security review, planning the fleet's work.",
+    "max": "Last resort. A worker already failed at xhigh, or the call is "
+           "expensive and irreversible. Slow and costly - never the default.",
+}
+
+# Tier catalog. Override per project in <state-dir>/tiers.json.
+DEFAULT_TIERS = {
+    "haiku": {
+        "engine": "claude", "model": "haiku", "effort": "low",
+        "range": ["low", "medium"],
+        "use": "Cheapest: lookups, single-file mechanical edits, run-and-report.",
+    },
+    "sonnet": {
+        "engine": "claude", "model": "sonnet", "effort": "medium",
+        "range": ["low", "high"],
+        "use": "Clear, well-specified junior work: renames, mirrored tests, "
+               "described mechanical changes across files.",
+    },
+    "opus": {
+        "engine": "claude", "model": "opus", "effort": "high",
+        "range": ["high", "max"],
+        "use": "Sophisticated but guided work: implement a designed feature, "
+               "refactor with taste, track down a subtle bug.",
+    },
+    "fable": {
+        "engine": "claude", "model": "fable", "effort": "xhigh",
+        "range": ["high", "max"],
+        "use": "Planning, research, design. Dispatches its own subagents. "
+               "Give it exploration and architecture, not implementation.",
+    },
+    "codex-terra": {
+        "engine": "codex", "model": "gpt-5.6-terra", "effort": "low",
+        "range": ["minimal", "medium"],
+        "use": "Grunt band, Codex flavor. Repetitive edits where a second "
+               "model family gives useful diversity.",
+    },
+    "codex-sol": {
+        "engine": "codex", "model": "gpt-5.6-sol", "effort": "high",
+        "range": ["medium", "high"],
+        "use": "Complex implementation: large multi-file features, tricky "
+               "algorithms, migrations, performance work.",
+    },
+    "pi": {
+        "engine": "pi", "model": None, "effort": None, "range": [],
+        "use": "Local models via pi. Set model/args in tiers.json.",
+    },
+}
+
+
+def effort_ladder(engine: str) -> list:
+    return CODEX_EFFORTS if engine == "codex" else CLAUDE_EFFORTS
+
+
+def validate_effort(engine: str, effort: str | None, tier: str = ""):
+    """Fail here rather than letting the agent die on an unknown flag."""
+    if not effort:
+        return
+    ladder = effort_ladder(engine)
+    if effort not in ladder:
+        die(f"effort '{effort}' is not valid for {engine}"
+            f"{f' (tier {tier})' if tier else ''}.\n"
+            f"  {engine} supports: {', '.join(ladder)}")
+
+
+REQUIRED_BRIEF_SECTIONS = ["GOAL:", "FILES:", "DONE WHEN:"]
+RECOMMENDED_BRIEF_SECTIONS = ["CONTEXT:", "CONSTRAINTS:", "REPORT:"]
+BRIEF_MARKER_RE = re.compile(
+    r"^\s*(GOAL|CONTEXT|FILES|PRIOR WORK|CONSTRAINTS|DONE WHEN|REPORT)\s*:",
+    re.IGNORECASE | re.MULTILINE,
+)
+TELL_MAX_CHARS = 400
+MSG_MAX_CHARS = 500
+
+BRIEF_TEMPLATE = """\
+GOAL: <one sentence: what "done" means>
+
+CONTEXT: <why this matters; what neighboring work exists; decisions already made>
+
+FILES:
+- own: <files/dirs this worker may edit>
+- do NOT touch: <files another worker owns>
+
+PRIOR WORK: <summaries and gotchas pulled from `horch sessions`, if any>
+
+CONSTRAINTS: <style, tests to keep green, commands to run, things to avoid>
+
+DONE WHEN: <verifiable acceptance criteria - tests pass, command output, file exists>
+
+REPORT:
+- progress notes: horch note "<what you did, decisions, gotchas>"
+- blocked: horch blocked "<one self-contained question with options and your recommendation>"
+- finished: horch done "<summary>"
+"""
+
+
+# ---------------------------------------------------------------- utilities
+
+def die(msg: str, code: int = 1):
+    print(f"horch: {msg}", file=sys.stderr)
+    sys.exit(code)
+
+
+def now() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def herdr_run(args, check=True):
+    """Run the herdr CLI, return CompletedProcess."""
+    proc = subprocess.run([HERDR] + list(args), capture_output=True, text=True)
+    if check and proc.returncode != 0:
+        die(f"herdr {' '.join(args)}\n  -> {proc.stderr.strip() or proc.stdout.strip()}")
+    return proc
+
+
+def hjson(args, check=True):
+    proc = herdr_run(args, check=check)
+    if proc.returncode != 0:
+        return None
+    try:
+        return json.loads(proc.stdout)
+    except json.JSONDecodeError:
+        return None
+
+
+def htext(args, check=False) -> str:
+    return herdr_run(args, check=check).stdout
+
+
+def server_running() -> bool:
+    return "status: running" in herdr_run(["status", "server"], check=False).stdout
+
+
+def one_line(text: str, limit: int = MSG_MAX_CHARS) -> str:
+    flat = " ".join(str(text).split())
+    if len(flat) > limit:
+        flat = flat[: limit - 3].rstrip() + "..."
+    return flat
+
+
+# ------------------------------------------------------------------ ledger
+
+def find_state_dir(start: Path | None = None) -> Path | None:
+    env = os.environ.get("HORCH_LEDGER")
+    if env:
+        return Path(env).expanduser().resolve().parent
+    cur = (start or Path.cwd()).resolve()
+    for d in [cur, *cur.parents]:
+        if (d / STATE_DIRNAME).is_dir():
+            return d / STATE_DIRNAME
+    return None
+
+
+def state_dir_or_die() -> Path:
+    d = find_state_dir()
+    if d is None:
+        die("no ledger found. Run `horch init` in the project root first.")
+    return d
+
+
+def ledger_path() -> Path:
+    return state_dir_or_die() / "ledger.json"
+
+
+@contextmanager
+def ledger(write: bool = False):
+    """Read (and optionally write back) the ledger under an exclusive lock."""
+    path = ledger_path()
+    mode = "r+" if write else "r"
+    with open(path, mode) as fh:
+        fcntl.flock(fh, fcntl.LOCK_EX if write else fcntl.LOCK_SH)
+        try:
+            data = json.load(fh)
+            yield data
+            if write:
+                fh.seek(0)
+                fh.truncate()
+                json.dump(data, fh, indent=2, sort_keys=False)
+                fh.write("\n")
+        finally:
+            fcntl.flock(fh, fcntl.LOCK_UN)
+
+
+def tiers(state: Path) -> dict:
+    merged = {k: dict(v) for k, v in DEFAULT_TIERS.items()}
+    override = state / "tiers.json"
+    if override.is_file():
+        try:
+            for name, cfg in json.loads(override.read_text()).items():
+                merged.setdefault(name, {}).update(cfg)
+        except json.JSONDecodeError as exc:
+            die(f"{override} is not valid JSON: {exc}")
+    return merged
+
+
+def live_workers(led: dict) -> list:
+    return [w for w in led["workers"].values() if w["status"] != "retired"]
+
+
+def worker_or_die(led: dict, role: str) -> dict:
+    w = led["workers"].get(role)
+    if w is None:
+        known = ", ".join(sorted(led["workers"])) or "(none)"
+        die(f"unknown role '{role}'. Known roles: {known}")
+    return w
+
+
+def self_role(led: dict, explicit: str | None) -> str:
+    if explicit:
+        return explicit
+    role = os.environ.get("HORCH_ROLE")
+    if role:
+        return role
+    pane = os.environ.get("HERDR_PANE_ID")
+    if pane:
+        for r, w in led["workers"].items():
+            if w["pane"] == pane:
+                return r
+    die("cannot determine your role. Pass --role, or run inside a horch-spawned pane.")
+
+
+# ------------------------------------------------------------------ layout
+
+def layout_snapshot(led: dict) -> dict:
+    res = hjson(["pane", "layout", "--pane", led["orchestrator"]["pane"]])
+    return res["result"]["layout"]
+
+
+def grid(led: dict):
+    """Derive the worker grid from real geometry, not a stored counter."""
+    lay = layout_snapshot(led)
+    rects = {p["pane_id"]: p["rect"] for p in lay["panes"]}
+    panes = [w["pane"] for w in live_workers(led) if w["pane"] in rects]
+    if not panes:
+        return [], [], lay, rects
+    min_y = min(rects[p]["y"] for p in panes)
+    top = sorted([p for p in panes if rects[p]["y"] == min_y], key=lambda p: rects[p]["x"])
+    bottom = sorted([p for p in panes if rects[p]["y"] != min_y], key=lambda p: rects[p]["x"])
+    return top, bottom, lay, rects
+
+
+def next_slot(led: dict):
+    """Return (target_pane, direction, human_description) for the next worker.
+
+    Invariant: orchestrator pinned left at full height; workers fill a
+    2-row x N-column grid to its right.
+      - no workers yet        -> split the orchestrator right
+      - top row has no mate   -> split the first top pane down (opens row 2)
+      - bottom row is short   -> split the rightmost bottom pane right
+      - both rows equal       -> split the rightmost top pane right (new column)
+    """
+    top, bottom, _, _ = grid(led)
+    if not top:
+        return led["orchestrator"]["pane"], "right", "first worker, right of orchestrator"
+    if len(bottom) < len(top):
+        if not bottom:
+            return top[0], "down", "opens the bottom row under column 1"
+        return bottom[-1], "right", f"bottom of column {len(bottom) + 1}"
+    return top[-1], "right", f"top of new column {len(top) + 1}"
+
+
+def _resize(pane: str, direction: str, amount: float):
+    if abs(amount) < 0.02:
+        return
+    d = direction if amount > 0 else {"left": "right", "right": "left",
+                                      "up": "down", "down": "up"}[direction]
+    herdr_run(["pane", "resize", "--pane", pane, "--direction", d,
+               "--amount", f"{abs(amount):.4f}"], check=False)
+
+
+def rebalance(led: dict, quiet: bool = True):
+    """Equalize the grid: orchestrator width, column widths, row heights.
+
+    Column k of a nested right-split chain owns ratio 1/(n-k) of the box that
+    holds columns k..n, so the target ratio is known exactly.
+    """
+    top, bottom, lay, rects = grid(led)
+    if not top:
+        return
+    orch = led["orchestrator"]["pane"]
+    target_orch = float(led.get("orch_ratio", 0.34))
+
+    # 1. Orchestrator vs the whole worker region.
+    total_w = lay["area"]["width"]
+    if total_w and orch in rects:
+        cur = rects[orch]["width"] / total_w
+        _resize(top[0], "left", cur - target_orch)
+
+    # 2. Column widths, per row, left to right.
+    for row in (top, bottom):
+        for k in range(len(row) - 1):
+            _, _, _, rects = grid(led)
+            widths = [rects[p]["width"] for p in row if p in rects]
+            if k + 1 >= len(widths):
+                break
+            rest = sum(widths[k:])
+            if not rest:
+                continue
+            cur = widths[k] / rest
+            _resize(row[k + 1], "left", cur - 1.0 / (len(widths) - k))
+
+    # 3. Row heights. Columns often share one vertical split, so re-read the
+    #    geometry each pass and skip anything already within tolerance -
+    #    otherwise the same boundary gets nudged once per column and drifts.
+    for b in bottom:
+        top_now, _, _, rects = grid(led)
+        if b not in rects:
+            continue
+        mates = [t for t in top_now if t in rects and
+                 rects[t]["x"] <= rects[b]["x"] < rects[t]["x"] + rects[t]["width"]]
+        if not mates:
+            continue
+        t = mates[0]
+        total_h = rects[t]["height"] + rects[b]["height"]
+        if total_h:
+            _resize(b, "up", rects[t]["height"] / total_h - 0.5)
+    if not quiet:
+        cmd_layout(argparse.Namespace(rebalance=False))
+
+
+# ------------------------------------------------------------------ briefs
+
+def validate_brief(path: Path) -> list:
+    if not path.is_file():
+        die(f"briefing file not found: {path}\n"
+            f"  Write the full instructions to a file first: "
+            f"horch brief new <slug>")
+    text = path.read_text()
+    if not text.strip():
+        die(f"briefing file is empty: {path}")
+    missing = [s for s in REQUIRED_BRIEF_SECTIONS if s.upper() not in text.upper()]
+    if missing:
+        die(f"briefing {path} is missing required section(s): {', '.join(missing)}\n"
+            f"  A worker has no other context. Start from: horch brief new <slug>")
+    return [s for s in RECOMMENDED_BRIEF_SECTIONS if s.upper() not in text.upper()]
+
+
+def brief_title(path: Path) -> str:
+    for line in path.read_text().splitlines():
+        if line.upper().startswith("GOAL:"):
+            return one_line(line.split(":", 1)[1], 120)
+    return path.stem
+
+
+# ------------------------------------------------------------ agent launch
+
+# A worker inherits the orchestrator's environment through the herdr server. If
+# the orchestrator is itself a Claude Code session, those vars make the worker
+# think it is a nested child session, which silently DISABLES transcript saving
+# - and a session that was never written to disk cannot be --resume'd later.
+INHERITED_AGENT_VARS = [
+    "CLAUDECODE", "CLAUDE_CODE_ENTRYPOINT", "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_CODE_CHILD_SESSION", "CLAUDE_CODE_BRIDGE_SESSION_ID",
+    "CLAUDE_CODE_MESSAGING_SOCKET", "CLAUDE_CODE_MESSAGING_TOKEN",
+    "CLAUDE_CODE_EXECPATH", "CLAUDE_PID", "CLAUDE_EFFORT",
+    "CODEX_SESSION_ID", "CODEX_THREAD_ID", "CODEX_SANDBOX",
+    "CODEX_SANDBOX_NETWORK_DISABLED",
+]
+
+
+def launch_command(cfg: dict, effort: str | None, resume: str | None,
+                   session_id: str | None, scrub: bool = True) -> str:
+    engine = cfg["engine"]
+    model = cfg.get("model")
+    extra = cfg.get("args") or []
+    if engine == "claude":
+        parts = ["claude"]
+        if resume:
+            parts += ["--resume", resume]
+        elif session_id:
+            parts += ["--session-id", session_id]
+        if model:
+            parts += ["--model", model]
+        parts += ["--permission-mode", "auto"]
+        if effort:
+            parts += ["--effort", effort]
+    elif engine == "codex":
+        parts = ["codex"]
+        if resume:
+            parts += ["resume", resume]
+        if model:
+            parts += ["-m", model]
+        if effort:
+            parts += ["-c", f'model_reasoning_effort="{effort}"']
+        parts += ["--sandbox", "workspace-write", "--ask-for-approval", "never"]
+    elif engine == "pi":
+        parts = ["pi"]
+        if resume:
+            parts += ["--resume", resume]
+        if model:
+            parts += ["--model", model]
+    else:
+        parts = [cfg.get("command") or engine]
+        if model:
+            parts += ["--model", model]
+    body = " ".join(shlex.quote(p) for p in parts + list(extra))
+    if not scrub:
+        return body
+    unset = " ".join(f"-u {v}" for v in INHERITED_AGENT_VARS)
+    return f"env {unset} {body}"
+
+
+# Startup trust dialogs differ per engine AND put the affirmative option in a
+# different place: Claude Code selects "No, exit" first, Codex selects
+# "1. Yes, continue" first. Hard-coding "down, enter" answers one correctly and
+# the other backwards, so find the cursor and the affirmative option and move
+# between them.
+TRUST_PROMPT_RE = re.compile(
+    r"trust (this|the) (folder|directory)|do you trust|allow codex to work", re.I)
+AFFIRMATIVE_RE = re.compile(r"yes[,.]?\s+(i\s+trust|continue|allow|proceed)", re.I)
+NEGATIVE_RE = re.compile(r"no[,.]?\s+(exit|quit|cancel|don'?t)", re.I)
+CURSOR_MARKERS = ("\u276f", "\u203a", "\u25b6", "\u2192")
+
+READY_MARKERS = re.compile(
+    r"auto mode on|\? for shortcuts|esc to interrupt|shift\+tab to cycle|"
+    r"Ask Codex to do anything|OpenAI Codex \(v|/model to change|"
+    r"Ctrl\+J for newline|send a message|/status for",
+    re.IGNORECASE,
+)
+
+# Signatures of a launch that died and dropped back to a shell prompt.
+LAUNCH_FAILURE_RE = re.compile(
+    r"No conversation found|command not found|Please restart Codex|"
+    r"No such file or directory|panicked at|Error: ",
+    re.IGNORECASE,
+)
+
+
+def answer_trust_dialog(pane: str, screen: str) -> bool:
+    """Select the affirmative option in a trust dialog. True if we acted."""
+    lines = screen.splitlines()
+    options = [i for i, l in enumerate(lines)
+               if AFFIRMATIVE_RE.search(l) or NEGATIVE_RE.search(l)]
+    if not options:
+        return False
+    target = next((i for i in options if AFFIRMATIVE_RE.search(lines[i])), None)
+    if target is None:
+        return False
+    cursor = next((i for i in options
+                   if any(m in lines[i] for m in CURSOR_MARKERS)), options[0])
+    delta = options.index(target) - options.index(cursor)
+    for _ in range(abs(delta)):
+        herdr_run(["pane", "send-keys", pane, "down" if delta > 0 else "up"],
+                  check=False)
+        time.sleep(0.3)
+    herdr_run(["pane", "send-keys", pane, "enter"], check=False)
+    return True
+
+
+def clear_startup_dialog(pane: str, seconds: int = 45) -> str | None:
+    """Answer first-run trust prompts until the agent is ready.
+
+    Poll rather than sampling once: the dialog renders a second or two AFTER the
+    shell echoes the launch command, and Codex may run a self-update first.
+    """
+    deadline = time.time() + seconds
+    answered = None
+    while time.time() < deadline:
+        screen = htext(["pane", "read", pane, "--source", "visible"])
+        if TRUST_PROMPT_RE.search(screen) and answer_trust_dialog(pane, screen):
+            answered = "trust dialog"
+            time.sleep(3)
+            continue
+        if READY_MARKERS.search(screen):
+            return answered
+        time.sleep(1)
+    return answered
+
+
+def wait_ready(pane: str, timeout_ms: int) -> tuple[bool, str]:
+    """Wait for a genuinely usable agent.
+
+    herdr's lifecycle status is a hint, not proof: it reports `idle` for a pane
+    whose agent already died, and can miss the transition after a trust dialog
+    restarts the TUI. So take the lifecycle signal as a fast path, then confirm
+    against what is actually on the screen - screen evidence wins.
+    """
+    wait_idle(pane, timeout_ms)
+    deadline = time.time() + timeout_ms / 1000.0
+    why = "no agent ready-prompt on screen"
+    while time.time() < deadline:
+        ok, why = confirm_ready(pane)
+        if ok:
+            return True, ""
+        if "exited" in why:
+            return False, why
+        time.sleep(2)
+    return False, why
+
+
+def confirm_ready(pane: str) -> tuple[bool, str]:
+    """herdr can report 'idle' for a pane whose agent already died (Codex runs a
+    self-update and exits, a bad --resume prints an error). Require a positive
+    ready marker before typing a briefing into it."""
+    screen = htext(["pane", "read", pane, "--source", "visible"])
+    if READY_MARKERS.search(screen):
+        return True, ""
+    hit = LAUNCH_FAILURE_RE.search(screen)
+    if hit:
+        return False, f"agent exited ({hit.group(0).strip()})"
+    return False, "no agent ready-prompt on screen"
+
+
+def wait_idle(pane: str, timeout_ms: int = 180000) -> bool:
+    proc = herdr_run(["wait", "agent-status", pane, "--status", "idle",
+                      "--timeout", str(timeout_ms)], check=False)
+    return proc.returncode == 0
+
+
+def capture_session_id(engine: str, pre_marker: float, wait_secs: int = 25) -> str | None:
+    """Codex has no --session-id flag, so take the rollout file it writes.
+
+    Codex creates the rollout only once the session takes its FIRST turn, so
+    this has to be called after the briefing is sent, and has to poll.
+    """
+    if engine != "codex":
+        return None
+    root = Path.home() / ".codex" / "sessions"
+    deadline = time.time() + wait_secs
+    while time.time() < deadline:
+        newest, newest_mtime = None, pre_marker
+        for f in root.rglob("rollout-*.jsonl"):
+            try:
+                mt = f.stat().st_mtime
+            except OSError:
+                continue
+            if mt > newest_mtime:
+                newest, newest_mtime = f, mt
+        if newest is not None:
+            m = re.search(
+                r"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})",
+                newest.name)
+            if m:
+                return m.group(1)
+        time.sleep(2)
+    return None
+
+
+def horch_path() -> str:
+    return str(Path(__file__).resolve())
+
+
+def worker_skill_path() -> str:
+    here = Path(__file__).resolve()
+    candidate = here.parent.parent.parent / "herdr-worker" / "SKILL.md"
+    return str(candidate)
+
+
+def pointer_prompt(role: str, tier: str, orch_role: str, brief: Path) -> str:
+    return one_line(
+        f"You are herdr worker '{role}' (tier {tier}) in a herdr fleet. "
+        f"Use your herdr-worker skill now; if you do not have it, read "
+        f"{worker_skill_path()} first. Your orchestrator is '{orch_role}'. "
+        f"Your complete briefing is the file {brief} - read it in full and "
+        f"execute it. Channel (horch is {horch_path()} if it is not on your "
+        f"PATH): horch note \"...\" for progress, "
+        f"horch blocked \"...\" if you need a decision (then wait), "
+        f"horch done \"...\" when the DONE WHEN criteria actually pass. "
+        f"Do not ask questions into this terminal; nobody is watching it.",
+        900,
+    )
+
+
+def send_to_pane(pane: str, text: str):
+    herdr_run(["pane", "run", pane, one_line(text, 900)], check=False)
+
+
+# ---------------------------------------------------------------- commands
+
+def cmd_init(args):
+    root = Path(args.dir or Path.cwd()).resolve()
+    state = root / STATE_DIRNAME
+    pane = args.pane or os.environ.get("HERDR_PANE_ID")
+    if not pane:
+        die("cannot determine the orchestrator pane. Run inside a herdr pane, "
+            "or pass --pane <id> (see `herdr pane list`).")
+    state.mkdir(exist_ok=True)
+    (state / "briefs").mkdir(exist_ok=True)
+    path = state / "ledger.json"
+    if path.exists() and not args.force:
+        print(f"ledger already exists: {path} (use --force to reset)")
+        return
+    data = {
+        "version": LEDGER_VERSION,
+        "project": str(root),
+        "created_at": now(),
+        "orchestrator": {"role": args.role, "pane": pane},
+        "orch_ratio": args.ratio,
+        "task_seq": 0,
+        "tasks": {},
+        "workers": {},
+    }
+    path.write_text(json.dumps(data, indent=2) + "\n")
+    herdr_run(["agent", "rename", pane, args.role], check=False)
+    herdr_run(["pane", "rename", pane, args.role], check=False)
+    gi = state / ".gitignore"
+    if not gi.exists():
+        gi.write_text("ledger.json\n")
+    if getattr(args, "quiet", False):
+        return
+    print(f"ledger:       {path}")
+    print(f"orchestrator: {args.role} @ {pane}")
+    print(f"briefs dir:   {state / 'briefs'}")
+    print("next: horch tiers   |   horch brief new <slug>   |   horch spawn <tier> --brief <file>")
+
+
+MANDATE = (
+    "You are the orchestrator. Protect your context like a rare resource!! You "
+    "cannot get this back! Make sure when you give instructions to a worker, you "
+    "write those directions to a file and pass the file reference to the worker. "
+    "NEVER do work yourself. Spawn workers."
+)
+
+
+def orchestrator_skill_path() -> str:
+    return str(Path(__file__).resolve().parent.parent / "SKILL.md")
+
+
+def write_boot_brief(state: Path, root: Path, goal: str) -> Path:
+    path = state / "ORCHESTRATOR.md"
+    goal_block = goal.strip() or (
+        "Not given at launch. Ask your human what they want built before you "
+        "decompose anything."
+    )
+    path.write_text(f"""# You are the herdr orchestrator
+
+PROJECT: {root}
+GOAL: {goal_block}
+
+Use your `herdr-orchestrator` skill now. If you do not have it, read
+{orchestrator_skill_path()} in full and follow it.
+
+Workers you spawn are briefed automatically to use the `herdr-worker` skill, so
+you never explain the protocol to them - you only write their briefing file.
+
+## Your toolkit
+
+Run `horch --help` for everything. The commands you will use constantly:
+
+    horch status                        the grid, the board, what is live
+    horch sessions                      ledger: session ids, notes, DONE summaries
+    horch board                         who owns what, what is parallel-safe now
+    horch tiers                         tiers, models, effort levels
+    horch task add --title T --brief F --files a,b --depends T1
+    horch brief new <slug>              scaffold a briefing FILE
+    horch spawn <tier> --brief <file>   start a worker on that briefing
+    horch tell <role> "<short answer>"  unblock a worker
+    horch peek <role>                   read a worker's screen
+    horch retire <role>                 verify done, close the pane, free the slot
+
+`horch` handles the terminal grid, the tier launch flags, the trust dialogs, the
+session ids and the ledger. You never call `herdr` directly.
+
+## How to start
+
+1. `horch status` - see whether earlier work exists in the ledger.
+2. Read only enough of the project to decompose the goal. If the scope is
+   unclear or large, spawn a `fable` worker to research and propose a plan
+   before you assign any implementation.
+3. Register tasks with `horch task add`, declaring `--files` so `horch board`
+   can catch two workers heading for the same file.
+4. Write a briefing FILE per task, then `horch spawn` the right tier. Keep every
+   conflict-free task busy at once.
+5. Watch for `[role] ...` lines in your terminal. Answer blocked workers
+   immediately with `horch tell`. Verify each DONE, then `horch retire`.
+
+{MANDATE}
+""")
+    return path
+
+
+def ensure_skills_installed() -> list:
+    """Link both skills into the agent's skills dir so `Skill(herdr-*)` resolves.
+
+    Without this the orchestrator falls back to reading SKILL.md by path, which
+    works but costs it context it should be spending on the project.
+    """
+    src_root = Path(__file__).resolve().parent.parent.parent
+    dest = Path.home() / ".claude" / "skills"
+    linked = []
+    if not dest.parent.is_dir():
+        return linked
+    dest.mkdir(parents=True, exist_ok=True)
+    for name in ("herdr-orchestrator", "herdr-worker"):
+        src = src_root / name
+        if src.is_dir() and not (dest / name).exists():
+            try:
+                (dest / name).symlink_to(src)
+                linked.append(name)
+            except OSError:
+                pass
+    return linked
+
+
+def prepare_ledger(root: Path, state: Path, pane: str, ratio: float,
+                   reset: bool) -> tuple[int, str | None]:
+    """Point the ledger at this run's orchestrator without losing history.
+
+    Every `horch` opens a NEW herdr space, but the ledger is the project's
+    memory - session ids, progress notes and DONE summaries that the next
+    orchestrator is supposed to read before it spawns anything. So a new run
+    re-points the ledger rather than resetting it, and retires workers left
+    behind in the previous run's space.
+    """
+    state.mkdir(parents=True, exist_ok=True)
+    (state / "briefs").mkdir(exist_ok=True)
+    path = state / "ledger.json"
+    os.environ["HORCH_LEDGER"] = str(path)
+    gi = state / ".gitignore"
+    if not gi.exists():
+        gi.write_text("ledger.json\n")
+
+    if path.is_file() and reset:
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        path.rename(state / f"ledger-{stamp}.json")
+        print(f"archived previous ledger to ledger-{stamp}.json")
+
+    if not path.is_file():
+        path.write_text(json.dumps({
+            "version": LEDGER_VERSION, "project": str(root), "created_at": now(),
+            "run": 1, "orchestrator": {"role": "orchestrator", "pane": pane},
+            "orchestrator_history": [], "orch_ratio": ratio,
+            "task_seq": 0, "tasks": {}, "workers": {},
+        }, indent=2) + "\n")
+        return 1, None
+
+    with ledger(write=True) as led:
+        run = led.get("run", 1) + 1
+        led["run"] = run
+        prev = led.get("orchestrator") or {}
+        prev_ws = (prev.get("pane") or ":").split(":")[0] or None
+        if prev:
+            led.setdefault("orchestrator_history", []).append(
+                {**prev, "ended_at": now(), "run": run - 1})
+        stale = [r for r, w in led["workers"].items() if w["status"] != "retired"]
+        for r in stale:
+            w = led["workers"][r]
+            w["status"] = "retired"
+            w["retired_at"] = now()
+            w.setdefault("notes", []).append(
+                {"at": now(), "text": f"auto-retired: run {run} opened a new space"})
+        # Mirror `horch retire`: a worker that reported DONE closes its task,
+        # anything else releases the task back to the pool for the new run.
+        released = []
+        for t in led["tasks"].values():
+            owner = t.get("owner")
+            if t["status"] != "in_progress" or owner not in stale:
+                continue
+            if led["workers"][owner].get("summary"):
+                t["status"] = "done"
+                t["completed_at"] = now()
+                t["summary"] = led["workers"][owner]["summary"]
+            else:
+                t["status"] = "pending"
+                t["owner"] = None
+                released.append(t["id"])
+        if released:
+            print(f"released back to pending: {', '.join(released)}")
+        led["orchestrator"] = {"role": "orchestrator", "pane": pane}
+        led["orch_ratio"] = ratio
+        if stale:
+            print(f"retired {len(stale)} worker(s) left in the previous space: "
+                  f"{', '.join(stale)}")
+        return run, prev_ws
+
+
+def cmd_launch(args):
+    """Bare `horch [goal]` - bring up a fleet and hand it to an orchestrator."""
+    root = Path(args.dir or Path.cwd()).resolve()
+    state = root / STATE_DIRNAME
+    goal = " ".join(args.goal or [])
+
+    linked = ensure_skills_installed()
+    if linked:
+        print(f"installed skills: {', '.join(linked)}")
+
+    if not server_running():
+        print("starting herdr server...")
+        subprocess.Popen([HERDR, "server"], start_new_session=True,
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        for _ in range(30):
+            time.sleep(0.5)
+            if server_running():
+                break
+        else:
+            die("herdr server did not start. Try running `herdr` yourself first.")
+
+    cat = tiers(state) if state.is_dir() else {k: dict(v) for k, v in DEFAULT_TIERS.items()}
+    cfg = cat.get(args.tier) or die(f"unknown tier '{args.tier}'. Known: {', '.join(cat)}")
+
+    # Every run gets its own space. Peek at the run counter first so the new
+    # workspace can be labelled before the ledger is re-pointed at it.
+    prior = state / "ledger.json"
+    run_hint = 1
+    if prior.is_file() and not args.reset:
+        try:
+            run_hint = json.loads(prior.read_text()).get("run", 1) + 1
+        except (json.JSONDecodeError, OSError):
+            pass
+    label = root.name if run_hint == 1 else f"{root.name} #{run_hint}"
+
+    ws = hjson(["workspace", "create", "--cwd", str(root),
+                "--label", label, "--no-focus"])
+    pane = ws["result"]["root_pane"]["pane_id"]
+    ws_id = ws["result"]["workspace"]["workspace_id"]
+
+    run, prev_ws = prepare_ledger(root, state, pane, args.ratio, args.reset)
+    print(f"space {ws_id} \"{label}\" (run {run}), orchestrator pane {pane}")
+    if prev_ws and prev_ws != ws_id and hjson(["workspace", "get", prev_ws], check=False):
+        print(f"previous space {prev_ws} is still open - close it in herdr when done")
+    herdr_run(["agent", "rename", pane, "orchestrator"], check=False)
+    herdr_run(["pane", "rename", pane, "orchestrator"], check=False)
+    boot = write_boot_brief(state, root, goal)
+
+    effort = args.effort or cfg.get("effort")
+    validate_effort(cfg["engine"], effort, args.tier)
+    session_id = str(uuid.uuid4()) if cfg["engine"] == "claude" else None
+    launch = launch_command(cfg, effort, None, session_id)
+    print(f"orchestrator: {args.tier} ({cfg['engine']}/{cfg.get('model')} "
+          f"effort={effort})")
+    herdr_run(["pane", "run", pane, launch], check=False)
+    if clear_startup_dialog(pane):
+        print("answered startup trust dialog")
+    ok, why = wait_ready(pane, args.timeout)
+    if not ok:
+        die(f"orchestrator did not come up ({why}). "
+            f"Inspect: herdr pane read {pane}")
+
+    with ledger(write=True) as led:
+        led["orchestrator"]["session_id"] = session_id
+        led["orchestrator"]["tier"] = args.tier
+        led["orchestrator"]["boot_brief"] = str(boot)
+
+    time.sleep(2)
+    send_to_pane(pane, one_line(
+        f"Read {boot} in full and follow it. It is your standing brief for this "
+        f"session.", 400))
+    print(f"briefed with {boot}")
+    return attach(pane)
+
+
+def attach(pane: str):
+    """Put the human in front of the fleet."""
+    herdr_run(["pane", "focus", "--pane", pane], check=False)
+    ws_id = pane.split(":")[0]
+    herdr_run(["workspace", "focus", ws_id], check=False)
+    if os.environ.get("HERDR_ENV") == "1":
+        print("already inside herdr - switch to the workspace above")
+        return
+    print("attaching to herdr...")
+    os.execvp(HERDR, [HERDR])
+
+
+def cmd_tiers(args):
+    state = state_dir_or_die()
+    cat = tiers(state)
+    print("TIERS  (tier picks the mind, effort picks how hard it thinks)\n")
+    for name, cfg in cat.items():
+        effort = args.effort or cfg.get("effort")
+        rng = cfg.get("range") or []
+        span = f"{rng[0]}..{rng[-1]}" if rng else "-"
+        print(f"{name:<12} {cfg['engine']:<7} {cfg.get('model') or '-':<16} "
+              f"effort={effort or '-':<7} usual range: {span}")
+        print(f"             {cfg.get('use', '')}")
+        print(f"             $ {launch_command(cfg, effort, None, '<uuid>' if cfg['engine'] == 'claude' else None, scrub=False)}")
+        print()
+    print("(each launch is also prefixed with `env -u ...` to clear inherited\n"
+          " agent session vars - see references/tiers.md)\n")
+    print("EFFORT LADDER\n")
+    for level in ["minimal"] + CLAUDE_EFFORTS:
+        if level not in EFFORT_GUIDE:
+            continue
+        engines = "claude" if level in ("xhigh", "max") else (
+            "codex only" if level == "minimal" else "claude + codex")
+        print(f"  {level:<8} ({engines})")
+        print(f"           {EFFORT_GUIDE[level]}")
+    print()
+    print("  claude: " + ", ".join(CLAUDE_EFFORTS))
+    print("  codex:  " + ", ".join(CODEX_EFFORTS))
+    print()
+    print("  Raise one level when a worker comes back blocked on a judgment call,")
+    print("  or when the task turned out to need a plan rather than an edit.")
+    print("  Lower one level when your briefing already specifies the change")
+    print("  precisely - a good spec is a substitute for reasoning.")
+    print()
+    print(f"  Override per spawn with --effort, or permanently in {state / 'tiers.json'}")
+
+
+def cmd_layout(args):
+    with ledger() as led:
+        top, bottom, lay, rects = grid(led)
+        if args.rebalance:
+            rebalance(led)
+            top, bottom, lay, rects = grid(led)
+        orch = led["orchestrator"]["pane"]
+        by_pane = {w["pane"]: r for r, w in led["workers"].items()}
+        print(f"tab area {lay['area']['width']}x{lay['area']['height']}   "
+              f"orchestrator {led['orchestrator']['role']} @ {orch} "
+              f"(w={rects.get(orch, {}).get('width', '?')})")
+        cols = max(len(top), len(bottom))
+        print(f"grid: 2 rows x {cols} column(s), {len(top) + len(bottom)} worker pane(s)")
+        for row_name, row in (("top   ", top), ("bottom", bottom)):
+            cells = [f"{by_pane.get(p, '?')}({p} w={rects[p]['width']})" for p in row]
+            print(f"  {row_name}: {'  |  '.join(cells) if cells else '-'}")
+        target, direction, why = next_slot(led)
+        print(f"next slot: split {target} --direction {direction}   # {why}")
+
+
+def cmd_brief_new(args):
+    state = state_dir_or_die()
+    slug = re.sub(r"[^a-z0-9-]+", "-", args.slug.lower()).strip("-")
+    path = state / "briefs" / f"{slug}.md"
+    if path.exists() and not args.force:
+        die(f"{path} already exists (use --force to overwrite)")
+    path.write_text(BRIEF_TEMPLATE)
+    print(path)
+
+
+def cmd_task_add(args):
+    with ledger(write=True) as led:
+        led["task_seq"] += 1
+        tid = f"T{led['task_seq']}"
+        brief = str(Path(args.brief).resolve()) if args.brief else None
+        if brief:
+            validate_brief(Path(brief))
+        led["tasks"][tid] = {
+            "id": tid,
+            "title": args.title or (brief_title(Path(brief)) if brief else tid),
+            "brief": brief,
+            "tier": args.tier,
+            "files": [f.strip() for f in (args.files or "").split(",") if f.strip()],
+            "depends_on": [d.strip() for d in (args.depends or "").split(",") if d.strip()],
+            "status": "pending",
+            "owner": None,
+            "created_at": now(),
+            "completed_at": None,
+            "summary": "",
+        }
+        print(tid)
+
+
+def cmd_task_set(args):
+    with ledger(write=True) as led:
+        t = led["tasks"].get(args.id) or die(f"unknown task {args.id}")
+        if args.status:
+            t["status"] = args.status
+            if args.status in ("done", "abandoned"):
+                t["completed_at"] = now()
+        if args.summary:
+            t["summary"] = one_line(args.summary, 2000)
+        if args.files is not None:
+            t["files"] = [f.strip() for f in args.files.split(",") if f.strip()]
+        print(json.dumps(t, indent=2))
+
+
+def cmd_board(args):
+    with ledger() as led:
+        tasks = led["tasks"]
+        done_ids = {t["id"] for t in tasks.values() if t["status"] in ("done", "abandoned")}
+        print("== WORKERS ==")
+        if not live_workers(led):
+            print("  (none live)")
+        for w in live_workers(led):
+            task = tasks.get(w.get("task") or "", {})
+            print(f"  {w['role']:<14} {w['tier']:<12} {w['status']:<9} "
+                  f"pane={w['pane']:<8} task={w.get('task') or '-':<4} "
+                  f"{one_line(task.get('title', ''), 60)}")
+        print()
+        print("== TASKS ==")
+        ready, blocked_by_dep, running = [], [], []
+        for t in tasks.values():
+            if t["status"] in ("done", "abandoned"):
+                continue
+            if t["status"] == "in_progress":
+                running.append(t)
+            elif set(t["depends_on"]) - done_ids:
+                blocked_by_dep.append(t)
+            else:
+                ready.append(t)
+        for label, group in (("in progress", running), ("ready now", ready),
+                             ("waiting on deps", blocked_by_dep)):
+            print(f"  -- {label} --")
+            if not group:
+                print("     (none)")
+            for t in group:
+                dep = f" deps={','.join(t['depends_on'])}" if t["depends_on"] else ""
+                own = f" owner={t['owner']}" if t["owner"] else ""
+                print(f"     {t['id']:<4} [{t['status']}]{own}{dep}  "
+                      f"{one_line(t['title'], 70)}")
+        finished = [t for t in tasks.values() if t["status"] in ("done", "abandoned")]
+        print(f"  -- completed: {len(finished)} --")
+        for t in finished:
+            print(f"     {t['id']:<4} [{t['status']}] {one_line(t['title'], 70)}")
+
+        print()
+        print("== PARALLELISM ==")
+        inflight = running + ready
+        conflicts = []
+        for i, a in enumerate(inflight):
+            for b in inflight[i + 1:]:
+                shared = set(a["files"]) & set(b["files"])
+                if shared:
+                    conflicts.append((a["id"], b["id"], sorted(shared)))
+        safe = [t["id"] for t in ready
+                if not any(t["id"] in (c[0], c[1]) for c in conflicts)]
+        print(f"  safe to run in parallel now: {', '.join(safe) if safe else '(none)'}")
+        for a, b, shared in conflicts:
+            print(f"  CONFLICT {a} <-> {b} both claim: {', '.join(shared)} "
+                  f"-> partition or serialize")
+        no_files = [t["id"] for t in inflight if not t["files"]]
+        if no_files:
+            print(f"  no FILES declared (conflicts undetectable): {', '.join(no_files)}")
+
+
+def cmd_sessions(args):
+    with ledger() as led:
+        print(f"project: {led['project']}")
+        print(f"orchestrator: {led['orchestrator']['role']} @ {led['orchestrator']['pane']}")
+        print()
+        for role, w in led["workers"].items():
+            if args.live and w["status"] == "retired":
+                continue
+            print(f"--- {role} [{w['status']}] {w['tier']} ({w['engine']}/{w.get('model')}"
+                  f" effort={w.get('effort')}) pane={w['pane']}")
+            print(f"    session id: {w.get('session_id') or '(unknown)'}"
+                  f"   resume: horch spawn {w['tier']} --resume {w.get('session_id') or '<id>'} --brief <file>")
+            print(f"    task: {w.get('task') or '-'}   brief: {w.get('brief') or '-'}")
+            print(f"    spawned: {w.get('spawned_at')}   retired: {w.get('retired_at') or '-'}")
+            for n in w.get("notes", []):
+                print(f"    note  [{n['at']}] {n['text']}")
+            if w.get("summary"):
+                print(f"    DONE: {w['summary']}")
+            if w.get("summary_file"):
+                print(f"    full summary: {w['summary_file']}")
+            print()
+
+
+def cmd_inbox(args):
+    with ledger() as led:
+        res = hjson(["agent", "list"], check=False) or {}
+        agents = {}
+        for a in (res.get("result", {}) or {}).get("agents", []) or []:
+            key = a.get("pane_id") or a.get("terminal_id")
+            agents[key] = a
+        print(f"{'ROLE':<14} {'TIER':<12} {'PANE':<9} {'LEDGER':<9} {'HERDR':<9} TASK")
+        for w in live_workers(led):
+            live = agents.get(w["pane"], {})
+            print(f"{w['role']:<14} {w['tier']:<12} {w['pane']:<9} {w['status']:<9} "
+                  f"{live.get('status') or live.get('agent_status') or '-':<9} "
+                  f"{w.get('task') or '-'}")
+        if not live_workers(led):
+            print("(no live workers)")
+
+
+def cmd_peek(args):
+    with ledger() as led:
+        w = worker_or_die(led, args.role)
+        sys.stdout.write(htext(["pane", "read", w["pane"], "--source",
+                                args.source, "--lines", str(args.lines)]))
+
+
+def cmd_spawn(args):
+    if args.rest:
+        die("`horch spawn` does not take inline task text.\n"
+            "  Write the full briefing to a file first:\n"
+            "    horch brief new <slug>   # then edit it\n"
+            "    horch spawn <tier> --brief <file>")
+    state = state_dir_or_die()
+    cat = tiers(state)
+    cfg = cat.get(args.tier) or die(
+        f"unknown tier '{args.tier}'. Known: {', '.join(cat)}")
+    brief = Path(args.brief).resolve()
+    soft = validate_brief(brief)
+
+    effort = args.effort or cfg.get("effort")
+    validate_effort(cfg["engine"], effort, args.tier)
+    session_id = str(uuid.uuid4()) if cfg["engine"] == "claude" and not args.resume else None
+
+    # Phase 1 (locked, brief): claim a role and a grid slot. The lock must cover
+    # next_slot + pane split so two concurrent spawns cannot pick the same slot -
+    # but it must NOT cover the launch wait below, or every live worker's
+    # `horch note/blocked/done` would block for the whole startup.
+    with ledger(write=True) as led:
+        role = args.role
+        if not role:
+            n = 1 + sum(1 for w in led["workers"].values() if w["tier"] == args.tier)
+            while f"{args.tier}-{n}" in led["workers"]:
+                n += 1
+            role = f"{args.tier}-{n}"
+        if not re.fullmatch(r"[a-z][a-z0-9_-]{0,31}", role):
+            die(f"role '{role}' must match [a-z][a-z0-9_-]{{0,31}}")
+        prior = led["workers"].get(role)
+        if prior and prior["status"] != "retired":
+            die(f"role '{role}' is already live. Retire it first or pick another.")
+        if prior:
+            # Never overwrite a retired record: its session id and DONE summary
+            # are the history `horch sessions` exists to carry forward.
+            led["workers"][f"{role}@{prior.get('retired_at') or 'prev'}"] = prior
+
+        target, direction, why = next_slot(led)
+        project = led["project"]
+        orch_role = led["orchestrator"]["role"]
+        ledger_file = str(state / "ledger.json")
+
+        split = hjson(["pane", "split", target, "--direction", direction,
+                       "--ratio", "0.5", "--no-focus", "--cwd", project,
+                       "--env", f"HORCH_ROLE={role}",
+                       "--env", f"HORCH_LEDGER={ledger_file}",
+                       "--env", f"HORCH_ORCH_ROLE={orch_role}",
+                       "--env", f"HORCH_TIER={args.tier}"])
+        pane = split["result"]["pane"]["pane_id"]
+        herdr_run(["pane", "rename", pane, role], check=False)
+        led["workers"][role] = {
+            "role": role, "tier": args.tier, "engine": cfg["engine"],
+            "model": cfg.get("model"), "effort": effort, "pane": pane,
+            "session_id": args.resume or session_id, "resumed_from": args.resume,
+            "task": args.task, "brief": str(brief), "status": "spawning",
+            "spawned_at": now(), "retired_at": None, "notes": [], "summary": "",
+            "summary_file": None,
+        }
+
+    # Phase 2 (unlocked): launch, clear dialogs, wait. Other workers keep
+    # reporting into the ledger freely while this runs.
+    marker = time.time()
+    cmd = launch_command(cfg, effort, args.resume, session_id)
+    print(f"[{role}] pane {pane} ({why})")
+    print(f"[{role}] $ {cmd}")
+    herdr_run(["pane", "run", pane, cmd], check=False)
+    if clear_startup_dialog(pane):
+        print(f"[{role}] answered startup trust dialog")
+    ready, why_not = wait_ready(pane, args.timeout)
+    if not ready:
+        print(f"[{role}] {why_not}")
+    herdr_run(["agent", "rename", pane, role], check=False)
+
+    # Phase 3 (locked, brief): record the outcome and hand over the briefing.
+    with ledger(write=True) as led:
+        w = led["workers"][role]
+        w["session_id"] = args.resume or session_id
+        w["status"] = "working" if ready else "launch_failed"
+        if args.task and args.task in led["tasks"]:
+            led["tasks"][args.task].update(
+                {"owner": role, "status": "in_progress", "brief": str(brief),
+                 "tier": args.tier})
+        if ready:
+            time.sleep(2)  # let the TUI settle before typing the briefing pointer
+            send_to_pane(pane, pointer_prompt(role, args.tier, orch_role, brief))
+            if session_id is None and not args.resume:
+                session_id = capture_session_id(cfg["engine"], marker)
+                w["session_id"] = args.resume or session_id
+        else:
+            # Never type a briefing into a pane that is not a live agent - a
+            # failed launch leaves a shell there, which would just eat the text.
+            print(f"[{role}] LAUNCH FAILED: no agent ready within {args.timeout}ms. "
+                  f"Briefing NOT sent.")
+            if args.resume:
+                print(f"[{role}] that session id may no longer exist. Spawn fresh "
+                      f"instead and carry the knowledge in PRIOR WORK.")
+            print(f"[{role}] inspect: horch peek {role}   then: horch retire {role} "
+                  f"--task-status pending  and spawn again")
+        rebalance(led)
+
+    if soft:
+        print(f"[{role}] NOTE: briefing has no {', '.join(soft)} section(s)")
+    if ready:
+        print(f"[{role}] briefed with {brief}")
+    print(f"[{role}] session id: {args.resume or session_id or '(unknown)'}")
+
+
+def cmd_assign(args):
+    if args.rest:
+        die("`horch assign` does not take inline task text.\n"
+            "  Write the full briefing to a file first:\n"
+            "    horch brief new <slug>   # then edit it\n"
+            "    horch assign <role> --brief <file>")
+    brief = Path(args.brief).resolve()
+    soft = validate_brief(brief)
+    with ledger(write=True) as led:
+        w = worker_or_die(led, args.role)
+        if w["status"] == "retired":
+            die(f"{args.role} is retired. Spawn a fresh worker instead "
+                f"(horch spawn {w['tier']} --brief {brief}).")
+        w.update({"brief": str(brief), "task": args.task, "status": "working",
+                  "summary": "", "summary_file": None})
+        if args.task and args.task in led["tasks"]:
+            led["tasks"][args.task].update(
+                {"owner": args.role, "status": "in_progress", "brief": str(brief)})
+        send_to_pane(w["pane"],
+                     pointer_prompt(args.role, w["tier"],
+                                    led["orchestrator"]["role"], brief))
+    if soft:
+        print(f"[{args.role}] NOTE: briefing has no {', '.join(soft)} section(s)")
+    print(f"[{args.role}] assigned {brief}")
+
+
+def cmd_tell(args):
+    msg = " ".join(args.message)
+    if len(msg) > TELL_MAX_CHARS:
+        die(f"`horch tell` is for short follow-ups ({TELL_MAX_CHARS} chars max; "
+            f"yours is {len(msg)}).\n"
+            "  Anything task-sized goes in a briefing file: "
+            "horch brief new <slug> && horch assign <role> --brief <file>")
+    if BRIEF_MARKER_RE.search(msg):
+        die("that looks like a briefing, not a follow-up.\n"
+            "  Write it to a file and use `horch assign <role> --brief <file>`.")
+    with ledger() as led:
+        w = worker_or_die(led, args.role)
+        send_to_pane(w["pane"], msg)
+    print(f"-> {args.role}: {msg}")
+
+
+def cmd_retire(args):
+    with ledger(write=True) as led:
+        w = worker_or_die(led, args.role)
+        if args.summary:
+            w["summary"] = one_line(args.summary, 2000)
+        task = led["tasks"].get(w.get("task") or "")
+        if task:
+            # Retiring is not the same as finishing. A worker that never
+            # reported DONE (launch failed, stuck, abandoned) releases its task
+            # back to the pool instead of silently marking it complete.
+            finished = w.get("status") == "done"
+            task["status"] = args.task_status or ("done" if finished else "pending")
+            if task["status"] in ("done", "abandoned"):
+                task["completed_at"] = now()
+                if w.get("summary"):
+                    task["summary"] = w["summary"]
+            else:
+                task["owner"] = None
+                print(f"note: {w['role']} never reported DONE - "
+                      f"{task['id']} released back to 'pending'")
+        w["status"] = "retired"
+        w["retired_at"] = now()
+        if not args.keep_pane:
+            herdr_run(["pane", "close", w["pane"]], check=False)
+        rebalance(led)
+    print(f"retired {args.role}"
+          f"{'' if args.keep_pane else ' (pane closed)'}; "
+          f"session id {w.get('session_id') or '(unknown)'} stays resumable")
+
+
+# ------------------------------------------------------- worker-side verbs
+
+def _report(led, role, text):
+    send_to_pane(led["orchestrator"]["pane"], f"[{role}] {text}")
+
+
+def cmd_whoami(args):
+    with ledger() as led:
+        role = self_role(led, args.role)
+        w = led["workers"].get(role, {})
+        print(f"role:         {role}")
+        print(f"tier:         {w.get('tier') or os.environ.get('HORCH_TIER') or '-'}")
+        print(f"orchestrator: {led['orchestrator']['role']}")
+        print(f"status:       {w.get('status') or '-'}")
+        print(f"task:         {w.get('task') or '-'}")
+        print(f"briefing:     {w.get('brief') or '-'}")
+        print(f"project:      {led['project']}")
+
+
+def cmd_ready(args):
+    with ledger(write=True) as led:
+        role = self_role(led, args.role)
+        if role in led["workers"]:
+            led["workers"][role]["status"] = "ready"
+        _report(led, role, "ready")
+    print(f"[{role}] ready -> {led['orchestrator']['role']}")
+
+
+def cmd_note(args):
+    text = one_line(" ".join(args.text), 400)
+    with ledger(write=True) as led:
+        role = self_role(led, args.role)
+        w = led["workers"].get(role)
+        if w is not None:
+            w.setdefault("notes", []).append({"at": now(), "text": text})
+        if args.tell:
+            _report(led, role, text)
+    print(f"[{role}] note recorded{' and sent' if args.tell else ''}")
+
+
+def cmd_blocked(args):
+    text = one_line(" ".join(args.question), 450)
+    with ledger(write=True) as led:
+        role = self_role(led, args.role)
+        w = led["workers"].get(role)
+        if w is not None:
+            w["status"] = "blocked"
+            w.setdefault("notes", []).append({"at": now(), "text": f"BLOCKED: {text}"})
+        _report(led, role, f"BLOCKED: {text}")
+    print(f"[{role}] blocked message sent. Stop work on this thread and wait for the answer.")
+
+
+def cmd_done(args):
+    full = " ".join(args.summary)
+    with ledger(write=True) as led:
+        role = self_role(led, args.role)
+        state = Path(led["project"]) / STATE_DIRNAME
+        w = led["workers"].get(role)
+        summary_file = None
+        if len(full) > 300 or args.file:
+            summary_file = str(state / "briefs" / f"{role}-done.md")
+            Path(summary_file).write_text(
+                Path(args.file).read_text() if args.file else full + "\n")
+        headline = one_line(full.splitlines()[0] if full else "(no summary)", 300)
+        if w is not None:
+            w["status"] = "done"
+            w["summary"] = one_line(full, 2000)
+            w["summary_file"] = summary_file
+            task = led["tasks"].get(w.get("task") or "")
+            if task:
+                task["summary"] = w["summary"]
+        tail = f" (full summary: {summary_file})" if summary_file else ""
+        _report(led, role, f"DONE: {headline}{tail}")
+    print(f"[{role}] DONE reported. Your orchestrator will verify and close this pane.")
+
+
+# -------------------------------------------------------------------- main
+
+def build_parser():
+    p = argparse.ArgumentParser(
+        prog="horch", formatter_class=argparse.RawDescriptionHelpFormatter,
+        description=(
+            "horch - run a fleet of AI coding agents on this project.\n\n"
+            "  horch \"<what you want built>\"   launch a fleet: starts herdr, opens an\n"
+            "                                  orchestrator, and hands it the job\n"
+            "  horch --tier <t> \"<goal>\"       orchestrate on a different tier\n\n"
+            "The subcommands below are the orchestrator's toolkit. You normally\n"
+            "only need the launch form above."))
+    sub = p.add_subparsers(dest="cmd")
+
+    s = sub.add_parser("init", help="register this pane as the orchestrator")
+    s.add_argument("--pane"); s.add_argument("--dir")
+    s.add_argument("--role", default="orchestrator")
+    s.add_argument("--ratio", type=float, default=0.34,
+                   help="fraction of tab width the orchestrator keeps")
+    s.add_argument("--force", action="store_true")
+    s.set_defaults(func=cmd_init)
+
+    s = sub.add_parser("tiers", help="tier catalog and the exact launch command each uses")
+    s.add_argument("--effort")
+    s.set_defaults(func=cmd_tiers)
+
+    s = sub.add_parser("layout", help="show the grid and the next split")
+    s.add_argument("--rebalance", action="store_true", help="equalize the grid")
+    s.set_defaults(func=cmd_layout)
+
+    bs = sub.add_parser("brief", help="briefing files").add_subparsers(dest="sub", required=True)
+    s = bs.add_parser("new", help="scaffold a briefing file from the template")
+    s.add_argument("slug"); s.add_argument("--force", action="store_true")
+    s.set_defaults(func=cmd_brief_new)
+
+    ts = sub.add_parser("task", help="task list").add_subparsers(dest="sub", required=True)
+    s = ts.add_parser("add")
+    s.add_argument("--title"); s.add_argument("--brief"); s.add_argument("--tier")
+    s.add_argument("--files", help="comma-separated files this task owns")
+    s.add_argument("--depends", help="comma-separated task ids")
+    s.set_defaults(func=cmd_task_add)
+    s = ts.add_parser("set")
+    s.add_argument("id")
+    s.add_argument("--status", choices=["pending", "in_progress", "done", "abandoned"])
+    s.add_argument("--summary"); s.add_argument("--files")
+    s.set_defaults(func=cmd_task_set)
+
+    s = sub.add_parser("status", help="the grid, the board, and what is live")
+    s.set_defaults(func=cmd_status)
+
+    s = sub.add_parser("board", help="who owns what, what is parallel-safe")
+    s.set_defaults(func=cmd_board)
+
+    s = sub.add_parser("sessions", help="full ledger: sessions, notes, summaries")
+    s.add_argument("--live", action="store_true")
+    s.set_defaults(func=cmd_sessions)
+
+    s = sub.add_parser("inbox", help="live roles and their herdr status")
+    s.set_defaults(func=cmd_inbox)
+
+    s = sub.add_parser("peek", help="read a worker's screen")
+    s.add_argument("role"); s.add_argument("--lines", type=int, default=60)
+    s.add_argument("--source", default="recent-unwrapped")
+    s.set_defaults(func=cmd_peek)
+
+    s = sub.add_parser("spawn", help="start a fresh worker on a briefing FILE")
+    s.add_argument("tier"); s.add_argument("--brief", required=True)
+    s.add_argument("--role"); s.add_argument("--task"); s.add_argument("--effort")
+    s.add_argument("--resume", help="agent session id to resume (rare)")
+    s.add_argument("--timeout", type=int, default=180000)
+    s.add_argument("rest", nargs="*", help=argparse.SUPPRESS)
+    s.set_defaults(func=cmd_spawn)
+
+    s = sub.add_parser("assign", help="give a live worker a briefing FILE")
+    s.add_argument("role"); s.add_argument("--brief", required=True)
+    s.add_argument("--task")
+    s.add_argument("rest", nargs="*", help=argparse.SUPPRESS)
+    s.set_defaults(func=cmd_assign)
+
+    s = sub.add_parser("tell", help="short follow-up/answer to a live worker")
+    s.add_argument("role"); s.add_argument("message", nargs="+")
+    s.set_defaults(func=cmd_tell)
+
+    s = sub.add_parser("retire", help="close a finished worker and free its slot")
+    s.add_argument("role"); s.add_argument("--summary")
+    s.add_argument("--task-status", default=None,
+                   choices=["done", "abandoned", "pending"],
+                   help="override; default follows whether the worker reported DONE")
+    s.add_argument("--keep-pane", action="store_true")
+    s.set_defaults(func=cmd_retire)
+
+    s = sub.add_parser("whoami", help="worker: your role, tier, task and briefing")
+    s.add_argument("--role")
+    s.set_defaults(func=cmd_whoami)
+
+    for name, fn, extra in (("ready", cmd_ready, None),
+                            ("note", cmd_note, "text"),
+                            ("blocked", cmd_blocked, "question"),
+                            ("done", cmd_done, "summary")):
+        s = sub.add_parser(name, help=f"worker: {name}")
+        s.add_argument("--role")
+        if extra:
+            s.add_argument(extra, nargs="+")
+        if name == "note":
+            s.add_argument("--tell", action="store_true",
+                           help="also send the note to the orchestrator")
+        if name == "done":
+            s.add_argument("--file", help="markdown file holding the full summary")
+        s.set_defaults(func=fn)
+    return p
+
+
+def cmd_status(args):
+    """The grid, the board, and what is live right now."""
+    state = find_state_dir()
+    if state is None or not (state / "ledger.json").is_file():
+        print("No fleet here yet. Run `horch \"<what you want built>\"` to start one.")
+        return
+
+    if server_running():
+        cmd_layout(argparse.Namespace(rebalance=False))
+        print()
+    else:
+        print("(no herdr server running - layout unavailable; run `herdr`)\n")
+    cmd_board(args)
+    print()
+    print("next: horch sessions | horch brief new <slug> | "
+          "horch spawn <tier> --brief <file> | horch retire <role>")
+
+
+def launch_parser():
+    p = argparse.ArgumentParser(
+        prog="horch",
+        description="Launch a herdr fleet and hand it to an orchestrator.")
+    p.add_argument("goal", nargs="*", help="what you want built")
+    p.add_argument("--tier", default="opus", help="orchestrator tier (default: opus)")
+    p.add_argument("--effort", help="override the tier's effort level")
+    p.add_argument("--dir", help="project root (default: cwd)")
+    p.add_argument("--ratio", type=float, default=0.34,
+                   help="fraction of width the orchestrator keeps")
+    p.add_argument("--reset", action="store_true",
+                   help="archive the project ledger and start its history over")
+    p.add_argument("--timeout", type=int, default=180000)
+    return p
+
+
+def main():
+    argv = sys.argv[1:]
+    subcommands = set(build_parser()._subparsers._group_actions[0].choices)
+    if not argv or (argv[0] not in subcommands and argv[0] not in ("-h", "--help")):
+        cmd_launch(launch_parser().parse_args(argv))
+        return
+    args = build_parser().parse_args(argv)
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()

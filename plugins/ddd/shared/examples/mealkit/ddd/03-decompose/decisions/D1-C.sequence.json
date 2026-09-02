@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Option C: charge synchronously inside choose-meals"
+  },
+  "participants": [
+    { "id": "subscriber", "type": "user", "label": "Subscriber" },
+    { "id": "subscriptions", "type": "backend", "label": "Subscriptions" },
+    { "id": "stripe", "type": "external", "label": "Stripe" },
+    { "id": "fulfilment", "type": "backend", "label": "Fulfilment" }
+  ],
+  "messages": [
+    { "from": "subscriber", "to": "subscriptions", "y": 100, "label": "choose meals" },
+    { "from": "subscriptions", "to": "stripe", "y": 140, "label": "charge card (in request)" },
+    { "from": "stripe", "to": "subscriptions", "y": 180, "label": "charged", "variant": "return" },
+    { "from": "subscriptions", "to": "fulfilment", "y": 220, "label": "week charged", "variant": "async" },
+    { "from": "subscriptions", "to": "subscriber", "y": 260, "label": "meals confirmed", "variant": "return" }
+  ]
+}

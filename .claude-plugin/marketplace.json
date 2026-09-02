@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "skill-marketplace",
+  "owner": {
+    "name": "Matt Scott"
+  },
+  "description": "Claude Code plugin marketplace for engineering work: the 9-step DDD Starter Modelling Process as a chained pipeline with a bundled diagram renderer, codebase priming and generated end-to-end suites, a game-development review board backed by cited rules, multi-agent fleet orchestration, and a toolkit of thinking and verification skills.",
+  "version": "1.1.0",
+  "plugins": [
+    {
+      "name": "code",
+      "displayName": "Code Intelligence",
+      "source": "./plugins/code",
+      "description": "Understand a codebase, then verify it. core primes a repo once into a zero-token knowledge graph plus a CORE tree of CLAUDE.md contracts, so later questions cost a graph query instead of a file sweep. e2e-harness discovers a polyglot system from its own docs and generates runnable end-to-end suites across Node, Python, Go, C#, Rust, Kafka and Playwright.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Matt Scott"
+      },
+      "license": "MIT",
+      "category": "development",
+      "keywords": [
+        "codebase",
+        "context",
+        "knowledge-graph",
+        "claude-md",
+        "agents-md",
+        "e2e",
+        "testing",
+        "playwright"
+      ]
+    },
+    {
+      "name": "ddd",
+      "displayName": "DDD Modelling",
+      "source": "./plugins/ddd",
+      "description": "The 9-step DDD Starter Modelling Process as a chained skill pipeline: understand, discover (EventStorming), decompose (bounded contexts), strategize (core domain chart), connect (message flows), organise (Team Topologies), define (Bounded Context Canvas), code (aggregates, hexagonal), contracts (JSON Schema payloads). Shares one ddd/ workspace with JSON schemas, validators and step gates; every step records its decisions with every option weighed and rebuilds a self-contained review page with SVG/PNG diagrams and decision comparisons, and the run ends with a blueprint final render. Node.js 18 or newer, nothing to install. Includes blueprint, the bundled diagram renderer (architecture, workflow, sequence, data-flow and lifecycle diagrams as standalone HTML) that `ddd export blueprint --deliver` uses and that can be used on its own.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Matt Scott"
+      },
+      "license": "MIT",
+      "category": "architecture",
+      "keywords": [
+        "ddd",
+        "domain-driven-design",
+        "eventstorming",
+        "bounded-context",
+        "architecture",
+        "review-page",
+        "diagrams",
+        "decisions",
+        "blueprint",
+        "nodejs"
+      ]
+    },
+    {
+      "name": "game",
+      "displayName": "Game Dev Review Board",
+      "source": "./plugins/game",
+      "description": "A review board for game work, backed by cited rules distilled from 38 game-development books: a studio CPO for any 'is this fun' question, plus focused auditors for systems, balance and economy, code architecture, performance and frame budget, and QA and ship-readiness.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Matt Scott"
+      },
+      "license": "MIT",
+      "category": "game-dev",
+      "keywords": [
+        "game-design",
+        "game-balance",
+        "unity",
+        "performance",
+        "code-review"
+      ]
+    },
+    {
+      "name": "herdr",
+      "displayName": "herdr Fleet",
+      "source": "./plugins/herdr",
+      "description": "Run a herdr multi-agent worker fleet: an orchestrator that decomposes work, spawns and assigns workers by tier and integrates results through the horch CLI; the worker side of that protocol; and deterministic scripts for driving the herdr terminal workspace manager. Requires the herdr CLI (herdr.dev), which is not bundled.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Matt Scott"
+      },
+      "license": "MIT",
+      "category": "orchestration",
+      "keywords": [
+        "multi-agent",
+        "orchestration",
+        "fleet",
+        "herdr",
+        "horch",
+        "parallel"
+      ]
+    },
+    {
+      "name": "tools",
+      "displayName": "Matt's Toolkit",
+      "source": "./plugins/tools",
+      "description": "Small cross-cutting skills: divergent ideation, human-sounding prose, spaced-repetition decks, model and subagent routing, an engineering persona, plan verification before and after implementation, and completion discipline for long autonomous runs. Contains third-party skills under their own licenses — see the plugin README.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Matt Scott"
+      },
+      "category": "workflow",
+      "keywords": [
+        "brainstorming",
+        "writing",
+        "verification",
+        "workflow",
+        "routing"
+      ]
+    }
+  ]
+}

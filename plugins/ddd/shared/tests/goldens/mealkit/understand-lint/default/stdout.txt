@@ -1,0 +1,22 @@
+lint: <DDD_DIR>/01-understand/understand.json
+  [warn]  system.lifecycle missing — record greenfield | brownfield | rewrite
+  [warn]  inputs: 'README.md' not found under <ROOT> — list real paths relative to the project root
+  [warn]  understand.md: missing H2 '## System' (see references/understand-template.md)
+  [warn]  understand.md: missing H2 '## Business Model Canvas' (see references/understand-template.md)
+  [warn]  understand.md: missing H2 '## Goals' (see references/understand-template.md)
+  [warn]  understand.md: missing H2 '## Impact map' (see references/understand-template.md)
+  [warn]  understand.md: missing H2 '## Capabilities' (see references/understand-template.md)
+  [warn]  understand.md: missing H2 '## Constraints' (see references/understand-template.md)
+  [warn]  understand.md: missing H2 '## Non-goals' (see references/understand-template.md)
+  [warn]  understand.md: missing H2 '## Existing systems' (see references/understand-template.md)
+  [warn]  understand.md: missing H2 '## Scale target' (see references/understand-template.md)
+  [warn]  understand.md: missing H2 '## Assumptions and open questions' (see references/understand-template.md)
+  [warn]  understand.md does not mention ids: G1, I1, D1, cap-subscription-management, cap-menu-planning, cap-fulfilment, alt-supermarket-shop, alt-rival-mealkit, C1, A1, Q1, N1 — put ids in the tables so readers can move between md and json
+  [warn]  understand.md: no '### 8a. Alternatives today' table — render alternatives[] from the JSON (see references/understand-template.md)
+  [warn]  understand.md: no '### 2b. Value proposition → capability → beats' table — render value_proposition_links[] from the JSON
+  (info)  note N1 → discover, decompose (language): 'Box' means the week's menu choice to subscribers but the packed parcel to packers — treat as a boundary, not a synonym
+  (info)  alternative alt-supermarket-shop (manual-process) used by subscriber competes with cap-menu-planning
+  (info)  alternative alt-rival-mealkit (competitor) used by subscriber competes with cap-subscription-management, cap-menu-planning, cap-fulfilment
+  (info)  capability cap-subscription-management is contested by alt-rival-mealkit and no value proposition rests on it — if the alternative wins, say so in a notes_for_downstream entry for strategize ("…do not build")
+0 error(s), 15 warning(s)
+RESULT: OK

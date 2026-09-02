@@ -1,0 +1,63 @@
+BOUNDARY WORKSHEET — mealkit  (<DDD_DIR>)
+mode=auto depth=light deployables 1–3 → aim for 2–6 contexts (never fewer than 1)
+
+0. UPSTREAM NOTES ADDRESSED TO DECOMPOSE  (read before drafting; a 'language' note is a boundary candidate)
+  [understand N1] (language) 'Box' means the week's menu choice to subscribers but the packed parcel to packers — treat as a boundary, not a synonym
+
+1. TIMELINE BY PHASE  (* = pivotal)
+  [subscribing] Subscribing
+    *   10  subscription-started             actor=subscriber     via=start-subscription
+  [choosing] Choosing meals
+        20  meals-chosen                     actor=subscriber     via=choose-meals
+        25  week-charged                     actor=stripe         via=charge-week
+  [fulfilling] Fulfilling
+    *   30  box-packed                       actor=packer         via=pack-box
+    *   40  box-shipped                      actor=courier        via=ship-box
+
+2. SWIMLANES BY ACTOR
+  subscriber       actor            events=['subscription-started', 'meals-chosen'] commands=['start-subscription', 'choose-meals']
+  stripe           external system  events=['week-charged'] commands=[]
+  packer           actor            events=['box-packed'] commands=['pack-box', 'ship-box']
+  courier          external system  events=['box-shipped'] commands=[]
+  (none)                            events=[] commands=['charge-week', 'charge-card']
+
+3. AGGREGATE CANDIDATES  (each lives in exactly one context)
+  subscription         handles=['start-subscription', 'choose-meals'] emits=['subscription-started', 'meals-chosen']
+  box                  handles=['pack-box', 'ship-box'] emits=['box-packed', 'box-shipped']
+  not in any aggregate: events=['week-charged'] commands=['charge-week', 'charge-card']
+
+4. POLICIES  (a policy whose 'when' event and 'then' command land in different contexts is a RELATIONSHIP, not a reason to merge)
+  charge-on-choice     automatic when meals-chosen (phase=choosing, actor=subscriber) then charge-week→['week-charged'] phases=['choosing'] actors=['stripe']
+      crosses=['actor'] — relationship candidate: owner of the 'when' event is UPSTREAM of the owner of the 'then' command
+  pack-on-charge       automatic when week-charged (phase=choosing, actor=stripe) then pack-box→['box-packed'] phases=['fulfilling'] actors=['packer']
+      crosses=['actor', 'phase'] — relationship candidate: owner of the 'when' event is UPSTREAM of the owner of the 'then' command
+
+5. POLICY-DRIVEN COMMANDS (actor null)  (own them where their produced event lives)
+  charge-week              produces=['week-charged']
+  charge-card              produces=[]
+
+6. EXTERNAL / EXISTING SYSTEMS  (a wrapper context needs evidence — its own language or its own actor; default is an adapter inside the context that uses it)
+  external stripe           events=['week-charged'] commands=[] terms=[]
+      → evidence: acts on 1 event(s) / 0 command(s), no distinct terms — a wrapper context only if these carry their own language or a distinct actor drives them; otherwise an adapter inside the context that owns them (record `wraps` there)
+  external courier          events=['box-shipped'] commands=[] terms=[]
+      → evidence: acts on 1 event(s) / 0 command(s), no distinct terms — a wrapper context only if these carry their own language or a distinct actor drives them; otherwise an adapter inside the context that owns them (record `wraps` there)
+  existing Stripe           role=payments will=integrate
+      → see external 'stripe' above — same evidence rule
+
+7. CAPABILITIES (understand)  → each usually maps to one subdomain
+  cap-subscription-management      product    Subscription management: Sign up, pause, cancel
+  cap-menu-planning                custom     Menu planning: Weekly menu and choices
+  cap-fulfilment                   custom     Fulfilment: Pack and ship boxes
+  regulatory constraints (isolate the data they name):
+    C1: Food safety labelling
+
+8. LANGUAGE  (glossary seeds; 'avoid' lists and conflict hotspots are boundary hints)
+  Subscription         A customer's standing weekly order  avoid=['plan', 'membership']
+  Box                  One week's delivery for one subscription  avoid=['order', 'shipment']
+  hotspot H1 [unclear] near week-charged (choosing): What happens if payment fails after meals are chosen? 
+  read model weekly-menu informs choose-meals used by subscriber
+
+9. COVERAGE CHECKLIST — assign every id to exactly one bounded context
+  events (5):     box-packed, box-shipped, meals-chosen, subscription-started, week-charged
+  commands (6):   charge-card, charge-week, choose-meals, pack-box, ship-box, start-subscription
+  aggregates (2): box, subscription

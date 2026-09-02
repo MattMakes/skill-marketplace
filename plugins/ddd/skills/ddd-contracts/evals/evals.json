@@ -1,0 +1,23 @@
+{
+  "skill_name": "ddd-contracts",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We finished ddd-code yesterday (ddd/08-code is done). Before anyone implements a consumer, I want a real contract for every message that crosses a service boundary — what exactly does each event carry, a JSON Schema with an example, who owns it, and the rules like idempotency. Ask me where you're unsure, but keep it short.",
+      "expected_output": "Resolves ./ddd, runs ddd validate --status and reads the notes addressed to ddd-contracts, runs ddd contracts prefill (entries for every cross-party message in connect.json, external-system messages marked inherited with the external as owner), then fills the judgement fields per contract — field types/formats/required-ness in schemas/, realistic example values, a description saying what the message licenses downstream, semantics drawn from the producer canvas's business_decisions plus the delivery guarantee, termsOfUse — presenting one checkpoint per core context's contracts with at most 4 targeted questions (a field's type/format, required-ness, which decision is a contract rule, terms/status). Then ddd contracts render (never hand-writes contracts.md), ddd contracts check with 0 errors, ddd stamp, ddd validate --step contracts, ddd mark contracts done, and a closing summary listing the contracts, the key semantics, open questions and the hand-off to contract testing.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Run the last DDD step on ddd/ in auto mode — no questions. Data contracts for every message between the services and to Stripe; tell me afterwards what you assumed.",
+      "expected_output": "Auto mode, no questions asked: prefill with --mode auto, every judgement field filled with conservative defaults (payload exactly as connect lists it, required = fields the producer always has, entityStatus stays Draft, default additive-only termsOfUse), the Stripe message gets inherited: true with owners [\"stripe\"] and a schema that is our view at the ACL; every guessed type/format/unit logged in assumptions[] with a confidence, every unasked question in open_questions[] with a blocking flag (a consumer needing a field the payload lacks becomes a non-blocking open question owned by ddd-connect, never a silently added field). Renders contracts.md from contracts.json, ddd contracts check passes with zero errors and no TODO anywhere, ddd validate --step contracts passes, marks the step done (or draft if a blocking question remains) and prints the three checkpoints as status lines plus a summary of assumptions.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Our fulfilment team needs to consume the week-charged event and I don't want them reverse-engineering billing's code. Publish a schema for that event: the exact payload, a valid example, who owns it, and what they can rely on (de-duplication? ordering?) — so they can build the consumer from the contract alone.",
+      "expected_output": "Treats it as a ddd-contracts run (all cross-party messages get entries, week-charged presented first): reads connect.json for producer/consumers/delivery/via and define.json for billing's business decisions, writes ddd/09-contracts/schemas/week-charged.schema.json (JSON Schema 2020-12, typed fields, required decided, additionalProperties: false) and examples/week-charged.json that validates, an entry with domain billing, owners from organise, pattern published-language, and semantics a consumer can test — e.g. emitted at most once per (subscriptionId, week) with at-least-once delivery so consumers de-duplicate on that pair — plus termsOfUse stating additive-only changes within 1.x. If fulfilment needs data the payload lacks (a connect coupling concern), it is raised as an open question owned by ddd-connect rather than silently added. contracts.md's billing section shows the full contract; check and validate pass; the summary tells fulfilment to build from ddd/09-contracts/contracts.md alone.",
+      "files": []
+    }
+  ]
+}

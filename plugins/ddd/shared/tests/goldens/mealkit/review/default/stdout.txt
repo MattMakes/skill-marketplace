@@ -1,0 +1,4 @@
+review: wrote <DDD_DIR>/review.html (<KB> KB) - 9 step(s), 3 thing(s) needing a person, 1 that stop the work
+  [decision] One modular monolith or split the warehouse service now?
+  [note] Step 1 (understand) left a note for step 2 (discover), which never names it.
+  [note] Step 1 (understand) left a note for step 3 (decompose), which never names it.

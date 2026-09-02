@@ -1,0 +1,18 @@
+{
+  "name": "root-scalar",
+  "path": "value",
+  "value": "not-an-object",
+  "schema": {
+    "type": "object"
+  },
+  "expect": {
+    "check": [
+      "value: expected object, got str"
+    ],
+    "core": [
+      "value: expected object, got str"
+    ],
+    "vocab": [],
+    "conditional": false
+  }
+}

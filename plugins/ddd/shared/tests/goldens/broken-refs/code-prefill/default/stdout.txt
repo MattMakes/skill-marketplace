@@ -1,0 +1,19 @@
+# ddd-code pre-fill — Meal-kit subscription
+workspace
+  `<DDD_DIR>`
+  · mode auto · depth light · scale_target {"deployables_min": 1, "deployables_max": 3, "teams": 1, "notes":
+  "solo dev"}
+repo: language=None framework=None orm=None bus=None tests=None src_dirs=[] (evidence: none — no source
+  detected) · no stack named in README / manifest / understand constraints
+Briefs:
+  `<DDD_DIR>/08-code/.prefill/<context>.md`
+  — read one at a time, core first. `--context <id>` regenerates one (`--print` echoes it); `--format json`
+  prints the facts. ddd code check removes the folder once the deliverable passes.
+
+| context | type | pattern | deployable | cmds/evs/aggs | edges in/out | warn | brief |
+|---|---|---|---|---|---|---|---|
+| `subscriptions` | core | domain-model | `app` | 2/3/1 | 1/1 | - | 4.0 KB |
+| `fulfilment` | supporting | active-record | `warehouse` | 2/2/1 | 1/0 | - | 3.4 KB |
+| `billing` | generic | transaction-script | `app` | 2/1/0 | 1/2 | - | 3.8 KB |
+
+No edge is in-process across deployables — transports need no ddd-connect fix.

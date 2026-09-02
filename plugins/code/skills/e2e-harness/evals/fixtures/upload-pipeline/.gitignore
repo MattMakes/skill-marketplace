@@ -1,0 +1,13 @@
+# Installed by `e2e setup --install`; reproducible, not source.
+node_modules/
+package-lock.json
+package.json
+
+# Produced by the pipeline. inventory/journeys are committed as the reference
+# example; the rest is build output.
+e2e/config.json
+e2e/report.json
+e2e/playwright.config.ts
+e2e/tests/
+e2e/artifacts/
+test-results/

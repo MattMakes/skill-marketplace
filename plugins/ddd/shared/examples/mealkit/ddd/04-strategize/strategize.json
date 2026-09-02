@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "step": "strategize",
+  "produced_by": "ddd-strategize",
+  "produced_at": "2026-08-29T10:00:00Z",
+  "mode": "auto",
+  "depth": "light",
+  "inputs": [
+    "ddd/03-decompose/decompose.json"
+  ],
+  "assumptions": [
+    {
+      "id": "A1",
+      "text": "Example fixture; assumptions are illustrative",
+      "confidence": "high"
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q1",
+      "text": "Illustrative open question",
+      "blocking": false,
+      "owner": "domain expert"
+    }
+  ],
+  "plain_words": {
+    "what": "We decided where the effort goes, and what to buy instead of build.",
+    "decided": "Subscriptions is the core and gets real design. Billing is bought (Stripe). Fulfilment is kept simple.",
+    "assumed": "Payments are worth buying, not building. Almost always true, and true here.",
+    "riskiest": "If subscriptions turns out to be the boring part, we will have spent our design budget in the wrong place."
+  },
+  "classifications": [
+    {
+      "subdomain": "subscriptions",
+      "type": "core",
+      "business_differentiation": 8,
+      "model_complexity": 6,
+      "evolution": "custom",
+      "sourcing": "build",
+      "implementation_pattern": "domain-model",
+      "investment": "high",
+      "rationale": "G1 (grow active subscribers) is won or lost on how easily a household chooses and changes its weekly meals; no off-the-shelf subscription product models cut-offs, swaps and pauses the way we need, so this is the decisive core and gets a rich domain model.",
+      "future_direction": "Stays core for the foreseeable future; menu-choice UX is the differentiator (bet B1)"
+    },
+    {
+      "subdomain": "billing",
+      "type": "generic",
+      "business_differentiation": 1,
+      "model_complexity": 2,
+      "evolution": "commodity",
+      "sourcing": "buy",
+      "implementation_pattern": "transaction-script",
+      "investment": "low",
+      "rationale": "Charging a card weekly is a solved problem (Stripe, commodity evolution); it moves no goal on its own, so buy the provider and keep our side a transaction script around the adapter.",
+      "future_direction": "Remains generic; revisit only if we move to invoicing B2B customers"
+    },
+    {
+      "subdomain": "fulfilment",
+      "type": "supporting",
+      "business_differentiation": 4,
+      "model_complexity": 4,
+      "evolution": "product",
+      "sourcing": "build",
+      "implementation_pattern": "active-record",
+      "investment": "medium",
+      "rationale": "Packing and shipping must work but a competitor's box arrives just as well; supporting, active-record CRUD over boxes and picking lists, with a possible move to a WMS product later.",
+      "future_direction": "could move to a WMS"
+    }
+  ],
+  "core_domains": [
+    "subscriptions"
+  ],
+  "bets": [
+    {
+      "id": "B1",
+      "text": "Choice UX drives retention",
+      "risk": "unvalidated"
+    }
+  ],
+  "chart_mermaid": "quadrantChart\n  x-axis Low complexity --> High complexity\n  y-axis Low differentiation --> High differentiation\n  subscriptions: [0.6, 0.8]\n  billing: [0.2, 0.1]\n  fulfilment: [0.4, 0.4]"
+}

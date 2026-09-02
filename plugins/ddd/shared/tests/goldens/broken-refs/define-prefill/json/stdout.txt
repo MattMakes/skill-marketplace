@@ -1,0 +1,1165 @@
+{
+  "facts": {
+    "subscriptions": {
+      "id": "subscriptions",
+      "name": "Subscriptions",
+      "rationale": "Core",
+      "subdomains": [
+        {
+          "id": "subscriptions",
+          "name": "Subscriptions",
+          "description": "Lifecycle and weekly choices",
+          "rationale": "Customer-facing lifecycle",
+          "heuristics_applied": [
+            "language-boundary",
+            "pivotal-event"
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "cap-subscription-management",
+          "name": "Subscription management",
+          "description": "Sign up, pause, cancel",
+          "evolution": "product"
+        },
+        {
+          "id": "cap-menu-planning",
+          "name": "Menu planning",
+          "description": "Weekly menu and choices",
+          "evolution": "custom"
+        }
+      ],
+      "classification": {
+        "domain": "core",
+        "evolution": "custom",
+        "implementation_pattern": [
+          "domain-model"
+        ],
+        "sourcing": [
+          "build"
+        ],
+        "investment": [
+          "high"
+        ],
+        "rationale": [
+          "G1 (grow active subscribers) is won or lost on how easily a household chooses and changes its weekly meals; no off-the-shelf subscription product models cut-offs, swaps and pauses the way we need, so this is the decisive core and gets a rich domain model."
+        ],
+        "future_direction": [
+          "Stays core for the foreseeable future; menu-choice UX is the differentiator (bet B1)"
+        ]
+      },
+      "team": {
+        "id": "solo",
+        "name": "Founder",
+        "type": "stream-aligned",
+        "cognitive_load": "ok"
+      },
+      "deployable": {
+        "id": "app",
+        "name": "Meal-kit app",
+        "kind": "modular-monolith",
+        "data_store": "own",
+        "independent_deploy": true,
+        "contexts": [
+          "subscriptions",
+          "billing"
+        ],
+        "hosts_runtime_of": []
+      },
+      "hosted_by": [],
+      "owns_commands": [
+        {
+          "id": "start-subscription",
+          "name": "Start Subscription",
+          "actor": "subscriber",
+          "description": ""
+        },
+        {
+          "id": "choose-meals",
+          "name": "Choose Meals",
+          "actor": "subscriber",
+          "description": ""
+        }
+      ],
+      "owns_events": [
+        {
+          "id": "subscription-started",
+          "name": "Subscription Started",
+          "pivotal": true,
+          "data": [
+            "subscriptionId"
+          ],
+          "description": "Customer became a subscriber"
+        },
+        {
+          "id": "meals-chosen",
+          "name": "Meals Chosen",
+          "pivotal": false,
+          "data": [
+            "subscriptionId",
+            "week",
+            "recipeIds"
+          ],
+          "description": "Weekly choice locked in"
+        },
+        {
+          "id": "subscription-teleported",
+          "name": "subscription-teleported",
+          "pivotal": false,
+          "data": [],
+          "description": ""
+        }
+      ],
+      "owns_aggregates": [
+        {
+          "id": "subscription",
+          "name": "Subscription",
+          "handles": [
+            "start-subscription",
+            "choose-meals"
+          ],
+          "emits": [
+            "subscription-started",
+            "meals-chosen"
+          ]
+        }
+      ],
+      "read_models": [
+        {
+          "id": "weekly-menu",
+          "name": "Weekly menu",
+          "informs": "choose-meals",
+          "used_by": "subscriber"
+        }
+      ],
+      "inbound": [
+        {
+          "collaborator": "subscriber",
+          "messages": [
+            {
+              "id": "choose-meals",
+              "kind": "command",
+              "name": "Choose Meals",
+              "payload": [
+                "subscriptionId",
+                "week",
+                "recipeIds"
+              ],
+              "delivery": "sync",
+              "source": "connect.messages",
+              "via": "http",
+              "sync": true
+            },
+            {
+              "id": "start-subscription",
+              "kind": "command",
+              "name": "Start Subscription",
+              "source": "discover.commands"
+            }
+          ],
+          "relationship": "user-interaction",
+          "collaborator_kind": "actor",
+          "collaborator_name": "Subscriber"
+        }
+      ],
+      "outbound": [
+        {
+          "collaborator": "billing",
+          "messages": [
+            {
+              "id": "meals-chosen",
+              "kind": "event",
+              "name": "Meals Chosen",
+              "payload": [
+                "subscriptionId",
+                "week",
+                "recipeIds"
+              ],
+              "delivery": "at-least-once",
+              "source": "connect.messages",
+              "via": "in-process",
+              "sync": false
+            }
+          ],
+          "relationship": "customer-supplier",
+          "collaborator_kind": "context",
+          "collaborator_name": "Billing",
+          "relationship_id": "R1"
+        }
+      ],
+      "unconsumed_events": [
+        "subscription-started",
+        "subscription-teleported"
+      ],
+      "relationship_notes": [],
+      "terms": [
+        {
+          "term": "Subscription",
+          "definition": "a customer's standing weekly order",
+          "avoid": [
+            "plan",
+            "membership"
+          ],
+          "sources": [
+            "shared glossary"
+          ]
+        },
+        {
+          "term": "Box",
+          "definition": "…. _(differs from the shared meaning — a boundary)_",
+          "avoid": [],
+          "sources": [
+            "decompose.bounded_contexts.terms",
+            "glossary.md context section"
+          ]
+        }
+      ],
+      "draft_decisions": [],
+      "hotspots": [],
+      "coupling_concerns": [
+        {
+          "id": "CC1",
+          "text": "Fulfilment needs recipe details from subscriptions",
+          "contexts": [
+            "subscriptions",
+            "fulfilment"
+          ],
+          "severity": "medium"
+        }
+      ],
+      "scenarios": [
+        {
+          "id": "S1",
+          "name": "Happy path weekly box"
+        }
+      ],
+      "carried_assumptions": [],
+      "carried_questions": [
+        "[connect CC1 — coupling, medium] Fulfilment needs recipe details from subscriptions"
+      ],
+      "uncarried": {
+        "assumptions": 6,
+        "open_questions": 6
+      },
+      "goals": [
+        {
+          "id": "G1",
+          "statement": "Grow active subscribers",
+          "metric": "active subscriptions",
+          "target": "10k",
+          "horizon": "12 months"
+        }
+      ],
+      "impacts": [
+        {
+          "id": "I1",
+          "actor": "subscriber",
+          "change": "Chooses meals in under two minutes a week",
+          "goal": "G1"
+        }
+      ],
+      "constraints": [
+        {
+          "id": "C1",
+          "kind": "regulatory",
+          "text": "Food safety labelling"
+        }
+      ],
+      "suggested_roles": [
+        "execution-context"
+      ],
+      "suggested_roles_why": [
+        "owns subscription and performs/tracks work through 2 command(s)"
+      ],
+      "role_evidence": "external systems as message endpoints: none; decompose heuristics: language-boundary, pivotal-event; aggregates owned: subscription; commands from people: 2 of 2; policy reactions owned: 0; read models: 1",
+      "independent_service_check": {
+        "sense_check": "yes",
+        "brand": "yes",
+        "revenue": "yes",
+        "cost_tracking": "yes",
+        "data": "yes",
+        "user_personas": "yes",
+        "cognitive_load": "yes",
+        "verdict": "candidate"
+      }
+    },
+    "billing": {
+      "id": "billing",
+      "name": "Billing",
+      "rationale": "Thin wrapper",
+      "subdomains": [
+        {
+          "id": "billing",
+          "name": "Billing",
+          "description": "Charging weeks",
+          "rationale": "Wraps Stripe",
+          "heuristics_applied": [
+            "external-system"
+          ]
+        }
+      ],
+      "capabilities": [],
+      "classification": {
+        "domain": "generic",
+        "evolution": "commodity",
+        "implementation_pattern": [
+          "transaction-script"
+        ],
+        "sourcing": [
+          "buy"
+        ],
+        "investment": [
+          "low"
+        ],
+        "rationale": [
+          "Charging a card weekly is a solved problem (Stripe, commodity evolution); it moves no goal on its own, so buy the provider and keep our side a transaction script around the adapter."
+        ],
+        "future_direction": [
+          "Remains generic; revisit only if we move to invoicing B2B customers"
+        ]
+      },
+      "team": {
+        "id": "solo",
+        "name": "Founder",
+        "type": "stream-aligned",
+        "cognitive_load": "ok"
+      },
+      "deployable": {
+        "id": "app",
+        "name": "Meal-kit app",
+        "kind": "modular-monolith",
+        "data_store": "own",
+        "independent_deploy": true,
+        "contexts": [
+          "subscriptions",
+          "billing"
+        ],
+        "hosts_runtime_of": []
+      },
+      "hosted_by": [],
+      "owns_commands": [
+        {
+          "id": "charge-week",
+          "name": "Charge Week",
+          "actor": null,
+          "description": ""
+        },
+        {
+          "id": "charge-card",
+          "name": "Charge Card",
+          "actor": null,
+          "description": "Billing asks the payment provider to charge the subscriber's card for the week"
+        }
+      ],
+      "owns_events": [
+        {
+          "id": "week-charged",
+          "name": "Week Charged",
+          "pivotal": false,
+          "data": [
+            "subscriptionId",
+            "week",
+            "amount"
+          ],
+          "description": "Payment taken"
+        }
+      ],
+      "owns_aggregates": [],
+      "read_models": [],
+      "inbound": [
+        {
+          "collaborator": "subscriptions",
+          "messages": [
+            {
+              "id": "meals-chosen",
+              "kind": "event",
+              "name": "Meals Chosen",
+              "payload": [
+                "subscriptionId",
+                "week",
+                "recipeIds"
+              ],
+              "delivery": "at-least-once",
+              "source": "connect.messages",
+              "via": "in-process",
+              "sync": false
+            }
+          ],
+          "relationship": "customer-supplier",
+          "collaborator_kind": "context",
+          "collaborator_name": "Subscriptions",
+          "relationship_id": "R1"
+        }
+      ],
+      "outbound": [
+        {
+          "collaborator": "fulfilment",
+          "messages": [
+            {
+              "id": "week-charged",
+              "kind": "event",
+              "name": "Week Charged",
+              "payload": [
+                "subscriptionId",
+                "week"
+              ],
+              "delivery": "at-least-once",
+              "source": "connect.messages",
+              "via": "message-bus",
+              "sync": false
+            }
+          ],
+          "relationship": "published-language",
+          "collaborator_kind": "context",
+          "collaborator_name": "Fulfilment",
+          "relationship_id": "R2"
+        },
+        {
+          "collaborator": "stripe",
+          "messages": [
+            {
+              "id": "charge-card",
+              "kind": "command",
+              "name": "Charge Card",
+              "payload": [
+                "subscriptionId",
+                "week",
+                "amount",
+                "currency"
+              ],
+              "delivery": "sync",
+              "source": "connect.messages",
+              "via": "http",
+              "sync": true
+            }
+          ],
+          "relationship": "anticorruption-layer",
+          "collaborator_kind": "external",
+          "collaborator_name": "Stripe"
+        }
+      ],
+      "unconsumed_events": [],
+      "relationship_notes": [],
+      "terms": [
+        {
+          "term": "Box",
+          "definition": "…. _(differs from the shared meaning — a boundary)_",
+          "avoid": [],
+          "sources": [
+            "glossary.md context section"
+          ]
+        }
+      ],
+      "draft_decisions": [
+        "[draft from policy charge-on-choice] Whenever 'Meals Chosen' (event from subscriptions) → 'Charge Week' (automatic)"
+      ],
+      "hotspots": [
+        {
+          "id": "H1",
+          "text": "What happens if payment fails after meals are chosen?",
+          "near": "week-charged",
+          "kind": "unclear"
+        }
+      ],
+      "coupling_concerns": [],
+      "scenarios": [
+        {
+          "id": "S1",
+          "name": "Happy path weekly box"
+        }
+      ],
+      "carried_assumptions": [],
+      "carried_questions": [
+        "[discover H1 near week-charged — unclear] What happens if payment fails after meals are chosen?"
+      ],
+      "uncarried": {
+        "assumptions": 6,
+        "open_questions": 6
+      },
+      "goals": [],
+      "impacts": [],
+      "constraints": [
+        {
+          "id": "C1",
+          "kind": "regulatory",
+          "text": "Food safety labelling"
+        }
+      ],
+      "suggested_roles": [
+        "gateway"
+      ],
+      "suggested_roles_why": [
+        "talks to stripe and owns no aggregate — an edge/translation context"
+      ],
+      "role_evidence": "external systems as message endpoints: stripe (out: charge-card); decompose heuristics: external-system; aggregates owned: none; commands from people: 0 of 2; policy reactions owned: 1; read models: 0",
+      "independent_service_check": {
+        "verdict": "merge"
+      }
+    },
+    "fulfilment": {
+      "id": "fulfilment",
+      "name": "Fulfilment",
+      "rationale": "Different actor and language",
+      "subdomains": [
+        {
+          "id": "fulfilment",
+          "name": "Fulfilment",
+          "description": "Packing and shipping",
+          "rationale": "Warehouse process",
+          "heuristics_applied": [
+            "actor",
+            "pivotal-event"
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "cap-fulfilment",
+          "name": "Fulfilment",
+          "description": "Pack and ship boxes",
+          "evolution": "custom"
+        }
+      ],
+      "classification": {
+        "domain": "supporting",
+        "evolution": "product",
+        "implementation_pattern": [
+          "active-record"
+        ],
+        "sourcing": [
+          "build"
+        ],
+        "investment": [
+          "medium"
+        ],
+        "rationale": [
+          "Packing and shipping must work but a competitor's box arrives just as well; supporting, active-record CRUD over boxes and picking lists, with a possible move to a WMS product later."
+        ],
+        "future_direction": [
+          "could move to a WMS"
+        ]
+      },
+      "team": {
+        "id": "solo",
+        "name": "Founder",
+        "type": "stream-aligned",
+        "cognitive_load": "ok"
+      },
+      "deployable": {
+        "id": "warehouse",
+        "name": "Warehouse service",
+        "kind": "service",
+        "data_store": "own",
+        "independent_deploy": true,
+        "contexts": [
+          "fulfilment"
+        ],
+        "hosts_runtime_of": []
+      },
+      "hosted_by": [],
+      "owns_commands": [
+        {
+          "id": "pack-box",
+          "name": "Pack Box",
+          "actor": "packer",
+          "description": ""
+        },
+        {
+          "id": "ship-box",
+          "name": "Ship Box",
+          "actor": "packer",
+          "description": ""
+        }
+      ],
+      "owns_events": [
+        {
+          "id": "box-packed",
+          "name": "Box Packed",
+          "pivotal": true,
+          "data": [
+            "boxId"
+          ],
+          "description": "Physical box ready"
+        },
+        {
+          "id": "box-shipped",
+          "name": "Box Shipped",
+          "pivotal": true,
+          "data": [
+            "boxId",
+            "tracking"
+          ],
+          "description": "Handed to courier"
+        }
+      ],
+      "owns_aggregates": [
+        {
+          "id": "box",
+          "name": "Box",
+          "handles": [
+            "pack-box",
+            "ship-box"
+          ],
+          "emits": [
+            "box-packed",
+            "box-shipped"
+          ]
+        }
+      ],
+      "read_models": [],
+      "inbound": [
+        {
+          "collaborator": "billing",
+          "messages": [
+            {
+              "id": "week-charged",
+              "kind": "event",
+              "name": "Week Charged",
+              "payload": [
+                "subscriptionId",
+                "week"
+              ],
+              "delivery": "at-least-once",
+              "source": "connect.messages",
+              "via": "message-bus",
+              "sync": false
+            }
+          ],
+          "relationship": "published-language",
+          "collaborator_kind": "context",
+          "collaborator_name": "Billing",
+          "relationship_id": "R2"
+        },
+        {
+          "collaborator": "packer",
+          "messages": [
+            {
+              "id": "pack-box",
+              "kind": "command",
+              "name": "Pack Box",
+              "source": "discover.commands"
+            },
+            {
+              "id": "ship-box",
+              "kind": "command",
+              "name": "Ship Box",
+              "source": "discover.commands"
+            }
+          ],
+          "relationship": "user-interaction",
+          "collaborator_kind": "actor",
+          "collaborator_name": "Packer"
+        }
+      ],
+      "outbound": [],
+      "unconsumed_events": [
+        "box-packed",
+        "box-shipped"
+      ],
+      "relationship_notes": [],
+      "terms": [
+        {
+          "term": "Box",
+          "definition": "…. _(differs from the shared meaning — a boundary)_",
+          "avoid": [
+            "order",
+            "shipment"
+          ],
+          "sources": [
+            "shared glossary",
+            "decompose.bounded_contexts.terms",
+            "glossary.md context section"
+          ]
+        }
+      ],
+      "draft_decisions": [
+        "[draft from policy pack-on-charge] Whenever 'Week Charged' (event from billing) → 'Pack Box' (automatic)"
+      ],
+      "hotspots": [],
+      "coupling_concerns": [
+        {
+          "id": "CC1",
+          "text": "Fulfilment needs recipe details from subscriptions",
+          "contexts": [
+            "subscriptions",
+            "fulfilment"
+          ],
+          "severity": "medium"
+        }
+      ],
+      "scenarios": [
+        {
+          "id": "S1",
+          "name": "Happy path weekly box"
+        }
+      ],
+      "carried_assumptions": [],
+      "carried_questions": [
+        "[connect CC1 — coupling, medium] Fulfilment needs recipe details from subscriptions"
+      ],
+      "uncarried": {
+        "assumptions": 6,
+        "open_questions": 6
+      },
+      "goals": [],
+      "impacts": [],
+      "constraints": [
+        {
+          "id": "C1",
+          "kind": "regulatory",
+          "text": "Food safety labelling"
+        }
+      ],
+      "suggested_roles": [
+        "execution-context"
+      ],
+      "suggested_roles_why": [
+        "owns box and performs/tracks work through 2 command(s)"
+      ],
+      "role_evidence": "external systems as message endpoints: none; decompose heuristics: actor, pivotal-event; aggregates owned: box; commands from people: 2 of 2; policy reactions owned: 1; read models: 0",
+      "independent_service_check": {
+        "verdict": "candidate"
+      }
+    }
+  },
+  "system": {
+    "title": "Meal-kit subscription",
+    "project": "mealkit",
+    "one_liner": "Weekly meal kits delivered to subscribers",
+    "actors": [
+      {
+        "id": "subscriber",
+        "name": "Subscriber",
+        "kind": "actor",
+        "description": "Household receiving boxes"
+      },
+      {
+        "id": "packer",
+        "name": "Packer",
+        "kind": "actor",
+        "description": "Warehouse staff"
+      }
+    ],
+    "external_systems": [
+      {
+        "id": "stripe",
+        "name": "Stripe",
+        "description": "Payments"
+      },
+      {
+        "id": "courier",
+        "name": "Courier",
+        "description": "Delivery partner"
+      }
+    ],
+    "existing_systems": [
+      {
+        "name": "Stripe",
+        "role": "payments",
+        "will": "integrate"
+      }
+    ],
+    "deployables": [
+      {
+        "id": "app",
+        "name": "Meal-kit app",
+        "kind": "modular-monolith",
+        "contexts": [
+          "subscriptions",
+          "billing"
+        ],
+        "team": "solo",
+        "data_store": "own",
+        "independent_deploy": true,
+        "rationale": "One team, one deploy"
+      },
+      {
+        "id": "warehouse",
+        "name": "Warehouse service",
+        "kind": "service",
+        "contexts": [
+          "fulfilment"
+        ],
+        "team": "solo",
+        "data_store": "own",
+        "independent_deploy": true,
+        "rationale": "Runs on the warehouse network with different uptime/latency needs than the customer app; integrated by async events (week-charged) so the app never blocks on it"
+      }
+    ],
+    "teams": [
+      {
+        "id": "solo",
+        "name": "Founder",
+        "type": "stream-aligned",
+        "size": 1,
+        "owns_contexts": [
+          "subscriptions",
+          "billing",
+          "fulfilment"
+        ],
+        "cognitive_load": "ok",
+        "notes": ""
+      }
+    ],
+    "topology_style": "few-services",
+    "relationships": [
+      {
+        "id": "R1",
+        "upstream": "subscriptions",
+        "downstream": "billing",
+        "pattern": "customer-supplier",
+        "description": "Billing charges on meals chosen"
+      },
+      {
+        "id": "R2",
+        "upstream": "billing",
+        "downstream": "fulfilment",
+        "pattern": "published-language",
+        "description": "Fulfilment packs once charged"
+      }
+    ],
+    "integration": {
+      "R1": "in-process-call",
+      "R2": "async-events"
+    },
+    "goals": [
+      {
+        "id": "G1",
+        "statement": "Grow active subscribers",
+        "metric": "active subscriptions",
+        "target": "10k",
+        "horizon": "12 months"
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "kind": "regulatory",
+        "text": "Food safety labelling"
+      }
+    ],
+    "warnings": []
+  },
+  "define": {
+    "schema_version": 1,
+    "step": "define",
+    "produced_by": "ddd-define",
+    "produced_at": "<TS>",
+    "mode": "auto",
+    "depth": "light",
+    "inputs": [
+      "ddd/01-understand/understand.json",
+      "ddd/02-discover/discover.json",
+      "ddd/03-decompose/decompose.json",
+      "ddd/04-strategize/strategize.json",
+      "ddd/05-connect/connect.json",
+      "ddd/06-organise/organise.json",
+      "ddd/manifest.json",
+      "ddd/glossary.md"
+    ],
+    "assumptions": [
+      {
+        "id": "A1",
+        "text": "Example fixture; assumptions are illustrative",
+        "confidence": "high"
+      }
+    ],
+    "open_questions": [
+      {
+        "id": "Q1",
+        "text": "Illustrative open question",
+        "blocking": false,
+        "owner": "domain expert"
+      }
+    ],
+    "canvases": [
+      {
+        "context": "subscriptions",
+        "name": "Subscriptions",
+        "purpose": "Subscriptions decides which meals each household receives each week and keeps the standing order alive: it opens, pauses and cancels subscriptions and locks a week's choice before the cutoff, so that households keep choosing (G1). It does not charge the card (billing) or pack the box (fulfilment).",
+        "strategic_classification": {
+          "domain": "core",
+          "business_model": "revenue-generator",
+          "evolution": "custom"
+        },
+        "domain_roles": [
+          "execution-context"
+        ],
+        "domain_roles_rationale": "Execution context: it owns the subscription aggregate and takes the household's commands directly; the weekly cutoff is enforced here, not downstream.",
+        "inbound": [
+          {
+            "collaborator": "subscriber",
+            "relationship": "user-interaction",
+            "messages": [
+              {
+                "id": "choose-meals",
+                "kind": "command",
+                "name": "Choose Meals",
+                "payload": [
+                  "subscriptionId",
+                  "week",
+                  "recipeIds"
+                ],
+                "delivery": "sync",
+                "via": "http",
+                "sync": true
+              },
+              {
+                "id": "start-subscription",
+                "kind": "command",
+                "name": "Start Subscription"
+              }
+            ]
+          }
+        ],
+        "outbound": [
+          {
+            "collaborator": "billing",
+            "relationship": "customer-supplier",
+            "messages": [
+              {
+                "id": "meals-chosen",
+                "kind": "event",
+                "name": "Meals Chosen",
+                "payload": [
+                  "subscriptionId",
+                  "week",
+                  "recipeIds"
+                ],
+                "delivery": "at-least-once",
+                "via": "in-process",
+                "sync": false
+              }
+            ]
+          }
+        ],
+        "ubiquitous_language": [
+          {
+            "term": "Subscription",
+            "definition": "a customer's standing weekly order",
+            "avoid": [
+              "plan",
+              "membership"
+            ]
+          },
+          {
+            "term": "Box",
+            "definition": "…"
+          }
+        ],
+        "business_decisions": [
+          "A week can be chosen once; a second choice for the same week is rejected",
+          "Choices lock at the weekly cutoff; after it, default meals are assigned"
+        ],
+        "assumptions": [
+          "[define A1] Fixture: metrics are illustrative targets"
+        ],
+        "verification_metrics": [
+          "Business (G1): active subscriptions grow month on month; weekly choice completed by >90% of active households before cutoff",
+          "Boundary: zero cross-module reads of subscription tables from billing/fulfilment (CI check)"
+        ],
+        "open_questions": [
+          "[connect CC1 — coupling, medium] Fulfilment needs recipe details from subscriptions"
+        ],
+        "canvas_path": "ddd/07-define/subscriptions/bounded-context-canvas.md",
+        "subdomains": [
+          "subscriptions"
+        ],
+        "owning_team": "solo",
+        "deployable": "app",
+        "implementation_pattern": "domain-model"
+      },
+      {
+        "context": "billing",
+        "name": "Billing",
+        "purpose": "Billing takes the money for a chosen week: whenever meals are chosen it charges the household's card through Stripe and tells the rest of the system the week is paid. It owns no product rules — a failed charge is reported back to subscriptions, which decides what to do.",
+        "strategic_classification": {
+          "domain": "generic",
+          "business_model": "cost-reducer",
+          "evolution": "commodity"
+        },
+        "domain_roles": [
+          "execution-context"
+        ],
+        "domain_roles_rationale": "Execution context around a bought capability: it reacts to meals-chosen and executes the charge through the Stripe ACL; no model of its own beyond the charge record.",
+        "inbound": [
+          {
+            "collaborator": "subscriptions",
+            "relationship": "customer-supplier",
+            "messages": [
+              {
+                "id": "meals-chosen",
+                "kind": "event",
+                "name": "Meals Chosen",
+                "payload": [
+                  "subscriptionId",
+                  "week",
+                  "recipeIds"
+                ],
+                "delivery": "at-least-once",
+                "via": "in-process",
+                "sync": false
+              }
+            ]
+          }
+        ],
+        "outbound": [
+          {
+            "collaborator": "fulfilment",
+            "relationship": "published-language",
+            "messages": [
+              {
+                "id": "week-charged",
+                "kind": "event",
+                "name": "Week Charged",
+                "payload": [
+                  "subscriptionId",
+                  "week"
+                ],
+                "delivery": "at-least-once",
+                "via": "message-bus",
+                "sync": false
+              }
+            ]
+          },
+          {
+            "collaborator": "stripe",
+            "relationship": "anticorruption-layer",
+            "messages": [
+              {
+                "id": "charge-card",
+                "kind": "command",
+                "name": "Charge Card",
+                "payload": [
+                  "subscriptionId",
+                  "week",
+                  "amount",
+                  "currency"
+                ],
+                "delivery": "sync",
+                "via": "http",
+                "sync": true
+              }
+            ]
+          }
+        ],
+        "ubiquitous_language": [
+          {
+            "term": "Box",
+            "definition": "…"
+          }
+        ],
+        "business_decisions": [
+          "A week is charged exactly once, on meals-chosen; retries are idempotent on subscriptionId+week",
+          "A declined card pauses the subscription and releases the week"
+        ],
+        "assumptions": [
+          "[define A1] Fixture: metrics are illustrative targets"
+        ],
+        "verification_metrics": [
+          "Business: failed charges retried and resolved within 24h for >95% of weeks",
+          "Boundary: every Stripe call goes through the PaymentGateway ACL (fitness test)"
+        ],
+        "open_questions": [
+          "[discover H1 near week-charged — unclear] What happens if payment fails after meals are chosen?"
+        ],
+        "canvas_path": "ddd/07-define/billing/bounded-context-canvas.md",
+        "subdomains": [
+          "billing"
+        ],
+        "owning_team": "solo",
+        "deployable": "app",
+        "implementation_pattern": "transaction-script"
+      },
+      {
+        "context": "fulfilment",
+        "name": "Fulfilment",
+        "purpose": "Fulfilment turns a paid week into a physical box: it builds the picking list, packs the box in the warehouse and hands it to the courier with tracking, so the household gets what it chose. It never queries subscriptions; everything it needs arrives on week-charged.",
+        "strategic_classification": {
+          "domain": "supporting",
+          "business_model": "cost-reducer",
+          "evolution": "custom"
+        },
+        "domain_roles": [
+          "execution-context"
+        ],
+        "domain_roles_rationale": "Execution context: packers act on it directly and it owns the physical box's lifecycle; it consumes week-charged and never queries subscriptions.",
+        "inbound": [
+          {
+            "collaborator": "billing",
+            "relationship": "published-language",
+            "messages": [
+              {
+                "id": "week-charged",
+                "kind": "event",
+                "name": "Week Charged",
+                "payload": [
+                  "subscriptionId",
+                  "week"
+                ],
+                "delivery": "at-least-once",
+                "via": "message-bus",
+                "sync": false
+              }
+            ]
+          },
+          {
+            "collaborator": "packer",
+            "relationship": "user-interaction",
+            "messages": [
+              {
+                "id": "pack-box",
+                "kind": "command",
+                "name": "Pack Box"
+              },
+              {
+                "id": "ship-box",
+                "kind": "command",
+                "name": "Ship Box"
+              }
+            ]
+          }
+        ],
+        "outbound": [],
+        "ubiquitous_language": [
+          {
+            "term": "Box",
+            "definition": "…"
+          }
+        ],
+        "business_decisions": [
+          "A box is packed only for a charged week",
+          "A box is shipped only after it is packed; tracking is recorded on shipment"
+        ],
+        "assumptions": [
+          "[define A1] Fixture: metrics are illustrative targets"
+        ],
+        "verification_metrics": [
+          "Business: boxes packed within 12h of week-charged for >99% of weeks; mis-picks <0.5%",
+          "Boundary: fulfilment reads recipe/picking data only from the week-charged payload or its own projection"
+        ],
+        "open_questions": [
+          "[connect CC1 — coupling, medium] Fulfilment needs recipe details from subscriptions"
+        ],
+        "canvas_path": "ddd/07-define/fulfilment/bounded-context-canvas.md",
+        "subdomains": [
+          "fulfilment"
+        ],
+        "owning_team": "solo",
+        "deployable": "warehouse",
+        "implementation_pattern": "active-record"
+      }
+    ],
+    "system_context_c4_mermaid": "C4Context\n  title System context - Meal-kit subscription\n  Person(subscriber, \"Subscriber\")\n  Person(packer, \"Packer\", \"Warehouse staff\")\n  System(mealkit, \"Meal-kit subscription\", \"Weekly meal kits delivered to subscribers\")\n  System_Ext(stripe, \"Stripe\", \"Payments\")\n  System_Ext(courier, \"Courier\", \"Delivery partner\")\n  Rel(subscriber, mealkit, \"chooses meals\")\n  Rel(packer, mealkit, \"Pack Box, Ship Box\")\n  Rel(mealkit, stripe, \"Charge Card\")",
+    "quality_attributes": [
+      {
+        "context": "subscriptions",
+        "attribute": "consistency",
+        "requirement": "A week is chosen at most once",
+        "priority": "high",
+        "scenario": "Double submit"
+      }
+    ]
+  }
+}

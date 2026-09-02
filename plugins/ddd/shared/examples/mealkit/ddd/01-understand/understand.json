@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "step": "understand",
+  "produced_by": "ddd-understand",
+  "produced_at": "2026-08-29T10:00:00Z",
+  "mode": "auto",
+  "depth": "light",
+  "inputs": [
+    "README.md"
+  ],
+  "assumptions": [
+    {
+      "id": "A1",
+      "text": "Example fixture; assumptions are illustrative",
+      "confidence": "high"
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q1",
+      "text": "Illustrative open question",
+      "blocking": false,
+      "owner": "domain expert"
+    }
+  ],
+  "system": {
+    "name": "Meal-kit subscription",
+    "one_liner": "Weekly meal kits delivered to subscribers",
+    "problem": "Busy households want to cook without planning",
+    "why_now": "Demand for home cooking"
+  },
+  "business_model": {
+    "customer_segments": [
+      "Busy households"
+    ],
+    "value_propositions": [
+      "Pre-portioned weekly meals"
+    ],
+    "channels": [
+      "Web app"
+    ],
+    "customer_relationships": [
+      "Self-service"
+    ],
+    "revenue_streams": [
+      "Weekly subscription fee"
+    ],
+    "key_resources": [
+      "Recipe library",
+      "Cold chain"
+    ],
+    "key_activities": [
+      "Menu planning",
+      "Packing",
+      "Delivery"
+    ],
+    "key_partners": [
+      "Courier"
+    ],
+    "cost_structure": [
+      "Ingredients",
+      "Logistics"
+    ],
+    "value_proposition_links": [
+      {
+        "value_proposition": "Pre-portioned weekly meals",
+        "capabilities": [
+          "cap-menu-planning",
+          "cap-fulfilment"
+        ],
+        "beats": [
+          "alt-supermarket-shop"
+        ]
+      }
+    ]
+  },
+  "goals": [
+    {
+      "id": "G1",
+      "statement": "Grow active subscribers",
+      "metric": "active subscriptions",
+      "target": "10k",
+      "horizon": "12 months"
+    }
+  ],
+  "actors": [
+    {
+      "id": "subscriber",
+      "name": "Subscriber",
+      "kind": "person",
+      "description": "Household receiving boxes",
+      "goals": [
+        "G1"
+      ]
+    },
+    {
+      "id": "packer",
+      "name": "Packer",
+      "kind": "person",
+      "description": "Warehouse staff",
+      "goals": []
+    }
+  ],
+  "impacts": [
+    {
+      "id": "I1",
+      "actor": "subscriber",
+      "change": "Chooses meals in under two minutes a week",
+      "goal": "G1"
+    }
+  ],
+  "deliverables": [
+    {
+      "id": "D1",
+      "impact": "I1",
+      "description": "Weekly menu selection",
+      "priority": "must"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "cap-subscription-management",
+      "name": "Subscription management",
+      "description": "Sign up, pause, cancel",
+      "evolution": "product"
+    },
+    {
+      "id": "cap-menu-planning",
+      "name": "Menu planning",
+      "description": "Weekly menu and choices",
+      "evolution": "custom"
+    },
+    {
+      "id": "cap-fulfilment",
+      "name": "Fulfilment",
+      "description": "Pack and ship boxes",
+      "evolution": "custom"
+    }
+  ],
+  "constraints": [
+    {
+      "id": "C1",
+      "kind": "regulatory",
+      "text": "Food safety labelling"
+    }
+  ],
+  "non_goals": [
+    "Restaurant delivery"
+  ],
+  "existing_systems": [
+    {
+      "name": "Stripe",
+      "role": "payments",
+      "will": "integrate"
+    }
+  ],
+  "scale_target": {
+    "deployables_min": 1,
+    "deployables_max": 3,
+    "teams": 1,
+    "users": "10k",
+    "notes": "solo dev"
+  },
+  "notes_for_downstream": [
+    {
+      "id": "N1",
+      "text": "'Box' means the week's menu choice to subscribers but the packed parcel to packers — treat as a boundary, not a synonym",
+      "for": [
+        "discover",
+        "decompose"
+      ],
+      "kind": "language"
+    }
+  ],
+  "plain_words": {
+    "what": "We wrote down who this is for, what counts as working, and how big it is allowed to get.",
+    "decided": "One product: a weekly meal-kit box people subscribe to. Success is measured by weeks kept, not sign-ups.",
+    "assumed": "One person builds and runs the whole thing, so it must stay small enough for one head.",
+    "riskiest": "If a second team ever joins, almost every sizing call below was made for the wrong shape of team."
+  },
+  "alternatives": [
+    {
+      "id": "alt-supermarket-shop",
+      "name": "Weekly supermarket shop and own recipes",
+      "kind": "manual-process",
+      "used_by": [
+        "subscriber"
+      ],
+      "strengths": "Cheap, flexible, no commitment",
+      "weaknesses": "Planning and portioning take an evening a week; waste",
+      "capabilities": [
+        "cap-menu-planning"
+      ]
+    },
+    {
+      "id": "alt-rival-mealkit",
+      "name": "Incumbent national meal-kit brand",
+      "kind": "competitor",
+      "used_by": [
+        "subscriber"
+      ],
+      "strengths": "Known brand, wide menu",
+      "weaknesses": "Rigid weekly cut-off, poor swaps and pauses",
+      "capabilities": [
+        "cap-subscription-management",
+        "cap-menu-planning",
+        "cap-fulfilment"
+      ]
+    }
+  ]
+}

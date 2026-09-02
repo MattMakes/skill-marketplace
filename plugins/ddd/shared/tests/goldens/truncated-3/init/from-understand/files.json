@@ -1,0 +1,10 @@
+{
+  "changed": [
+    {
+      "path": "ddd/manifest.json",
+      "kind": "modified",
+      "content": "{\n  \"schema_version\": 1,\n  \"project\": \"mealkit\",\n  \"title\": \"Meal-kit subscription\",\n  \"ddd_dir\": \"ddd\",\n  \"created\": \"<TS>\",\n  \"updated\": \"<TS>\",\n  \"mode\": \"auto\",\n  \"depth\": \"light\",\n  \"scale_target\": {\n    \"deployables_min\": 1,\n    \"deployables_max\": 3,\n    \"teams\": 1,\n    \"notes\": \"solo dev\"\n  },\n  \"sources\": [\n    \"README.md\"\n  ],\n  \"steps\": {\n    \"understand\": {\n      \"status\": \"done\",\n      \"updated\": \"<TS>\",\n      \"mode\": \"auto\"\n    },\n    \"discover\": {\n      \"status\": \"done\",\n      \"updated\": \"<TS>\",\n      \"mode\": \"auto\"\n    },\n    \"decompose\": {\n      \"status\": \"done\",\n      \"updated\": \"<TS>\",\n      \"mode\": \"auto\"\n    },\n    \"strategize\": {\n      \"status\": \"pending\"\n    },\n    \"connect\": {\n      \"status\": \"pending\"\n    },\n    \"organise\": {\n      \"status\": \"pending\"\n    },\n    \"define\": {\n      \"status\": \"pending\"\n    },\n    \"code\": {\n      \"status\": \"pending\"\n    },\n    \"contracts\": {\n      \"status\": \"pending\"\n    }\n  }\n}\n"
+    }
+  ],
+  "deleted": []
+}

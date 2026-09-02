@@ -1,0 +1,69 @@
+wrote <DDD_DIR>/08-code/.prefill/billing.md (2.4 KB)
+# Billing (`billing`) — None, pattern **None**, sourcing ?
+Deployable `None` (None, data store None) · team `None` · canvas `-`
+Aggregates needed: **NO — use cases + persistence only**. Purpose: (no canvas purpose) Domain roles: -.
+  Scenarios: S1.
+Subdomains: `billing` None/None —
+
+## Commands owned
+| id | actor | produces | description |
+|---|---|---|---|
+| charge-week |  | week-charged |  |
+| charge-card |  |  | Billing asks the payment provider to charge the subscriber's card for the week |
+
+## Events owned
+| id | pivotal | data | triggered_by |
+|---|---|---|---|
+| week-charged | no | subscriptionId, week, amount | charge-week |
+
+## Aggregate candidates (discover) — root = discover id, pascal-cased
+_none_
+
+## Policies
+Runs here (when → then):
+| id | when | when_owned_by | then | kind |
+|---|---|---|---|---|
+| charge-on-choice | meals-chosen | subscriptions | charge-week | automatic |
+Feeds elsewhere (owned event → their command):
+| id | when | then | in_contexts |
+|---|---|---|---|
+| pack-on-charge | week-charged | pack-box | fulfilment |
+
+## Message edges (one row per message; every producer → consumer edge keeps its own transport; `response` steps folded away)
+Transport per edge: flow step > integration decision of the relationship > deployables. Only an in-process edge across
+deployables is a problem (see Warnings); mixed transports on one context are normal.
+### Inbound
+_none_
+### Outbound
+_none_
+
+Command transports in: none in flows (human actors → assume http) · external systems we call (→ gateway port):
+  - · external systems that initiate a command/event toward us (→ callbacks port): none
+
+## Read models
+Local (owned by this context — become `read_models[]`, fill `source_events`):
+_none_
+Queries this context sends to others (→ driven gateway port, not a local read model):
+_none_
+
+## Relationships & integration mechanism
+| id | role | other | pattern | mechanism |
+|---|---|---|---|---|
+| R1 | downstream | subscriptions | customer-supplier |  |
+| R2 | upstream | fulfilment | published-language |  |
+
+## Language here
+_none_
+## Business decisions (canvas)
+_none_
+## Quality attributes (this context; system-wide ones are in the index)
+_none_
+
+## Hotspots near owned events/commands
+| id | kind | near | text |
+|---|---|---|---|
+| H1 | unclear | week-charged | What happens if payment fails after meals are chosen? |
+
+## Coupling concerns
+_none_
+

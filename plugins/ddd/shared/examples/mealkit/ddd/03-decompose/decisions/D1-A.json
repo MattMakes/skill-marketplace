@@ -1,0 +1,103 @@
+{
+  "format": "ddd-diagram-spec",
+  "version": 1,
+  "id": "context-map",
+  "kind": "architecture",
+  "title": "Option A: billing stays its own context behind an ACL",
+  "subtitle": "decision D1 option A, derived from the decompose context map",
+  "source": {
+    "step": "decompose",
+    "file": "decompose.json"
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "subscriptions",
+        "label": "Subscriptions",
+        "sublabel": "core domain",
+        "kind": "context",
+        "tag": "core",
+        "searchText": "subscriptions subscriptions Box"
+      },
+      {
+        "id": "billing",
+        "label": "Billing",
+        "sublabel": "generic domain, wraps Stripe",
+        "kind": "context",
+        "searchText": "billing billing stripe acl"
+      },
+      {
+        "id": "fulfilment",
+        "label": "Fulfilment",
+        "sublabel": "supporting domain",
+        "kind": "context",
+        "searchText": "fulfilment fulfilment Box"
+      },
+      {
+        "id": "stripe",
+        "label": "Stripe",
+        "sublabel": "external",
+        "kind": "external",
+        "context": "",
+        "searchText": "stripe payment provider"
+      }
+    ],
+    "edges": [
+      {
+        "id": "R1",
+        "from": "subscriptions",
+        "to": "billing",
+        "kind": "command",
+        "label": "customer-supplier",
+        "pattern": "customer-supplier",
+        "title": "Billing charges on meals chosen"
+      },
+      {
+        "id": "R2",
+        "from": "billing",
+        "to": "fulfilment",
+        "kind": "event",
+        "label": "published language",
+        "pattern": "published-language",
+        "title": "Fulfilment packs once charged"
+      },
+      {
+        "id": "R3",
+        "from": "billing",
+        "to": "stripe",
+        "kind": "command",
+        "label": "anticorruption layer",
+        "pattern": "anticorruption-layer",
+        "title": "Billing translates charge-card into Stripe calls"
+      }
+    ],
+    "groups": [
+      {
+        "id": "app",
+        "label": "Meal-kit app",
+        "sublabel": "modular-monolith · team Founder",
+        "kind": "deployable",
+        "members": [
+          "subscriptions",
+          "billing"
+        ]
+      },
+      {
+        "id": "warehouse",
+        "label": "Warehouse service",
+        "sublabel": "service · team Founder",
+        "kind": "deployable",
+        "members": [
+          "fulfilment"
+        ]
+      }
+    ]
+  },
+  "layoutOptions": {
+    "direction": "RIGHT",
+    "spacing": "comfortable"
+  },
+  "notes": [
+    "Stripe words stop at the ACL; the core only knows charge-week and week-charged."
+  ]
+}

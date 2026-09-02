@@ -1,0 +1,30 @@
+{
+  "fixture": "truncated-3",
+  "command": [
+    "code",
+    "check"
+  ],
+  "variant": "seeded-prefill-json",
+  "args": [
+    "ddd",
+    "--json"
+  ],
+  "seed": {
+    "ddd/08-code/.prefill/billing.md": "# billing brief (seed)\n",
+    "ddd/08-code/.prefill/subscriptions.md": "# subscriptions brief (seed)\n"
+  },
+  "twin": [
+    "python3",
+    "skills/ddd-code/scripts/check_code.py"
+  ],
+  "cwd": "<ROOT>",
+  "env": {
+    "DDD_NO_RENDER": "1",
+    "TZ": "UTC",
+    "PYTHONIOENCODING": "utf-8",
+    "PYTHONHASHSEED": "0",
+    "NO_COLOR": "1"
+  },
+  "files_policy": "content",
+  "python": "Python 3.11.4"
+}

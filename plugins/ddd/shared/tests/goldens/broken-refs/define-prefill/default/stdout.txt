@@ -1,0 +1,4 @@
+DEFINE pre-fill — Meal-kit subscription: 3 context(s) (core: subscriptions), 2 deployable(s), topology few-services; mode=auto depth=light
+briefs → <DDD_DIR>/07-define/.prefill/: system.md 2.3 KB; subscriptions.md 4.6 KB (core); billing.md 4.2 KB (generic); fulfilment.md 4.0 KB (supporting)
+C4 block: ok
+next: read system.md, then one context brief at a time (core first); --print [--context ID] echoes briefs to stdout; ddd define render removes .prefill/ after a full render

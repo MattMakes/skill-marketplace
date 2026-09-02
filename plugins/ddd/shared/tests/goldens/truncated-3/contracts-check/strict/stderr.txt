@@ -1,0 +1,1 @@
+error: 05-connect/connect.json not found under <DDD_DIR>

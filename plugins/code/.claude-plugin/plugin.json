@@ -1,0 +1,21 @@
+{
+  "name": "code",
+  "displayName": "Code Intelligence",
+  "version": "1.0.0",
+  "description": "Understand a codebase, then verify it. core primes a repo once — a deterministic zero-token knowledge graph via graphify plus a CORE tree of CLAUDE.md contracts with AGENTS.md symlinks — so later questions cost a graph query instead of a file sweep. e2e-harness discovers a polyglot system from its own docs and generates runnable end-to-end suites across Node, Python, Go, C#, Rust, Kafka and Playwright. CORE is adapted from DOX (agent0ai/dox, MIT).",
+  "author": {
+    "name": "Matt Scott"
+  },
+  "license": "MIT",
+  "keywords": [
+    "codebase",
+    "context",
+    "knowledge-graph",
+    "claude-md",
+    "agents-md",
+    "onboarding",
+    "e2e",
+    "testing",
+    "playwright"
+  ]
+}

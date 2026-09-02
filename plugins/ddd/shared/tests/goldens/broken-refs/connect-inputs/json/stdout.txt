@@ -1,0 +1,305 @@
+{
+  "ddd_dir": "<DDD_DIR>",
+  "project": "mealkit",
+  "mode": "auto",
+  "depth": "light",
+  "flow_budget": "2–3 flows",
+  "scale_target": {
+    "deployables_min": 1,
+    "deployables_max": 3,
+    "teams": 1,
+    "notes": "solo dev"
+  },
+  "distance_hint": "co-located",
+  "distance_hint_text": "scale_target 1–3 deployables: default is one deployable → in-process calls and in-memory domain events; split only for cause",
+  "upstream_notes": [],
+  "contexts": [
+    {
+      "id": "subscriptions",
+      "name": "Subscriptions",
+      "subdomains": [
+        "subscriptions"
+      ],
+      "type": [
+        "core"
+      ],
+      "implementation_pattern": [
+        "domain-model"
+      ],
+      "sourcing": [
+        "build"
+      ],
+      "investment": [
+        "high"
+      ],
+      "ish_verdict": "candidate",
+      "owns_events": [
+        "subscription-started",
+        "meals-chosen",
+        "subscription-teleported"
+      ],
+      "owns_commands": [
+        "start-subscription",
+        "choose-meals"
+      ]
+    },
+    {
+      "id": "billing",
+      "name": "Billing",
+      "subdomains": [
+        "billing"
+      ],
+      "type": [
+        "generic"
+      ],
+      "implementation_pattern": [
+        "transaction-script"
+      ],
+      "sourcing": [
+        "buy"
+      ],
+      "investment": [
+        "low"
+      ],
+      "ish_verdict": "merge",
+      "owns_events": [
+        "week-charged"
+      ],
+      "owns_commands": [
+        "charge-week",
+        "charge-card"
+      ]
+    },
+    {
+      "id": "fulfilment",
+      "name": "Fulfilment",
+      "subdomains": [
+        "fulfilment"
+      ],
+      "type": [
+        "supporting"
+      ],
+      "implementation_pattern": [
+        "active-record"
+      ],
+      "sourcing": [
+        "build"
+      ],
+      "investment": [
+        "medium"
+      ],
+      "ish_verdict": "candidate",
+      "owns_events": [
+        "box-packed",
+        "box-shipped"
+      ],
+      "owns_commands": [
+        "pack-box",
+        "ship-box"
+      ]
+    }
+  ],
+  "owner_of_event": {
+    "subscription-started": "subscriptions",
+    "meals-chosen": "subscriptions",
+    "subscription-teleported": "subscriptions",
+    "week-charged": "billing",
+    "box-packed": "fulfilment",
+    "box-shipped": "fulfilment"
+  },
+  "owner_of_command": {
+    "start-subscription": "subscriptions",
+    "choose-meals": "subscriptions",
+    "charge-week": "billing",
+    "charge-card": "billing",
+    "pack-box": "fulfilment",
+    "ship-box": "fulfilment"
+  },
+  "orphan_events": [],
+  "orphan_commands": [],
+  "cross_context_policies": [
+    {
+      "id": "charge-on-choice",
+      "name": "Whenever meals chosen, charge the week",
+      "kind": "automatic",
+      "when": "meals-chosen",
+      "when_owner": "subscriptions",
+      "then": [
+        {
+          "command": "charge-week",
+          "owner": "billing"
+        }
+      ],
+      "crossings": [
+        {
+          "from": "subscriptions",
+          "to": "billing",
+          "command": "charge-week",
+          "relationships": [
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pack-on-charge",
+      "name": "Whenever week charged, pack box",
+      "kind": "automatic",
+      "when": "week-charged",
+      "when_owner": "billing",
+      "then": [
+        {
+          "command": "pack-box",
+          "owner": "fulfilment"
+        }
+      ],
+      "crossings": [
+        {
+          "from": "billing",
+          "to": "fulfilment",
+          "command": "pack-box",
+          "relationships": [
+            "R2"
+          ]
+        }
+      ]
+    }
+  ],
+  "internal_policies": [],
+  "unmapped_crossings": [],
+  "scenarios": [
+    {
+      "id": "S1",
+      "name": "Happy path weekly box",
+      "actors": [
+        "subscriber",
+        "packer"
+      ],
+      "events": [
+        {
+          "event": "meals-chosen",
+          "owner": "subscriptions"
+        },
+        {
+          "event": "week-charged",
+          "owner": "billing"
+        },
+        {
+          "event": "box-packed",
+          "owner": "fulfilment"
+        },
+        {
+          "event": "box-shipped",
+          "owner": "fulfilment"
+        }
+      ],
+      "contexts": [
+        "subscriptions",
+        "billing",
+        "fulfilment"
+      ],
+      "crosses_boundary": true,
+      "policies_involved": [
+        "charge-on-choice",
+        "pack-on-charge"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "id": "R1",
+      "upstream": "subscriptions",
+      "downstream": "billing",
+      "pattern": "customer-supplier",
+      "description": "Billing charges on meals chosen",
+      "policies": [
+        "charge-on-choice"
+      ],
+      "scenarios": [
+        "S1"
+      ],
+      "proposed_distance": "co-located",
+      "distance_reason": "scale target; ISH merge: billing; ISH candidate: subscriptions",
+      "proposed_mechanism": "in-process-call (in-memory domain events from upstream, direct call when an answer is needed)"
+    },
+    {
+      "id": "R2",
+      "upstream": "billing",
+      "downstream": "fulfilment",
+      "pattern": "published-language",
+      "description": "Fulfilment packs once charged",
+      "policies": [
+        "pack-on-charge"
+      ],
+      "scenarios": [
+        "S1"
+      ],
+      "proposed_distance": "co-located",
+      "distance_reason": "scale target; ISH merge: billing; ISH candidate: fulfilment",
+      "proposed_mechanism": "in-process-call (in-memory domain events with a versioned event type)"
+    }
+  ],
+  "external_systems": [
+    {
+      "id": "stripe",
+      "name": "Stripe",
+      "description": "Payments",
+      "events_as_actor": [
+        "week-charged"
+      ],
+      "commands_as_actor": []
+    },
+    {
+      "id": "courier",
+      "name": "Courier",
+      "description": "Delivery partner",
+      "events_as_actor": [
+        "box-shipped"
+      ],
+      "commands_as_actor": []
+    }
+  ],
+  "existing_systems": [
+    {
+      "name": "Stripe",
+      "role": "payments",
+      "will": "integrate"
+    }
+  ],
+  "read_models": [
+    {
+      "id": "weekly-menu",
+      "name": "Weekly menu",
+      "informs": "choose-meals",
+      "informs_owner": "subscriptions",
+      "used_by": "subscriber"
+    }
+  ],
+  "hotspots_near_boundaries": [
+    {
+      "id": "H1",
+      "text": "What happens if payment fails after meals are chosen?",
+      "near": "week-charged",
+      "kind": "unclear"
+    }
+  ],
+  "party_ids": {
+    "contexts": [
+      "subscriptions",
+      "billing",
+      "fulfilment"
+    ],
+    "actors": [
+      "subscriber",
+      "packer"
+    ],
+    "external_systems": [
+      "stripe",
+      "courier"
+    ],
+    "understand_actors": [
+      "subscriber",
+      "packer"
+    ]
+  }
+}

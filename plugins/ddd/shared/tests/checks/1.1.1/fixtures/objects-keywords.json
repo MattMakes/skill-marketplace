@@ -1,0 +1,81 @@
+{
+  "name": "objects-keywords",
+  "value": {
+    "a": "x",
+    "extra1": 1,
+    "extra2": "y",
+    "pat_one": 1,
+    "bad key": true,
+    "dep": 1,
+    "ds": 1
+  },
+  "schema": {
+    "type": "object",
+    "required": [
+      "a",
+      "b",
+      "c"
+    ],
+    "properties": {
+      "a": {
+        "type": "string"
+      },
+      "b": {
+        "type": "string"
+      }
+    },
+    "patternProperties": {
+      "^pat_": {
+        "type": "string"
+      },
+      "(": {
+        "type": "string"
+      }
+    },
+    "propertyNames": {
+      "pattern": "^[a-z_0-9]+$"
+    },
+    "additionalProperties": false,
+    "minProperties": 10,
+    "maxProperties": 2,
+    "dependentRequired": {
+      "dep": [
+        "dep_needs"
+      ],
+      "absent": [
+        "nothing"
+      ]
+    },
+    "dependentSchemas": {
+      "ds": {
+        "required": [
+          "ds_needs"
+        ]
+      }
+    }
+  },
+  "expect": {
+    "check": [
+      "payload: missing required key 'b'",
+      "payload: missing required key 'c'",
+      "payload: 'dep' is present, so 'dep_needs' is required too",
+      "payload: missing required key 'ds_needs'",
+      "payload: has 7 propertie(s), minProperties is 10",
+      "payload: has 7 propertie(s), maxProperties is 2",
+      "payload.pat_one: expected string, got int",
+      "payload: patternProperties key '(' is not a valid regex",
+      "payload.<key bad key>: 'bad key' does not match pattern '^[a-z_0-9]+$'",
+      "payload.extra1: additional property not allowed",
+      "payload.extra2: additional property not allowed",
+      "payload.bad key: additional property not allowed",
+      "payload.dep: additional property not allowed",
+      "payload.ds: additional property not allowed"
+    ],
+    "core": [
+      "payload: missing required key 'b'",
+      "payload: missing required key 'c'"
+    ],
+    "vocab": [],
+    "conditional": true
+  }
+}

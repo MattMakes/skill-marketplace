@@ -1,0 +1,1043 @@
+{
+  "schema_version": 1,
+  "step": "discover",
+  "produced_by": "ddd-discover",
+  "produced_at": "2026-09-02T18:44:13Z",
+  "mode": "auto",
+  "depth": "light",
+  "inputs": [
+    "ddd/01-understand/understand.json",
+    "ddd/glossary.md",
+    "CONTEXT.md"
+  ],
+  "assumptions": [
+    {
+      "id": "A1",
+      "text": "Four phases (joining, borrowing, settling, maintaining) drafted from the capabilities; the tool lifecycle is placed last because it is a branch, not the member's story.",
+      "confidence": "medium"
+    },
+    {
+      "id": "A2",
+      "text": "Concession approval happens before the fee is paid (the rate decides the amount); the coordinator approves, not a desk volunteer.",
+      "confidence": "medium"
+    },
+    {
+      "id": "A3",
+      "text": "Reservation expiry, due reminders, overdue marking, late-fee accrual and membership lapsing are all clock-fired; the schedules given are guesses.",
+      "confidence": "medium"
+    },
+    {
+      "id": "A4",
+      "text": "A cash payment at the desk is the same Fee Paid event with method=cash; the volunteer records it. No separate cash ledger is stormed.",
+      "confidence": "medium"
+    },
+    {
+      "id": "A5",
+      "text": "Inspection after a return only happens when the volunteer notes damage (manual policy); routine inspections are on a schedule not stormed at light depth.",
+      "confidence": "low"
+    },
+    {
+      "id": "A6",
+      "text": "Failure paths beyond a card decline (Stripe webhook late, item lost and never returned, member disputes a fee) are not on the timeline.",
+      "confidence": "medium"
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q1",
+      "text": "Does a lost item (never returned) end as a damage charge at replacement value, and who declares it lost?",
+      "blocking": false,
+      "owner": "coordinator"
+    },
+    {
+      "id": "Q2",
+      "text": "Is the late fee capped per loan at the item's replacement value, or per member across items?",
+      "blocking": false,
+      "owner": "coordinator"
+    },
+    {
+      "id": "Q3",
+      "text": "Can a member reserve a second item while one reservation is pending, and does a pending reservation count toward the three-item limit?",
+      "blocking": false,
+      "owner": "coordinator"
+    },
+    {
+      "id": "Q4",
+      "text": "Does an overdue item block renewal of the member's other loans?",
+      "blocking": false,
+      "owner": "coordinator"
+    }
+  ],
+  "notes_for_downstream": [
+    {
+      "id": "N1",
+      "text": "H1: 'Tool' (a catalogue kind: 'cordless drill', has a replacement value and safety notes) vs 'Item' (one asset-tagged physical unit with a condition and a status). Members reserve an item but talk about a tool; volunteers only ever handle items. Keep two terms, two owners.",
+      "for": [
+        "decompose",
+        "define"
+      ],
+      "kind": "language"
+    },
+    {
+      "id": "N2",
+      "text": "Sharpens understand N2: on the board eligibility is read exactly once, by the desk volunteer at check-out (item-checked-out) via the member-standing read model. So one context (lending) consumes it and needs three facts from elsewhere: membership current (joining), balance zero (settling), no overdue and fewer than three items out (its own). Decompose must pick who assembles the answer.",
+      "for": [
+        "decompose",
+        "connect",
+        "define"
+      ],
+      "kind": "boundary"
+    },
+    {
+      "id": "N3",
+      "text": "Five clock-fired commands (lapse-memberships, expire-reservations, send-due-reminders, mark-loans-overdue, accrue-late-fee). Something must run on a schedule; it is not a user request.",
+      "for": [
+        "connect",
+        "organise",
+        "code"
+      ],
+      "kind": "process"
+    },
+    {
+      "id": "N4",
+      "text": "H3: fee-paid can arrive from two channels (Stripe card, cash at desk) and card-payment-failed is reported by Stripe, possibly after the member has left the page. Payment confirmation is asynchronous from Stripe's side.",
+      "for": [
+        "decompose",
+        "connect"
+      ],
+      "kind": "risk"
+    }
+  ],
+  "actors": [
+    {
+      "id": "member",
+      "name": "Member",
+      "from_understand": "member"
+    },
+    {
+      "id": "desk-volunteer",
+      "name": "Desk volunteer",
+      "from_understand": "desk-volunteer"
+    },
+    {
+      "id": "maintenance-volunteer",
+      "name": "Maintenance volunteer",
+      "from_understand": "maintenance-volunteer"
+    },
+    {
+      "id": "coordinator",
+      "name": "Coordinator",
+      "from_understand": "coordinator"
+    }
+  ],
+  "external_systems": [
+    {
+      "id": "stripe",
+      "name": "Stripe",
+      "description": "Card payment provider; reports success or decline"
+    },
+    {
+      "id": "email",
+      "name": "Email provider",
+      "description": "Delivers reminders and notices"
+    },
+    {
+      "id": "clock",
+      "name": "Clock",
+      "description": "Scheduler for time-fired commands"
+    }
+  ],
+  "phases": [
+    {
+      "id": "joining",
+      "name": "Joining",
+      "order": 1
+    },
+    {
+      "id": "borrowing",
+      "name": "Borrowing",
+      "order": 2
+    },
+    {
+      "id": "settling",
+      "name": "Settling fees",
+      "order": 3
+    },
+    {
+      "id": "maintaining",
+      "name": "Keeping tools",
+      "order": 4
+    }
+  ],
+  "events": [
+    {
+      "id": "membership-applied",
+      "name": "Membership Applied",
+      "phase": "joining",
+      "sequence": 10,
+      "actor": "member",
+      "triggered_by": "apply-for-membership",
+      "pivotal": false,
+      "data": [
+        "memberId",
+        "concessionClaimed"
+      ],
+      "description": "A resident asked to join and gave their details"
+    },
+    {
+      "id": "concession-approved",
+      "name": "Concession Approved",
+      "phase": "joining",
+      "sequence": 20,
+      "actor": "coordinator",
+      "triggered_by": "approve-concession",
+      "pivotal": false,
+      "data": [
+        "memberId",
+        "rate"
+      ],
+      "description": "Proof accepted; the GBP 15 rate applies"
+    },
+    {
+      "id": "membership-fee-paid",
+      "name": "Membership Fee Paid",
+      "phase": "joining",
+      "sequence": 30,
+      "actor": "member",
+      "triggered_by": "pay-membership-fee",
+      "pivotal": false,
+      "data": [
+        "memberId",
+        "amount",
+        "method"
+      ],
+      "description": "The annual fee was received"
+    },
+    {
+      "id": "membership-started",
+      "name": "Membership Started",
+      "phase": "joining",
+      "sequence": 40,
+      "actor": null,
+      "triggered_by": "start-membership",
+      "pivotal": true,
+      "data": [
+        "memberId",
+        "memberNumber",
+        "expiresOn"
+      ],
+      "description": "The member may now borrow; runs 12 months"
+    },
+    {
+      "id": "membership-lapsed",
+      "name": "Membership Lapsed",
+      "phase": "joining",
+      "sequence": 50,
+      "actor": "clock",
+      "triggered_by": "lapse-memberships",
+      "pivotal": false,
+      "data": [
+        "memberId"
+      ],
+      "description": "12 months passed without renewal; borrowing stops"
+    },
+    {
+      "id": "item-reserved",
+      "name": "Item Reserved",
+      "phase": "borrowing",
+      "sequence": 60,
+      "actor": "member",
+      "triggered_by": "reserve-item",
+      "pivotal": false,
+      "data": [
+        "reservationId",
+        "itemId",
+        "memberId",
+        "holdUntil"
+      ],
+      "description": "An available item is held for the member for 48 hours"
+    },
+    {
+      "id": "reservation-expired",
+      "name": "Reservation Expired",
+      "phase": "borrowing",
+      "sequence": 70,
+      "actor": "clock",
+      "triggered_by": "expire-reservations",
+      "pivotal": false,
+      "data": [
+        "reservationId",
+        "itemId"
+      ],
+      "description": "The hold ran out; the item is available again"
+    },
+    {
+      "id": "item-checked-out",
+      "name": "Item Checked Out",
+      "phase": "borrowing",
+      "sequence": 80,
+      "actor": "desk-volunteer",
+      "triggered_by": "check-out-item",
+      "pivotal": true,
+      "data": [
+        "loanId",
+        "itemId",
+        "memberId",
+        "dueOn"
+      ],
+      "description": "The member has the item; due back in 14 days"
+    },
+    {
+      "id": "loan-renewed",
+      "name": "Loan Renewed",
+      "phase": "borrowing",
+      "sequence": 90,
+      "actor": "member",
+      "triggered_by": "renew-loan",
+      "pivotal": false,
+      "data": [
+        "loanId",
+        "dueOn"
+      ],
+      "description": "Due date pushed out by 7 days, once"
+    },
+    {
+      "id": "due-reminder-sent",
+      "name": "Due Reminder Sent",
+      "phase": "borrowing",
+      "sequence": 100,
+      "actor": "clock",
+      "triggered_by": "send-due-reminders",
+      "pivotal": false,
+      "data": [
+        "loanId",
+        "memberId",
+        "dueOn"
+      ],
+      "description": "The member was told the item is due"
+    },
+    {
+      "id": "loan-overdue",
+      "name": "Loan Overdue",
+      "phase": "borrowing",
+      "sequence": 110,
+      "actor": "clock",
+      "triggered_by": "mark-loans-overdue",
+      "pivotal": false,
+      "data": [
+        "loanId",
+        "itemId",
+        "memberId",
+        "daysLate"
+      ],
+      "description": "The due date passed without a return; the member may not borrow more"
+    },
+    {
+      "id": "item-returned",
+      "name": "Item Returned",
+      "phase": "borrowing",
+      "sequence": 120,
+      "actor": "desk-volunteer",
+      "triggered_by": "return-item",
+      "pivotal": true,
+      "data": [
+        "loanId",
+        "itemId",
+        "returnedOn",
+        "condition"
+      ],
+      "description": "The item is back and its condition noted"
+    },
+    {
+      "id": "late-fee-accrued",
+      "name": "Late Fee Accrued",
+      "phase": "settling",
+      "sequence": 130,
+      "actor": "clock",
+      "triggered_by": "accrue-late-fee",
+      "pivotal": false,
+      "data": [
+        "memberId",
+        "loanId",
+        "amount",
+        "runningTotal"
+      ],
+      "description": "Another day's late fee was added to the member's balance"
+    },
+    {
+      "id": "damage-fee-charged",
+      "name": "Damage Fee Charged",
+      "phase": "settling",
+      "sequence": 140,
+      "actor": "coordinator",
+      "triggered_by": "charge-damage-fee",
+      "pivotal": false,
+      "data": [
+        "memberId",
+        "itemId",
+        "amount",
+        "reason"
+      ],
+      "description": "A damage charge was added to the member's balance"
+    },
+    {
+      "id": "card-payment-failed",
+      "name": "Card Payment Failed",
+      "phase": "settling",
+      "sequence": 150,
+      "actor": "stripe",
+      "triggered_by": "pay-fee",
+      "pivotal": false,
+      "data": [
+        "memberId",
+        "amount",
+        "reason"
+      ],
+      "description": "Stripe declined or the payment did not complete"
+    },
+    {
+      "id": "fee-paid",
+      "name": "Fee Paid",
+      "phase": "settling",
+      "sequence": 160,
+      "actor": "member",
+      "triggered_by": "pay-fee",
+      "pivotal": true,
+      "data": [
+        "memberId",
+        "amount",
+        "method",
+        "paymentRef"
+      ],
+      "description": "Money received against the balance"
+    },
+    {
+      "id": "fee-waived",
+      "name": "Fee Waived",
+      "phase": "settling",
+      "sequence": 170,
+      "actor": "coordinator",
+      "triggered_by": "waive-fee",
+      "pivotal": false,
+      "data": [
+        "memberId",
+        "amount",
+        "reason"
+      ],
+      "description": "Part or all of a fee was written off"
+    },
+    {
+      "id": "tool-added",
+      "name": "Tool Added",
+      "phase": "maintaining",
+      "sequence": 180,
+      "actor": "maintenance-volunteer",
+      "triggered_by": "add-tool",
+      "pivotal": false,
+      "data": [
+        "toolId",
+        "name",
+        "category",
+        "replacementValue"
+      ],
+      "description": "A kind of tool now exists in the catalogue"
+    },
+    {
+      "id": "item-tagged",
+      "name": "Item Tagged",
+      "phase": "maintaining",
+      "sequence": 190,
+      "actor": "maintenance-volunteer",
+      "triggered_by": "tag-item",
+      "pivotal": false,
+      "data": [
+        "itemId",
+        "toolId",
+        "assetTag",
+        "condition"
+      ],
+      "description": "A physical item joined the stock and is available"
+    },
+    {
+      "id": "item-passed-inspection",
+      "name": "Item Passed Inspection",
+      "phase": "maintaining",
+      "sequence": 200,
+      "actor": "maintenance-volunteer",
+      "triggered_by": "inspect-item",
+      "pivotal": false,
+      "data": [
+        "itemId",
+        "inspectedOn"
+      ],
+      "description": "Fit to lend"
+    },
+    {
+      "id": "item-failed-inspection",
+      "name": "Item Failed Inspection",
+      "phase": "maintaining",
+      "sequence": 210,
+      "actor": "maintenance-volunteer",
+      "triggered_by": "inspect-item",
+      "pivotal": false,
+      "data": [
+        "itemId",
+        "fault"
+      ],
+      "description": "Not fit to lend; goes to maintenance"
+    },
+    {
+      "id": "item-repaired",
+      "name": "Item Repaired",
+      "phase": "maintaining",
+      "sequence": 220,
+      "actor": "maintenance-volunteer",
+      "triggered_by": "repair-item",
+      "pivotal": false,
+      "data": [
+        "itemId",
+        "work"
+      ],
+      "description": "Back to available"
+    },
+    {
+      "id": "item-retired",
+      "name": "Item Retired",
+      "phase": "maintaining",
+      "sequence": 230,
+      "actor": "maintenance-volunteer",
+      "triggered_by": "retire-item",
+      "pivotal": false,
+      "data": [
+        "itemId",
+        "reason"
+      ],
+      "description": "Leaves the catalogue view; history kept"
+    }
+  ],
+  "commands": [
+    {
+      "id": "apply-for-membership",
+      "name": "Apply For Membership",
+      "actor": "member",
+      "produces": [
+        "membership-applied"
+      ],
+      "description": "Online form: name, address, concession claim with proof"
+    },
+    {
+      "id": "approve-concession",
+      "name": "Approve Concession",
+      "actor": "coordinator",
+      "produces": [
+        "concession-approved"
+      ],
+      "description": "Coordinator checks the uploaded proof"
+    },
+    {
+      "id": "pay-membership-fee",
+      "name": "Pay Membership Fee",
+      "actor": "member",
+      "produces": [
+        "membership-fee-paid",
+        "card-payment-failed"
+      ],
+      "description": "Card through Stripe, or cash at the desk recorded by a volunteer"
+    },
+    {
+      "id": "start-membership",
+      "name": "Start Membership",
+      "actor": null,
+      "produces": [
+        "membership-started"
+      ],
+      "description": "Issued by policy when the fee is paid"
+    },
+    {
+      "id": "lapse-memberships",
+      "name": "Lapse Memberships",
+      "actor": "clock",
+      "produces": [
+        "membership-lapsed"
+      ],
+      "description": "Nightly: any membership past its expiry date lapses"
+    },
+    {
+      "id": "reserve-item",
+      "name": "Reserve Item",
+      "actor": "member",
+      "produces": [
+        "item-reserved"
+      ],
+      "description": "Member picks an available item online; hold lasts 48 hours"
+    },
+    {
+      "id": "expire-reservations",
+      "name": "Expire Reservations",
+      "actor": "clock",
+      "produces": [
+        "reservation-expired"
+      ],
+      "description": "Hourly: release holds past holdUntil"
+    },
+    {
+      "id": "check-out-item",
+      "name": "Check Out Item",
+      "actor": "desk-volunteer",
+      "produces": [
+        "item-checked-out"
+      ],
+      "description": "At the desk: volunteer confirms member standing and hands the item over"
+    },
+    {
+      "id": "renew-loan",
+      "name": "Renew Loan",
+      "actor": "member",
+      "produces": [
+        "loan-renewed"
+      ],
+      "description": "Once, 7 days, only if nobody has reserved the item"
+    },
+    {
+      "id": "send-due-reminders",
+      "name": "Send Due Reminders",
+      "actor": "clock",
+      "produces": [
+        "due-reminder-sent"
+      ],
+      "description": "Daily: two days before and on the due date"
+    },
+    {
+      "id": "mark-loans-overdue",
+      "name": "Mark Loans Overdue",
+      "actor": "clock",
+      "produces": [
+        "loan-overdue"
+      ],
+      "description": "Nightly: any loan past dueOn and not returned"
+    },
+    {
+      "id": "return-item",
+      "name": "Return Item",
+      "actor": "desk-volunteer",
+      "produces": [
+        "item-returned"
+      ],
+      "description": "At the desk: scan the tag, note the condition"
+    },
+    {
+      "id": "accrue-late-fee",
+      "name": "Accrue Late Fee",
+      "actor": "clock",
+      "produces": [
+        "late-fee-accrued"
+      ],
+      "description": "Nightly for every overdue loan: GBP 1 per item per day, capped at replacement value"
+    },
+    {
+      "id": "charge-damage-fee",
+      "name": "Charge Damage Fee",
+      "actor": "coordinator",
+      "produces": [
+        "damage-fee-charged"
+      ],
+      "description": "Up to the replacement value, for damage beyond fair wear"
+    },
+    {
+      "id": "pay-fee",
+      "name": "Pay Fee",
+      "actor": "member",
+      "produces": [
+        "fee-paid",
+        "card-payment-failed"
+      ],
+      "description": "Card online through Stripe, or cash at the desk recorded by the volunteer"
+    },
+    {
+      "id": "waive-fee",
+      "name": "Waive Fee",
+      "actor": "coordinator",
+      "produces": [
+        "fee-waived"
+      ],
+      "description": "Coordinator's discretion"
+    },
+    {
+      "id": "add-tool",
+      "name": "Add Tool",
+      "actor": "maintenance-volunteer",
+      "produces": [
+        "tool-added"
+      ],
+      "description": "A new kind of tool in the catalogue: name, category, replacement value, safety notes, induction needed"
+    },
+    {
+      "id": "tag-item",
+      "name": "Tag Item",
+      "actor": "maintenance-volunteer",
+      "produces": [
+        "item-tagged"
+      ],
+      "description": "A physical item (usually donated) gets an asset tag and a condition"
+    },
+    {
+      "id": "inspect-item",
+      "name": "Inspect Item",
+      "actor": "maintenance-volunteer",
+      "produces": [
+        "item-passed-inspection",
+        "item-failed-inspection"
+      ],
+      "description": "Safety and condition check, after a damaged return or on schedule"
+    },
+    {
+      "id": "repair-item",
+      "name": "Repair Item",
+      "actor": "maintenance-volunteer",
+      "produces": [
+        "item-repaired"
+      ],
+      "description": ""
+    },
+    {
+      "id": "retire-item",
+      "name": "Retire Item",
+      "actor": "maintenance-volunteer",
+      "produces": [
+        "item-retired"
+      ],
+      "description": "Beyond repair or unsafe; keeps its loan history"
+    }
+  ],
+  "policies": [
+    {
+      "id": "start-on-fee-paid",
+      "name": "Whenever membership fee paid, start the membership",
+      "when": "membership-fee-paid",
+      "then": [
+        "start-membership"
+      ],
+      "kind": "automatic"
+    },
+    {
+      "id": "accrue-on-overdue",
+      "name": "Whenever a loan is overdue, accrue GBP 1 per day until returned or capped",
+      "when": "loan-overdue",
+      "then": [
+        "accrue-late-fee"
+      ],
+      "kind": "automatic"
+    },
+    {
+      "id": "inspect-on-damaged-return",
+      "name": "Whenever an item is returned with damage noted, a maintenance volunteer inspects it",
+      "when": "item-returned",
+      "then": [
+        "inspect-item"
+      ],
+      "kind": "manual"
+    },
+    {
+      "id": "charge-on-failed-inspection",
+      "name": "Whenever an item fails inspection after a loan, the coordinator decides a damage charge",
+      "when": "item-failed-inspection",
+      "then": [
+        "charge-damage-fee"
+      ],
+      "kind": "manual"
+    }
+  ],
+  "read_models": [
+    {
+      "id": "available-tools",
+      "name": "Available tools",
+      "informs": "reserve-item",
+      "used_by": "member"
+    },
+    {
+      "id": "member-standing",
+      "name": "Member standing",
+      "informs": "check-out-item",
+      "used_by": "desk-volunteer"
+    },
+    {
+      "id": "items-on-loan",
+      "name": "Items on loan",
+      "informs": "return-item",
+      "used_by": "desk-volunteer"
+    },
+    {
+      "id": "fee-balance",
+      "name": "Fee balance",
+      "informs": "pay-fee",
+      "used_by": "member"
+    },
+    {
+      "id": "concession-queue",
+      "name": "Concession proofs awaiting approval",
+      "informs": "approve-concession",
+      "used_by": "coordinator"
+    }
+  ],
+  "aggregate_candidates": [
+    {
+      "id": "membership",
+      "name": "Membership",
+      "handles": [
+        "apply-for-membership",
+        "approve-concession",
+        "start-membership",
+        "lapse-memberships"
+      ],
+      "emits": [
+        "membership-applied",
+        "concession-approved",
+        "membership-started",
+        "membership-lapsed"
+      ]
+    },
+    {
+      "id": "reservation",
+      "name": "Reservation",
+      "handles": [
+        "reserve-item",
+        "expire-reservations"
+      ],
+      "emits": [
+        "item-reserved",
+        "reservation-expired"
+      ]
+    },
+    {
+      "id": "loan",
+      "name": "Loan",
+      "handles": [
+        "check-out-item",
+        "renew-loan",
+        "mark-loans-overdue",
+        "return-item"
+      ],
+      "emits": [
+        "item-checked-out",
+        "loan-renewed",
+        "loan-overdue",
+        "item-returned"
+      ]
+    },
+    {
+      "id": "fee-account",
+      "name": "Fee account",
+      "handles": [
+        "accrue-late-fee",
+        "charge-damage-fee",
+        "pay-fee",
+        "waive-fee"
+      ],
+      "emits": [
+        "late-fee-accrued",
+        "damage-fee-charged",
+        "fee-paid",
+        "card-payment-failed",
+        "fee-waived"
+      ]
+    },
+    {
+      "id": "tool",
+      "name": "Tool",
+      "handles": [
+        "add-tool"
+      ],
+      "emits": [
+        "tool-added"
+      ]
+    },
+    {
+      "id": "item",
+      "name": "Item",
+      "handles": [
+        "tag-item",
+        "inspect-item",
+        "repair-item",
+        "retire-item"
+      ],
+      "emits": [
+        "item-tagged",
+        "item-passed-inspection",
+        "item-failed-inspection",
+        "item-repaired",
+        "item-retired"
+      ]
+    }
+  ],
+  "pivotal_events": [
+    "membership-started",
+    "item-checked-out",
+    "item-returned",
+    "fee-paid"
+  ],
+  "hotspots": [
+    {
+      "id": "H1",
+      "text": "'Tool' means the catalogue kind to a member browsing but the asset-tagged physical unit to a volunteer at the desk. Which one is reserved, and which one is retired?",
+      "near": "item-reserved",
+      "kind": "conflict"
+    },
+    {
+      "id": "H2",
+      "text": "Who answers 'may this member borrow?' at check-out - membership status, fee balance, overdue loans and item count live in three different parts of the flow.",
+      "near": "item-checked-out",
+      "kind": "unclear"
+    },
+    {
+      "id": "H3",
+      "text": "Stripe may confirm or decline after the member has closed the page; cash is recorded by hand. Does the balance change on our record or on Stripe's word, and what if they disagree?",
+      "near": "fee-paid",
+      "kind": "risk"
+    },
+    {
+      "id": "H4",
+      "text": "Is the 48-hour hold counted in calendar hours or only across desk opening days? A Sunday reservation would expire before the desk opens.",
+      "near": "reservation-expired",
+      "kind": "unclear"
+    },
+    {
+      "id": "H5",
+      "text": "Nobody has said who declares an item lost after weeks overdue, or whether that ends as a damage charge at replacement value.",
+      "near": "loan-overdue",
+      "kind": "missing"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "S1",
+      "name": "Happy path: member reserves, collects and returns a drill on time",
+      "actors": [
+        "member",
+        "desk-volunteer"
+      ],
+      "events": [
+        "item-reserved",
+        "item-checked-out",
+        "due-reminder-sent",
+        "item-returned"
+      ]
+    },
+    {
+      "id": "S2",
+      "name": "Late return: fee accrues, member pays online",
+      "actors": [
+        "member",
+        "desk-volunteer"
+      ],
+      "events": [
+        "item-checked-out",
+        "loan-overdue",
+        "late-fee-accrued",
+        "item-returned",
+        "fee-paid"
+      ],
+      "loops": true
+    }
+  ],
+  "glossary": [
+    {
+      "term": "Member",
+      "definition": "A resident household with a current membership; identified by a member number",
+      "avoid": [
+        "user",
+        "customer",
+        "borrower"
+      ],
+      "context": null
+    },
+    {
+      "term": "Membership",
+      "definition": "A member's 12-month right to borrow, started when the annual fee is paid",
+      "avoid": [
+        "subscription",
+        "account"
+      ],
+      "context": null
+    },
+    {
+      "term": "Tool",
+      "definition": "A kind of thing the library lends ('cordless drill'), with a replacement value and safety notes; in the desk and workshop: the physical item (see Item)",
+      "avoid": [
+        "product",
+        "asset"
+      ],
+      "context": null
+    },
+    {
+      "term": "Item",
+      "definition": "One asset-tagged physical unit of a tool, with a condition and a status (available, reserved, on loan, in maintenance, retired)",
+      "avoid": [
+        "unit",
+        "copy",
+        "tool (at the desk)"
+      ],
+      "context": null
+    },
+    {
+      "term": "Reservation",
+      "definition": "A 48-hour hold on an available item for one member",
+      "avoid": [
+        "booking",
+        "hold"
+      ],
+      "context": null
+    },
+    {
+      "term": "Loan",
+      "definition": "One item in one member's hands from check-out to return, due in 14 days, renewable once by 7",
+      "avoid": [
+        "rental",
+        "hire",
+        "checkout"
+      ],
+      "context": null
+    },
+    {
+      "term": "Due date",
+      "definition": "The day a loan must be returned by; the day after it the loan is overdue",
+      "avoid": [
+        "deadline",
+        "return date"
+      ],
+      "context": null
+    },
+    {
+      "term": "Late fee",
+      "definition": "GBP 1 per item per overdue day, capped at the item's replacement value",
+      "avoid": [
+        "fine",
+        "penalty"
+      ],
+      "context": null
+    },
+    {
+      "term": "Balance",
+      "definition": "What a member owes in late and damage fees; must be zero to borrow",
+      "avoid": [
+        "debt",
+        "outstanding"
+      ],
+      "context": null
+    },
+    {
+      "term": "Inspection",
+      "definition": "A maintenance volunteer's safety and condition check of an item; pass or fail",
+      "avoid": [
+        "check",
+        "audit"
+      ],
+      "context": null
+    }
+  ],
+  "plain_words": {
+    "what": "We laid out everything that happens in the tool library as a timeline of plain facts: a member joins, reserves, collects, returns; fees build up and get paid; tools come in, get inspected and retire.",
+    "decided": "23 events in 4 phases. Four turning points: membership started, item checked out, item returned, fee paid. Five things happen on a clock, not because someone clicked.",
+    "assumed": "That 'tool' and 'item' are two different things (a kind versus one physical unit), and that a cash payment at the desk is just another way a fee gets paid.",
+    "riskiest": "If who-may-borrow is decided in three places instead of one, the library will let people borrow who owe money, and the two main goals slip."
+  }
+}

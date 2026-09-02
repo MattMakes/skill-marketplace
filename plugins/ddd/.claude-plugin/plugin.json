@@ -1,0 +1,22 @@
+{
+  "name": "ddd",
+  "displayName": "DDD Modelling",
+  "version": "1.0.0",
+  "description": "The 9-step DDD Starter Modelling Process as a chained skill pipeline over one shared ddd/ workspace: understand, discover, decompose, strategize, connect, organise, define, code, contracts. Every step validates its JSON artifact against a schema before the next may run, records its hard calls as decisions with every option weighed, and rebuilds a self-contained review page with SVG/PNG diagrams (context map, core domain chart, message flows, teams and deployables, C4 context, aggregates, event storm) and decision comparisons; the run ends with a blueprint final render. Runs on Node.js 18 or newer with nothing to install. Includes blueprint, the bundled diagram renderer (architecture, workflow, sequence, data-flow and lifecycle diagrams as standalone HTML) that `ddd export blueprint --deliver` uses and that can be used on its own. Start with ddd-workflow.",
+  "author": {
+    "name": "Matt Scott"
+  },
+  "license": "MIT",
+  "keywords": [
+    "ddd",
+    "domain-driven-design",
+    "eventstorming",
+    "bounded-context",
+    "architecture",
+    "review-page",
+    "diagrams",
+    "decisions",
+    "blueprint",
+    "nodejs"
+  ]
+}

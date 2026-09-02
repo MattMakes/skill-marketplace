@@ -1,0 +1,75 @@
+{
+  "name": "strings-numbers",
+  "value": {
+    "short": "ab",
+    "long": "😀😀😀",
+    "pat": "Hello 'World'",
+    "badpat": "x",
+    "n1": 1,
+    "n2": 10,
+    "n3": 5,
+    "n4": 5,
+    "n5": 7,
+    "n6": 2.5,
+    "n7": -3
+  },
+  "schema": {
+    "type": "object",
+    "properties": {
+      "short": {
+        "minLength": 3
+      },
+      "long": {
+        "maxLength": 2
+      },
+      "pat": {
+        "pattern": "^[a-z]+$"
+      },
+      "badpat": {
+        "pattern": "("
+      },
+      "n1": {
+        "minimum": 2
+      },
+      "n2": {
+        "maximum": 9
+      },
+      "n3": {
+        "exclusiveMinimum": 5
+      },
+      "n4": {
+        "exclusiveMaximum": 5
+      },
+      "n5": {
+        "multipleOf": 2
+      },
+      "n6": {
+        "multipleOf": 0.5,
+        "minimum": 2.75
+      },
+      "n7": {
+        "multipleOf": 2,
+        "minimum": -2.5
+      }
+    }
+  },
+  "expect": {
+    "check": [
+      "payload.short: 2 character(s), minLength is 3",
+      "payload.long: 3 character(s), maxLength is 2",
+      "payload.pat: \"Hello 'World'\" does not match pattern '^[a-z]+$'",
+      "payload.badpat: pattern '(' is not a valid regex",
+      "payload.n1: 1 is below minimum 2",
+      "payload.n2: 10 is above maximum 9",
+      "payload.n3: 5 is not above exclusiveMinimum 5",
+      "payload.n4: 5 is not below exclusiveMaximum 5",
+      "payload.n5: 7 is not a multiple of 2",
+      "payload.n6: 2.5 is below minimum 2.75",
+      "payload.n7: -3 is below minimum -2.5",
+      "payload.n7: -3 is not a multiple of 2"
+    ],
+    "core": [],
+    "vocab": [],
+    "conditional": false
+  }
+}

@@ -1,0 +1,7 @@
+elkjs 0.12.0
+file: elk.bundled.js (lib/elk.bundled.js from the npm tarball)
+source: https://registry.npmjs.org/elkjs/-/elkjs-0.12.0.tgz
+repository: https://github.com/kieler/elkjs
+sha256: 1222e44f953ce7746af23801e723708f8e6f436b8b377a6a5fc7552f34a307b3
+licence: EPL-2.0 (the package is offered as "EPL-2.0 OR GPL-3.0-or-later"; this plugin elects EPL-2.0, text in LICENSE beside this file)
+fetched: 2026-09-01 with "npm pack elkjs@0.12.0" and verified against dist.integrity

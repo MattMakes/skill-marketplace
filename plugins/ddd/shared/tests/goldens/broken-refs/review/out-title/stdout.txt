@@ -1,0 +1,5 @@
+review: wrote <ROOT>/review-out.html (<KB> KB) - 9 step(s), 4 thing(s) needing a person, 2 that stop the work
+  [decision] One modular monolith or split the warehouse service now?
+  [error] bounded_contexts[subscriptions].owns_events: unknown reference 'subscription-teleported'
+  [note] Step 1 (understand) left a note for step 2 (discover), which never names it.
+  [note] Step 1 (understand) left a note for step 3 (decompose), which never names it.

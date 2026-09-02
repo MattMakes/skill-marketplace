@@ -1,0 +1,277 @@
+{
+  "schema_version": 1,
+  "step": "decompose",
+  "produced_by": "ddd-decompose",
+  "produced_at": "2026-08-29T10:00:00Z",
+  "mode": "auto",
+  "depth": "light",
+  "inputs": [
+    "ddd/02-discover/discover.json"
+  ],
+  "assumptions": [
+    {
+      "id": "A1",
+      "text": "Example fixture; assumptions are illustrative",
+      "confidence": "high"
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q1",
+      "text": "Illustrative open question",
+      "blocking": false,
+      "owner": "domain expert"
+    }
+  ],
+  "plain_words": {
+    "what": "We cut the system into three parts, each one place where a word keeps a single meaning.",
+    "decided": "Three parts: subscriptions (what you want), billing (what you pay), fulfilment (what gets packed).",
+    "assumed": "'Week' means the same thing everywhere. If billing and fulfilment ever count weeks differently, that is a new boundary.",
+    "riskiest": "A wrong cut is the most expensive mistake here: it is baked into teams, deployables and every contract after it."
+  },
+  "subdomains": [
+    {
+      "id": "subscriptions",
+      "name": "Subscriptions",
+      "description": "Lifecycle and weekly choices",
+      "capabilities": [
+        "cap-subscription-management",
+        "cap-menu-planning"
+      ],
+      "events": [
+        "subscription-started",
+        "meals-chosen"
+      ],
+      "commands": [
+        "start-subscription",
+        "choose-meals"
+      ],
+      "terms": [
+        "Subscription"
+      ],
+      "heuristics_applied": [
+        "language-boundary",
+        "pivotal-event"
+      ],
+      "rationale": "Customer-facing lifecycle"
+    },
+    {
+      "id": "billing",
+      "name": "Billing",
+      "description": "Charging weeks",
+      "capabilities": [],
+      "events": [
+        "week-charged"
+      ],
+      "commands": [
+        "charge-week",
+        "charge-card"
+      ],
+      "terms": [],
+      "heuristics_applied": [
+        "external-system"
+      ],
+      "rationale": "Wraps Stripe"
+    },
+    {
+      "id": "fulfilment",
+      "name": "Fulfilment",
+      "description": "Packing and shipping",
+      "capabilities": [
+        "cap-fulfilment"
+      ],
+      "events": [
+        "box-packed",
+        "box-shipped"
+      ],
+      "commands": [
+        "pack-box",
+        "ship-box"
+      ],
+      "terms": [
+        "Box"
+      ],
+      "heuristics_applied": [
+        "actor",
+        "pivotal-event"
+      ],
+      "rationale": "Warehouse process"
+    }
+  ],
+  "bounded_contexts": [
+    {
+      "id": "subscriptions",
+      "name": "Subscriptions",
+      "subdomains": [
+        "subscriptions"
+      ],
+      "owns_events": [
+        "subscription-started",
+        "meals-chosen"
+      ],
+      "owns_commands": [
+        "start-subscription",
+        "choose-meals"
+      ],
+      "owns_aggregates": [
+        "subscription"
+      ],
+      "terms": [
+        {
+          "term": "Box",
+          "meaning_here": "the menu choice for a week"
+        }
+      ],
+      "independent_service_check": {
+        "sense_check": "yes",
+        "brand": "yes",
+        "revenue": "yes",
+        "cost_tracking": "yes",
+        "data": "yes",
+        "user_personas": "yes",
+        "cognitive_load": "yes",
+        "verdict": "candidate"
+      },
+      "rationale": "Core"
+    },
+    {
+      "id": "billing",
+      "name": "Billing",
+      "subdomains": [
+        "billing"
+      ],
+      "owns_events": [
+        "week-charged"
+      ],
+      "owns_commands": [
+        "charge-week",
+        "charge-card"
+      ],
+      "owns_aggregates": [],
+      "terms": [],
+      "independent_service_check": {
+        "verdict": "merge"
+      },
+      "rationale": "Thin wrapper"
+    },
+    {
+      "id": "fulfilment",
+      "name": "Fulfilment",
+      "subdomains": [
+        "fulfilment"
+      ],
+      "owns_events": [
+        "box-packed",
+        "box-shipped"
+      ],
+      "owns_commands": [
+        "pack-box",
+        "ship-box"
+      ],
+      "owns_aggregates": [
+        "box"
+      ],
+      "terms": [
+        {
+          "term": "Box",
+          "meaning_here": "the packed physical parcel"
+        }
+      ],
+      "independent_service_check": {
+        "verdict": "candidate"
+      },
+      "rationale": "Different actor and language"
+    }
+  ],
+  "relationships": [
+    {
+      "id": "R1",
+      "upstream": "subscriptions",
+      "downstream": "billing",
+      "pattern": "customer-supplier",
+      "description": "Billing charges on meals chosen"
+    },
+    {
+      "id": "R2",
+      "upstream": "billing",
+      "downstream": "fulfilment",
+      "pattern": "published-language",
+      "description": "Fulfilment packs once charged"
+    }
+  ],
+  "context_map_mermaid": "flowchart LR\n  subscriptions[\"Subscriptions\"]\n  billing[\"Billing\"]\n  fulfilment[\"Fulfilment\"]\n  subscriptions -->|\"R1 customer-supplier\"| billing\n  billing -->|\"R2 published-language\"| fulfilment",
+  "decisions": [
+    {
+      "id": "D1",
+      "question": "Does billing stay its own bounded context?",
+      "kind": "boundary",
+      "options": [
+        {
+          "id": "A",
+          "summary": "Keep billing as its own context that wraps Stripe behind an anticorruption layer.",
+          "pros": [
+            "Stripe words (charge, intent, decline code) stop at the ACL; the core keeps saying week-charged",
+            "The Stripe adapter can be swapped or stubbed in tests without touching menu choice",
+            "Retries and failed cards are modelled once, in one place"
+          ],
+          "cons": [
+            "One more module for one person to keep alive",
+            "Every charge crosses a boundary that in practice is an in-process call"
+          ],
+          "risks": [
+            "A context that only forwards to Stripe stays thin and tempts people to bypass it",
+            "The ACL erodes if nobody writes a fitness test for it"
+          ],
+          "diagram": "ddd/03-decompose/decisions/D1-A.json"
+        },
+        {
+          "id": "B",
+          "summary": "Fold billing into subscriptions as a payment policy on the subscription aggregate.",
+          "pros": [
+            "Fewer moving parts; the charge happens where the week is chosen",
+            "No cross-context message for the most common flow"
+          ],
+          "cons": [
+            "Stripe types leak into the core model and its tests",
+            "Declines and refunds start to share a transaction with menu choice",
+            "Splitting it out later means rewriting the aggregate"
+          ],
+          "risks": [
+            "A Stripe API change forces a core domain release",
+            "The subscription aggregate grows into a god object"
+          ],
+          "diagram": "ddd/03-decompose/decisions/D1-B.json"
+        },
+        {
+          "id": "C",
+          "summary": "Charge the card synchronously inside the choose-meals request, no billing context at all.",
+          "pros": [
+            "Simplest happy path; one request confirms meals and payment",
+            "The subscriber sees a decline immediately"
+          ],
+          "cons": [
+            "Card latency sits on the hot path of the core flow",
+            "A Stripe outage blocks menu choice for every subscriber",
+            "Week cut-off and payment retry cannot be scheduled apart"
+          ],
+          "risks": [
+            "A timeout after Stripe charged but before we saved it double-charges without idempotency keys",
+            "Fulfilment never learns about a week that was chosen but not charged"
+          ],
+          "diagram": "ddd/03-decompose/decisions/D1-C.sequence.json"
+        }
+      ],
+      "chosen": "A",
+      "confidence": "medium",
+      "rationale": "Billing wraps a bought capability. Keeping it apart keeps Stripe vocabulary out of the core and turns the ACL into something a fitness test can guard. The cost is one thin module, which one person can carry.",
+      "would_flip_if": [
+        "Payment rules turn out to depend on menu choice state, so the charge and the choice must share one transaction",
+        "No second payment provider or provider change is plausible within a year and the ACL guards nothing"
+      ],
+      "made_by": "strategist",
+      "records": {
+        "assumption": "A1"
+      }
+    }
+  ]
+}

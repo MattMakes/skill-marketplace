@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "errors": [],
+  "warnings": [],
+  "notes": [],
+  "removed_prefill": "<DDD_DIR>/08-code/.prefill"
+}

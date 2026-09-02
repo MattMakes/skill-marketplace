@@ -1,0 +1,19 @@
+flowchart LR
+  subgraph teams["Teams"]
+    t_solo["Founder (stream-aligned, 1)"]
+  end
+  subgraph contexts["Bounded contexts"]
+    c_subscriptions["Subscriptions (core)"]
+    c_billing["Billing (generic)"]
+    c_fulfilment["Fulfilment (supporting)"]
+  end
+  subgraph deployables["Deployable units"]
+    d_app[["Meal-kit app (modular-monolith)"]]
+    d_warehouse[["Warehouse service (service)"]]
+  end
+  t_solo --> c_subscriptions
+  t_solo --> c_billing
+  t_solo --> c_fulfilment
+  c_subscriptions --> d_app
+  c_billing --> d_app
+  c_fulfilment --> d_warehouse

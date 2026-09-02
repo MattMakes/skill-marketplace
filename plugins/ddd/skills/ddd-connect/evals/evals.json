@@ -1,0 +1,23 @@
+{
+  "skill_name": "ddd-connect",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We finished the core domain chart yesterday (ddd/04-strategize is done). Now I want to work out how the bounded contexts actually talk to each other for the main scenarios — place order, cancel order, and the restock policy that crosses into inventory. Draw the flows, tell me where things should be sync vs async, and ask me where you're unsure.",
+      "expected_output": "Resolves ./ddd, runs in interactive mode at the manifest depth, runs ddd connect inputs and reads decompose/strategize/discover, presents an inputs check (distance hint from scale_target, cross-context policies found, scenarios chosen), drafts connect.json, renders the mermaid sequence diagrams with ddd connect render, reviews the flows with at most 4 targeted questions (sync vs async, policy host, missing alternative path), then the integration decisions and coupling concerns with at most 4 questions, writes ddd/05-connect/connect.json and message-flows.md, passes ddd validate --step connect, marks the step done via ddd mark, and closes with a summary naming /ddd-organise as the next step.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Run ddd-connect on /Users/me/projects/labtrack/ddd in auto mode, depth standard, no questions — the orchestrator will pick up organise next.",
+      "expected_output": "No questions asked. Produces 4–7 flows (happy path, boundary-crossing alternatives, one per cross-context policy) with steps referencing only bounded-context, actor and external-system ids; a complete message catalogue reusing discover command/event ids and new kebab-case ids for queries; one integration_patterns entry per decompose relationship with mechanism, assumed_distance and rationale consistent with the scale target; coupling_concerns with severity/smell/mitigation; every guess logged in assumptions[] and every unasked question in open_questions[]. ddd connect render --check reports OK, ddd validate --step connect passes with 0 errors, ddd mark records done (or draft if a blocking question remains), and the final message lists absolute paths, key findings and /ddd-organise.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Should the ordering service call inventory synchronously to reserve stock, or just publish order-placed and let inventory react? We're aiming for 3 services max and inventory is a thin wrapper over the warehouse system.",
+      "expected_output": "Recognises this as a ddd-connect integration decision, finds the existing ddd/ workspace (or explains that decompose/strategize are prerequisites and offers to run them), applies the pattern-by-distance table (scale target 1–3 → same deployable by default; wrapper over an external system → likely separate; sync only if ordering needs the reservation result to continue), recommends an event-driven flow with an explicit reservation-failed alternative or a sync reserve-stock query if the customer must see availability immediately, records the decision as an integration_patterns entry plus flows/messages in connect.json with an assumption about the deployment distance, re-renders message-flows.md, validates, and points to /ddd-organise to confirm the deployable split.",
+      "files": []
+    }
+  ]
+}

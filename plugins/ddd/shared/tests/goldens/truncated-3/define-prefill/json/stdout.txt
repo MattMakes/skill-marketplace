@@ -1,0 +1,927 @@
+{
+  "facts": {
+    "subscriptions": {
+      "id": "subscriptions",
+      "name": "Subscriptions",
+      "rationale": "Core",
+      "subdomains": [
+        {
+          "id": "subscriptions",
+          "name": "Subscriptions",
+          "description": "Lifecycle and weekly choices",
+          "rationale": "Customer-facing lifecycle",
+          "heuristics_applied": [
+            "language-boundary",
+            "pivotal-event"
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "cap-subscription-management",
+          "name": "Subscription management",
+          "description": "Sign up, pause, cancel",
+          "evolution": "product"
+        },
+        {
+          "id": "cap-menu-planning",
+          "name": "Menu planning",
+          "description": "Weekly menu and choices",
+          "evolution": "custom"
+        }
+      ],
+      "classification": {
+        "domain": null,
+        "evolution": null,
+        "implementation_pattern": [],
+        "sourcing": [],
+        "investment": [],
+        "rationale": [],
+        "future_direction": []
+      },
+      "team": null,
+      "deployable": null,
+      "hosted_by": [],
+      "owns_commands": [
+        {
+          "id": "start-subscription",
+          "name": "Start Subscription",
+          "actor": "subscriber",
+          "description": ""
+        },
+        {
+          "id": "choose-meals",
+          "name": "Choose Meals",
+          "actor": "subscriber",
+          "description": ""
+        }
+      ],
+      "owns_events": [
+        {
+          "id": "subscription-started",
+          "name": "Subscription Started",
+          "pivotal": true,
+          "data": [
+            "subscriptionId"
+          ],
+          "description": "Customer became a subscriber"
+        },
+        {
+          "id": "meals-chosen",
+          "name": "Meals Chosen",
+          "pivotal": false,
+          "data": [
+            "subscriptionId",
+            "week",
+            "recipeIds"
+          ],
+          "description": "Weekly choice locked in"
+        }
+      ],
+      "owns_aggregates": [
+        {
+          "id": "subscription",
+          "name": "Subscription",
+          "handles": [
+            "start-subscription",
+            "choose-meals"
+          ],
+          "emits": [
+            "subscription-started",
+            "meals-chosen"
+          ]
+        }
+      ],
+      "read_models": [
+        {
+          "id": "weekly-menu",
+          "name": "Weekly menu",
+          "informs": "choose-meals",
+          "used_by": "subscriber"
+        }
+      ],
+      "inbound": [
+        {
+          "collaborator": "subscriber",
+          "messages": [
+            {
+              "id": "start-subscription",
+              "kind": "command",
+              "name": "Start Subscription",
+              "source": "discover.commands"
+            },
+            {
+              "id": "choose-meals",
+              "kind": "command",
+              "name": "Choose Meals",
+              "source": "discover.commands"
+            }
+          ],
+          "relationship": "user-interaction",
+          "collaborator_kind": "actor",
+          "collaborator_name": "Subscriber"
+        }
+      ],
+      "outbound": [
+        {
+          "collaborator": "billing",
+          "messages": [
+            {
+              "id": "meals-chosen",
+              "kind": "event",
+              "name": "Meals Chosen",
+              "payload": [
+                "subscriptionId",
+                "week",
+                "recipeIds"
+              ],
+              "source": "policy charge-on-choice"
+            }
+          ],
+          "relationship": "customer-supplier",
+          "collaborator_kind": "context",
+          "collaborator_name": "Billing",
+          "relationship_id": "R1"
+        }
+      ],
+      "unconsumed_events": [
+        "subscription-started"
+      ],
+      "relationship_notes": [],
+      "terms": [
+        {
+          "term": "Subscription",
+          "definition": "a customer's standing weekly order",
+          "avoid": [
+            "plan",
+            "membership"
+          ],
+          "sources": [
+            "shared glossary"
+          ]
+        },
+        {
+          "term": "Box",
+          "definition": "…. _(differs from the shared meaning — a boundary)_",
+          "avoid": [],
+          "sources": [
+            "decompose.bounded_contexts.terms",
+            "glossary.md context section"
+          ]
+        }
+      ],
+      "draft_decisions": [],
+      "hotspots": [],
+      "coupling_concerns": [],
+      "scenarios": [
+        {
+          "id": "S1",
+          "name": "Happy path weekly box"
+        }
+      ],
+      "carried_assumptions": [],
+      "carried_questions": [],
+      "uncarried": {
+        "assumptions": 3,
+        "open_questions": 3
+      },
+      "goals": [
+        {
+          "id": "G1",
+          "statement": "Grow active subscribers",
+          "metric": "active subscriptions",
+          "target": "10k",
+          "horizon": "12 months"
+        }
+      ],
+      "impacts": [
+        {
+          "id": "I1",
+          "actor": "subscriber",
+          "change": "Chooses meals in under two minutes a week",
+          "goal": "G1"
+        }
+      ],
+      "constraints": [
+        {
+          "id": "C1",
+          "kind": "regulatory",
+          "text": "Food safety labelling"
+        }
+      ],
+      "suggested_roles": [
+        "execution-context"
+      ],
+      "suggested_roles_why": [
+        "owns subscription and performs/tracks work through 2 command(s)"
+      ],
+      "role_evidence": "external systems as message endpoints: none; decompose heuristics: language-boundary, pivotal-event; aggregates owned: subscription; commands from people: 2 of 2; policy reactions owned: 0; read models: 1",
+      "independent_service_check": {
+        "sense_check": "yes",
+        "brand": "yes",
+        "revenue": "yes",
+        "cost_tracking": "yes",
+        "data": "yes",
+        "user_personas": "yes",
+        "cognitive_load": "yes",
+        "verdict": "candidate"
+      }
+    },
+    "billing": {
+      "id": "billing",
+      "name": "Billing",
+      "rationale": "Thin wrapper",
+      "subdomains": [
+        {
+          "id": "billing",
+          "name": "Billing",
+          "description": "Charging weeks",
+          "rationale": "Wraps Stripe",
+          "heuristics_applied": [
+            "external-system"
+          ]
+        }
+      ],
+      "capabilities": [],
+      "classification": {
+        "domain": null,
+        "evolution": null,
+        "implementation_pattern": [],
+        "sourcing": [],
+        "investment": [],
+        "rationale": [],
+        "future_direction": []
+      },
+      "team": null,
+      "deployable": null,
+      "hosted_by": [],
+      "owns_commands": [
+        {
+          "id": "charge-week",
+          "name": "Charge Week",
+          "actor": null,
+          "description": ""
+        },
+        {
+          "id": "charge-card",
+          "name": "Charge Card",
+          "actor": null,
+          "description": "Billing asks the payment provider to charge the subscriber's card for the week"
+        }
+      ],
+      "owns_events": [
+        {
+          "id": "week-charged",
+          "name": "Week Charged",
+          "pivotal": false,
+          "data": [
+            "subscriptionId",
+            "week",
+            "amount"
+          ],
+          "description": "Payment taken"
+        }
+      ],
+      "owns_aggregates": [],
+      "read_models": [],
+      "inbound": [
+        {
+          "collaborator": "subscriptions",
+          "messages": [
+            {
+              "id": "meals-chosen",
+              "kind": "event",
+              "name": "Meals Chosen",
+              "payload": [
+                "subscriptionId",
+                "week",
+                "recipeIds"
+              ],
+              "source": "policy charge-on-choice"
+            }
+          ],
+          "relationship": "customer-supplier",
+          "collaborator_kind": "context",
+          "collaborator_name": "Subscriptions",
+          "relationship_id": "R1"
+        }
+      ],
+      "outbound": [
+        {
+          "collaborator": "fulfilment",
+          "messages": [
+            {
+              "id": "week-charged",
+              "kind": "event",
+              "name": "Week Charged",
+              "payload": [
+                "subscriptionId",
+                "week",
+                "amount"
+              ],
+              "source": "policy pack-on-charge"
+            }
+          ],
+          "relationship": "published-language",
+          "collaborator_kind": "context",
+          "collaborator_name": "Fulfilment",
+          "relationship_id": "R2"
+        }
+      ],
+      "unconsumed_events": [],
+      "relationship_notes": [],
+      "terms": [
+        {
+          "term": "Box",
+          "definition": "…. _(differs from the shared meaning — a boundary)_",
+          "avoid": [],
+          "sources": [
+            "glossary.md context section"
+          ]
+        }
+      ],
+      "draft_decisions": [
+        "[draft from policy charge-on-choice] Whenever 'Meals Chosen' (event from subscriptions) → 'Charge Week' (automatic)"
+      ],
+      "hotspots": [
+        {
+          "id": "H1",
+          "text": "What happens if payment fails after meals are chosen?",
+          "near": "week-charged",
+          "kind": "unclear"
+        }
+      ],
+      "coupling_concerns": [],
+      "scenarios": [
+        {
+          "id": "S1",
+          "name": "Happy path weekly box"
+        }
+      ],
+      "carried_assumptions": [],
+      "carried_questions": [
+        "[discover H1 near week-charged — unclear] What happens if payment fails after meals are chosen?"
+      ],
+      "uncarried": {
+        "assumptions": 3,
+        "open_questions": 3
+      },
+      "goals": [],
+      "impacts": [],
+      "constraints": [
+        {
+          "id": "C1",
+          "kind": "regulatory",
+          "text": "Food safety labelling"
+        }
+      ],
+      "suggested_roles": [
+        "gateway"
+      ],
+      "suggested_roles_why": [
+        "decompose applied the external-system heuristic, but no external message endpoint is recorded — check connect"
+      ],
+      "role_evidence": "external systems as message endpoints: none; decompose heuristics: external-system; aggregates owned: none; commands from people: 0 of 2; policy reactions owned: 1; read models: 0",
+      "independent_service_check": {
+        "verdict": "merge"
+      }
+    },
+    "fulfilment": {
+      "id": "fulfilment",
+      "name": "Fulfilment",
+      "rationale": "Different actor and language",
+      "subdomains": [
+        {
+          "id": "fulfilment",
+          "name": "Fulfilment",
+          "description": "Packing and shipping",
+          "rationale": "Warehouse process",
+          "heuristics_applied": [
+            "actor",
+            "pivotal-event"
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "cap-fulfilment",
+          "name": "Fulfilment",
+          "description": "Pack and ship boxes",
+          "evolution": "custom"
+        }
+      ],
+      "classification": {
+        "domain": null,
+        "evolution": null,
+        "implementation_pattern": [],
+        "sourcing": [],
+        "investment": [],
+        "rationale": [],
+        "future_direction": []
+      },
+      "team": null,
+      "deployable": null,
+      "hosted_by": [],
+      "owns_commands": [
+        {
+          "id": "pack-box",
+          "name": "Pack Box",
+          "actor": "packer",
+          "description": ""
+        },
+        {
+          "id": "ship-box",
+          "name": "Ship Box",
+          "actor": "packer",
+          "description": ""
+        }
+      ],
+      "owns_events": [
+        {
+          "id": "box-packed",
+          "name": "Box Packed",
+          "pivotal": true,
+          "data": [
+            "boxId"
+          ],
+          "description": "Physical box ready"
+        },
+        {
+          "id": "box-shipped",
+          "name": "Box Shipped",
+          "pivotal": true,
+          "data": [
+            "boxId",
+            "tracking"
+          ],
+          "description": "Handed to courier"
+        }
+      ],
+      "owns_aggregates": [
+        {
+          "id": "box",
+          "name": "Box",
+          "handles": [
+            "pack-box",
+            "ship-box"
+          ],
+          "emits": [
+            "box-packed",
+            "box-shipped"
+          ]
+        }
+      ],
+      "read_models": [],
+      "inbound": [
+        {
+          "collaborator": "packer",
+          "messages": [
+            {
+              "id": "pack-box",
+              "kind": "command",
+              "name": "Pack Box",
+              "source": "discover.commands"
+            },
+            {
+              "id": "ship-box",
+              "kind": "command",
+              "name": "Ship Box",
+              "source": "discover.commands"
+            }
+          ],
+          "relationship": "user-interaction",
+          "collaborator_kind": "actor",
+          "collaborator_name": "Packer"
+        },
+        {
+          "collaborator": "billing",
+          "messages": [
+            {
+              "id": "week-charged",
+              "kind": "event",
+              "name": "Week Charged",
+              "payload": [
+                "subscriptionId",
+                "week",
+                "amount"
+              ],
+              "source": "policy pack-on-charge"
+            }
+          ],
+          "relationship": "published-language",
+          "collaborator_kind": "context",
+          "collaborator_name": "Billing",
+          "relationship_id": "R2"
+        }
+      ],
+      "outbound": [],
+      "unconsumed_events": [
+        "box-packed",
+        "box-shipped"
+      ],
+      "relationship_notes": [],
+      "terms": [
+        {
+          "term": "Box",
+          "definition": "…. _(differs from the shared meaning — a boundary)_",
+          "avoid": [
+            "order",
+            "shipment"
+          ],
+          "sources": [
+            "shared glossary",
+            "decompose.bounded_contexts.terms",
+            "glossary.md context section"
+          ]
+        }
+      ],
+      "draft_decisions": [
+        "[draft from policy pack-on-charge] Whenever 'Week Charged' (event from billing) → 'Pack Box' (automatic)"
+      ],
+      "hotspots": [],
+      "coupling_concerns": [],
+      "scenarios": [
+        {
+          "id": "S1",
+          "name": "Happy path weekly box"
+        }
+      ],
+      "carried_assumptions": [],
+      "carried_questions": [],
+      "uncarried": {
+        "assumptions": 3,
+        "open_questions": 3
+      },
+      "goals": [],
+      "impacts": [],
+      "constraints": [
+        {
+          "id": "C1",
+          "kind": "regulatory",
+          "text": "Food safety labelling"
+        }
+      ],
+      "suggested_roles": [
+        "execution-context"
+      ],
+      "suggested_roles_why": [
+        "owns box and performs/tracks work through 2 command(s)"
+      ],
+      "role_evidence": "external systems as message endpoints: none; decompose heuristics: actor, pivotal-event; aggregates owned: box; commands from people: 2 of 2; policy reactions owned: 1; read models: 0",
+      "independent_service_check": {
+        "verdict": "candidate"
+      }
+    }
+  },
+  "system": {
+    "title": "Meal-kit subscription",
+    "project": "mealkit",
+    "one_liner": "Weekly meal kits delivered to subscribers",
+    "actors": [
+      {
+        "id": "subscriber",
+        "name": "Subscriber",
+        "kind": "actor",
+        "description": "Household receiving boxes"
+      },
+      {
+        "id": "packer",
+        "name": "Packer",
+        "kind": "actor",
+        "description": "Warehouse staff"
+      }
+    ],
+    "external_systems": [
+      {
+        "id": "stripe",
+        "name": "Stripe",
+        "description": "Payments"
+      },
+      {
+        "id": "courier",
+        "name": "Courier",
+        "description": "Delivery partner"
+      }
+    ],
+    "existing_systems": [
+      {
+        "name": "Stripe",
+        "role": "payments",
+        "will": "integrate"
+      }
+    ],
+    "deployables": [],
+    "teams": [],
+    "topology_style": null,
+    "relationships": [
+      {
+        "id": "R1",
+        "upstream": "subscriptions",
+        "downstream": "billing",
+        "pattern": "customer-supplier",
+        "description": "Billing charges on meals chosen"
+      },
+      {
+        "id": "R2",
+        "upstream": "billing",
+        "downstream": "fulfilment",
+        "pattern": "published-language",
+        "description": "Fulfilment packs once charged"
+      }
+    ],
+    "integration": {},
+    "goals": [
+      {
+        "id": "G1",
+        "statement": "Grow active subscribers",
+        "metric": "active subscriptions",
+        "target": "10k",
+        "horizon": "12 months"
+      }
+    ],
+    "constraints": [
+      {
+        "id": "C1",
+        "kind": "regulatory",
+        "text": "Food safety labelling"
+      }
+    ],
+    "warnings": [
+      "connect.json missing — inbound/outbound derived from discover only (record as an assumption)",
+      "strategize.json missing — strategic classification left as TODO",
+      "organise.json missing — owning team / deployable unknown"
+    ]
+  },
+  "define": {
+    "schema_version": 1,
+    "step": "define",
+    "produced_by": "ddd-define",
+    "produced_at": "<TS>",
+    "mode": "auto",
+    "depth": "light",
+    "inputs": [
+      "ddd/01-understand/understand.json",
+      "ddd/02-discover/discover.json",
+      "ddd/03-decompose/decompose.json",
+      "ddd/manifest.json",
+      "ddd/glossary.md"
+    ],
+    "assumptions": [
+      {
+        "id": "A1",
+        "text": "connect.json missing — inbound/outbound derived from discover only (record as an assumption)",
+        "confidence": "low"
+      },
+      {
+        "id": "A2",
+        "text": "strategize.json missing — strategic classification left as TODO",
+        "confidence": "low"
+      },
+      {
+        "id": "A3",
+        "text": "organise.json missing — owning team / deployable unknown",
+        "confidence": "low"
+      }
+    ],
+    "open_questions": [],
+    "canvases": [
+      {
+        "context": "subscriptions",
+        "name": "Subscriptions",
+        "purpose": "TODO: write 2–4 sentences in business language — what this context decides/provides and for whom. Draft from: Lifecycle and weekly choices; Core. Goals: G1: Grow active subscribers",
+        "strategic_classification": {
+          "domain": "supporting",
+          "business_model": "cost-reducer"
+        },
+        "domain_roles": [
+          "execution-context"
+        ],
+        "domain_roles_rationale": "TODO: justify (suggested: owns subscription and performs/tracks work through 2 command(s); evidence: external systems as message endpoints: none; decompose heuristics: language-boundary, pivotal-event; aggregates owned: subscription; commands from people: 2 of 2; policy reactions owned: 0; read models: 1)",
+        "inbound": [
+          {
+            "collaborator": "subscriber",
+            "relationship": "user-interaction",
+            "messages": [
+              {
+                "id": "start-subscription",
+                "kind": "command",
+                "name": "Start Subscription"
+              },
+              {
+                "id": "choose-meals",
+                "kind": "command",
+                "name": "Choose Meals"
+              }
+            ]
+          }
+        ],
+        "outbound": [
+          {
+            "collaborator": "billing",
+            "relationship": "customer-supplier",
+            "messages": [
+              {
+                "id": "meals-chosen",
+                "kind": "event",
+                "name": "Meals Chosen",
+                "payload": [
+                  "subscriptionId",
+                  "week",
+                  "recipeIds"
+                ]
+              }
+            ]
+          }
+        ],
+        "ubiquitous_language": [
+          {
+            "term": "Subscription",
+            "definition": "a customer's standing weekly order",
+            "avoid": [
+              "plan",
+              "membership"
+            ]
+          },
+          {
+            "term": "Box",
+            "definition": "…. _(differs from the shared meaning — a boundary)_"
+          }
+        ],
+        "business_decisions": [
+          "TODO: write at least one rule/invariant/policy as a decision (see hotspots, aggregate candidates, read models in the brief)"
+        ],
+        "assumptions": [
+          "[define A1] connect.json missing — inbound/outbound derived from discover only (record as an assumption)",
+          "[define A2] strategize.json missing — strategic classification left as TODO",
+          "[define A3] organise.json missing — owning team / deployable unknown"
+        ],
+        "verification_metrics": [
+          "TODO: 2–4 metrics — one business (goal-linked), one structural (does the boundary hold?)"
+        ],
+        "open_questions": [],
+        "canvas_path": "ddd/07-define/subscriptions/bounded-context-canvas.md",
+        "subdomains": [
+          "subscriptions"
+        ],
+        "owning_team": null,
+        "deployable": null,
+        "implementation_pattern": null
+      },
+      {
+        "context": "billing",
+        "name": "Billing",
+        "purpose": "TODO: write 2–4 sentences in business language — what this context decides/provides and for whom. Draft from: Charging weeks; Thin wrapper. Goals: —",
+        "strategic_classification": {
+          "domain": "supporting",
+          "business_model": "cost-reducer"
+        },
+        "domain_roles": [
+          "gateway"
+        ],
+        "domain_roles_rationale": "TODO: justify (suggested: decompose applied the external-system heuristic, but no external message endpoint is recorded — check connect; evidence: external systems as message endpoints: none; decompose heuristics: external-system; aggregates owned: none; commands from people: 0 of 2; policy reactions owned: 1; read models: 0)",
+        "inbound": [
+          {
+            "collaborator": "subscriptions",
+            "relationship": "customer-supplier",
+            "messages": [
+              {
+                "id": "meals-chosen",
+                "kind": "event",
+                "name": "Meals Chosen",
+                "payload": [
+                  "subscriptionId",
+                  "week",
+                  "recipeIds"
+                ]
+              }
+            ]
+          }
+        ],
+        "outbound": [
+          {
+            "collaborator": "fulfilment",
+            "relationship": "published-language",
+            "messages": [
+              {
+                "id": "week-charged",
+                "kind": "event",
+                "name": "Week Charged",
+                "payload": [
+                  "subscriptionId",
+                  "week",
+                  "amount"
+                ]
+              }
+            ]
+          }
+        ],
+        "ubiquitous_language": [
+          {
+            "term": "Box",
+            "definition": "…. _(differs from the shared meaning — a boundary)_"
+          }
+        ],
+        "business_decisions": [
+          "[draft from policy charge-on-choice] Whenever 'Meals Chosen' (event from subscriptions) → 'Charge Week' (automatic)"
+        ],
+        "assumptions": [
+          "[define A1] connect.json missing — inbound/outbound derived from discover only (record as an assumption)",
+          "[define A2] strategize.json missing — strategic classification left as TODO",
+          "[define A3] organise.json missing — owning team / deployable unknown"
+        ],
+        "verification_metrics": [
+          "TODO: 2–4 metrics — one business (goal-linked), one structural (does the boundary hold?)"
+        ],
+        "open_questions": [
+          "[discover H1 near week-charged — unclear] What happens if payment fails after meals are chosen?"
+        ],
+        "canvas_path": "ddd/07-define/billing/bounded-context-canvas.md",
+        "subdomains": [
+          "billing"
+        ],
+        "owning_team": null,
+        "deployable": null,
+        "implementation_pattern": null
+      },
+      {
+        "context": "fulfilment",
+        "name": "Fulfilment",
+        "purpose": "TODO: write 2–4 sentences in business language — what this context decides/provides and for whom. Draft from: Packing and shipping; Different actor and language. Goals: —",
+        "strategic_classification": {
+          "domain": "supporting",
+          "business_model": "cost-reducer"
+        },
+        "domain_roles": [
+          "execution-context"
+        ],
+        "domain_roles_rationale": "TODO: justify (suggested: owns box and performs/tracks work through 2 command(s); evidence: external systems as message endpoints: none; decompose heuristics: actor, pivotal-event; aggregates owned: box; commands from people: 2 of 2; policy reactions owned: 1; read models: 0)",
+        "inbound": [
+          {
+            "collaborator": "packer",
+            "relationship": "user-interaction",
+            "messages": [
+              {
+                "id": "pack-box",
+                "kind": "command",
+                "name": "Pack Box"
+              },
+              {
+                "id": "ship-box",
+                "kind": "command",
+                "name": "Ship Box"
+              }
+            ]
+          },
+          {
+            "collaborator": "billing",
+            "relationship": "published-language",
+            "messages": [
+              {
+                "id": "week-charged",
+                "kind": "event",
+                "name": "Week Charged",
+                "payload": [
+                  "subscriptionId",
+                  "week",
+                  "amount"
+                ]
+              }
+            ]
+          }
+        ],
+        "outbound": [],
+        "ubiquitous_language": [
+          {
+            "term": "Box",
+            "definition": "…. _(differs from the shared meaning — a boundary)_",
+            "avoid": [
+              "order",
+              "shipment"
+            ]
+          }
+        ],
+        "business_decisions": [
+          "[draft from policy pack-on-charge] Whenever 'Week Charged' (event from billing) → 'Pack Box' (automatic)"
+        ],
+        "assumptions": [
+          "[define A1] connect.json missing — inbound/outbound derived from discover only (record as an assumption)",
+          "[define A2] strategize.json missing — strategic classification left as TODO",
+          "[define A3] organise.json missing — owning team / deployable unknown"
+        ],
+        "verification_metrics": [
+          "TODO: 2–4 metrics — one business (goal-linked), one structural (does the boundary hold?)"
+        ],
+        "open_questions": [],
+        "canvas_path": "ddd/07-define/fulfilment/bounded-context-canvas.md",
+        "subdomains": [
+          "fulfilment"
+        ],
+        "owning_team": null,
+        "deployable": null,
+        "implementation_pattern": null
+      }
+    ],
+    "system_context_c4_mermaid": "C4Context\n  title System context - Meal-kit subscription\n  Person(subscriber, \"Subscriber\", \"Household receiving boxes\")\n  Person(packer, \"Packer\", \"Warehouse staff\")\n  System(mealkit, \"Meal-kit subscription\", \"Weekly meal kits delivered to subscribers\")\n  System_Ext(stripe, \"Stripe\", \"Payments\")\n  System_Ext(courier, \"Courier\", \"Delivery partner\")\n  Rel(subscriber, mealkit, \"Start Subscription, Choose Meals\")\n  Rel(packer, mealkit, \"Pack Box, Ship Box\")",
+    "quality_attributes": []
+  }
+}

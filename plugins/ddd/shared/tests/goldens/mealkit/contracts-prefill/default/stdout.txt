@@ -1,0 +1,15 @@
+prefill: <DDD_DIR>/09-contracts/contracts.json — 3 entrie(s) (0 new, 3 merged, 0 without a cross-party match), 0 schema skeleton(s), 0 example stub(s), 0 propertie(s) added to existing schemas
+  choose-meals     command  subscriber → subscriptions       open-host-service      sync via http  [client: subscriber]
+  week-charged     event    billing → fulfilment             published-language     at-least-once via message-bus (+ file)
+  charge-card      command  billing → stripe                 anticorruption-layer   sync via http  [inherited]  [outbound external]
+in-process, so deliberately NOT drafted (1): organise puts producer and every consumer in one deployable, so the call compiles and a versioned wire schema would invent a seam the build does not have. Cover each with a code-level test, or split the deployable in ddd-organise if the seam is real:
+  meals-chosen             subscriptions → billing   [in app]
+judgement hints — what connect already carries (seeded into the entry; sharpen it, never drop it):
+  [choose-meals] description: The household locks its meals for a week before the cutoff
+  [choose-meals] idempotency → semantics: One accepted choice per (subscriptionId, week); a repeat for a chosen week is rejected
+judgement hints — the handling context's business decisions (define.json); pick the ones that constrain each message:
+  [subscriptions] A week can be chosen once; a second choice for the same week is rejected
+  [subscriptions] Choices lock at the weekly cutoff; after it, default meals are assigned
+  [billing] A week is charged exactly once, on meals-chosen; retries are idempotent on subscriptionId+week
+  [billing] A declined card pauses the subscription and releases the week
+left to fill (judgement): field types/formats/required-ness in schemas/, example values, description, semantics, termsOfUse — 0 TODO marker(s) in entries; then ddd contracts render + check

@@ -1,0 +1,1 @@
+error: <DDD_DIR>/09-contracts/contracts.json not found — run ddd contracts prefill first

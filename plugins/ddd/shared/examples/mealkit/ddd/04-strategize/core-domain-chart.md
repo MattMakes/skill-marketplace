@@ -1,0 +1,76 @@
+# Core domain chart — Meal-kit subscription
+
+## In plain words
+
+We decided where the effort goes, and what to buy instead of build.
+
+**Decided:** Subscriptions is the core and gets real design. Billing is bought (Stripe). Fulfilment is kept simple.
+
+**Assumed:** Payments are worth buying, not building. Almost always true, and true here.
+
+**Riskiest:** If subscriptions turns out to be the boring part, we will have spent our design budget in the wrong place.
+
+---
+
+_Step 4 of 9 (`ddd-strategize`) · mode `auto` · depth `light` · produced `2026-08-29T10:00:00Z`_
+
+**Where to invest:** core → `subscriptions`; supporting → `fulfilment`; generic (buy/adopt) → `billing`.
+
+## Chart
+
+```mermaid
+quadrantChart
+  title Core domain chart - Meal-kit subscription
+  x-axis Low model complexity --> High model complexity
+  y-axis Low business differentiation --> High business differentiation
+  quadrant-1 Core - build a rich model
+  quadrant-2 Short-term or hidden core
+  quadrant-3 Generic - buy or adopt
+  quadrant-4 Supporting - suspect if complex
+  Subscriptions: [0.60, 0.80]
+  Fulfilment: [0.40, 0.40]
+  Billing: [0.20, 0.10]
+```
+
+Axes: x = model complexity (score/10), y = business differentiation (score/10). Top-right is the core; bottom-left is generic; a supporting subdomain far to the right is "suspect" (accidental complexity or a core in disguise).
+
+## Classifications
+
+| Subdomain | Type | Diff | Cplx | Evolution | Sourcing | Pattern | Investment | Context(s) |
+|---|---|---|---|---|---|---|---|---|
+| Subscriptions (`subscriptions`) | **core** | 8 | 6 | custom | build | domain-model | high | `subscriptions` |
+| Fulfilment (`fulfilment`) | supporting | 4 | 4 | product | build | active-record | medium | `fulfilment` |
+| Billing (`billing`) | generic | 1 | 2 | commodity | buy | transaction-script | low | `billing` |
+
+## Rationale and future direction
+
+| Subdomain | Rationale | Future direction |
+|---|---|---|
+| `subscriptions` | G1 (grow active subscribers) is won or lost on how easily a household chooses and changes its weekly meals; no off-the-shelf subscription product models cut-offs, swaps and pauses the way we need, so this is the decisive core and gets a rich domain model. | Stays core for the foreseeable future; menu-choice UX is the differentiator (bet B1) |
+| `fulfilment` | Packing and shipping must work but a competitor's box arrives just as well; supporting, active-record CRUD over boxes and picking lists, with a possible move to a WMS product later. | could move to a WMS |
+| `billing` | Charging a card weekly is a solved problem (Stripe, commodity evolution); it moves no goal on its own, so buy the provider and keep our side a transaction script around the adapter. | Remains generic; revisit only if we move to invoicing B2B customers |
+
+## Investment
+
+High: `subscriptions`. Medium: `fulfilment`. Low: `billing`.
+
+Rule: the best people and the modelling time go to the core; supporting subdomains stay simple; generic subdomains get integration effort only.
+
+## Bets
+
+- **B1** — Choice UX drives retention · _Risk:_ unvalidated
+
+## Assumptions
+
+- **A1** (high) — Example fixture; assumptions are illustrative
+
+## Open questions
+
+- **Q1** — Illustrative open question _(blocking: no; owner: domain expert)_
+
+## Hand-off
+
+- `ddd-connect`: integration effort follows investment — protect the core with an anticorruption layer where a bought/generic context is upstream of a built one: `billing` → `fulfilment` (R2). Adapters inside built contexts (an ACL around the vendor, not a context relationship): none.
+- `ddd-organise`: the core (`subscriptions`) gets the strongest, most stable team; generic contexts need integrators only.
+- `ddd-define`: strategic classification per context (a context takes its most demanding subdomain): `subscriptions` = core; `billing` = generic; `fulfilment` = supporting.
+- `ddd-code`: aggregates only for contexts on a domain model: `subscriptions` (domain-model). Application services and a `design.md` only: `billing` (transaction-script), `fulfilment` (active-record).

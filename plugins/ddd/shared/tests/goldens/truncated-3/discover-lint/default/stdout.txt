@@ -1,0 +1,7 @@
+note: pivotal_events: 'subscription-started' is the very first event - pivotal events split the flow, so they sit in the middle
+note: pivotal_events: 'box-shipped' is the very last event - pivotal events split the flow, so they sit in the middle
+note: commands[charge-card]: produces nothing - every command must lead to at least one event (or it is not a command)
+note: commands[charge-card]: no actor and no policy issues it - who or what decides to run this?
+note: glossary: 2 terms - the nouns in your events/commands usually give 5-15 shared terms
+note: events: 5 events; depth light usually needs 10-25 - missing failure paths, time-based events, or the ends of the timeline?
+lint: 6 notes (review notes, not a gate; ddd validate decides pass/fail)

@@ -1,0 +1,30 @@
+{
+  "fixture": "broken-refs",
+  "command": [
+    "validate"
+  ],
+  "variant": "stale-status",
+  "args": [
+    "ddd",
+    "--status"
+  ],
+  "seed": {
+    "ddd/02-discover/discover.json": {
+      "produced_at": "2030-01-01T00:00:00Z"
+    }
+  },
+  "twin": [
+    "python3",
+    "shared/scripts/validate.py"
+  ],
+  "cwd": "<ROOT>",
+  "env": {
+    "DDD_NO_RENDER": "1",
+    "TZ": "UTC",
+    "PYTHONIOENCODING": "utf-8",
+    "PYTHONHASHSEED": "0",
+    "NO_COLOR": "1"
+  },
+  "files_policy": "content",
+  "python": "Python 3.11.4"
+}

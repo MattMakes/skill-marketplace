@@ -1,0 +1,12 @@
+{
+  "name": "uploads-api",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": { "start": "node index.js" },
+  "dependencies": {
+    "@azure/storage-blob": "^12.26.0",
+    "kafkajs": "^2.2.4"
+  }
+}

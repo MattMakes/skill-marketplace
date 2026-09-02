@@ -1,0 +1,29 @@
+{
+  "fixture": "mealkit",
+  "command": [
+    "strategize",
+    "render"
+  ],
+  "variant": "update-json",
+  "args": [
+    "ddd",
+    "--update-json"
+  ],
+  "seed": {},
+  "twin": [
+    "node",
+    "shared/bin/ddd.mjs",
+    "strategize",
+    "render"
+  ],
+  "cwd": "<ROOT>",
+  "env": {
+    "DDD_NO_RENDER": "1",
+    "TZ": "UTC",
+    "PYTHONIOENCODING": "utf-8",
+    "PYTHONHASHSEED": "0",
+    "NO_COLOR": "1"
+  },
+  "files_policy": "content",
+  "node": "v25.5.0"
+}

@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ddd/09-contracts/schemas/choose-meals.response.schema.json",
+  "title": "Choose Meals (response)",
+  "description": "What subscriptions sends back. Part of this contract, not a separate message: the client renders the locked week straight from it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "subscriptionId",
+    "week",
+    "recipeIds",
+    "cutoffAt"
+  ],
+  "properties": {
+    "subscriptionId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Echoes the request, so a client can match a late reply to its call."
+    },
+    "week": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-W[0-9]{2}$",
+      "description": "The week now locked."
+    },
+    "recipeIds": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      },
+      "description": "What is locked in, which after the cutoff is the default meals rather than what was asked for."
+    },
+    "cutoffAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this week stops accepting changes; the client shows it so a household knows how long it has."
+    }
+  }
+}

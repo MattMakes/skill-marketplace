@@ -1,0 +1,19 @@
+DECOMPOSE CHECK — <DDD_DIR>/03-decompose/decompose.json
+contexts=3 subdomains=3 relationships=2   band for deployables 1–3: 2–6 (floor 1)
+context                 events  commands  aggregates  verdict    wraps             subdomains
+subscriptions           3       2         1           candidate  -                 subscriptions
+billing                 1       2         0           merge      -                 billing
+fulfilment              2       2         1           candidate  -                 fulfilment
+orphans: events=[] commands=[] aggregates=[]
+
+glossary: nothing to add
+
+1 error(s):
+  [error] event 'subscription-teleported' is not in discover.json
+
+1 warning(s):
+  [warn] produced_at <TS> is not later than discover's <TS> — run with --stamp (ddd validate will mark decompose stale)
+  (note) context 'billing' verdict=merge and no terms of its own — consider merging it into its neighbour (fewer, coarser contexts)
+  (note) context 'billing' ISH verdict=merge (a module, not a deployable) — no notes_for_downstream entry addressed to organise carries that decision
+
+RESULT: FAIL

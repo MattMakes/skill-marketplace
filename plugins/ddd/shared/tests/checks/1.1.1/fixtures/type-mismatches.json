@@ -1,0 +1,83 @@
+{
+  "name": "type-mismatches",
+  "value": {
+    "a": 1,
+    "b": "x",
+    "c": null,
+    "d": true,
+    "e": [
+      1,
+      "two",
+      null,
+      {
+        "k": 1
+      },
+      [
+        2
+      ]
+    ],
+    "f": 2.5,
+    "g": {}
+  },
+  "schema": {
+    "type": "object",
+    "properties": {
+      "a": {
+        "type": "string"
+      },
+      "b": {
+        "type": "integer"
+      },
+      "c": {
+        "type": "object"
+      },
+      "d": {
+        "type": "number"
+      },
+      "e": {
+        "type": "array",
+        "items": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "f": {
+        "type": "integer"
+      },
+      "g": {
+        "type": "array"
+      },
+      "missing": {
+        "type": "string"
+      }
+    }
+  },
+  "expect": {
+    "check": [
+      "payload.a: expected string, got int",
+      "payload.b: expected integer, got str",
+      "payload.c: expected object, got NoneType",
+      "payload.d: expected number, got bool",
+      "payload.e[0]: expected ['string', 'null'], got int",
+      "payload.e[3]: expected ['string', 'null'], got dict",
+      "payload.e[4]: expected ['string', 'null'], got list",
+      "payload.f: expected integer, got float",
+      "payload.g: expected array, got dict"
+    ],
+    "core": [
+      "payload.a: expected string, got int",
+      "payload.b: expected integer, got str",
+      "payload.c: expected object, got NoneType",
+      "payload.d: expected number, got bool",
+      "payload.e[0]: expected ['string', 'null'], got int",
+      "payload.e[3]: expected ['string', 'null'], got dict",
+      "payload.e[4]: expected ['string', 'null'], got list",
+      "payload.f: expected integer, got float",
+      "payload.g: expected array, got dict"
+    ],
+    "vocab": [],
+    "conditional": false
+  }
+}

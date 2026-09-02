@@ -1,0 +1,28 @@
+{
+  "fixture": "broken-refs",
+  "command": [
+    "contracts",
+    "prefill"
+  ],
+  "variant": "no-schema-refresh",
+  "args": [
+    "ddd",
+    "--no-schema-refresh"
+  ],
+  "seed": {},
+  "twin": [
+    "python3",
+    "skills/ddd-contracts/scripts/contracts.py",
+    "prefill"
+  ],
+  "cwd": "<ROOT>",
+  "env": {
+    "DDD_NO_RENDER": "1",
+    "TZ": "UTC",
+    "PYTHONIOENCODING": "utf-8",
+    "PYTHONHASHSEED": "0",
+    "NO_COLOR": "1"
+  },
+  "files_policy": "content",
+  "python": "Python 3.11.4"
+}

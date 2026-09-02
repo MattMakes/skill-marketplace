@@ -1,0 +1,58 @@
+{
+  "skill_name": "e2e-harness",
+  "evals": [
+    {
+      "id": 0,
+      "name": "async-upload-pipeline-full-loop",
+      "prompt": "I've got a service in ./svc with a docker-compose.yml that also brings up Kafka and Azurite, and I collected the docs into ./docs. Can you set up end-to-end tests for this and actually run them? I want to know the upload flow really works, not just that the endpoint returns something.",
+      "expected_output": "A working E2E suite: e2e/inventory.json listing kafka + azure-storage + the service, e2e/journeys.json with at least one journey asserting on the async effects (blob and/or Kafka message), generated Playwright specs, and a run that boots the stack, passes, and tears down.",
+      "files": [
+        "fixtures/upload-pipeline"
+      ],
+      "assertions": [
+        "Discovered Kafka and blob storage as distinct resources, not just the HTTP service",
+        "At least one test asserts on the Kafka message produced by the upload",
+        "At least one test asserts on the blob written to storage",
+        "Assertions wait for the async effect by polling, rather than a fixed sleep",
+        "The test suite was actually executed against running containers, not just generated",
+        "All generated tests pass",
+        "Containers were torn down after the run",
+        "The upload id from the POST response is carried into the later async assertions"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "refuses-ungrounded-journeys",
+      "prompt": "Set up e2e tests for the system in this folder. There's a docker-compose.yml with the services. Go ahead and build the test suite.",
+      "expected_output": "Notices there is no documentation folder, and either stops to ask / offers to collect docs first, or explicitly names the --allow-no-docs tradeoff before proceeding. Does not silently invent journeys.",
+      "files": [
+        "fixtures/no-docs"
+      ],
+      "assertions": [
+        "Noticed and stated that no documentation folder is present",
+        "Surfaced the missing-docs decision to the user rather than silently inventing journeys",
+        "Named the concrete tradeoff of proceeding without docs (tests describe what the code does, not what it promises)",
+        "Any journeys it did write are traceable to the code it actually read",
+        "Did not claim the suite is grounded in documentation"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "extends-existing-suite-new-journey",
+      "prompt": "The e2e harness is already wired up for this repo. The docs describe a status endpoint that flips from 404 to 200 once an upload is processed, but I don't think we cover it. Add a journey for that and make sure it passes.",
+      "expected_output": "Adds a journey using await_http (not sleep) to poll /uploads/{id} until 200, validates it, rebuilds, and runs. Does not hand-edit the generated spec files.",
+      "files": [
+        "fixtures/upload-pipeline"
+      ],
+      "assertions": [
+        "Added coverage for GET /uploads/{id} flipping from 404 to 200",
+        "The new coverage polls until the status changes rather than sleeping a fixed duration",
+        "Edited the journeys source of truth, not the generated spec files",
+        "Regenerated the tests after editing rather than hand-writing them",
+        "The suite was run and the new coverage passes",
+        "Existing journeys still pass (no regression)",
+        "Containers were torn down after the run"
+      ]
+    }
+  ]
+}

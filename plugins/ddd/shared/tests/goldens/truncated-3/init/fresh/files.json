@@ -1,0 +1,15 @@
+{
+  "changed": [
+    {
+      "path": "ddd2/glossary.md",
+      "kind": "added",
+      "content": "# Ubiquitous language: Meal kit two\n\n## Shared\n\n_(seeded by ddd-discover, refined by ddd-define)_\n"
+    },
+    {
+      "path": "ddd2/manifest.json",
+      "kind": "added",
+      "content": "{\n  \"schema_version\": 1,\n  \"project\": \"mealkit-two\",\n  \"title\": \"Meal kit two\",\n  \"ddd_dir\": \"ddd2\",\n  \"created\": \"<TS>\",\n  \"updated\": \"<TS>\",\n  \"mode\": \"auto\",\n  \"depth\": \"light\",\n  \"scale_target\": {\n    \"deployables_min\": 1,\n    \"deployables_max\": 3,\n    \"teams\": 1,\n    \"notes\": \"solo dev\"\n  },\n  \"sources\": [\n    \"README.md\"\n  ],\n  \"steps\": {\n    \"understand\": {\n      \"status\": \"pending\"\n    },\n    \"discover\": {\n      \"status\": \"pending\"\n    },\n    \"decompose\": {\n      \"status\": \"pending\"\n    },\n    \"strategize\": {\n      \"status\": \"pending\"\n    },\n    \"connect\": {\n      \"status\": \"pending\"\n    },\n    \"organise\": {\n      \"status\": \"pending\"\n    },\n    \"define\": {\n      \"status\": \"pending\"\n    },\n    \"code\": {\n      \"status\": \"pending\"\n    },\n    \"contracts\": {\n      \"status\": \"pending\"\n    }\n  }\n}\n"
+    }
+  ],
+  "deleted": []
+}

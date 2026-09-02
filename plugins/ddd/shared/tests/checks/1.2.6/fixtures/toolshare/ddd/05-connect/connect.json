@@ -1,0 +1,746 @@
+{
+  "schema_version": 1,
+  "step": "connect",
+  "produced_by": "ddd-connect",
+  "produced_at": "2026-09-02T18:52:10Z",
+  "mode": "auto",
+  "depth": "light",
+  "inputs": [
+    "ddd/03-decompose/decompose.json",
+    "ddd/04-strategize/strategize.json",
+    "ddd/02-discover/discover.json",
+    "ddd/01-understand/understand.json",
+    "ddd/manifest.json",
+    "ddd/glossary.md"
+  ],
+  "assumptions": [
+    {
+      "id": "A1",
+      "text": "All four contexts share one deployable (scale target 1-3, decompose N2 'modular monolith'); every cross-context message is an in-process call or an in-memory domain event. The connect inputs sheet proposed 'separate' for every relationship by keying on the wording of decompose N2; overridden here.",
+      "confidence": "medium"
+    },
+    {
+      "id": "A2",
+      "text": "Minted commands discover lacks: send-due-notice (lending -> email), send-fee-notice (fees -> email), charge-card (fees -> stripe). Domain-language names; discover should adopt them on a re-run.",
+      "confidence": "high"
+    },
+    {
+      "id": "A3",
+      "text": "Stripe's asynchronous confirmation (discover N4) is folded into the charge-card response: the synchronous reply and any later webhook carry the same paymentAttemptId and the second one is a no-op.",
+      "confidence": "medium"
+    },
+    {
+      "id": "A4",
+      "text": "In-memory domain events are at-most-once: if the process dies between the lending write and the fees handler, the accrual starts the next nightly run, which re-derives overdue loans from lending's state. Acceptable at this scale.",
+      "confidence": "medium"
+    },
+    {
+      "id": "A5",
+      "text": "One thin Stripe adapter is shared by fees and membership (decompose N3); membership's pay-membership-fee uses the same charge-card message. Not drawn at light depth.",
+      "confidence": "medium"
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q1",
+      "text": "Should discover adopt send-due-notice, send-fee-notice and charge-card as commands (they are minted here)?",
+      "blocking": false,
+      "owner": "ddd-discover re-run"
+    },
+    {
+      "id": "Q2",
+      "text": "Does the coordinator want a cash payment at the desk to go through pay-fee with method=cash (no Stripe call), or a separate record-cash-payment command?",
+      "blocking": false,
+      "owner": "coordinator"
+    }
+  ],
+  "notes_for_downstream": [
+    {
+      "id": "N1",
+      "text": "Sharpens decompose N3: charge-card is one shared Stripe adapter (a driven port in fees, re-used by membership for the joining fee). Nightly clock commands (mark-loans-overdue, accrue-late-fee, send-due-reminders, expire-reservations, lapse-memberships) are driving ports invoked by a scheduler, not HTTP.",
+      "for": [
+        "code"
+      ],
+      "kind": "decision"
+    },
+    {
+      "id": "N2",
+      "text": "Every cross-context hop is in-process on the assumption of one deployable. If organise splits the clock-driven work into a worker, loan-overdue and item-returned cross a process boundary and need an outbox; re-run connect then.",
+      "for": [
+        "organise",
+        "define"
+      ],
+      "kind": "risk"
+    }
+  ],
+  "flows": [
+    {
+      "id": "F1",
+      "name": "Reserve, collect and return on time",
+      "scenario": "S1",
+      "kind": "happy-path",
+      "summary": "A member reserves a drill online, the desk volunteer checks it out after lending confirms standing with membership and fees, a reminder goes out, and the item comes back; a damaged return hands the item to inventory.",
+      "policies": [
+        "inspect-on-damaged-return"
+      ],
+      "steps": [
+        {
+          "seq": 1,
+          "from": "member",
+          "to": "lending",
+          "message": "reserve-item",
+          "kind": "command",
+          "sync": true,
+          "via": "http"
+        },
+        {
+          "seq": 2,
+          "from": "desk-volunteer",
+          "to": "lending",
+          "message": "check-out-item",
+          "kind": "command",
+          "sync": true,
+          "via": "http"
+        },
+        {
+          "seq": 3,
+          "from": "lending",
+          "to": "membership",
+          "message": "membership-current",
+          "kind": "query",
+          "sync": true,
+          "via": "in-process",
+          "note": "decompose D1: direct read, no projection"
+        },
+        {
+          "seq": 4,
+          "from": "lending",
+          "to": "fees",
+          "message": "fee-balance",
+          "kind": "query",
+          "sync": true,
+          "via": "in-process"
+        },
+        {
+          "seq": 5,
+          "from": "clock",
+          "to": "lending",
+          "message": "send-due-reminders",
+          "kind": "command",
+          "sync": false,
+          "via": "other",
+          "note": "daily; two days before and on the due date"
+        },
+        {
+          "seq": 6,
+          "from": "lending",
+          "to": "email",
+          "message": "send-due-notice",
+          "kind": "command",
+          "sync": true,
+          "via": "http"
+        },
+        {
+          "seq": 7,
+          "from": "desk-volunteer",
+          "to": "lending",
+          "message": "return-item",
+          "kind": "command",
+          "sync": true,
+          "via": "http"
+        },
+        {
+          "seq": 8,
+          "from": "lending",
+          "to": "inventory",
+          "message": "item-returned",
+          "kind": "event",
+          "sync": false,
+          "via": "in-process",
+          "when": "condition noted as damaged"
+        }
+      ],
+      "mermaid": "sequenceDiagram\n  autonumber\n  actor member as Member\n  participant lending as Lending\n  actor desk_volunteer as Desk volunteer\n  participant membership as Membership\n  participant fees as Fees\n  participant clock as Clock (external)\n  participant email as Email provider (external)\n  participant inventory as Inventory\n  member->>lending: reserve-item (command via http)\n  desk_volunteer->>lending: check-out-item (command via http)\n  lending->>membership: membership-current (query via in-process)\n  Note over lending,membership: decompose D1: direct read, no projection\n  lending->>fees: fee-balance (query via in-process)\n  clock-)lending: send-due-reminders (command via other)\n  Note over clock,lending: daily#59; two days before and on the due date\n  lending->>email: send-due-notice (command via http)\n  desk_volunteer->>lending: return-item (command via http)\n  opt condition noted as damaged\n    lending-)inventory: item-returned (event via in-process)\n  end"
+    },
+    {
+      "id": "F2",
+      "name": "Late return, fee accrues, member pays by card",
+      "scenario": "S2",
+      "kind": "alternative",
+      "summary": "The clock marks a loan overdue; fees accrues GBP 1 a day and tells the member; the item comes back, which stops accrual; the member pays online through Stripe.",
+      "policies": [
+        "accrue-on-overdue"
+      ],
+      "steps": [
+        {
+          "seq": 1,
+          "from": "clock",
+          "to": "lending",
+          "message": "mark-loans-overdue",
+          "kind": "command",
+          "sync": false,
+          "via": "other",
+          "note": "nightly"
+        },
+        {
+          "seq": 2,
+          "from": "lending",
+          "to": "fees",
+          "message": "loan-overdue",
+          "kind": "event",
+          "sync": false,
+          "via": "in-process"
+        },
+        {
+          "seq": 3,
+          "from": "clock",
+          "to": "fees",
+          "message": "accrue-late-fee",
+          "kind": "command",
+          "sync": false,
+          "via": "other",
+          "note": "nightly per overdue loan, capped at replacement value"
+        },
+        {
+          "seq": 4,
+          "from": "fees",
+          "to": "email",
+          "message": "send-fee-notice",
+          "kind": "command",
+          "sync": true,
+          "via": "http",
+          "note": "carries the pay-a-fee link (D3)"
+        },
+        {
+          "seq": 5,
+          "from": "desk-volunteer",
+          "to": "lending",
+          "message": "return-item",
+          "kind": "command",
+          "sync": true,
+          "via": "http"
+        },
+        {
+          "seq": 6,
+          "from": "lending",
+          "to": "fees",
+          "message": "item-returned",
+          "kind": "event",
+          "sync": false,
+          "via": "in-process",
+          "note": "stops accrual for that loan"
+        },
+        {
+          "seq": 7,
+          "from": "member",
+          "to": "fees",
+          "message": "pay-fee",
+          "kind": "command",
+          "sync": true,
+          "via": "http"
+        },
+        {
+          "seq": 8,
+          "from": "fees",
+          "to": "stripe",
+          "message": "charge-card",
+          "kind": "command",
+          "sync": true,
+          "via": "http"
+        },
+        {
+          "seq": 9,
+          "from": "stripe",
+          "to": "fees",
+          "message": "charge-card",
+          "kind": "response",
+          "sync": true,
+          "via": "http",
+          "note": "succeeded or declined; a late webhook re-delivers the same outcome"
+        }
+      ],
+      "mermaid": "sequenceDiagram\n  autonumber\n  participant clock as Clock (external)\n  participant lending as Lending\n  participant fees as Fees\n  participant email as Email provider (external)\n  actor desk_volunteer as Desk volunteer\n  actor member as Member\n  actor stripe as Stripe\n  clock-)lending: mark-loans-overdue (command via other)\n  Note over clock,lending: nightly\n  lending-)fees: loan-overdue (event via in-process)\n  clock-)fees: accrue-late-fee (command via other)\n  Note over clock,fees: nightly per overdue loan, capped at replacement value\n  fees->>email: send-fee-notice (command via http)\n  Note over fees,email: carries the pay-a-fee link (D3)\n  desk_volunteer->>lending: return-item (command via http)\n  lending-)fees: item-returned (event via in-process)\n  Note over lending,fees: stops accrual for that loan\n  member->>fees: pay-fee (command via http)\n  fees->>stripe: charge-card (command via http)\n  stripe-->>fees: charge-card (response via http)\n  Note over stripe,fees: succeeded or declined#59; a late webhook re-delivers the same outcome"
+    },
+    {
+      "id": "F3",
+      "name": "Failed inspection becomes a damage charge; item retired",
+      "scenario": null,
+      "kind": "policy",
+      "summary": "No discover scenario covers it: after a damaged return the maintenance volunteer inspects the item; a failure reaches the coordinator, who charges damage; the item is retired and lending stops offering it.",
+      "policies": [
+        "charge-on-failed-inspection"
+      ],
+      "steps": [
+        {
+          "seq": 1,
+          "from": "maintenance-volunteer",
+          "to": "inventory",
+          "message": "inspect-item",
+          "kind": "command",
+          "sync": true,
+          "via": "http"
+        },
+        {
+          "seq": 2,
+          "from": "inventory",
+          "to": "fees",
+          "message": "item-failed-inspection",
+          "kind": "event",
+          "sync": false,
+          "via": "in-process",
+          "note": "manual policy: the coordinator decides"
+        },
+        {
+          "seq": 3,
+          "from": "coordinator",
+          "to": "fees",
+          "message": "charge-damage-fee",
+          "kind": "command",
+          "sync": true,
+          "via": "http"
+        },
+        {
+          "seq": 4,
+          "from": "fees",
+          "to": "email",
+          "message": "send-fee-notice",
+          "kind": "command",
+          "sync": true,
+          "via": "http"
+        },
+        {
+          "seq": 5,
+          "from": "maintenance-volunteer",
+          "to": "inventory",
+          "message": "retire-item",
+          "kind": "command",
+          "sync": true,
+          "via": "http"
+        },
+        {
+          "seq": 6,
+          "from": "inventory",
+          "to": "lending",
+          "message": "item-retired",
+          "kind": "event",
+          "sync": false,
+          "via": "in-process"
+        }
+      ],
+      "mermaid": "sequenceDiagram\n  autonumber\n  actor maintenance_volunteer as Maintenance volunteer\n  participant inventory as Inventory\n  participant fees as Fees\n  actor coordinator as Coordinator\n  participant email as Email provider (external)\n  participant lending as Lending\n  maintenance_volunteer->>inventory: inspect-item (command via http)\n  inventory-)fees: item-failed-inspection (event via in-process)\n  Note over inventory,fees: manual policy: the coordinator decides\n  coordinator->>fees: charge-damage-fee (command via http)\n  fees->>email: send-fee-notice (command via http)\n  maintenance_volunteer->>inventory: retire-item (command via http)\n  inventory-)lending: item-retired (event via in-process)"
+    }
+  ],
+  "messages": [
+    {
+      "id": "reserve-item",
+      "kind": "command",
+      "producer": "member",
+      "consumers": [
+        "lending"
+      ],
+      "contract": "ui",
+      "payload": [
+        "memberId",
+        "itemId"
+      ],
+      "delivery": "sync",
+      "idempotency": "One live reservation per (memberId, itemId); a repeat returns the existing hold",
+      "description": "Member holds an available item for 48 hours"
+    },
+    {
+      "id": "check-out-item",
+      "kind": "command",
+      "producer": "desk-volunteer",
+      "consumers": [
+        "lending"
+      ],
+      "contract": "ui",
+      "payload": [
+        "memberId",
+        "itemId",
+        "reservationId"
+      ],
+      "delivery": "sync",
+      "idempotency": "One open loan per itemId; a repeat for an item already out is rejected"
+    },
+    {
+      "id": "membership-current",
+      "kind": "query",
+      "producer": "lending",
+      "consumers": [
+        "membership"
+      ],
+      "contract": "customer-supplier",
+      "payload": [
+        "memberId"
+      ],
+      "delivery": "sync",
+      "response_payload": [
+        "current",
+        "expiresOn",
+        "memberNumber"
+      ],
+      "description": "Is this membership current right now?"
+    },
+    {
+      "id": "fee-balance",
+      "kind": "query",
+      "producer": "lending",
+      "consumers": [
+        "fees"
+      ],
+      "contract": "customer-supplier",
+      "payload": [
+        "memberId"
+      ],
+      "delivery": "sync",
+      "response_payload": [
+        "balancePence"
+      ],
+      "description": "What does this member owe?"
+    },
+    {
+      "id": "send-due-reminders",
+      "kind": "command",
+      "producer": "clock",
+      "consumers": [
+        "lending"
+      ],
+      "contract": "external-api",
+      "payload": [
+        "asOfDate"
+      ],
+      "delivery": "at-least-once",
+      "idempotency": "One notice per (loanId, reminderKind, date)"
+    },
+    {
+      "id": "send-due-notice",
+      "kind": "command",
+      "producer": "lending",
+      "consumers": [
+        "email"
+      ],
+      "contract": "external-api",
+      "payload": [
+        "memberId",
+        "loanId",
+        "itemName",
+        "dueOn"
+      ],
+      "delivery": "sync",
+      "idempotency": "Provider de-duplicates on (loanId, dueOn, kind)"
+    },
+    {
+      "id": "return-item",
+      "kind": "command",
+      "producer": "desk-volunteer",
+      "consumers": [
+        "lending"
+      ],
+      "contract": "ui",
+      "payload": [
+        "loanId",
+        "condition",
+        "note"
+      ],
+      "delivery": "sync",
+      "idempotency": "A loan is returned once; a repeat is a no-op"
+    },
+    {
+      "id": "item-returned",
+      "kind": "event",
+      "producer": "lending",
+      "consumers": [
+        "inventory",
+        "fees"
+      ],
+      "contract": "customer-supplier",
+      "payload": [
+        "loanId",
+        "itemId",
+        "memberId",
+        "returnedOn",
+        "condition"
+      ],
+      "delivery": "at-most-once",
+      "version": "1",
+      "idempotency": "Consumers key on loanId"
+    },
+    {
+      "id": "mark-loans-overdue",
+      "kind": "command",
+      "producer": "clock",
+      "consumers": [
+        "lending"
+      ],
+      "contract": "external-api",
+      "payload": [
+        "asOfDate"
+      ],
+      "delivery": "at-least-once",
+      "idempotency": "A loan goes overdue once"
+    },
+    {
+      "id": "loan-overdue",
+      "kind": "event",
+      "producer": "lending",
+      "consumers": [
+        "fees"
+      ],
+      "contract": "customer-supplier",
+      "payload": [
+        "loanId",
+        "itemId",
+        "memberId",
+        "dueOn",
+        "replacementValuePence"
+      ],
+      "delivery": "at-most-once",
+      "version": "1",
+      "idempotency": "One overdue record per loanId"
+    },
+    {
+      "id": "accrue-late-fee",
+      "kind": "command",
+      "producer": "clock",
+      "consumers": [
+        "fees"
+      ],
+      "contract": "external-api",
+      "payload": [
+        "asOfDate"
+      ],
+      "delivery": "at-least-once",
+      "idempotency": "One accrual row per (loanId, date)"
+    },
+    {
+      "id": "send-fee-notice",
+      "kind": "command",
+      "producer": "fees",
+      "consumers": [
+        "email"
+      ],
+      "contract": "external-api",
+      "payload": [
+        "memberId",
+        "amountPence",
+        "reason",
+        "payLink"
+      ],
+      "delivery": "sync",
+      "idempotency": "Provider de-duplicates on (memberId, feeId)"
+    },
+    {
+      "id": "pay-fee",
+      "kind": "command",
+      "producer": "member",
+      "consumers": [
+        "fees"
+      ],
+      "contract": "ui",
+      "payload": [
+        "memberId",
+        "amountPence",
+        "method"
+      ],
+      "delivery": "sync",
+      "idempotency": "Client-supplied paymentAttemptId; a repeat returns the first outcome"
+    },
+    {
+      "id": "charge-card",
+      "kind": "command",
+      "producer": "fees",
+      "consumers": [
+        "stripe"
+      ],
+      "contract": "external-api",
+      "payload": [
+        "amountPence",
+        "currency",
+        "memberRef",
+        "idempotencyKey"
+      ],
+      "delivery": "sync",
+      "response_payload": [
+        "paymentRef",
+        "outcome",
+        "declineReason"
+      ],
+      "idempotency": "Stripe idempotency key = paymentAttemptId"
+    },
+    {
+      "id": "inspect-item",
+      "kind": "command",
+      "producer": "maintenance-volunteer",
+      "consumers": [
+        "inventory"
+      ],
+      "contract": "ui",
+      "payload": [
+        "itemId",
+        "outcome",
+        "fault"
+      ],
+      "delivery": "sync"
+    },
+    {
+      "id": "item-failed-inspection",
+      "kind": "event",
+      "producer": "inventory",
+      "consumers": [
+        "fees"
+      ],
+      "contract": "customer-supplier",
+      "payload": [
+        "itemId",
+        "toolId",
+        "fault",
+        "replacementValuePence",
+        "lastLoanId"
+      ],
+      "delivery": "at-most-once",
+      "version": "1",
+      "idempotency": "One failure record per (itemId, inspectedOn)"
+    },
+    {
+      "id": "charge-damage-fee",
+      "kind": "command",
+      "producer": "coordinator",
+      "consumers": [
+        "fees"
+      ],
+      "contract": "ui",
+      "payload": [
+        "memberId",
+        "itemId",
+        "amountPence",
+        "reason"
+      ],
+      "delivery": "sync"
+    },
+    {
+      "id": "retire-item",
+      "kind": "command",
+      "producer": "maintenance-volunteer",
+      "consumers": [
+        "inventory"
+      ],
+      "contract": "ui",
+      "payload": [
+        "itemId",
+        "reason"
+      ],
+      "delivery": "sync"
+    },
+    {
+      "id": "item-retired",
+      "kind": "event",
+      "producer": "inventory",
+      "consumers": [
+        "lending"
+      ],
+      "contract": "published-language",
+      "payload": [
+        "itemId",
+        "toolId",
+        "retiredOn"
+      ],
+      "delivery": "at-most-once",
+      "version": "1",
+      "idempotency": "Lending keys on itemId; a retired item is never re-offered"
+    }
+  ],
+  "integration_patterns": [
+    {
+      "relationship": "R1",
+      "mechanism": "in-process-call",
+      "assumed_distance": "same-deployable",
+      "rationale": "Lending needs the answer to continue check-out (decompose D1); a synchronous in-process query at one deployable."
+    },
+    {
+      "relationship": "R2",
+      "mechanism": "in-process-call",
+      "assumed_distance": "same-deployable",
+      "rationale": "Same: balance is read at check-out; fees keeps its ledger private behind the query."
+    },
+    {
+      "relationship": "R3",
+      "mechanism": "async-events",
+      "assumed_distance": "same-deployable",
+      "rationale": "Fees reacts to loan-overdue and item-returned; lending needs no answer. In-memory domain events, at-most-once, re-derivable nightly (A4)."
+    },
+    {
+      "relationship": "R4",
+      "mechanism": "async-events",
+      "assumed_distance": "same-deployable",
+      "rationale": "Inventory publishes item lifecycle facts (item-retired, versioned); lending subscribes and never edits condition."
+    },
+    {
+      "relationship": "R5",
+      "mechanism": "async-events",
+      "assumed_distance": "same-deployable",
+      "rationale": "A damaged return is an event inventory reacts to with a manual policy; lending does not wait for the inspection."
+    },
+    {
+      "relationship": "R6",
+      "mechanism": "async-events",
+      "assumed_distance": "same-deployable",
+      "rationale": "A failed inspection is a fact the coordinator acts on later; fees does not need inventory to wait."
+    }
+  ],
+  "coupling_concerns": [
+    {
+      "id": "CC1",
+      "text": "charge-card is called inside pay-fee: an external call inside the unit of work that records the payment. A timeout after Stripe charged but before fees wrote fee-paid would double-charge without the idempotency key.",
+      "contexts": [
+        "fees"
+      ],
+      "severity": "high",
+      "smell": "external-in-transaction",
+      "flows": [
+        "F2"
+      ],
+      "mitigation": "Record the attempt first (pending), call Stripe with the attempt id as idempotency key, then record the outcome; a later webhook with the same key is a no-op.",
+      "saga_candidate": false
+    },
+    {
+      "id": "CC2",
+      "text": "Check-out waits on two synchronous reads (membership, fees); the desk hot path depends on both being up. Accepted because all three live in one process (decompose D1).",
+      "contexts": [
+        "lending",
+        "membership",
+        "fees"
+      ],
+      "severity": "low",
+      "smell": "temporal-coupling",
+      "flows": [
+        "F1"
+      ],
+      "mitigation": "If organise separates fees or membership, replace the reads with a subscribed standing projection (decompose D1 would_flip_if).",
+      "saga_candidate": false
+    },
+    {
+      "id": "CC3",
+      "text": "Lending and fees depend on each other: lending queries fees for the balance, fees consumes lending's loan-overdue and item-returned. Consumer-depends-on-producer both ways.",
+      "contexts": [
+        "lending",
+        "fees"
+      ],
+      "severity": "medium",
+      "smell": "bidirectional",
+      "flows": [
+        "F1",
+        "F2"
+      ],
+      "mitigation": "Keep both directions to one thin message each; if it grows, fees publishes a balance-changed event and lending keeps a standing projection instead of querying.",
+      "saga_candidate": false
+    }
+  ],
+  "sagas": [],
+  "plain_words": {
+    "what": "We drew who sends what to whom for three stories: a normal loan, a late loan with a fee, and a damaged tool that gets charged and retired.",
+    "decided": "3 flows, 19 messages, 6 integration decisions - all inside one program, so calls are plain function calls and events are in-memory. Two questions at check-out (membership current? balance zero?) and one call out to Stripe.",
+    "assumed": "That everything runs as one deployable, so nothing needs a message queue yet, and that an in-memory event lost in a crash is re-derived by the next nightly run.",
+    "riskiest": "If the scheduled jobs become a separate program, two events start crossing a process boundary with no delivery guarantee, and late fees may silently stop accruing."
+  }
+}

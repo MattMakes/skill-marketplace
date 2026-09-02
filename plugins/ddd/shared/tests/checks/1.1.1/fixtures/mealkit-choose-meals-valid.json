@@ -1,0 +1,52 @@
+{
+  "name": "mealkit-choose-meals-valid",
+  "mustPass": true,
+  "value": {
+    "subscriptionId": "b7f3c1de-9a24-4f65-8d0b-2c5e7a1f4e93",
+    "week": "2026-W36",
+    "recipeIds": [
+      "thai-green-curry",
+      "harissa-chicken-traybake",
+      "wild-mushroom-orzo"
+    ]
+  },
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "ddd/09-contracts/schemas/choose-meals.schema.json",
+    "title": "Choose Meals",
+    "description": "The household locks its meals for a week before the cutoff: accepting the command fixes that week's recipes and releases the week for charging.",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "subscriptionId",
+      "week",
+      "recipeIds"
+    ],
+    "properties": {
+      "subscriptionId": {
+        "type": "string",
+        "format": "uuid",
+        "description": "The subscription the choice belongs to; minted by subscriptions when the household subscribed."
+      },
+      "week": {
+        "type": "string",
+        "description": "ISO-8601 week the box is delivered in, e.g. 2026-W36.",
+        "pattern": "^[0-9]{4}-W[0-9]{2}$"
+      },
+      "recipeIds": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Recipe catalogue ids, one per meal in the week's box, in the order the household chose them; never empty in 1.0.",
+        "minItems": 1
+      }
+    }
+  },
+  "expect": {
+    "check": [],
+    "core": [],
+    "vocab": [],
+    "conditional": false
+  }
+}

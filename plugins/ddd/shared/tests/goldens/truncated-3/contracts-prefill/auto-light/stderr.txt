@@ -1,0 +1,1 @@
+error: missing required input(s): 05-connect/connect.json, 07-define/define.json — run ddd-connect first
