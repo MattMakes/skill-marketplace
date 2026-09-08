@@ -17,6 +17,7 @@ import json
 import os
 import re
 import shlex
+import shutil
 import subprocess
 import sys
 import time
@@ -25,6 +26,7 @@ from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 
+HORCH_VERSION = "1.1.0"   # bump with plugin.json; `horch --version`
 HERDR = os.environ.get("HERDR_BIN_PATH") or "herdr"
 STATE_DIRNAME = ".herdr-orchestrator"
 LEDGER_VERSION = 1
@@ -594,7 +596,7 @@ def worker_skill_path() -> str:
 def pointer_prompt(role: str, tier: str, orch_role: str, brief: Path) -> str:
     return one_line(
         f"You are herdr worker '{role}' (tier {tier}) in a herdr fleet. "
-        f"Use your herdr-worker skill now; if you do not have it, read "
+        f"Use your herdr:herdr-worker skill now; if you do not have it, read "
         f"{worker_skill_path()} first. Your orchestrator is '{orch_role}'. "
         f"Your complete briefing is the file {brief} - read it in full and "
         f"execute it. Channel (horch is {horch_path()} if it is not on your "
@@ -672,7 +674,8 @@ def write_boot_brief(state: Path, root: Path, goal: str) -> Path:
 PROJECT: {root}
 GOAL: {goal_block}
 
-Use your `herdr-orchestrator` skill now. If you do not have it, read
+Use your `herdr:herdr-orchestrator` skill now (bare name `herdr-orchestrator` if
+that is how it is installed). If you do not have it, read
 {orchestrator_skill_path()} in full and follow it.
 
 Workers you spawn are briefed automatically to use the `herdr-worker` skill, so
@@ -721,8 +724,12 @@ def ensure_skills_installed() -> list:
     works but costs it context it should be spending on the project.
     """
     src_root = Path(__file__).resolve().parent.parent.parent
-    dest = Path.home() / ".claude" / "skills"
+    dest = Path(os.environ.get("CLAUDE_SKILLS_DIR") or Path.home() / ".claude" / "skills")
     linked = []
+    # Installed as a Claude Code plugin, the skills already resolve as
+    # herdr:<skill>; a loose copy in ~/.claude/skills would only shadow them.
+    if "/.claude/plugins/" in str(src_root) or os.environ.get("CLAUDE_PLUGIN_ROOT"):
+        return linked
     if not dest.parent.is_dir():
         return linked
     dest.mkdir(parents=True, exist_ok=True)
@@ -814,6 +821,11 @@ def cmd_launch(args):
     root = Path(args.dir or Path.cwd()).resolve()
     state = root / STATE_DIRNAME
     goal = " ".join(args.goal or [])
+
+    if not shutil.which(HERDR):
+        die(f"`{HERDR}` is not installed or not on PATH. Run the herdr:herdr-setup "
+            f"skill (or {Path(__file__).resolve().parent.parent.parent / 'herdr-setup/scripts/setup.py'} "
+            f"--check) to see what this machine is missing.")
 
     linked = ensure_skills_installed()
     if linked:
@@ -1508,6 +1520,9 @@ def launch_parser():
 
 def main():
     argv = sys.argv[1:]
+    if argv and argv[0] in ("--version", "-V"):
+        print(f"horch {HORCH_VERSION}")
+        return
     subcommands = set(build_parser()._subparsers._group_actions[0].choices)
     if not argv or (argv[0] not in subcommands and argv[0] not in ("-h", "--help")):
         cmd_launch(launch_parser().parse_args(argv))

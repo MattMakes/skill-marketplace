@@ -1,6 +1,6 @@
 ---
 name: ddd-code
-description: "Use when the user wants tactical DDD for a designed system: aggregates and an Aggregate Design Canvas, entities / value objects / invariants, repositories and ports, hexagonal (ports and adapters) architecture for a bounded context, a domain-model implementation, 'turn the design into code structure', an implementation plan from the DDD design, or is continuing after ddd-define. Step 8 of the DDD Starter Modelling Process chain ddd-understand → ddd-discover → ddd-decompose → ddd-strategize → ddd-connect → ddd-organise → ddd-define → ddd-code → ddd-contracts (run ddd-workflow for the whole process). Consumes ddd/07-define/define.json plus the bounded-context canvases and the strategize/connect/organise/discover JSON; produces ddd/08-code/code.json, a design.md per context, aggregate-canvas-<id>.md per aggregate (domain-model contexts only) and implementation-plan.md; hands off to ddd-contracts (step 9, message payload schemas) and then superpowers:writing-plans / dev-create-plan and TDD. Designs and plans — never scaffolds source files unless explicitly asked."
+description: "Use when the user wants tactical DDD for a designed system: aggregates and an Aggregate Design Canvas, entities / value objects / invariants, repositories and ports, hexagonal (ports and adapters) architecture for a bounded context, a domain-model implementation, 'turn the design into code structure', an implementation plan from the DDD design, or is continuing after ddd-define. Step 8 of the DDD Starter Modelling Process chain ddd-understand → ddd-discover → ddd-decompose → ddd-strategize → ddd-connect → ddd-organise → ddd-define → ddd-code → ddd-contracts (run ddd-workflow for the whole process). Consumes ddd/07-define/define.json plus the bounded-context canvases and the strategize/connect/organise/discover JSON; produces ddd/08-code/code.json, a design.md per context, aggregate-canvas-<id>.md per aggregate (domain-model contexts only) and implementation-plan.md; hands off to ddd-contracts (step 9, message payload schemas) and then dev:create-plan and TDD. Designs and plans — never scaffolds source files unless explicitly asked."
 ---
 
 # ddd-code — tactical design and implementation plan (step 8 of 9)
@@ -12,7 +12,7 @@ events each context publishes and consumes, read models, named tests, a module l
 the deployables, and an ordered core-first implementation plan. This is the last step of the chain
 `ddd-understand → … → ddd-define → ddd-code` (orchestrated by `ddd-workflow`). The design and the
 plan are the deliverable; scaffolding source files is opt-in and off by default. The plan hands
-off to `superpowers:writing-plans` / `dev-create-plan`, then TDD.
+off to `dev:create-plan`, then TDD.
 
 Read once per session: `${CLAUDE_PLUGIN_ROOT}/shared/references/artifact-contract.md` (§4.8 is
 this step incl. `also_compiled_into` / `handled_by`; §4.2–4.7 its inputs; §5 the glossary rule) and
@@ -175,7 +175,7 @@ artifacts (every file under `08-code/`) and the open-question count are derived;
 ### 8. Close
 One message: absolute paths written; 3–6 findings (contexts designed, aggregates and invariant
 counts, ports per context, first slice); open questions (blocking ones quoted); validation result; then
-exactly: **"next: run superpowers:writing-plans / dev-create-plan on ddd/08-code/implementation-plan.md, then TDD (superpowers:test-driven-development / dev-tdd)"**.
+exactly: **"next: run dev:create-plan on ddd/08-code/implementation-plan.md, then TDD (dev:tdd)"**.
 
 ## Method
 
@@ -277,7 +277,7 @@ ids it implements, files/modules, the tests to write first, and "done when". End
   `kind`: `driving`|`driven`, `description`), `adapters[]` (`port`, `implementation`), `read_models[]`
   (`name`, `source_events`), `tests[]` (`invariant`, `test`), `design_path` = `ddd/08-code/<context>/design.md`.
 - `scaffold`: `{ "generated": false, "root": "src/", "files": [] }` unless scaffolding was requested.
-- `handoff`: `{ "plan_path": "ddd/08-code/implementation-plan.md", "suggested_next": ["ddd-contracts", "superpowers:writing-plans", "dev-create-plan", "superpowers:test-driven-development"] }`.
+- `handoff`: `{ "plan_path": "ddd/08-code/implementation-plan.md", "suggested_next": ["ddd-contracts", "dev:create-plan", "tools:test-driven-development"] }`.
 - `deprecated[]`: anything you drop — on a re-run a removed aggregate/service (ids and paths never
   renamed); on a first run a skeleton-proposed candidate you did not turn into an aggregate
   (`collection: "aggregate_candidates"`, `reason` citing the note or rule). Never delete silently.
@@ -340,9 +340,8 @@ slices reference those contracts, so a consumer can be built without reading the
 before implementation when messages cross a deployable or team boundary; skip it only for a
 single-deployable system with no external integrations (say so if you skip it).
 
-Implementation starts from `ddd/08-code/implementation-plan.md`: run `superpowers:writing-plans`
-(or `dev-create-plan`) on it to expand slices into tasks with exact paths and code, then implement
-slice by slice with `superpowers:test-driven-development` / `dev-tdd` — invariant tests first,
+Implementation starts from `ddd/08-code/implementation-plan.md`: run `dev:create-plan` on it to expand slices into tasks with exact paths and code, then implement
+slice by slice with `dev:tdd` — invariant tests first,
 watched failing. Names in code come from `ddd/glossary.md`; ids in events and tests from
 `discover.json`. If implementation changes an aggregate boundary or a message contract, update the
 canvas and `code.json` and re-run `ddd validate --step code`; an upstream change makes `ddd-workflow`

@@ -40,7 +40,9 @@ spawn anything and carry what it knows into your briefings.
 
 `horch` owns all the terminal mechanics — splitting panes, launching each tier with the
 right flags, answering first-run trust dialogs, tracking session ids, keeping the grid
-balanced. **You never call `herdr` directly.** Start with `horch status`.
+balanced. **You never call `herdr` directly.** Start with `horch status`. If `horch` or
+`herdr` is missing, or a worker cannot be resumed, use the `herdr:herdr-setup` skill to
+check the machine and fill only what is missing.
 
 ## Command reference
 

@@ -11,7 +11,7 @@ schemas/*.schema.json             JSON Schema (draft-07) for manifest + the 9 st
 bin/ddd.mjs                       the one CLI (below)
 lib/                              workspace.mjs (index), jsonschema.mjs, manifest.mjs, validate.mjs, review.mjs,
                                   render/diagrams (generators + decision render), render/explorers, render/page, render/export (blueprint)
-vendor/                           elkjs for layout; THIRD_PARTY_NOTICES.md lists it
+vendor/                           elkjs for layout
 tests/                            node --test suites, the golden harness (tests/README.md) and the gate checks under tests/checks/
 examples/mealkit/ddd/             a tiny but complete, valid chain (3 contexts, 2 deployables) with its review page, diagrams and decisions
 ```

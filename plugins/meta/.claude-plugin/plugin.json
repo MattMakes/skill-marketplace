@@ -1,0 +1,16 @@
+{
+  "name": "meta",
+  "displayName": "Skill Authoring",
+  "version": "1.0.0",
+  "description": "Make more skills and tools. skill-creator builds, evaluates and benchmarks Claude Code skills; mcp-builder guides a well-designed MCP server in Python or TypeScript; harvest clones a GitHub repository you name and installs the skills it finds into your local skills directory. skill-creator and mcp-builder are owned copies of the Apache-2.0 skills from anthropics/skills — see README.",
+  "author": {
+    "name": "Matt Scott"
+  },
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "skill-authoring",
+    "mcp",
+    "harvest"
+  ]
+}

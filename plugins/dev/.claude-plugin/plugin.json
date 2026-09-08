@@ -1,0 +1,20 @@
+{
+  "name": "dev",
+  "displayName": "Development Workflow",
+  "version": "1.0.0",
+  "description": "A development workflow as a chained skill pipeline over one ai_docs/ workspace: prime the codebase, brainstorm a design, analyze it from eight perspectives, break it into SLC phases, write a zero-context implementation plan, execute it in batches with reviewer subagents or a swarm, verify against the plan, review from eleven perspectives, describe the change, and hand off. Bundles four agents (codebase-locator, codebase-analyzer, codebase-pattern-finder, code-reviewer). Adapted in part from obra/superpowers, HumanLayer, wshobson/agents and BMAD-METHOD; see NOTICE.md.",
+  "author": {
+    "name": "Matt Scott"
+  },
+  "license": "MIT",
+  "keywords": [
+    "workflow",
+    "planning",
+    "brainstorming",
+    "code-review",
+    "tdd",
+    "debugging",
+    "subagents",
+    "handoff"
+  ]
+}

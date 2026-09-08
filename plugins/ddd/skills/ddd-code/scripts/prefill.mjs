@@ -1124,7 +1124,7 @@ function buildSkeleton(ws, briefs, repo, args) {
     scaffold: pyOrDict(get(prevCode, "scaffold"), { generated: false, root: roots.length === 1 ? roots[0] : "", files: [] }),
     handoff: {
       plan_path: `${rel}/08-code/implementation-plan.md`,
-      suggested_next: ["superpowers:writing-plans", "dev-create-plan", "superpowers:test-driven-development"],
+      suggested_next: ["dev:create-plan", "tools:test-driven-development"],
     },
     deprecated: getList(prevCode, "deprecated"),
   };

@@ -1,7 +1,8 @@
 # tools
 
-Nine small skills that do not belong to any one domain. Install the whole thing or copy out the
-one you want.
+Seventeen skills that do not belong to any one domain: nine of the owner's cross-cutting tools,
+and eight engineering disciplines vendored from upstream and maintained here. Install the whole
+thing or copy out the one you want.
 
 ```bash
 claude plugin install tools@skill-marketplace
@@ -21,19 +22,44 @@ claude plugin install tools@skill-marketplace
 | `unlazy` | Long autonomous runs that stall at 80%. Writes acceptance gates before execution, decomposes with the Depth Tree, runs approved checks, re-verifies evidence before reporting done. |
 | `unlazy-lite` | The same discipline with less ceremony. |
 
+### Engineering disciplines (vendored, see Credits)
+
+| Skill | Use it when |
+|---|---|
+| `systematic-debugging` | Any bug, test failure or unexpected behaviour, before proposing a fix. Four phases from reproduce to verify; refuses to guess. Carries `root-cause-tracing.md`, `defense-in-depth.md`, `condition-based-waiting.md` and a `find-polluter.sh` bisection script. |
+| `test-driven-development` | Any feature or bugfix, before writing implementation code. Red, green, refactor, with `writing-good-tests.md` for the rules that keep tests honest. |
+| `receiving-code-review` | Review feedback arrives, especially when it is unclear or technically questionable. Verify before implementing; no performative agreement. |
+| `using-git-worktrees` | Feature work that needs isolation from the current workspace. Prefers a native worktree tool, falls back to `git worktree`. |
+| `git-advanced-workflows` | Complex histories: rebase, cherry-pick, bisect, worktrees, reflog recovery. |
+| `error-handling-patterns` | Designing error handling across languages: exceptions, Result types, propagation, graceful degradation. |
+| `code-review-excellence` | Reviewing a change or setting review standards. Constructive, catches bugs early, keeps morale. |
+| `api-design-principles` | Designing or reviewing a REST or GraphQL API. Includes a checklist and a FastAPI template. |
+
 ## Credits
 
-Three of these are third-party work, bundled with their licenses intact:
+Vendored skills are supply-chain-controlled copies: each is maintained here.
+Upstream is re-pulled deliberately, not automatically.
 
-- **`unlazy` and `unlazy-lite`** — [Leonxlnx/unlazy](https://github.com/Leonxlnx/unlazy). MIT;
-  see `skills/unlazy/LICENSE` and `skills/unlazy-lite/LICENSE`.
-- **`adhd`** — based on [UditAkhourii/adhd](https://github.com/UditAkhourii/adhd). MIT, declared
-  in the skill's own frontmatter.
-- **`humanize`** — its clarity principles are adapted from softaworks/agent-tools, credited in
-  `skills/humanize/refs/compose-instructions.md`.
+Third-party work:
+
+- **`systematic-debugging`, `test-driven-development`, `receiving-code-review`,
+  `using-git-worktrees`** — [obra/superpowers](https://github.com/obra/superpowers) by Jesse
+  Vincent; copied from commit `b36e082` (2026-08-12). `superpowers:` cross-references were
+  repointed at `tools:` and `dev:` skills; the author's eval scratch files were dropped.
+- **`git-advanced-workflows`, `error-handling-patterns`, `code-review-excellence`,
+  `api-design-principles`** — [wshobson/agents](https://github.com/wshobson/agents) by Seth
+  Hobson; copied from commit `a30778f` (2026-09-01), from the `developer-essentials` and
+  `backend-development` plugins.
+
+- **`unlazy` and `unlazy-lite`** — [Leonxlnx/unlazy](https://github.com/Leonxlnx/unlazy).
+- **`adhd`** — based on [UditAkhourii/adhd](https://github.com/UditAkhourii/adhd).
+- **`humanize`** — its AI-pattern catalog and voice guidance are adapted from
+  [blader/humanizer](https://github.com/blader/humanizer) by Siqi Chen, itself based on
+  Wikipedia's "Signs of AI writing" (CC BY-SA). Its clarity principles are adapted from
+  softaworks/agent-tools, credited in `skills/humanize/refs/compose-instructions.md`.
 
 `mochi-deck`, `model-router`, `persona`, `pre-flight` and `post-flight` are the marketplace
-owner's, MIT.
+owner's.
 
 ## A note on `unlazy`
 
@@ -42,6 +68,9 @@ gate file. That is what they are for, but it means you should read a gate file b
 run. Their `scripts/install-hooks.mjs` writes hook entries into a settings file, and only when you
 invoke it directly. Installing this plugin wires no hooks.
 
+`systematic-debugging` ships `find-polluter.sh`, a bisection script that runs `npm test` per
+test file to find which one leaves state behind. It runs only when you invoke it.
+
 ## Invoking
 
-Namespaced under the plugin: `tools:adhd`, `tools:humanize`, and so on.
+Namespaced under the plugin: `tools:adhd`, `tools:humanize`, `tools:systematic-debugging`, and so on.

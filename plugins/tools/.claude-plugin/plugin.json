@@ -1,8 +1,8 @@
 {
   "name": "tools",
   "displayName": "Matt's Toolkit",
-  "version": "1.0.0",
-  "description": "Small cross-cutting skills: divergent ideation, human-sounding prose, spaced-repetition decks, model and subagent routing, an engineering persona, plan verification before and after implementation, and completion discipline for long autonomous runs. Contains third-party skills under their own licenses — see README.",
+  "version": "1.1.0",
+  "description": "Cross-cutting skills: divergent ideation, human-sounding prose, spaced-repetition decks, model and subagent routing, an engineering persona, plan verification before and after implementation, and completion discipline for long autonomous runs. Plus eight vendored engineering disciplines: systematic debugging, test-driven development, receiving code review, git worktrees, advanced git workflows, error-handling patterns, code review excellence and API design principles. Contains third-party skills under their own licenses — see README.",
   "author": {
     "name": "Matt Scott"
   },
@@ -11,6 +11,12 @@
     "writing",
     "verification",
     "workflow",
-    "routing"
+    "routing",
+    "debugging",
+    "tdd",
+    "code-review",
+    "git",
+    "api-design",
+    "error-handling"
   ]
 }

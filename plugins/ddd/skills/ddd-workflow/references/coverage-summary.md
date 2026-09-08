@@ -38,7 +38,7 @@ Review order (highest cost of being wrong first)
   7. 09-contracts — payload fields, required-ness and the semantics rules consumers will rely on
 
 Next
-  Implement: hand ddd/08-code/implementation-plan.md (with ddd/09-contracts/contracts.md as the message spec) to superpowers:writing-plans (or dev-create-plan), then TDD per slice.
+  Implement: hand ddd/08-code/implementation-plan.md (with ddd/09-contracts/contracts.md as the message spec) to dev:create-plan, then TDD per slice.
   Or continue the design: /ddd-<next step>   |   re-run a step: "run ddd from <step>"
 ```
 
@@ -69,6 +69,6 @@ Where each count comes from:
 When every step is `done` (no `next:` line), the "Next" block reads:
 ```
 Next
-  All 9 steps done. Implement: hand ddd/08-code/implementation-plan.md to superpowers:writing-plans (or dev-create-plan), then TDD per slice.
+  All 9 steps done. Implement: hand ddd/08-code/implementation-plan.md to dev:create-plan, then TDD per slice.
   Change a design decision: "run ddd from <step>" — every later step is re-run (they are stale by definition).
 ```

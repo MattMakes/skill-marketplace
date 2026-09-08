@@ -1,0 +1,28 @@
+{
+  "name": "static-analysis-cli",
+  "version": "1.0.0",
+  "description": "CLI for McCabe static analysis of Node.js projects",
+  "bin": {
+    "static-analysis": "./dist/index.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "static-analysis-core": "file:../core",
+    "cosmiconfig": "^9.0.0",
+    "ts-morph": "^24.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  },
+  "files": [
+    "dist"
+  ]
+}

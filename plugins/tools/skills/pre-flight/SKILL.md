@@ -235,8 +235,8 @@ For each external dependency that requires authentication:
 
 ## Integration
 
-- Called AFTER `/dev-create-plan` or `/dev-create-plan`
-- Called BEFORE `/dev-execute` or `/dev-swarm`
+- Called AFTER `/create-plan` or `/create-plan`
+- Called BEFORE `/execute-plan` or `/swarm`
 - If verdict is HOLD, fix issues in plan before proceeding
 - Save report to `ai_docs/reports/` for audit trail
 

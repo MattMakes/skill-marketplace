@@ -677,7 +677,7 @@ The majority of issues (70%) originate in brainstorming phase - we don't ask eno
 
 ## Integration
 
-- Called AFTER `/dev-execute` or `/dev-swarm` completes
+- Called AFTER `/execute-plan` or `/swarm` completes
 - If verdict shows issues, create fix tasks
 - Re-run after fixes to verify resolution
 - Only proceed to MR/deployment when verdict is CLEAR (including Phase 2 runtime verification)

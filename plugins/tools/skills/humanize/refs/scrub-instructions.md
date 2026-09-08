@@ -1,5 +1,9 @@
 # Scrub Instructions
 
+<!-- Derived from blader/humanizer (https://github.com/blader/humanizer), MIT, Copyright (c) 2025 Siqi Chen;
+     license text in ../LICENSE-humanizer. Patterns 1-25 follow that catalog, itself drawn from
+     Wikipedia's "Signs of AI writing" (CC BY-SA). Patterns 26-29 are this copy's additions. -->
+
 Walk through these 29 patterns. For each instance you find in the draft, rewrite using the After examples as guidance. These are the specific signature tells of LLM-generated text — applying Phase 1 alone will not catch them.
 
 ---

@@ -71,14 +71,13 @@ ddd/
 │   ├── schemas/         # one JSON Schema per step artifact, plus manifest.schema.json
 │   ├── references/      # artifact-contract.md (the envelope), modes.md (the protocol)
 │   ├── examples/        # the meal-kit workspace, complete with review page, diagrams and decisions
-│   ├── vendor/          # elkjs for layout (see THIRD_PARTY_NOTICES.md)
 │   └── tests/           # node --test suites, the golden harness and the gate checks
 └── skills/<name>/SKILL.md
 ```
 
 ## Requirements
 
-Node.js 18 or newer. Nothing to install: the CLI is plain ESM with one vendored layout library.
+Node.js 18 or newer. Nothing to install: the CLI is plain ESM.
 A local Chrome or Chromium is optional; it turns the SVG diagrams into PNG. The `blueprint` skill is
 optional; it turns the exported specs into the final render.
 
