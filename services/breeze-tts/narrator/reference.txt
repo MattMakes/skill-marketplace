@@ -1,0 +1,1 @@
+This is the narrator voice for these explainers. It stays the same from the first paragraph to the last, so the article sounds like one person reading it aloud.
