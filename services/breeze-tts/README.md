@@ -91,6 +91,29 @@ keeps MLX on a single thread without locking anywhere else.
 no model, which makes it the fast path for testing the pipeline end to end — and a usable fallback
 if the model is unavailable. `BREEZE_ENGINE=breeze` (the default) is the real thing.
 
+## Security posture
+
+This binds `127.0.0.1` and has no authentication, which is the right trade for a personal
+tool but means localhost is the only boundary. Two consequences are handled explicitly:
+
+- **Any local process can reach it.** So one request is capped — 1000 segments, 20k characters
+  each, 500k total (`BREEZE_MAX_SEGMENTS`, `BREEZE_MAX_SEGMENT_CHARS`, `BREEZE_MAX_TOTAL_CHARS`).
+  Without a cap, a single POST could queue days of GPU work and fill the disk.
+- **A web page can be pointed at a loopback service.** DNS rebinding re-resolves a hostname to
+  127.0.0.1 after the page loads, so the browser treats the local service as same-origin and can
+  read its responses. `TrustedHostMiddleware` rejects any request whose `Host` is not a loopback
+  name; set `BREEZE_ALLOWED_HOSTS` if you deliberately front this with a proxy.
+
+Job ids are validated against `[0-9a-f]{12}` before they are joined onto a filesystem path.
+`JOBS_DIR / job_id` would otherwise accept `..`, or an absolute path — `pathlib` discards the
+left side when the right is absolute — and one of those paths is served back as a file.
+
+`jobs/` keeps the text of everything you have narrated, in plaintext, until you clear it.
+`just down` clears it; if you narrate anything sensitive, that is the thing to remember.
+
+Weights are `.safetensors`, which cannot execute code on load, and nothing here passes
+`trust_remote_code`. The vendored port makes no network calls of its own.
+
 ## Licensing — read before publishing anything
 
 The service code here follows the repository's licence. The vendored port is Apache-2.0 and keeps

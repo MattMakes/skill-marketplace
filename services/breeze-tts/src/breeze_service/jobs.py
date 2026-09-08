@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import queue
+import re
 import threading
 import time
 import traceback
@@ -26,6 +27,17 @@ from .text import normalize, split
 ROOT = Path(__file__).resolve().parents[2]
 JOBS_DIR = ROOT / "jobs"
 MAX_CHARS = 350  # one generation is capped at 1500 codec frames; stay well under
+
+# A job id is concatenated onto a filesystem path, so it is validated rather than
+# trusted. `JOBS_DIR / job_id` would happily accept ".." or, because pathlib's `/`
+# discards the base when the right side is absolute, "/etc/passwd". The router
+# normalises away most of that today, but that is the framework's behaviour, not this
+# service's guarantee, so the shape is pinned here instead.
+JOB_ID = re.compile(r"\A[0-9a-f]{12}\Z")
+
+
+def valid_job_id(job_id: str) -> bool:
+    return bool(JOB_ID.match(job_id))
 
 
 @dataclass
@@ -75,6 +87,8 @@ class Worker:
         return job_id
 
     def read(self, job_id: str) -> dict | None:
+        if not valid_job_id(job_id):
+            return None
         path = JOBS_DIR / job_id / "job.json"
         if not path.is_file():
             return None
@@ -82,7 +96,9 @@ class Worker:
         job.pop("segments", None)  # the caller sent them; no need to echo them back
         return job
 
-    def audio_path(self, job_id: str) -> Path:
+    def audio_path(self, job_id: str) -> Path | None:
+        if not valid_job_id(job_id):
+            return None
         return JOBS_DIR / job_id / "narration.mp3"
 
     def _write(self, job_id: str, job: dict) -> None:
