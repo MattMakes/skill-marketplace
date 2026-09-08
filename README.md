@@ -87,7 +87,6 @@ Understand a codebase, then verify it.
 | `core` | Primes a repo once into a zero-token knowledge graph plus a tree of `CLAUDE.md` contracts, so later questions cost a graph query instead of a file sweep. **Start here.** |
 | `deepwiki` | Generates and maintains wiki documentation with line-level source citations and validated Mermaid. |
 | `explain-diff` | Turns a diff, branch or change into a self-contained HTML explainer: background, intuition, code walkthrough and an interactive quiz. |
-| `explain-diff-notion` | The same explainer, published as a Notion page through a Notion MCP server you configure. |
 | `security-sweep` | A multi-agent security audit with per-stack OWASP, STRIDE, secrets and supply-chain catalogs. |
 | `complexity-sweep` | Flags over-complex TypeScript and JavaScript functions and either refactors them or writes the refactoring prompt. |
 | `e2e-harness` | Discovers a polyglot system from its own docs and generates a runnable end-to-end suite across Node, Python, Go, C#, Rust, Kafka and Playwright. |

@@ -1,10 +1,10 @@
 # code — Code Intelligence
 
-Seven skills for working on a codebase you did not write. Four help you
-understand it: `core` primes it, `explain-diff` and `explain-diff-notion` teach
-you a change to it, and `deepwiki` writes its documentation. Three verify it:
-`e2e-harness` proves it still works end to end, `security-sweep` audits it, and
-`complexity-sweep` measures its complexity.
+Six skills for working on a codebase you did not write. Three help you
+understand it: `core` primes it, `explain-diff` teaches you a change to it,
+and `deepwiki` writes its documentation. Three verify it: `e2e-harness` proves
+it still works end to end, `security-sweep` audits it, and `complexity-sweep`
+measures its complexity.
 
 ```bash
 claude plugin install code@skill-marketplace
@@ -139,12 +139,6 @@ enough responsive styling to read on a phone. The skill writes it to
 ship alongside the code and sort by date. There are no scripts; the model
 writes the page.
 
-`explain-diff-notion` is the same brief with a different destination: it builds
-the page in Notion, with the quiz as toggle blocks, and returns the page URL. It
-needs a Notion MCP server configured in your own Claude Code settings; this
-plugin wires none, and the skill stops rather than falling back to a file if no
-Notion tools are present.
-
 ---
 
 # `deepwiki` — documentation that cites its sources
@@ -265,7 +259,7 @@ The graph layer is **[graphify](https://github.com/Graphify-Labs/graphify)**
 (PyPI package `graphifyy`), used as-is. This plugin only chooses the flags that
 keep it deterministic and free.
 
-`explain-diff` and `explain-diff-notion` are adapted from **[Geoffrey Litt's
+`explain-diff` is adapted from **[Geoffrey Litt's
 explain-diff gist](https://gist.github.com/geoffreylitt/a29df1b5f9865506e8952488eac3d524)**
 — the four-section structure, the Kleppmann-style writing brief and the
 interactive quiz are his. The quiz-fairness rule comes from the gist's
