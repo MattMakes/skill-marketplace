@@ -29,11 +29,13 @@ MAX_TOTAL_CHARS = int(os.environ.get("BREEZE_MAX_TOTAL_CHARS", "500000"))
 app = FastAPI(title="breeze-tts-service", version="0.1.0")
 
 # Rejects requests whose Host is not a loopback name, which is what a DNS-rebinding page
-# has to send. Set BREEZE_ALLOWED_HOSTS to override if you front this with a proxy.
+# has to send. Starlette strips the port with a plain split on ":", so a bracketed IPv6
+# host can never match; that costs nothing here because the server binds IPv4 loopback
+# only. Set BREEZE_ALLOWED_HOSTS if you deliberately front this with a proxy.
 app.add_middleware(
     TrustedHostMiddleware,
     allowed_hosts=[h for h in os.environ.get(
-        "BREEZE_ALLOWED_HOSTS", "127.0.0.1,localhost,::1,testserver").split(",") if h],
+        "BREEZE_ALLOWED_HOSTS", "127.0.0.1,localhost,testserver").split(",") if h],
 )
 
 worker = Worker(engine_name=os.environ.get("BREEZE_ENGINE"), max_chars=int(os.environ.get("BREEZE_MAX_CHARS", MAX_CHARS)))
