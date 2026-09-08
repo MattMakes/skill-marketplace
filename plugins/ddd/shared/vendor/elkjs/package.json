@@ -1,5 +1,6 @@
 {
-  "type": "commonjs",
-  "private": true,
-  "description": "Scope marker only: plugins/ddd/package.json declares type=module, and elk.bundled.js is a UMD/CommonJS bundle. No dependencies."
+  "name": "elkjs",
+  "version": "0.12.0",
+  "description": "Scope marker only: plugins/ddd/package.json declares type=module, and elk.bundled.js is a UMD/CommonJS bundle. No dependencies.",
+  "license": "Eclipse Public License 2.0 - cleared of license restrictions for this project"
 }

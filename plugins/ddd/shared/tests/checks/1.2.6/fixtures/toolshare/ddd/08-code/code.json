@@ -845,9 +845,8 @@
     "plan_path": "ddd/08-code/implementation-plan.md",
     "suggested_next": [
       "ddd-contracts",
-      "superpowers:writing-plans",
-      "dev-create-plan",
-      "superpowers:test-driven-development"
+      "dev:create-plan",
+      "tools:test-driven-development"
     ]
   },
   "deprecated": [],

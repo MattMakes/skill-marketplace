@@ -4,15 +4,15 @@
   "owner": {
     "name": "Matt Scott"
   },
-  "description": "Claude Code plugin marketplace for engineering work: the 9-step DDD Starter Modelling Process as a chained pipeline with a bundled diagram renderer, codebase priming and generated end-to-end suites, a game-development review board backed by cited rules, multi-agent fleet orchestration, and a toolkit of thinking and verification skills.",
-  "version": "1.1.0",
+  "description": "Claude Code plugin marketplace for engineering work: a development-workflow pipeline from brainstorm to shipped change, the 9-step DDD Starter Modelling Process as a chained pipeline with a bundled diagram renderer, codebase priming, rich diff and PR explainers, wiki generation, security sweeps and generated end-to-end suites, a game-development review board backed by cited rules, multi-agent fleet orchestration, skill and MCP-server authoring, and a toolkit of thinking, discipline and verification skills.",
+  "version": "1.3.0",
   "plugins": [
     {
       "name": "code",
       "displayName": "Code Intelligence",
       "source": "./plugins/code",
-      "description": "Understand a codebase, then verify it. core primes a repo once into a zero-token knowledge graph plus a CORE tree of CLAUDE.md contracts, so later questions cost a graph query instead of a file sweep. e2e-harness discovers a polyglot system from its own docs and generates runnable end-to-end suites across Node, Python, Go, C#, Rust, Kafka and Playwright.",
-      "version": "1.0.0",
+      "description": "Understand a codebase, then verify it. core primes a repo once — a deterministic zero-token knowledge graph via graphify plus a CORE tree of CLAUDE.md contracts with AGENTS.md symlinks — so later questions cost a graph query instead of a file sweep. explain-diff and explain-diff-notion turn a diff, branch or PR into an explainer with background, intuition, a code walkthrough and a quiz, as a self-contained HTML page or a Notion page; the HTML explainer narrates itself, reading its prose aloud with a follow-along player, when a local text-to-speech service is available. deepwiki generates and maintains wiki-style docs with line-level citations and validated Mermaid diagrams. e2e-harness discovers a polyglot system from its own docs and generates runnable end-to-end suites across Node, Python, Go, C#, Rust, Kafka and Playwright. security-sweep orchestrates a multi-agent OWASP, STRIDE, secrets, supply-chain and LLM-security audit with a verifier fan-out and a CSO report. complexity-sweep measures 14 complexity metrics on TypeScript and JavaScript and turns each violation into a refactoring. CORE is adapted from DOX (agent0ai/dox, MIT); explain-diff is adapted from Geoffrey Litt's explain-diff gist.",
+      "version": "1.2.0",
       "author": {
         "name": "Matt Scott"
       },
@@ -26,7 +26,37 @@
         "agents-md",
         "e2e",
         "testing",
-        "playwright"
+        "playwright",
+        "diff",
+        "pull-request",
+        "code-explanation",
+        "notion",
+        "wiki",
+        "documentation",
+        "security",
+        "static-analysis"
+      ]
+    },
+    {
+      "name": "dev",
+      "displayName": "Development Workflow",
+      "source": "./plugins/dev",
+      "description": "A development workflow as a chained skill pipeline over one ai_docs/ workspace: prime the codebase, brainstorm a design, analyze it from eight perspectives, break it into SLC phases, write a zero-context implementation plan, execute it in batches with reviewer subagents or a swarm, verify against the plan, review from eleven perspectives, describe the change, and hand off. Bundles four agents (codebase-locator, codebase-analyzer, codebase-pattern-finder, code-reviewer). Adapted in part from obra/superpowers, HumanLayer, wshobson/agents and BMAD-METHOD; see NOTICE.md.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Matt Scott"
+      },
+      "license": "MIT",
+      "category": "development",
+      "keywords": [
+        "workflow",
+        "planning",
+        "brainstorming",
+        "code-review",
+        "tdd",
+        "debugging",
+        "subagents",
+        "handoff"
       ]
     },
     {
@@ -76,8 +106,8 @@
       "name": "herdr",
       "displayName": "herdr Fleet",
       "source": "./plugins/herdr",
-      "description": "Run a herdr multi-agent worker fleet: an orchestrator that decomposes work, spawns and assigns workers by tier and integrates results through the horch CLI; the worker side of that protocol; and deterministic scripts for driving the herdr terminal workspace manager. Requires the herdr CLI (herdr.dev), which is not bundled.",
-      "version": "1.0.0",
+      "description": "Run a herdr multi-agent worker fleet: an orchestrator that decomposes work, spawns and assigns workers by tier and integrates results through the horch CLI; the worker side of that protocol; deterministic scripts for driving the herdr terminal workspace manager; and a setup skill that checks the machine and fills only the gaps. Requires the herdr CLI (herdr.dev), which is not bundled.",
+      "version": "1.1.0",
       "author": {
         "name": "Matt Scott"
       },
@@ -96,8 +126,8 @@
       "name": "tools",
       "displayName": "Matt's Toolkit",
       "source": "./plugins/tools",
-      "description": "Small cross-cutting skills: divergent ideation, human-sounding prose, spaced-repetition decks, model and subagent routing, an engineering persona, plan verification before and after implementation, and completion discipline for long autonomous runs. Contains third-party skills under their own licenses — see the plugin README.",
-      "version": "1.0.0",
+      "description": "Cross-cutting skills: divergent ideation, human-sounding prose, spaced-repetition decks, model and subagent routing, an engineering persona, plan verification before and after implementation, and completion discipline for long autonomous runs. Plus eight vendored engineering disciplines: systematic debugging, test-driven development, receiving code review, git worktrees, advanced git workflows, error-handling patterns, code review excellence and API design principles. Contains third-party skills under their own licenses — see README.",
+      "version": "1.1.0",
       "author": {
         "name": "Matt Scott"
       },
@@ -107,7 +137,31 @@
         "writing",
         "verification",
         "workflow",
-        "routing"
+        "routing",
+        "debugging",
+        "tdd",
+        "code-review",
+        "git",
+        "api-design"
+      ]
+    },
+    {
+      "name": "meta",
+      "displayName": "Skill Authoring",
+      "source": "./plugins/meta",
+      "description": "Make more skills and tools. skill-creator builds, evaluates and benchmarks Claude Code skills; mcp-builder guides a well-designed MCP server in Python or TypeScript; harvest clones a GitHub repository you name and installs the skills it finds into your local skills directory. skill-creator and mcp-builder are owned copies of the Apache-2.0 skills from anthropics/skills — see README.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Matt Scott"
+      },
+      "license": "MIT",
+      "category": "workflow",
+      "keywords": [
+        "skills",
+        "skill-authoring",
+        "mcp",
+        "mcp-server",
+        "harvest"
       ]
     }
   ]

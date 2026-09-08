@@ -47,6 +47,6 @@ Each slice is a vertical slice (Event Modeling): one command or one view, specif
 - {{things deliberately deferred, with the open-question id}}
 
 ## Hand-off
-1. Run `superpowers:writing-plans` (or `dev-create-plan`) on this file to expand each slice into tasks with exact paths, code and commands.
-2. Implement slice by slice with `superpowers:test-driven-development` / `dev-tdd`: invariant tests first, watch them fail, then the minimum code.
+1. Run `dev:create-plan` on this file to expand each slice into tasks with exact paths, code and commands.
+2. Implement slice by slice with `dev:tdd`: invariant tests first, watch them fail, then the minimum code.
 3. If implementation changes an aggregate boundary or a message contract, update the canvas / `code.json` and re-run `ddd validate ddd --step code`; upstream changes → `ddd-workflow` marks steps stale.

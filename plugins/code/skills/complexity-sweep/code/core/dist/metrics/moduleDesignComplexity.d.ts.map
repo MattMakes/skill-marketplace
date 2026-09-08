@@ -1,0 +1,1 @@
+{"version":3,"file":"moduleDesignComplexity.d.ts","sourceRoot":"","sources":["../../src/metrics/moduleDesignComplexity.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,KAAK,IAAI,EAAc,MAAM,UAAU,CAAC;AACjD,OAAO,EAEL,KAAK,gBAAgB,EAEtB,MAAM,aAAa,CAAC;AAoBrB,wBAAgB,6BAA6B,CAAC,IAAI,EAAE,IAAI,GAAG,MAAM,CAchE;AAiBD,QAAA,MAAM,sBAAsB,EAAE,gBAW7B,CAAC;AAEF,eAAe,sBAAsB,CAAC"}

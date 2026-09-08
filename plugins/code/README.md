@@ -1,7 +1,10 @@
 # code — Code Intelligence
 
-Two skills for working on a codebase you did not write: `core` primes it, and
-`e2e-harness` proves it still works.
+Seven skills for working on a codebase you did not write. Four help you
+understand it: `core` primes it, `explain-diff` and `explain-diff-notion` teach
+you a change to it, and `deepwiki` writes its documentation. Three verify it:
+`e2e-harness` proves it still works end to end, `security-sweep` audits it, and
+`complexity-sweep` measures its complexity.
 
 ```bash
 claude plugin install code@skill-marketplace
@@ -112,6 +115,106 @@ bill rather than a placeholder.
 
 ---
 
+# `explain-diff` — a change you can actually learn from
+
+Point it at a diff, a branch or a PR and it writes one self-contained HTML page
+that explains the change to someone who was not there when it was made.
+
+```
+/explain-diff origin/main..feature/retry-budget
+```
+
+The page always has the same four sections, in this order:
+
+| Section | What it does |
+|---|---|
+| **Background** | The part of the existing system the change touches — a deep version for a newcomer, marked skippable, then the narrow version the change actually depends on. The skill explores surrounding code to write this, not just the diff. |
+| **Intuition** | The essence of the change with toy data and reusable HTML diagrams (a simplified UI, a data-flow picture with example values). No ASCII art. |
+| **Code** | A walkthrough of the diff, grouped and ordered so it reads as a story rather than a file list. |
+| **Quiz** | Five interactive multiple-choice questions, medium difficulty, with feedback on click. The correct answer is shuffled across positions and options are kept the same length so it cannot be guessed. |
+
+It is a single file with its own CSS and JavaScript, a table of contents, and
+enough responsive styling to read on a phone. The skill writes it to
+`docs/YYYY-MM-DD-explanation-<slug>.html` at the repository root, so explainers
+ship alongside the code and sort by date. There are no scripts; the model
+writes the page.
+
+`explain-diff-notion` is the same brief with a different destination: it builds
+the page in Notion, with the quiz as toggle blocks, and returns the page URL. It
+needs a Notion MCP server configured in your own Claude Code settings; this
+plugin wires none, and the skill stops rather than falling back to a file if no
+Notion tools are present.
+
+---
+
+# `deepwiki` — documentation that cites its sources
+
+Generates, validates and maintains a wiki for a codebase under `docs/wiki/`:
+a `toc.json`, one page per topic, every claim cited as `file:line`, and Mermaid
+diagrams that are linted before they are accepted. It also covers the smaller
+jobs that fall out of that: an onboarding guide, `AGENTS.md`, `llms.txt`, a
+changelog, an incremental sync after code changes, and answering a question
+about an unfamiliar repo with citations.
+
+```
+/deepwiki document this repo
+/deepwiki update the docs for the changes since v2.3
+```
+
+Eleven scripts, all stdlib Python 3 — no `pip install`. Three of them shell out,
+and only to `git` (`diff`, `log`) to find what changed since the last documented
+commit. The one optional step that needs npm is publishing the wiki as a
+VitePress site. Validation is a gate: a page with an invalid diagram or a
+missing citation is fixed, not shipped.
+
+---
+
+# `security-sweep` — a security audit with a paper trail
+
+Orchestrates a multi-agent audit of the current repo in seven phases: detect the
+stack, plan which auditors to run, run them in parallel (OWASP, secrets,
+supply chain, LLM security, STRIDE modelling), queue every finding for an
+independent verifier fan-out, write an exploit scenario for each confirmed
+high-confidence finding, and assemble a CSO-style report.
+
+```
+/security-sweep
+```
+
+Everything lands in `ai_docs/security-sweep/runs/<RUN_ID>/` inside the repo, one
+JSON or Markdown file per stage, and every agent reads the previous stage from
+disk rather than from another agent's reply so nothing drifts in transit. The
+auditor, verifier and exploit-author prompts are inline in the skill, so it
+dispatches only generic subagents. Six Node scripts (Node 18.17 or newer, no
+dependencies) handle the deterministic parts: stack detection, dispatch
+planning, queueing, and report assembly. Language catalogs for Node, Python, Go
+and .NET give each auditor a concrete checklist. Nothing calls out to the
+network.
+
+---
+
+# `complexity-sweep` — complexity you can act on
+
+Runs a bundled static-analysis CLI over TypeScript and JavaScript, measuring 14
+metrics in five families (control flow such as McCabe cyclomatic and essential
+complexity, data flow, cognitive load, information density such as Halstead,
+and composites such as the maintainability index), then reviews each function
+that breaks a threshold and either refactors it directly, re-running the
+analysis to confirm, or emits one structured refactoring prompt per function.
+It can also generate the repo's config file.
+
+```
+/complexity-sweep src/**/*.ts
+/complexity-sweep the files changed on this branch
+```
+
+The CLI ships as source plus a built `dist/` under `code/`; on first use the
+skill runs `npm install --omit=dev` in `code/core` and `code/cli` (ts-morph and
+cosmiconfig). Read-only against the target repo apart from the refactorings you
+ask for.
+
+---
+
 # `e2e-harness` — a documented system becomes a running suite
 
 Five phases; four of them are deterministic and belong to the `e2e` CLI, not to a
@@ -151,7 +254,7 @@ tree carries a real sample project; its `node_modules/` and generated
 ## Credits
 
 The CORE contract is adapted from **[DOX](https://github.com/agent0ai/dox)** by
-agent0ai (MIT) — the hierarchical `AGENTS.md`-as-binding-contract idea, the
+agent0ai — the hierarchical `AGENTS.md`-as-binding-contract idea, the
 pre-edit and closeout discipline, and the child index are all theirs. CORE
 rewrites it around `CLAUDE.md` as the real file so contracts load on demand
 rather than being traversed by hand, drops the manual re-read rule that
@@ -162,4 +265,11 @@ The graph layer is **[graphify](https://github.com/Graphify-Labs/graphify)**
 (PyPI package `graphifyy`), used as-is. This plugin only chooses the flags that
 keep it deterministic and free.
 
-MIT.
+`explain-diff` and `explain-diff-notion` are adapted from **[Geoffrey Litt's
+explain-diff gist](https://gist.github.com/geoffreylitt/a29df1b5f9865506e8952488eac3d524)**
+— the four-section structure, the Kleppmann-style writing brief and the
+interactive quiz are his. The quiz-fairness rule comes from the gist's
+discussion thread.
+
+`deepwiki`, `security-sweep` and `complexity-sweep` are the marketplace
+owner's.

@@ -1,0 +1,148 @@
+{
+  "project": {
+    "name": "{PROJECT_NAME}",
+    "description": "{PROJECT_DESCRIPTION}",
+    "repo_base_url": "{REPO_BASE_URL}",
+    "ref_commit_hash": "{COMMIT_HASH}",
+    "updated_at": "{DATE}",
+    "language": "en-US"
+  },
+  "pages": [
+    {
+      "id": "{repo}_01_overview",
+      "title": "Overview",
+      "filename": "01_overview.md",
+      "description": "Project introduction and key features",
+      "source_files": [
+        "README.md",
+        "package.json"
+      ],
+      "sections": [
+        {
+          "id": "{repo}_01_overview_introduction",
+          "title": "Introduction",
+          "description": "Purpose and goals of the project",
+          "autogen": true,
+          "diagrams_needed": false,
+          "diagram_types": []
+        },
+        {
+          "id": "{repo}_01_overview_features",
+          "title": "Key Features",
+          "description": "Main features, what each one does",
+          "autogen": true,
+          "diagrams_needed": true,
+          "diagram_types": [
+            "flowchart"
+          ]
+        },
+        {
+          "id": "{repo}_01_overview_tech-stack",
+          "title": "Technology Stack",
+          "description": "Languages, frameworks and key dependencies",
+          "autogen": true,
+          "diagrams_needed": false,
+          "diagram_types": []
+        }
+      ],
+      "related_pages": [
+        "{repo}_02_architecture",
+        "{repo}_03_getting-started"
+      ]
+    },
+    {
+      "id": "{repo}_02_architecture",
+      "title": "Architecture",
+      "filename": "02_architecture.md",
+      "description": "System architecture and design",
+      "source_files": [
+        "src/**/*"
+      ],
+      "sections": [
+        {
+          "id": "{repo}_02_architecture_overview",
+          "title": "Architecture Overview",
+          "description": "High-level system architecture",
+          "autogen": true,
+          "diagrams_needed": true,
+          "diagram_types": [
+            "flowchart",
+            "class"
+          ]
+        },
+        {
+          "id": "{repo}_02_architecture_components",
+          "title": "Core Components",
+          "description": "Main components and their responsibilities",
+          "autogen": true,
+          "diagrams_needed": true,
+          "diagram_types": [
+            "class"
+          ]
+        },
+        {
+          "id": "{repo}_02_architecture_data-flow",
+          "title": "Data Flow",
+          "description": "How data moves through the system",
+          "autogen": true,
+          "diagrams_needed": true,
+          "diagram_types": [
+            "flowchart",
+            "sequence"
+          ]
+        }
+      ],
+      "related_pages": [
+        "{repo}_01_overview"
+      ]
+    },
+    {
+      "id": "{repo}_03_getting-started",
+      "title": "Getting Started",
+      "filename": "03_getting-started.md",
+      "description": "Installation and setup",
+      "source_files": [
+        "README.md",
+        "Makefile",
+        "docker-compose.yml"
+      ],
+      "sections": [
+        {
+          "id": "{repo}_03_getting-started_prerequisites",
+          "title": "Prerequisites",
+          "description": "Required tools and dependencies",
+          "autogen": true,
+          "diagrams_needed": false,
+          "diagram_types": []
+        },
+        {
+          "id": "{repo}_03_getting-started_installation",
+          "title": "Installation",
+          "description": "Step-by-step installation",
+          "autogen": true,
+          "diagrams_needed": true,
+          "diagram_types": [
+            "flowchart"
+          ]
+        },
+        {
+          "id": "{repo}_03_getting-started_quick-start",
+          "title": "Quick Start",
+          "description": "Minimal steps to get running",
+          "autogen": true,
+          "diagrams_needed": false,
+          "diagram_types": []
+        }
+      ],
+      "related_pages": [
+        "{repo}_01_overview"
+      ]
+    }
+  ],
+  "notes": [
+    "Template - customise pages to the project. Remove pages that do not apply.",
+    "Replace {repo} with the repository name, and {PLACEHOLDERS} with real values.",
+    "Omit project.repo_base_url for a local-only repo; citations then use (file:line).",
+    "Page and section ids must be globally unique - incremental-sync keys off them."
+  ]
+}

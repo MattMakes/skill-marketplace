@@ -1,8 +1,8 @@
 {
   "name": "herdr",
   "displayName": "herdr Fleet",
-  "version": "1.0.0",
-  "description": "Run a herdr multi-agent worker fleet. herdr-orchestrator decomposes the work, spawns and assigns workers by tier, answers blocked workers and integrates results through the horch CLI. herdr-worker is the other side of that protocol. herdr-atomic wraps the herdr terminal workspace manager in deterministic scripts. Requires the herdr CLI (herdr.dev), which is not bundled.",
+  "version": "1.1.0",
+  "description": "Run a herdr multi-agent worker fleet. herdr-orchestrator decomposes the work, spawns and assigns workers by tier, answers blocked workers and integrates results through the horch CLI. herdr-worker is the other side of that protocol. herdr-atomic wraps the herdr terminal workspace manager in deterministic scripts. herdr-setup checks the machine (herdr CLI, horch on PATH, agent integrations) and fills only the gaps. Requires the herdr CLI (herdr.dev), which is not bundled.",
   "author": {
     "name": "Matt Scott"
   },

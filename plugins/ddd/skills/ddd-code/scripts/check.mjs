@@ -392,7 +392,7 @@ export async function main(argv) {
     for (const cid of designed.keys()) {
       if (!low.includes(S(cid).toLowerCase())) rep.warn(`implementation-plan.md never mentions context '${S(cid)}'`);
     }
-    if (!/hand-?off/.test(low)) rep.warn("implementation-plan.md has no hand-off section (writing-plans / dev-create-plan / TDD)");
+    if (!/hand-?off/.test(low)) rep.warn("implementation-plan.md has no hand-off section (dev:create-plan / TDD)");
     const firstSlice = /^#{2,3}\s+slice\s*1\b.*$/mi.exec(plan);
     if (coreCtx.length && firstSlice && !coreCtx.some((cc) => firstSlice[0].toLowerCase().includes(S(cc).toLowerCase()))) {
       const end = firstSlice.index + firstSlice[0].length;

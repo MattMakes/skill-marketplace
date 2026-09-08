@@ -27,4 +27,4 @@ Implements `aggregate-canvas-subscription.md` I1/I2 with in-memory adapters; tes
 ## Slice 4 — read models (WeeklyMenu), end-to-end scenario S1.
 
 ## Hand-off
-Hand this plan to `superpowers:writing-plans` (or `dev-create-plan`), then implement each slice with `superpowers:test-driven-development` / `dev-tdd`.
+Hand this plan to `dev:create-plan`, then implement each slice with `dev:tdd`.

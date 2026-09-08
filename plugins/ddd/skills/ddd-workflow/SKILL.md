@@ -112,7 +112,7 @@ Produce it when a pipeline run ends or when the user asks for it. Use
 `references/coverage-summary.md`. It lists every artifact with its absolute path, the step
 statuses, open-question counts (blocking ones quoted), open `decisions[]`, warnings from `ddd validate`, the deployable
 count vs `scale_target`, the core domain(s), the review page and diagrams (Step 5), and the hand-off (`ddd/08-code/implementation-plan.md` +
-`ddd/09-contracts/contracts.md` → `superpowers:writing-plans` / `dev-create-plan` → TDD). A reader who sees only this message must
+`ddd/09-contracts/contracts.md` → `dev:create-plan` → TDD). A reader who sees only this message must
 know what exists, what is uncertain, and what to do next.
 
 ## Hard decisions, at any step

@@ -178,7 +178,7 @@ holds the design together when an agent writes the code:
    naming into `CLAUDE.md` / `AGENTS.md` / rules files. Say "one interface per use case",
    "never import the ORM/framework in `domain/`", "in-memory adapter for every driven port".
 3. **Invariants as failing tests before implementation** — the plan's slices name the tests; the
-   agent must see them fail first (superpowers:test-driven-development / dev-tdd).
+   agent must see them fail first (dev:tdd).
 4. **Small units**: one aggregate per file/folder, one use case per file, so an edit fits one
    bounded concern in the context window.
 5. **Review for drift**, not just for correctness: a passing feature that added a repository call
