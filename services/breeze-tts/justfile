@@ -1,0 +1,79 @@
+# breeze-tts — the local narration service behind code:explain-diff.
+#
+#   just install   first run: set everything up, then start it (downloads ~3.5 GB)
+#   just start     start an already-installed service and wait for the model
+#   just down      stop it and clear runtime state (weights and venv are kept)
+#
+# Everything runs from this directory. Override the port with BREEZE_TTS_PORT.
+
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+port := env_var_or_default("BREEZE_TTS_PORT", "8477")
+
+# Show the available recipes.
+default:
+    @just --list --unsorted
+
+# Install everything and start it. Safe to re-run; setup is idempotent.
+install:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ./scripts/setup.sh
+    just start
+
+# Start the service, then wait until the model has finished loading.
+start:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ./scripts/serve.sh --daemon
+    # The server answers /health straight away but reports "loading" for the ~45 s it
+    # takes to pull 3B parameters into memory, so waiting here means that by the time
+    # this recipe returns, a narration request will actually be served.
+    printf 'waiting for the model'
+    for _ in $(seq 1 120); do
+      if ./scripts/status.sh >/dev/null 2>&1; then
+        printf '\n'
+        ./scripts/status.sh
+        exit 0
+      fi
+      printf '.'
+      sleep 2
+    done
+    printf '\n'
+    echo "the model did not come up; see .server.log" >&2
+    exit 1
+
+# Stop the service and clear runtime state. Weights and the venv survive.
+down:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ./scripts/stop.sh
+    rm -rf jobs
+    rm -f .server.log .setup.log smoke.wav
+    echo "stopped, runtime state cleared — weights and venv kept ('just purge' removes those too)"
+
+# Is it up? Exit 0 ready, 3 loading or down, 1 the engine failed to load.
+status:
+    @./scripts/status.sh
+
+# Follow the server log.
+logs:
+    @tail -f .server.log
+
+# Generate one clip and report the realtime factor.
+smoke *args:
+    @./scripts/smoke.sh {{args}}
+
+# Re-record the narrator voice, e.g. just voice "A dry, unhurried British narrator."
+voice *instruction:
+    @./scripts/make-voice.sh {{instruction}}
+
+# Remove the venv and downloaded weights; the next install re-fetches ~3.5 GB.
+[confirm("This deletes the venv and ~3.5 GB of downloaded weights. Continue?")]
+purge:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ./scripts/stop.sh || true
+    rm -rf .venv models jobs
+    rm -f .server.log .setup.log .server.pid smoke.wav
+    echo "purged — run 'just install' to rebuild"

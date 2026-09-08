@@ -158,9 +158,10 @@ text into an MP3 plus the exact times each paragraph is spoken. `code:explain-di
 its HTML explainers read themselves aloud with a follow-along player.
 
 ```bash
-services/breeze-tts/scripts/setup.sh          # once: vendor the port, fetch ~3.5 GB of weights
-services/breeze-tts/scripts/serve.sh --daemon # start it
-services/breeze-tts/scripts/status.sh         # exit 0 ready, 3 loading or down
+cd services/breeze-tts
+just install   # once: vendor the port, fetch ~3.5 GB of weights, start it
+just start     # start it again later
+just down      # stop it
 ```
 
 Narration is always optional. With the service down, `explain-diff` writes exactly the explainer

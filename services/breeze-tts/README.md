@@ -23,10 +23,23 @@ an MLX reimplementation, vendored at a pinned commit.
 Run these from this directory (`services/breeze-tts`):
 
 ```bash
+just install   # first run: vendor the port, resolve deps, fetch ~3.5 GB of weights, start
+just start     # start an installed service and wait for the model to load
+just down      # stop it and clear runtime state; weights and venv are kept
+```
+
+`just` also gives you `status`, `logs`, `smoke`, `voice` and `purge` — run `just` on its own to
+list them. Each recipe is a thin wrapper over the scripts in `scripts/`, which work on their own
+if you would rather not install `just`:
+
+```bash
 scripts/setup.sh          # vendor the port, resolve deps, download ~3.5 GB of weights
 scripts/serve.sh --daemon # start; the model takes ~45 s to load
 scripts/status.sh         # exit 0 ready, 3 loading or down, 1 engine failed
 ```
+
+`just start` waits for the model rather than returning the moment the server binds, so when it
+comes back a narration request will actually be answered.
 
 Everything is pinned in `model.lock.json` — the weights revision and the port commit — so a fresh
 clone reproduces this exact setup.
