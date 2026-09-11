@@ -46,5 +46,3 @@ Narration:
   Anything else: show the script's stderr. Never narrate by hand or substitute another tool.
 
 - Quiz fairness (from the discussion on the source gist): shuffle the position of the correct answer across questions and keep every option about the same length and specificity, so the right answer cannot be guessed from its position or because it is the longest.
-
-Source: https://gist.github.com/geoffreylitt/a29df1b5f9865506e8952488eac3d524 (harvested 2026-09-06).
