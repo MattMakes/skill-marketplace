@@ -6,7 +6,7 @@ paragraphs of the HTML that `explain-diff` produces, and embed an MP3 player in 
 explainer reads itself aloud while you follow along?*
 
 > **Outcome (same day): built and working.** The service lives in
-> `../breeze-tts-service`; `explain-diff` narrates through it when it is running and
+> `services/breeze-tts`; `explain-diff` narrates through it when it is running and
 > silently skips when it is not. Measured speed on this M5 Max: **1.02x realtime** on a
 > single long passage, **1.86x** across a multi-paragraph article — close to the
 > optimistic end of the estimate below. The phased plan was followed, but the `say`
@@ -232,7 +232,7 @@ article, not just diffs. (Repo convention leans `.mjs` for scripts; MLX forces P
 
 ## What was actually built
 
-- `../breeze-tts-service` — the MLX port vendored at a pinned commit, weights pinned by revision
+- `services/breeze-tts` — the MLX port vendored at a pinned commit, weights pinned by revision
   in `model.lock.json`, a job API, a committed narrator reference for voice consistency, and
   `scripts/` for setup, serve, stop, status, smoke and voice minting.
 - `plugins/code/skills/explain-diff/scripts/` — `narrate.mjs` (the client), `html.mjs`

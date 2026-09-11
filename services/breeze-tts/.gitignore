@@ -1,0 +1,15 @@
+models/
+chkpt-*/
+jobs/
+.venv/
+vendor/*/.venv/
+__pycache__/
+*.pyc
+*.wav
+*.mp3
+*.aiff
+.server.pid
+.server.log
+!narrator/reference.wav
+.setup.log
+smoke.wav
