@@ -4,9 +4,9 @@ Use Blueprint for architecture, sequences, workflows, data flow, lifecycle, and 
 
 ## Find the installed skill
 
-Invoke the available `ddd:blueprint` skill, or read the discovered Blueprint `SKILL.md`. In a checkout of this marketplace it lives at `plugins/ddd/skills/blueprint/SKILL.md`. Set a shell variable `BLUEPRINT_SKILL_DIR` to the actual absolute directory you found, then use `"$BLUEPRINT_SKILL_DIR/bin/blueprint.mjs"`.
+Invoke `code:blueprint`, or read `${CLAUDE_PLUGIN_ROOT}/skills/blueprint/SKILL.md`. Blueprint and explain-diff are both owned by the code plugin; in this marketplace the renderer lives at `plugins/code/skills/blueprint/`. Set `BLUEPRINT_SKILL_DIR` to that skill's actual absolute directory and use `"$BLUEPRINT_SKILL_DIR/bin/blueprint.mjs"`.
 
-`${CLAUDE_PLUGIN_ROOT}` in **this** skill is the **code** plugin, not ddd. Do not construct `${CLAUDE_PLUGIN_ROOT}/skills/blueprint`, assume sibling installed plugins share a version/cache directory, or copy the renderer into code. Code remains usable alone: if ddd/Blueprint or Node is unavailable, use self-contained inline SVG/HTML figures with the same factual constraints and briefly disclose that Blueprint validation was unavailable. No automatic plugin install or external renderer service.
+For a loose copy of explain-diff, discover an available Blueprint skill rather than assuming installed plugins share a cache directory. If Blueprint or Node is unavailable, use self-contained inline SVG/HTML figures with the same factual constraints and disclose that Blueprint validation was unavailable. Do not install a plugin automatically or copy the renderer into the consumer.
 
 ## Choose what to explain
 

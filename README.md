@@ -1,8 +1,8 @@
 # skill-marketplace
 
 A Claude Code plugin marketplace for engineering work. The plugins are grouped by the job they do:
-carry a change from idea to review (`dev`), design a system before building it (`ddd`), understand
-and verify a codebase you did not write (`code`), review game work (`game`), run a fleet of agents
+carry a change from idea to review (`dev`), design, diagram, understand
+and verify systems (`code`), review game work (`game`), run a fleet of agents
 (`herdr`), think and finish well (`tools`), and make more skills (`meta`).
 
 ## Install
@@ -11,7 +11,6 @@ and verify a codebase you did not write (`code`), review game work (`game`), run
 claude plugin marketplace add MattMakes/skill-marketplace
 
 claude plugin install dev@skill-marketplace
-claude plugin install ddd@skill-marketplace
 claude plugin install code@skill-marketplace
 claude plugin install game@skill-marketplace
 claude plugin install herdr@skill-marketplace
@@ -56,40 +55,31 @@ merge request on GitLab or a pull request on GitHub; the skills detect `glab` or
 
 Agents: `codebase-locator`, `codebase-analyzer`, `codebase-pattern-finder`, `code-reviewer`.
 
-## `ddd` — DDD Modelling
-
-The DDD Starter Modelling Process as a chained pipeline over one `ddd/` workspace, each step
-schema-validated before the next runs. Every `ddd mark` rebuilds a self-contained review page with
-diagrams, explorers and decision cards. **Start with `ddd-workflow`.** Node ≥ 18, no other runtime.
-
-| Skill | What it does |
-|---|---|
-| `ddd-workflow` | Runs the whole process, shows status, re-runs a step and marks the rest stale. |
-| `ddd-understand` | Why the system exists and for whom: business model, impact map, capabilities. |
-| `ddd-discover` | EventStorming the domain into events, commands, policies and hotspots. |
-| `ddd-decompose` | Cuts the domain into subdomains and bounded contexts, and draws the context map. |
-| `ddd-strategize` | Core, supporting or generic: where to invest, what to buy, which pattern per subdomain. |
-| `ddd-connect` | How contexts talk: message flows, sequence diagrams, sync versus async, coupling. |
-| `ddd-organise` | Team Topologies and deployable units, checked against the scale you asked for. |
-| `ddd-define` | A Bounded Context Canvas per context, plus the system context diagram and glossary. |
-| `ddd-code` | Tactical DDD: aggregates, invariants, ports and adapters, an implementation plan. |
-| `ddd-contracts` | A JSON Schema payload, an example and an owner for every message that crosses a boundary. |
-| `blueprint` | The bundled renderer: architecture, workflow, sequence, data-flow and state diagrams with animated walkthroughs, offline fonts and image export. Also supports schema relationship overviews. |
-
-Agent: `ddd-decision-strategist`, for the calls that have to be argued rather than read off an artifact.
-
 ## `code` — Code Intelligence
 
-Understand a codebase, then verify it.
+Design, understand, and verify systems. Choose the entry point for the job:
 
-| Skill | What it does |
+| Start here | What it does |
 |---|---|
-| `core` | Primes a repo once into a zero-token knowledge graph plus a tree of `CLAUDE.md` contracts, so later questions cost a graph query instead of a file sweep. **Start here.** |
-| `deepwiki` | Generates and maintains wiki documentation with line-level source citations and validated Mermaid. |
-| `explain-diff` | Turns a diff, branch or change into a self-contained HTML explainer: background, intuition, code walkthrough, an interactive quiz, and embedded Blueprint diagrams when ddd is installed. |
-| `security-sweep` | A multi-agent security audit with per-stack OWASP, STRIDE, secrets and supply-chain catalogs. |
-| `complexity-sweep` | Flags over-complex TypeScript and JavaScript functions and either refactors them or writes the refactoring prompt. |
-| `e2e-harness` | Discovers a polyglot system from its own docs and generates a runnable end-to-end suite across Node, Python, Go, C#, Rust, Kafka and Playwright. |
+| `ddd` | Starts or resumes domain modelling; routes through nine step skills with shared artifacts, validation gates, and a review page. |
+| `blueprint` | Creates standalone architecture, workflow, sequence, data-flow and state diagrams with animated walkthroughs, offline fonts, and image export. Also supplies diagrams to DDD and explain-diff. |
+| `core` | Primes an existing repo into a knowledge graph and `CLAUDE.md` contracts. |
+| `explain-diff` | Explains a diff, branch or PR with background, intuition, a code walkthrough, an interactive quiz, and embedded Blueprint diagrams. |
+| `deepwiki` | Generates and maintains wiki documentation with source citations and validated Mermaid. |
+| `security-sweep` | Audits security across stacks with OWASP, STRIDE, secrets and supply-chain checks. |
+| `complexity-sweep` | Measures TypeScript/JavaScript complexity and suggests or implements refactorings. |
+| `e2e-harness` | Generates runnable end-to-end suites from system documentation. |
+
+For DDD, invoke **`code:ddd`** rather than choosing a step first. It routes through
+`ddd-understand` → `ddd-discover` → `ddd-decompose` → `ddd-strategize` → `ddd-connect` →
+`ddd-organise` → `ddd-define` → `ddd-code` → `ddd-contracts`. The
+`code:ddd-decision-strategist` agent supports difficult design decisions.
+Node ≥ 18 runs the DDD and Blueprint tools. See the [DDD guide](plugins/code/docs/ddd.md)
+and [code plugin guide](plugins/code/README.md).
+
+The former `ddd` plugin is now part of `code`. Update/install `code@skill-marketplace`
+and remove the old `ddd` plugin to avoid duplicate skills. Replace `ddd:ddd-workflow`
+with `code:ddd`; existing project `ddd/` workspaces need no conversion.
 
 ## `game` — Game Dev Review Board
 
@@ -184,16 +174,16 @@ Some skills write outside their own install directory, on purpose, when you run 
 into `~/.claude/skills` (`CLAUDE_SKILLS_DIR` overrides); `core`'s prime installs `graphify` plus
 git and Claude Code hooks into the repo you point it at (`graph.sh --no-hooks` skips the hooks);
 and `meta`'s `harvest` clones the GitHub repository you name and copies its skills into
-`~/.claude/skills`. [SECURITY.md](SECURITY.md) spells them all out. The `dev` and `ddd` pipelines
+`~/.claude/skills`. [SECURITY.md](SECURITY.md) spells them all out. The `dev` and `code:ddd` pipelines
 write their working documents inside the repository you run them in (`ai_docs/` and `ddd/`), which
 is the point.
 
 ## Skill names are namespaced
 
 Installed as plugins, skills are addressed as `<plugin>:<skill>` — `dev:workflow`,
-`ddd:ddd-workflow`, `code:core`, `herdr:herdr-orchestrator`, `tools:humanize`. Agents too:
-`ddd:ddd-decision-strategist`, `dev:codebase-locator`. The skills that dispatch their siblings
-(`dev:workflow`, `ddd:ddd-workflow` and every agent-dispatch site) use the namespaced form,
+`code:ddd`, `code:core`, `herdr:herdr-orchestrator`, `tools:humanize`. Agents too:
+`code:ddd-decision-strategist`, `dev:codebase-locator`. The skills that dispatch their siblings
+(`dev:workflow`, `code:ddd` and every agent-dispatch site) use the namespaced form,
 including across plugins: the `dev` pipeline calls `tools:pre-flight` and `tools:post-flight`,
 which stay in `tools` so existing installs keep working. A bare name may still resolve when it is
 unambiguous, but do not rely on it.
@@ -204,7 +194,7 @@ triggering a coin flip.
 
 ## What is not in the repo
 
-Most of a clone is the `ddd` plugin's golden test fixtures. `.gitignore` keeps the rest out:
+Most of a clone is the DDD golden test fixtures under `code/shared`. `.gitignore` keeps the rest out:
 
 | Ignored | Why |
 |---|---|

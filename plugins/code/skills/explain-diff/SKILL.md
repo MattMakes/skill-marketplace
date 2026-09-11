@@ -1,6 +1,6 @@
 ---
 name: explain-diff
-description: Use when the user asks for a rich explanation of a code change, diff, branch, or PR. Produces a self-contained HTML explainer with an interactive quiz and Blueprint diagrams for architecture, sequences, data flow, and schema relationships when the ddd plugin is available.
+description: Use when the user asks for a rich explanation of a code change, diff, branch, or PR. Produces a self-contained HTML explainer with an interactive quiz and Blueprint diagrams for architecture, sequences, data flow, and schema relationships when Blueprint is available.
 ---
 
 # Explain Diff
@@ -18,7 +18,7 @@ Format:
 
 - Output a single self-contained HTML file which includes CSS and JavaScript. Make the whole thing one long page with section headers and a table of contents. Don't use tabs for the top-level structure. Basic responsive styling so you can view it on a phone is nice too. Save the file in the `docs/` folder at the root of the repository (find the root with `git rev-parse --show-toplevel`; create `docs/` if it does not exist), and make sure the filename always starts with today's date in `YYYY-MM-DD-` format, because it keeps the explainers time-sorted. For example: docs/2026-01-12-explanation-<slug>.html
 - Please write with the clarity and flow of Martin Kleppmann, making it engaging and written in classic style. Transitions between sections should be smooth.
-- Use `ddd:blueprint` for technical diagrams when available. Read [references/blueprint-diagrams.md](references/blueprint-diagrams.md) for skill discovery, diagram selection, before/after evidence, schema/ERD treatment, and self-contained embedding. Use a small number of reusable diagram families that explain the change, with concrete example data. Simple UI mockups can remain HTML/CSS. If Blueprint is unavailable, continue with inline SVG/HTML figures and disclose the fallback; do not install another plugin automatically.
+- Use `code:blueprint` for technical diagrams when available. Read [references/blueprint-diagrams.md](references/blueprint-diagrams.md) for skill discovery, diagram selection, before/after evidence, schema/ERD treatment, and self-contained embedding. Use a small number of reusable diagram families that explain the change, with concrete example data. Simple UI mockups can remain HTML/CSS. If Blueprint is unavailable, continue with inline SVG/HTML figures and disclose the fallback; do not install another plugin automatically.
 - Don't use ASCII diagrams. Use Blueprint's rendered HTML/SVG for technical figures, simple HTML/CSS for UI sketches, and HTML lists for lists.
   - For code blocks, always use `<pre>` tags. If you use a custom styled div instead, it **must** have
     `white-space: pre-wrap` in its CSS, or the browser will collapse all newlines into a single line.

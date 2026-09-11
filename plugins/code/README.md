@@ -1,10 +1,20 @@
 # code — Code Intelligence
 
-Six skills for working on a codebase you did not write. Three help you
-understand it: `core` primes it, `explain-diff` teaches you a change to it,
-and `deepwiki` writes its documentation. Three verify it: `e2e-harness` proves
-it still works end to end, `security-sweep` audits it, and `complexity-sweep`
-measures its complexity.
+Design a system, understand an existing codebase, explain a change, or verify the implementation.
+
+## Start here
+
+| What you want to do | Invoke |
+|---|---|
+| Design a system with DDD, resume a model, or find the next modelling step | `code:ddd` |
+| Draw or animate an architecture, sequence, workflow, data flow, or schema relationship | `code:blueprint` |
+| Understand an unfamiliar repository | `code:core` |
+| Understand a diff, branch, or PR | `code:explain-diff` |
+| Document or verify implementation | `code:deepwiki`, `code:e2e-harness`, `code:security-sweep`, `code:complexity-sweep` |
+
+`ddd` is the DDD kickoff; it routes to nine focused step skills and keeps the workspace and validation gates consistent. See the [DDD guide](docs/ddd.md) for the full process. Blueprint is independently invocable and also supplies diagrams to DDD and explain-diff. There is one renderer in `skills/blueprint`.
+
+Migrating from the old `ddd` plugin: install/update `code@skill-marketplace`, then remove the old `ddd` plugin to avoid duplicate DDD skills. Invoke `code:ddd` in place of `ddd:ddd-workflow`; step and agent names now use the `code:` namespace. Existing project `ddd/` workspaces and their JSON formats are unchanged.
 
 ```bash
 claude plugin install code@skill-marketplace
@@ -136,8 +146,7 @@ The page always has the same four sections, in this order:
 It is a single file with its own CSS and JavaScript, a table of contents, and
 enough responsive styling to read on a phone. The skill writes it to
 `docs/YYYY-MM-DD-explanation-<slug>.html` at the repository root, so explainers
-ship alongside the code and sort by date. With the `ddd` plugin installed,
-`explain-diff` uses its `blueprint` skill for validated diagrams, finite trace
+ship alongside the code and sort by date. `explain-diff` uses the same plugin’s `code:blueprint` skill for validated diagrams, finite trace
 motion and guided walkthroughs. `embed-blueprint.mjs` embeds each complete viewer
 in an isolated iframe inside the article; fonts, scripts and styles travel with
 the single HTML file. Typed diagram JSON is retained for later edits. Without
