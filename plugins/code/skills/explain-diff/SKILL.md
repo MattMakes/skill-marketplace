@@ -25,10 +25,12 @@ Format:
     Before saving the file, scan each code block in the HTML source and confirm its CSS includes
     `white-space: pre` or `pre-wrap`.
 - Use callouts for key concepts or definitions, important edge cases, etc.
+- Keep quiz headings inside padded cards, aligned with the answer column. Use a labeled group and a normal heading, or explicitly style fieldset legends so they do not straddle the card border; wrapped question text should align beneath itself.
 
 Before delivery:
 
 - Validate and visually inspect Blueprint diagrams, then inspect the assembled article. Check that each embedded viewer loads, its theme/trace/story controls work where enabled, diagram labels remain readable, and the quiz and table of contents still work. Inspect desktop and narrow layouts; the article should scroll vertically without horizontal overflow. Do not apply Blueprint's standalone first-screen height limit to this long page.
+- Check the actual iframe dimensions: the top toolbar must clear the title, guided-view row, and diagram canvas. A standalone containment check can pass while these elements overlap inside a shorter article embed.
 - Preserve the diagram JSON sources for later revision. State validation and browser-review limits honestly; a valid diagram does not prove the surrounding code explanation.
 
 Narration:

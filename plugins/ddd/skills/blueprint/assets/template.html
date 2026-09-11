@@ -746,6 +746,13 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
     .header { margin-bottom: 1.5rem; padding-right: 29.5rem; }
 
+    /* The fixed toolbar ends 60px below the viewport top. Compact reader
+       layouts can start the header at 6px, so reserve its vertical footprint
+       as well as its width before placing guided views or the diagram. */
+    @media (min-width: 721px) {
+      .header { min-height: 4rem; }
+    }
+
     html[data-preset="signal-flow"] .header,
     html[data-preset="blueprint"] .header,
     html[data-preset="editorial"] .header { padding-right: 29.5rem; }
