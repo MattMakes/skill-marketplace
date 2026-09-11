@@ -2,7 +2,8 @@
 
 Narrating a long article takes minutes to tens of minutes, far longer than any
 sensible HTTP request, so synthesis is a job: submit, poll, then fetch the MP3.
-Jobs live on disk, so a server restart mid-article does not lose finished audio.
+Job metadata and completed audio live on disk. The queue and unfinished audio
+are in memory; interrupted jobs are not automatically recovered after a restart.
 
 One worker thread, and only that thread ever touches the engine. That serialises
 GPU work and keeps MLX on a single thread without any locking elsewhere.

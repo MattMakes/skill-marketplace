@@ -12,6 +12,20 @@ Narration is optional by construction. The client
 (`plugins/code/skills/explain-diff/scripts/narrate.mjs`) probes `/health`, and when this service
 is not running it exits 3 and leaves the explainer untouched.
 
+DDD, Blueprint, and explain-diff now all live in the `code` plugin. This service stays
+outside the plugin installation and needs no path changes when those skills are updated.
+For an explainer containing Blueprint viewers, embed and inspect the diagrams first, then
+narrate only the marked article prose. From the repository root:
+
+```bash
+node plugins/code/skills/explain-diff/scripts/narrate.mjs docs/<explainer>.html --inline
+```
+
+`--inline` keeps the audio inside the same self-contained HTML file. Diagram controls, code,
+navigation, and quiz content are excluded by the skill's narration markers. Exit 4 means the
+job is still running; rerun the same command while the service remains running to pick it up.
+
+
 ## Requirements
 
 An Apple Silicon Mac, plus `brew install uv sox ffmpeg`. The model itself is not Mac-native —
@@ -79,8 +93,11 @@ scripts/make-voice.sh "A dry, unhurried British narrator."
 | `GET /v1/narrate/{id}` | Progress, then `cues`, `duration`, `realtime_factor` when done. |
 | `GET /v1/narrate/{id}/audio.mp3` | The finished narration. |
 
-Jobs are written to `jobs/<id>/`, so restarting the server mid-article does not throw away audio
-that has already been generated.
+Job metadata and completed MP3s are written to `jobs/<id>/`. Unfinished audio and the work
+queue are held in memory: restarting the server interrupts synthesis, and queued/running jobs
+are not automatically recovered. To restart an interrupted article, remove its adjacent
+`<explainer>.html.narration.json` client sidecar and rerun the narration command; it starts a
+new job from the beginning. Completed jobs remain available unless you clear `jobs/`.
 
 The service binds `127.0.0.1` only. One worker thread owns the model: it serialises GPU work and
 keeps MLX on a single thread without locking anywhere else.
