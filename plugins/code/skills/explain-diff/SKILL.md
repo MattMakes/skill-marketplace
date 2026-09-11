@@ -1,6 +1,6 @@
 ---
 name: explain-diff
-description: Use when the user asks for a rich explanation of a code change, diff, branch, or PR. Produces HTML output.
+description: Use when the user asks for a rich explanation of a code change, diff, branch, or PR. Produces a self-contained HTML explainer with an interactive quiz and Blueprint diagrams for architecture, sequences, data flow, and schema relationships when Blueprint is available.
 ---
 
 # Explain Diff
@@ -18,15 +18,20 @@ Format:
 
 - Output a single self-contained HTML file which includes CSS and JavaScript. Make the whole thing one long page with section headers and a table of contents. Don't use tabs for the top-level structure. Basic responsive styling so you can view it on a phone is nice too. Save the file in the `docs/` folder at the root of the repository (find the root with `git rev-parse --show-toplevel`; create `docs/` if it does not exist), and make sure the filename always starts with today's date in `YYYY-MM-DD-` format, because it keeps the explainers time-sorted. For example: docs/2026-01-12-explanation-<slug>.html
 - Please write with the clarity and flow of Martin Kleppmann, making it engaging and written in classic style. Transitions between sections should be smooth.
-- Some tips on diagrams. Ideally, you should pick a small number of diagram families that can be reused throughout the explanation to explain various cases. Some useful kinds of diagrams:
-  - A very simplified version of the UI that the user sees in the app, to explain UI changes.
-  - A system diagram showing data flow or communication between components. Make sure to include example data here!
-- Don't use ASCII diagrams. Always use simple HTML designs for your diagrams, HTML lists for lists of things, etc.
+- Use `code:blueprint` for technical diagrams when available. Read [references/blueprint-diagrams.md](references/blueprint-diagrams.md) for skill discovery, diagram selection, before/after evidence, schema/ERD treatment, and self-contained embedding. Use a small number of reusable diagram families that explain the change, with concrete example data. Simple UI mockups can remain HTML/CSS. If Blueprint is unavailable, continue with inline SVG/HTML figures and disclose the fallback; do not install another plugin automatically.
+- Don't use ASCII diagrams. Use Blueprint's rendered HTML/SVG for technical figures, simple HTML/CSS for UI sketches, and HTML lists for lists.
   - For code blocks, always use `<pre>` tags. If you use a custom styled div instead, it **must** have
     `white-space: pre-wrap` in its CSS, or the browser will collapse all newlines into a single line.
     Before saving the file, scan each code block in the HTML source and confirm its CSS includes
     `white-space: pre` or `pre-wrap`.
 - Use callouts for key concepts or definitions, important edge cases, etc.
+- Keep quiz headings inside padded cards, aligned with the answer column. Use a labeled group and a normal heading, or explicitly style fieldset legends so they do not straddle the card border; wrapped question text should align beneath itself.
+
+Before delivery:
+
+- Validate and visually inspect Blueprint diagrams, then inspect the assembled article. Check that each embedded viewer loads, its theme/trace/story controls work where enabled, diagram labels remain readable, and the quiz and table of contents still work. Inspect desktop and narrow layouts; the article should scroll vertically without horizontal overflow. Do not apply Blueprint's standalone first-screen height limit to this long page.
+- Check the actual iframe dimensions: the top toolbar must clear the title, guided-view row, and diagram canvas. A standalone containment check can pass while these elements overlap inside a shorter article embed.
+- Preserve the diagram JSON sources for later revision. State validation and browser-review limits honestly; a valid diagram does not prove the surrounding code explanation.
 
 Narration:
 
@@ -36,10 +41,10 @@ Narration:
   quiz. Where a paragraph leans on inline code that would read badly aloud, add
   `data-tts-text="the spoken version"` to that element and the narrator says that instead.
 - After saving the HTML, run
-  `node ${CLAUDE_PLUGIN_ROOT}/skills/explain-diff/scripts/narrate.mjs <file.html>`
+  `node ${CLAUDE_PLUGIN_ROOT}/skills/explain-diff/scripts/narrate.mjs <file.html> --inline`
   (allow a 10 minute timeout; synthesis runs at roughly real time, so a long explainer takes
-  about as many minutes as it does to listen to). Add `--inline` to embed the audio and keep the
-  file self-contained instead of writing an MP3 beside it.
+  about as many minutes as it does to listen to). Keep `--inline` so audio is embedded in the
+  self-contained file. Run narration after embedding all figures.
 - Act on the exit code and nothing else. `0`: say the narrated player is embedded. `3`: say in one
   sentence that the narration service is not running, and stop — the explainer is complete without
   it. `4`: say narration is still generating and the same command can be re-run to pick it up.

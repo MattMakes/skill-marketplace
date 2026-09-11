@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "A cache miss, explained",
+    "viewBox": [1100, 480],
+    "column_fit": "spread",
+    "quality_profile": "showcase",
+    "visual_preset": "signal-flow",
+    "animation": "trace",
+    "views": [
+      { "id": "lookup", "label": "1. Try the cache", "focus": ["browser", "api", "cache"], "note": "An illustrative request for order 42 looks up order:42." },
+      { "id": "fallback", "label": "2. Read durable state", "focus": ["api", "database"], "note": "On a miss, the API reads the order from the database." },
+      { "id": "response", "label": "3. Return the order", "focus": ["api", "browser"], "note": "The response contains the same order ID used in the request." }
+    ]
+  },
+  "participants": [
+    { "id": "browser", "type": "frontend", "label": "Browser" },
+    { "id": "api", "type": "backend", "label": "Orders API" },
+    { "id": "cache", "type": "database", "label": "Cache" },
+    { "id": "database", "type": "database", "label": "Database" }
+  ],
+  "messages": [
+    { "id": "request", "from": "browser", "to": "api", "y": 160, "label": "GET /orders/42", "variant": "emphasis" },
+    { "id": "lookup", "from": "api", "to": "cache", "y": 200, "label": "GET order:42" },
+    { "id": "miss", "from": "cache", "to": "api", "y": 245, "label": "miss", "variant": "return" },
+    { "id": "query", "from": "api", "to": "database", "y": 290, "label": "SELECT order 42", "variant": "emphasis" },
+    { "id": "row", "from": "database", "to": "api", "y": 335, "label": "id=42, status=paid", "variant": "return" },
+    { "id": "response", "from": "api", "to": "browser", "y": 380, "label": "200 {id:42, status:paid}", "variant": "return" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "Read the order of events", "items": ["Time runs downward; arrows are authored calls and returns", "Use the named chapters to follow this one request"] },
+    { "dot": "violet", "title": "Illustrative scope", "items": ["This example shows the miss path only", "Cache fill, retries and authentication are outside this view"] }
+  ]
+}

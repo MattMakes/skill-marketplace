@@ -1,8 +1,8 @@
 {
   "name": "code",
   "displayName": "Code Intelligence",
-  "version": "1.3.0",
-  "description": "Understand a codebase, then verify it. core primes a repo once — a deterministic zero-token knowledge graph via graphify plus a CORE tree of CLAUDE.md contracts with AGENTS.md symlinks — so later questions cost a graph query instead of a file sweep. explain-diff turns a diff, branch or PR into a self-contained HTML explainer with background, intuition, a code walkthrough and a quiz; it narrates itself, reading its prose aloud with a follow-along player, when a local text-to-speech service is available. deepwiki generates and maintains wiki-style docs with line-level citations and validated Mermaid diagrams. e2e-harness discovers a polyglot system from its own docs and generates runnable end-to-end suites across Node, Python, Go, C#, Rust, Kafka and Playwright. security-sweep orchestrates a multi-agent OWASP, STRIDE, secrets, supply-chain and LLM-security audit with a verifier fan-out and a CSO report. complexity-sweep measures 14 complexity metrics on TypeScript and JavaScript and turns each violation into a refactoring. CORE is adapted from DOX (agent0ai/dox, MIT); explain-diff is adapted from Geoffrey Litt's explain-diff gist.",
+  "version": "1.5.0",
+  "description": "Design, understand, and verify systems. Start with ddd for domain modelling, core for an existing codebase, blueprint for a standalone diagram, or explain-diff for a change. core primes a repo once \u2014 a deterministic zero-token knowledge graph via graphify plus a CORE tree of CLAUDE.md contracts with AGENTS.md symlinks \u2014 so later questions cost a graph query instead of a file sweep. explain-diff turns a diff, branch or PR into a self-contained HTML explainer with background, intuition, a code walkthrough, a quiz, and embedded Blueprint diagrams from the same plugin; it narrates itself, reading its prose aloud with a follow-along player, when a local text-to-speech service is available. deepwiki generates and maintains wiki-style docs with line-level citations and validated Mermaid diagrams. e2e-harness discovers a polyglot system from its own docs and generates runnable end-to-end suites across Node, Python, Go, C#, Rust, Kafka and Playwright. security-sweep orchestrates a multi-agent OWASP, STRIDE, secrets, supply-chain and LLM-security audit with a verifier fan-out and a CSO report. complexity-sweep measures 14 complexity metrics on TypeScript and JavaScript and turns each violation into a refactoring. CORE is adapted from DOX (agent0ai/dox, MIT); explain-diff is adapted from Geoffrey Litt's explain-diff gist. ddd kicks off the nine-step DDD Starter Modelling Process over one workspace with validators, a review page, diagrams and recorded decisions. Blueprint renders architecture, workflow, sequence, data-flow and lifecycle diagrams with animated walkthroughs and offline fonts. The DDD and Blueprint tools require Node.js 18 or newer.",
   "author": {
     "name": "Matt Scott"
   },
@@ -29,6 +29,12 @@
     "security",
     "owasp",
     "static-analysis",
-    "complexity"
+    "complexity",
+    "ddd",
+    "domain-driven-design",
+    "eventstorming",
+    "bounded-context",
+    "blueprint",
+    "architecture"
   ]
 }
