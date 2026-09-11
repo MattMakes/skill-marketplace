@@ -129,15 +129,23 @@ The page always has the same four sections, in this order:
 | Section | What it does |
 |---|---|
 | **Background** | The part of the existing system the change touches — a deep version for a newcomer, marked skippable, then the narrow version the change actually depends on. The skill explores surrounding code to write this, not just the diff. |
-| **Intuition** | The essence of the change with toy data and reusable HTML diagrams (a simplified UI, a data-flow picture with example values). No ASCII art. |
+| **Intuition** | The essence of the change with toy data, Blueprint diagrams for architecture, sequences and data flow, plus HTML UI sketches. Schema changes get relationship maps and field tables. No ASCII art. |
 | **Code** | A walkthrough of the diff, grouped and ordered so it reads as a story rather than a file list. |
 | **Quiz** | Five interactive multiple-choice questions, medium difficulty, with feedback on click. The correct answer is shuffled across positions and options are kept the same length so it cannot be guessed. |
 
 It is a single file with its own CSS and JavaScript, a table of contents, and
 enough responsive styling to read on a phone. The skill writes it to
 `docs/YYYY-MM-DD-explanation-<slug>.html` at the repository root, so explainers
-ship alongside the code and sort by date. There are no scripts; the model
-writes the page.
+ship alongside the code and sort by date. With the `ddd` plugin installed,
+`explain-diff` uses its `blueprint` skill for validated diagrams, finite trace
+motion and guided walkthroughs. `embed-blueprint.mjs` embeds each complete viewer
+in an isolated iframe inside the article; fonts, scripts and styles travel with
+the single HTML file. Typed diagram JSON is retained for later edits. Without
+Blueprint, the skill uses inline SVG/HTML and reports the fallback.
+
+Schema/ERD explanations use labeled foreign-key relationships plus field tables;
+Blueprint does not implement native crow's-foot notation. Optional narration
+runs after diagram embedding, with inline audio and no spoken diagram controls.
 
 ---
 

@@ -74,7 +74,7 @@ diagrams, explorers and decision cards. **Start with `ddd-workflow`.** Node ≥ 
 | `ddd-define` | A Bounded Context Canvas per context, plus the system context diagram and glossary. |
 | `ddd-code` | Tactical DDD: aggregates, invariants, ports and adapters, an implementation plan. |
 | `ddd-contracts` | A JSON Schema payload, an example and an owner for every message that crosses a boundary. |
-| `blueprint` | The bundled renderer: architecture, sequence, data-flow and state diagrams as standalone HTML, with image export. Usable on its own. |
+| `blueprint` | The bundled renderer: architecture, workflow, sequence, data-flow and state diagrams with animated walkthroughs, offline fonts and image export. Also supports schema relationship overviews. |
 
 Agent: `ddd-decision-strategist`, for the calls that have to be argued rather than read off an artifact.
 
@@ -86,7 +86,7 @@ Understand a codebase, then verify it.
 |---|---|
 | `core` | Primes a repo once into a zero-token knowledge graph plus a tree of `CLAUDE.md` contracts, so later questions cost a graph query instead of a file sweep. **Start here.** |
 | `deepwiki` | Generates and maintains wiki documentation with line-level source citations and validated Mermaid. |
-| `explain-diff` | Turns a diff, branch or change into a self-contained HTML explainer: background, intuition, code walkthrough and an interactive quiz. |
+| `explain-diff` | Turns a diff, branch or change into a self-contained HTML explainer: background, intuition, code walkthrough, an interactive quiz, and embedded Blueprint diagrams when ddd is installed. |
 | `security-sweep` | A multi-agent security audit with per-stack OWASP, STRIDE, secrets and supply-chain catalogs. |
 | `complexity-sweep` | Flags over-complex TypeScript and JavaScript functions and either refactors them or writes the refactoring prompt. |
 | `e2e-harness` | Discovers a polyglot system from its own docs and generates a runnable end-to-end suite across Node, Python, Go, C#, Rust, Kafka and Playwright. |

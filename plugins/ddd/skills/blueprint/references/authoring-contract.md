@@ -75,13 +75,14 @@ Renderer-owned default legend labels follow `meta.locale`; author a
 `meta.legend.entries.*.label` override only when the diagram needs different
 domain wording, and keep that authored override in the primary language.
 
-## Visual preset default
+## Visual preset selection
 
-Omit `meta.visual_preset` by default. The renderer then opens the diagram in
-`classic` for both light and dark color modes. Color mode and visual preset are
-independent viewer state: switching Light / Dark must preserve the current
-preset. Author `signal-flow`, `blueprint`, or `editorial` only when the user
-explicitly requests that visual style.
+Choose `meta.visual_preset` using [visual-storytelling.md](visual-storytelling.md):
+`signal-flow` for animated runtime explanations, `blueprint` for structural
+maps, `editorial` for quieter article figures, or `classic` for a neutral view.
+Omitting it retains the renderer's `classic` default. Color mode and preset are
+independent: switching Light / Dark must preserve the current preset. Keep the
+same preset across related before/after figures unless a style change is requested.
 
 ## Engineering profile default
 

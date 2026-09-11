@@ -98,3 +98,17 @@ with them.
 
 Namespaced under the plugin: `ddd:ddd-workflow`, `ddd:ddd-discover`, and so on.
 `ddd-workflow` uses those names when it calls its siblings.
+
+## Blueprint visuals
+
+Use `blueprint` independently for architecture, workflow, sequence, data-flow and
+lifecycle diagrams. It keeps the bundled viewer's dark/light themes, four visual
+presets, finite trace motion, guided views and image exports. JetBrains Mono is
+embedded in HTML and SVG/raster exports for consistent offline typography.
+
+Runtime explainers can use `signal-flow` with trace motion; structural schema
+views use still relationship maps plus field tables. There is no native
+crow's-foot ERD renderer. The `code` plugin's `explain-diff` skill can embed these
+validated viewers in its single HTML article. See Blueprint's
+[visual-storytelling guide](skills/blueprint/references/visual-storytelling.md)
+and [schema guide](skills/blueprint/references/schema-diagrams.md).

@@ -1,6 +1,6 @@
 # Viewer Runtime reference
 
-Read this only when the user asks for a reader-facing capability. Ordinary generation does not require implementing or re-documenting these features; they are already in the generated HTML.
+Read this when authoring motion or guided views, or when the user asks for a reader-facing capability. Ordinary generation does not require implementing or re-documenting these features; they are already in the generated HTML.
 
 ## Exploration
 

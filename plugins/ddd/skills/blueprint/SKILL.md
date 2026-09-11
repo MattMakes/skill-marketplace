@@ -1,6 +1,6 @@
 ---
 name: blueprint
-description: Render polished, validated architecture, workflow, sequence, data-flow, and lifecycle/state diagrams as explorable standalone HTML with inline SVG, dark/light themes, optional trace motion, and PNG/JPEG/WebP/SVG/WebM export. blueprint is the renderer behind `ddd export blueprint --deliver` (the final render of a DDD run) and is equally usable on its own from plain-language requirements or pasted Mermaid flowchart, sequenceDiagram, and stateDiagram input; it can inspect repository evidence when a diagram must reflect real code. Use when the user asks to visualize system architecture, infrastructure, cloud/security/network topology, technical workflows, API call sequences, request lifecycles, data pipelines, ETL/ELT, data lineage, state machines, or to convert/beautify Mermaid.
+description: Render polished, validated architecture, workflow, sequence, data-flow, and lifecycle/state diagrams as explorable standalone HTML with inline SVG, dark/light themes, optional trace motion, and PNG/JPEG/WebP/SVG/WebM export. blueprint is the renderer behind `ddd export blueprint --deliver` (the final render of a DDD run) and is equally usable on its own from plain-language requirements or pasted Mermaid flowchart, sequenceDiagram, and stateDiagram input; it can inspect repository evidence when a diagram must reflect real code. Use when the user asks to visualize system architecture, infrastructure, cloud/security/network topology, technical workflows, API call sequences, request lifecycles, data pipelines, ETL/ELT, data lineage, state machines, schema/entity relationships, or diagrams for a code-change explanation. Convert Mermaid topology into these supported types; detailed ERDs use labeled relationships plus field tables.
 license: MIT
 metadata:
   version: "2.17-blueprint.1"
@@ -9,7 +9,7 @@ metadata:
 
 # Blueprint
 
-Create a self-contained, interactive HTML diagram from a small typed JSON specification. Static output is the default; enable motion only when the user asks for a demo or presentation.
+Create a self-contained, interactive HTML diagram from a small typed JSON specification. For animated explanations, demos, and walkthroughs, use the bundled trace motion and guided views. Keep structural schema/ERD views and explicitly static requests still. Choose the visual treatment using [references/visual-storytelling.md](references/visual-storytelling.md).
 
 blueprint is part of the ddd plugin: `ddd export blueprint --deliver` writes one specification per DDD diagram and runs this renderer's `deliver` on each. Nothing here depends on the DDD workspace, so the same commands serve any diagram request. Every path in this file is relative to the skill directory `${CLAUDE_PLUGIN_ROOT}/skills/blueprint/`; the CLI is
 
@@ -17,15 +17,15 @@ blueprint is part of the ddd plugin: `ddd export blueprint --deliver` writes one
 node ${CLAUDE_PLUGIN_ROOT}/skills/blueprint/bin/blueprint.mjs <command> ...
 ```
 
-Nothing needs installing: the package has no dependencies and never reads files outside its own directory (visual-check needs a local Chrome or Chromium; set `BLUEPRINT_CHROME` to its executable when it is not found).
+Nothing needs installing: the renderer has no package dependencies; its runtime and fonts are bundled (visual-check needs a local Chrome or Chromium; set `BLUEPRINT_CHROME` to its executable when it is not found).
 
 ## Fast authoring path
 
-Use this bounded path for ordinary generation. Do not read the optional Viewer Runtime reference unless the user asks about those features.
+Use this path for ordinary generation. Read the visual-storytelling reference for style and motion; read Viewer Runtime only when authoring guided views or using its reader features.
 
 1. Choose `architecture`, `workflow`, `sequence`, `dataflow`, or `lifecycle` from the question.
-2. Read one matching schema in `schemas/`, `schemas/common.schema.json`, and one matching JSON example in `examples/`. Read only those files. Fresh authorship means new stable IDs, domain wording, and layout; use the example for field shape, not facts. New workflow sources use `schema_version: 2` and its readable layout contract; keep `schema_version: 1` only when preserving an existing workflow's fixed geometry. When real product identity matters, query `node ${CLAUDE_PLUGIN_ROOT}/skills/blueprint/bin/blueprint.mjs brands "<name>" --json`; read `references/brand-marks.md` only for an unknown brand with a user-provided URL.
-3. Artifact first: the next tool action must write the candidate. Write the candidate before inspecting renderer internals. Do not plan exact coordinates in prose. Start with one clear main path, short side branches, sparse labels, and at most 12 primary nodes. Set `meta.quality_profile` to `"showcase"` unless the user explicitly requests a dense `standard` map. Start with automatic routes and labels. Do not add `via`, `channelX`, `channelY`, or `labelAt` before a diagnostic calls for one; apply at most one diagnosed geometry control per repair.
+2. Read one matching schema in `schemas/`, `schemas/common.schema.json`, and one matching JSON example in `examples/`. Use those as the structural references. Fresh authorship means new stable IDs, domain wording, and layout; use the example for field shape, not facts. New workflow sources use `schema_version: 2` and its readable layout contract; keep `schema_version: 1` only when preserving an existing workflow's fixed geometry. When real product identity matters, query `node ${CLAUDE_PLUGIN_ROOT}/skills/blueprint/bin/blueprint.mjs brands "<name>" --json`; read `references/brand-marks.md` only for an unknown brand with a user-provided URL.
+3. Write the candidate before inspecting renderer internals. Do not plan exact coordinates in prose. Start with one clear main path, short side branches, sparse labels, and at most 12 primary nodes. Set `meta.quality_profile` to `"showcase"` unless the user explicitly requests a dense `standard` map. Start with automatic routes and labels. Do not add `via`, `channelX`, `channelY`, or `labelAt` before a diagnostic calls for one; apply at most one diagnosed geometry control per repair.
 4. Validate after every candidate edit and immediately before handoff:
 
    ```bash
@@ -54,11 +54,13 @@ Lifecycle note: phase columns `0..4` occupy the main rail; event/terminal column
 
 | Type | Use for |
 |---|---|
-| `architecture` | Components, services, cloud/security boundaries, infrastructure |
+| `architecture` | Components, services, cloud/security boundaries, infrastructure; entity relationships with explicit cardinality labels |
 | `workflow` | Processes, approval gates, tool calls, runbooks, CI/CD |
 | `sequence` | API call chains, request lifecycles, async traces, returns |
 | `dataflow` | Pipelines, ETL/ELT, lineage, governance, consumers |
 | `lifecycle` | State/status transitions, retries, waiting and terminal states |
+
+For schemas and ERDs, read [references/schema-diagrams.md](references/schema-diagrams.md). There is no `erd` or `schema` CLI type; do not invent one.
 
 When ambiguous, run `node ${CLAUDE_PLUGIN_ROOT}/skills/blueprint/bin/blueprint.mjs guide "<scenario>" --json`. Scenario proof examples are structural references, not facts to copy.
 
@@ -69,11 +71,12 @@ Read Mermaid for topology and meaning, then author fresh Blueprint JSON; do not 
 - `flowchart` / `graph` → `workflow`, or `architecture` for a component map.
 - `sequenceDiagram` → `sequence`; participants become semantic participants and arrows become messages.
 - `stateDiagram` → `lifecycle`; states and transitions retain meaning, not Mermaid style.
+- `erDiagram` → `architecture` for entity relationships, with explicit cardinalities and accompanying field tables as described in the schema reference.
 
 ## Authoring invariants
 
 - One obvious main path; side branches leave the nearest main-path node. Remove low-value edges before adding routing controls.
-- Omit `meta.visual_preset` by default so every diagram opens in `classic`, regardless of whether its resolved color mode is light or dark. Color mode and visual preset are independent: switching Light / Dark must preserve the current preset. Set `signal-flow`, `blueprint`, or `editorial` only when the user explicitly requests that visual style (`blueprint` here is the name of a drafting-paper style inherited from upstream, not this skill).
+- Choose a coherent `meta.visual_preset` for the task: `signal-flow` for animated runtime explanations, `blueprint` for structural architecture/schema maps, `editorial` for quieter article figures, or `classic` for the neutral default. Keep one preset across related before/after views. Color mode and visual preset are independent; switching Light / Dark must preserve the preset. The `blueprint` preset is a drafting-paper style, distinct from the skill name.
 - Omit `meta.subtitle` by default. Never invent a subtitle that restates the title, nodes, or cards; include one short supporting line only when the user explicitly asks for it.
 - Treat the standalone desktop viewer as a first-screen artifact by default, not a shallow strip. Generate one responsive artifact for laptops and external displays—never device-specific HTML or alternate topology. The viewer may adapt only the outer reading width from the live viewport height; it must preserve the authored SVG/viewBox, proportions, semantic geometry, and normal document flow. On a wide or tall desktop, use enough authored vertical rhythm that the diagram panel and its necessary conclusion cards occupy the screen as a balanced whole; runtime scaling cannot repair an over-compressed Y layout or an undersized explicit `meta.viewBox`. Before handoff, open the real HTML at 1440×900, 1600×1000, and 1920×1080; additionally check 2048×1320 whenever the composition is intended for a large desktop display. Require `document.documentElement.scrollWidth <= window.innerWidth` and `scrollHeight <= window.innerHeight` at every checked size, while visually checking that the diagram remains comfortably readable and vertically balanced at the largest checked viewport. Repair overflow by removing only genuinely redundant content or compacting spacing before shrinking nodes, labels, or the main panel. If the largest viewport still has a conspicuous empty lower band at the viewer's width cap, redistribute authored Y positions and increase the viewBox height proportionally; do not add filler copy or decorative cards. Never counterfeit a pass with `overflow: hidden`, clipped content, an internal diagram scroller, stretched SVG height, or smaller typography. Narrow/mobile layouts may scroll vertically when containment requires it.
 - Omit `meta.legend` for the truthful `auto` default. When needed, use only `mode: auto|all|hidden` and renderer-supported `entries.<kind>.label|visible`; labels never change semantics.
@@ -115,9 +118,9 @@ Never start preview by default. Read `references/delivery-contract.md` when usin
 
 ## Optional viewer capabilities
 
-Generated HTML already contains theme switching, pan/zoom, search, focus, relationship tracing, semantic views, presentation, and truthful exports. These are reader capabilities, not extra authoring work. `meta.animation: "trace"` is opt-in; `meta.views` is optional and should contain at most five curated chapters.
+Generated HTML already contains theme switching, pan/zoom, search, focus, relationship tracing, semantic views, presentation, and truthful exports. These are reader capabilities, not extra authoring work. `meta.animation: "trace"` is appropriate for animated walkthroughs; `meta.views` can define up to five curated chapters. Motion must remain finite and reader-controlled. Omit trace motion for structural entity relationships: foreign keys are not runtime traffic.
 
-Read `references/viewer-runtime.md` only when the user explicitly asks for Share Cards, Route/Reach cards, motion, guided stories, deep links, presentation, search/focus, or another Viewer Runtime feature.
+Read `references/viewer-runtime.md` when using motion, guided stories, deep links, presentation, or another Viewer Runtime feature. When another skill embeds the viewer, validate and review the standalone artifact first, then check the final embedding separately; the standalone first-screen rule does not apply to a long article.
 
 ## Setup and fallback
 
