@@ -14,8 +14,11 @@ ROOT="."
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT" || { echo "status.sh: cannot enter $ROOT" >&2; exit 2; }
+if git rev-parse --show-toplevel >/dev/null 2>&1; then
+  cd "$(git rev-parse --show-toplevel)"
+fi
 ROOT_ABS="$(pwd)"
-export PATH="$HOME/.local/bin:$PATH"
+export PATH="$PATH:$HOME/.local/bin"
 
 echo "== CORE status =="
 echo "repo=$ROOT_ABS"
@@ -38,75 +41,19 @@ else
   HAVE_GF=0
 fi
 
-# --- the graph -------------------------------------------------------------
-if [ -f graphify-out/graph.json ]; then
-  python3 - graphify-out/graph.json <<'PY'
-import json, os, sys, time
-p = sys.argv[1]
-try:
-    g = json.load(open(p))
-except Exception:
-    print("graph=unreadable"); raise SystemExit(0)
-nodes = g.get("nodes", [])
-edges = g.get("edges", g.get("links", []))
-comms = {n.get("community") for n in nodes if isinstance(n, dict) and n.get("community") is not None}
-mins = int((time.time() - os.path.getmtime(p)) / 60)
-age = f"{mins}m" if mins < 90 else (f"{mins//60}h" if mins < 2880 else f"{mins//1440}d")
-print(f"graph=ready nodes={len(nodes)} edges={len(edges)} communities={len(comms)} age={age}")
-PY
-  # Source files touched since the graph was written. A handful is normal; a
-  # large number means the graph predates real work and `graphify update .`
-  # has real ground to make up.
-  # Drift is measured against the manifest, not against mtimes. `cp`, `git
-  # clone` and `git checkout` all rewrite mtimes wholesale, so a timestamp
-  # comparison reports either everything or nothing as stale depending on which
-  # way the rewrite fell -- it once reported stale_files=0 on a repo that was
-  # eight modules behind. The manifest records exactly which files the graph was
-  # built from, so the honest question is a set difference, and that survives
-  # being copied.
-  if [ "$IS_GIT" -eq 1 ] && [ -f graphify-out/manifest.json ]; then
-    git ls-files -co --exclude-standard > /tmp/.core-ondisk.$$ 2>/dev/null
-    python3 - graphify-out/manifest.json /tmp/.core-ondisk.$$ <<'PY'
-import json, os, sys
-CODE = {".py",".ts",".tsx",".js",".jsx",".mjs",".cjs",".go",".rs",".java",".kt",
-        ".scala",".rb",".php",".cs",".c",".h",".cc",".cpp",".hpp",".swift",".m",
-        ".lua",".zig",".ex",".exs",".dart",".vue",".svelte",".sql"}
-try:
-    indexed = set(json.load(open(sys.argv[1])))
-except Exception:
-    print("unindexed_files=? removed_files=?"); raise SystemExit(0)
-disk = {l.strip() for l in open(sys.argv[2]) if l.strip()}
-# Tool-owned paths are not project code. The vendored .claude/core/core.py in
-# particular would otherwise report as permanent drift on every single prime.
-SKIP = (".claude/", ".codex/", ".cursor/", "graphify-out/")
-code = {f for f in disk
-        if os.path.splitext(f)[1] in CODE and not f.startswith(SKIP)}
-new = sorted(code - indexed)
-gone = sorted(f for f in indexed - disk if os.path.splitext(f)[1] in CODE)
-print(f"unindexed_files={len(new)} removed_files={len(gone)}")
-if new:
-    print("  never indexed: " + ", ".join(new[:6]) + (" …" if len(new) > 6 else ""))
-PY
-    rm -f /tmp/.core-ondisk.$$
-  else
-    echo "unindexed_files=n/a"
-  fi
-else
-  echo "graph=absent"
-fi
+# --- graph freshness (same content hashes used by the query gateway) --------
+python3 "$SCRIPT_DIR/graph.py" --root . status || true
 
-# --- hooks -----------------------------------------------------------------
-if [ "$HAVE_GF" -eq 1 ] && [ "$IS_GIT" -eq 1 ]; then
-  if graphify hook status 2>/dev/null | grep -q 'post-commit: installed'; then
+# Hook presence is advisory. Every gateway query validates independently.
+if [ "$IS_GIT" -eq 1 ]; then
+  HOOK_DIR="$(git rev-parse --git-path hooks)"
+  if grep -qs 'CORE graph freshness gateway' "$HOOK_DIR/post-commit"; then
     echo "git_hooks=installed"
   else
     echo "git_hooks=missing"
   fi
-else
-  echo "git_hooks=n/a"
 fi
-
-if [ -f .claude/settings.json ] && grep -q 'hook-guard' .claude/settings.json 2>/dev/null; then
+if [ -f .claude/settings.json ] && grep -q '.claude/core/graph.py' .claude/settings.json; then
   echo "claude_hooks=installed"
 else
   echo "claude_hooks=missing"

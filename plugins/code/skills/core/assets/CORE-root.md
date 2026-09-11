@@ -9,8 +9,8 @@ CORE is a tree of contracts. Each `CLAUDE.md` in this repository is binding for
 its own directory and everything under it, and an `AGENTS.md` symlink sits
 beside it so every other agent reads the same bytes.
 
-There is a second layer next to this one: a code knowledge graph in
-`graphify-out/`. The graph knows what calls what; CORE knows what things are
+There is a second layer next to this one: a local code knowledge graph queried through
+`python3 .claude/core/graph.py`. The graph knows what calls what; CORE knows what things are
 for and what you are not allowed to break. Neither answers the other's
 question, which is why both exist.
 
@@ -56,7 +56,11 @@ a changelog — git already remembers what used to be true.
 3. Run `python3 .claude/core/core.py index` if you added, removed, moved or
    renamed a CORE doc. It rewrites every Child CORE Index from what is on disk,
    so nobody maintains those lists by hand.
-4. Run `graphify update .` if you changed code, so the graph matches the tree.
+4. Query structure through `python3 .claude/core/graph.py query "..."` (also
+   `explain`, `path`, `affected`, `god-nodes`). The script synchronizes and checks
+   freshness automatically. If it reports concurrent edits or a build failure,
+   retry it or read the source. Raw Graphify commands, old `graphify-out/` files,
+   and external graph database readers bypass these checks.
 5. Say which docs you deliberately left alone, and why.
 
 A note on the graph's limits, because it is easy to over-trust: it records the

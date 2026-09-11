@@ -22,38 +22,42 @@ claude plugin install code@skill-marketplace
 
 ---
 
-# `core` — prime once, stay primed
+# `core` — query a current code index
 
-Replaces the read-everything-again ritual at the start of a session with two
-artefacts that outlive it.
+`code:core` creates an AST-only Graphify index and a tree of `CLAUDE.md`
+contracts with `AGENTS.md` symlinks. Contracts explain intent and constraints;
+the graph supplies structural lookups without loading whole files into model
+context.
 
-## The idea
+Run `/core` in a repository. Setup installs Graphify if needed, vendors the
+maintenance scripts into `.claude/core/`, installs refresh hooks, and builds a
+validated snapshot. Query it through:
 
-Priming a codebase normally means reading the tree, the configs, and fifteen or
-twenty source files — every session, from scratch, and it is all gone after the
-next compaction. `core` spends that budget once and turns it into things that
-persist:
-
-| Layer | Answers | Built by | Cost |
-|---|---|---|---|
-| **Graph** (`graphify-out/`) | what calls what, what breaks if you change this | tree-sitter AST | ~4s first build, ~1s refresh, **zero tokens** |
-| **CORE** (`CLAUDE.md` + `AGENTS.md`) | what a directory is *for*, what may not break | you, once per boundary | real tokens, once |
-| **Read** | the few specifics neither layer holds | you, every session | small, because the first two did the work |
-
-After that, a question about the codebase costs a scoped `graphify query`
-instead of a grep across the repo, and the local rules for a directory arrive
-by themselves when an agent reads a file in it.
-
-## Using it
-
-In a repository:
-
-```
-/core
+```sh
+python3 .claude/core/graph.py query "what calls checkout?" --budget 1500
+python3 .claude/core/graph.py affected "checkout"
+python3 .claude/core/graph.py status
 ```
 
-The skill installs graphify itself if it is missing (`uv tool install graphifyy`,
-falling back to pipx, then pip — all isolated and reversible).
+The gateway hashes working-tree contents, including uncommitted edits. It
+reuses unchanged generations, builds changed ones in isolation, publishes
+atomically, and discards query output if files change during the query.
+Deletions, branch switches and failed builds cannot silently make an old
+managed graph count as current. Git and Claude hooks refresh mechanically;
+queries perform their own validation even when hooks did not run.
+
+For continuous refresh during human edits, run
+`python3 .claude/core/graph.py watch --interval 2` in a terminal or supervisor.
+This process is optional: queries already synchronize on demand. No AI needs
+to decide whether or when to update the index.
+
+Freshness checks read repository bytes, and changed snapshots currently use
+full extraction to avoid stale nodes and cross-file edges. This saves model
+context; it does not promise every query is faster than `rg`. Results describe
+a snapshot validated at query completion, and code may change afterward.
+Raw Graphify, legacy graph files and independent database/MCP readers bypass
+these checks. See the [consistency contract](skills/core/references/graph-consistency.md)
+for scope, limitations and migration.
 
 ## Why `CLAUDE.md` is the real file and `AGENTS.md` is the symlink
 
@@ -70,51 +74,36 @@ opposite convention (`CLAUDE.md → AGENTS.md`) is reported and left alone unles
 you pass `--flip`, and a platform without symlink permissions gets an
 `@CLAUDE.md` import stub instead.
 
-## Nothing here calls a model
+## Mechanical maintenance
 
-Every script is deterministic, which is what makes running it on every prime
-sane:
-
-- `graphify extract . --code-only` — pure tree-sitter, works with no API key at all
-- `graphify cluster-only . --no-label` — clustering without asking a model for names
-- `graphify update .` — incremental re-extract, explicitly no-LLM
-- `core.py link | index | check | boundaries` — filesystem work, no inference
-
-The single exception is opt-in: `graph.sh --label` spends a couple of model
-calls to name the graph's communities so `GRAPH_REPORT.md` reads well for a
-human. Skip it and you get `Community 1..N`.
-
-## Layout
+The managed graph uses `graphify extract --code-only --no-cluster --force`.
+It does not run semantic extraction, clustering or community labeling.
+`graph.sh --label` now fails explicitly. New installs pin the tested
+`graphifyy==0.9.53`; existing installations are retained and fingerprinted.
+`core.py link | index | check | boundaries` handles the CORE filesystem work.
+The prose contracts still need human or agent judgment when their meaning changes.
 
 ```
 skills/core/
 ├── SKILL.md
 ├── assets/
-│   ├── CORE-root.md      the root contract, inserted into CLAUDE.md
-│   └── CORE-child.md     the six-section child skeleton
+│   ├── CORE-root.md
+│   └── CORE-child.md
+├── references/graph-consistency.md
 └── scripts/
-    ├── status.sh         whole-repo state in one call, ends with verdict=
-    ├── graph.sh          install / build / refresh the graph, register hooks
+    ├── status.sh         graph content drift and CORE health
+    ├── graph.sh          install, vendor scripts, register hooks, synchronize
+    ├── graph.py          validated queries, snapshots, hooks, polling watcher
+    ├── test_graph.py     race/failure tests and real Graphify integration
     └── core.py           link, block, index, boundaries, check
 ```
 
-`status.sh` exists specifically so priming does not start with a dozen
-exploratory tool calls. It answers "is there a graph, is there a CORE tree, is
-any of it broken, where are the undocumented boundaries" in one block, for free.
-
-Two details that came out of running this against real repos:
-
-**`core.py` gets vendored into the repo** at `.claude/core/core.py`, and the CORE
-contract points there rather than at the plugin. The contract outlives the skill
-invocation — a teammate, a Codex run, or you next session without the plugin
-installed reads "run `core.py index`" and needs it to resolve, and
-`${CLAUDE_PLUGIN_ROOT}` means nothing outside a running skill.
-
-**Drift is measured against `graphify-out/manifest.json`, not mtimes.** `cp`,
-`git clone` and `git checkout` all rewrite timestamps wholesale, so a
-mtime comparison reports either everything or nothing as stale. The manifest
-records which files the graph was actually built from, so the question becomes a
-set difference — which survives being copied.
+`graph.sh` vendors both Python scripts into `.claude/core/` so the contract's
+commands work for teammates and other agents without the plugin. Generated
+snapshots stay in Git's per-worktree metadata, or `.core-graph/` outside Git.
+Legacy `graphify-out/` is never trusted or removed automatically. `status.sh`
+uses the same content checks as queries; matching filenames or timestamps
+alone never establish freshness.
 
 The child template keeps all its authoring guidance in HTML comments. Claude
 Code strips those before a CLAUDE.md reaches the context window but the Read
@@ -273,8 +262,8 @@ on-demand loading makes redundant, and generates the child index mechanically
 instead of asking the agent to maintain it.
 
 The graph layer is **[graphify](https://github.com/Graphify-Labs/graphify)**
-(PyPI package `graphifyy`), used as-is. This plugin only chooses the flags that
-keep it deterministic and free.
+(PyPI package `graphifyy`). This plugin wraps AST extraction and graph queries
+with snapshot publication, content validation, locking and refresh scripts.
 
 `explain-diff` is adapted from **[Geoffrey Litt's
 explain-diff gist](https://gist.github.com/geoffreylitt/a29df1b5f9865506e8952488eac3d524)**
