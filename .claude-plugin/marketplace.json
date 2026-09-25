@@ -4,8 +4,8 @@
   "owner": {
     "name": "Matt Scott"
   },
-  "description": "Claude Code plugin marketplace for engineering work: a development-workflow pipeline from brainstorm to shipped change, domain modelling and Blueprint diagrams alongside code intelligence in the code plugin, codebase priming, rich diff and PR explainers, wiki generation, security sweeps and generated end-to-end suites, a game-development review board backed by cited rules, multi-agent fleet orchestration, skill and MCP-server authoring, and a toolkit of thinking, discipline and verification skills.",
-  "version": "2.0.1",
+  "description": "Claude Code plugin marketplace for engineering work: a development-workflow pipeline from brainstorm to shipped change, domain modelling and Blueprint diagrams alongside code intelligence in the code plugin, codebase priming, rich diff and PR explainers, wiki generation, security sweeps and generated end-to-end suites, a game-development review board backed by cited rules and a generative game-design studio, multi-agent fleet orchestration, skill and MCP-server authoring, and a toolkit of thinking, discipline and verification skills.",
+  "version": "2.1.0",
   "plugins": [
     {
       "name": "code",
@@ -75,7 +75,7 @@
       "name": "game",
       "displayName": "Game Dev Review Board",
       "source": "./plugins/game",
-      "description": "A review board for game work, backed by cited rules distilled from 38 game-development books: a studio CPO for any 'is this fun' question, plus focused auditors for systems, balance and economy, code architecture, performance and frame budget, and QA and ship-readiness.",
+      "description": "A review board for game work, backed by cited rules distilled from 38 game-development books. game-studio-cpo is the generalist entry point; the five auditors cover systems, balance and economy, code architecture, performance, and QA and ship-readiness.",
       "version": "1.0.0",
       "author": {
         "name": "Matt Scott"
@@ -88,6 +88,26 @@
         "unity",
         "performance",
         "code-review"
+      ]
+    },
+    {
+      "name": "game-design",
+      "displayName": "Game Design Studio",
+      "source": "./plugins/game-design",
+      "description": "Generative game design that runs headless: pick the target kinds of fun with MDA, ideate concepts under a constraint card with a boundaries-first gate, draw the core loops as flowcharts, write a reader-facing brief, and render a one-page design, design diagrams and an art-direction style sheet. Designs go to game:game-studio-cpo for critique.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Matt Scott"
+      },
+      "license": "MIT",
+      "category": "game-dev",
+      "keywords": [
+        "game-design",
+        "ideation",
+        "mda",
+        "core-loop",
+        "one-page-design",
+        "art-direction"
       ]
     },
     {

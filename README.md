@@ -2,7 +2,7 @@
 
 A Claude Code plugin marketplace for engineering work. The plugins are grouped by the job they do:
 carry a change from idea to review (`dev`), design, diagram, understand
-and verify systems (`code`), review game work (`game`), run a fleet of agents
+and verify systems (`code`), review game work (`game`), design games (`game-design`), run a fleet of agents
 (`herdr`), think and finish well (`tools`), and make more skills (`meta`).
 
 ## Install
@@ -13,6 +13,7 @@ claude plugin marketplace add MattMakes/skill-marketplace
 claude plugin install dev@skill-marketplace
 claude plugin install code@skill-marketplace
 claude plugin install game@skill-marketplace
+claude plugin install game-design@skill-marketplace
 claude plugin install herdr@skill-marketplace
 claude plugin install tools@skill-marketplace
 claude plugin install meta@skill-marketplace
@@ -94,6 +95,22 @@ game-development books. **Start with `game-studio-cpo`.**
 | `game-code-reviewer` | Game code and architecture: Unity scripts, systems wiring, decoupling. |
 | `game-performance-auditor` | Frame budget: CPU versus GPU bound, allocations, pooling, draw calls. |
 | `game-qa-reviewer` | Test plans, bug triage, severity, regression and ship-readiness. |
+
+## `game-design` — Game Design Studio
+
+Generative game design that runs headless, the counterpart to the `game` review board. Run the
+skills in pipeline order; send the result to `game:game-studio-cpo` for critique.
+**Start with `fun-targeting`.**
+
+| Skill | What it does |
+|---|---|
+| `fun-targeting` | Picks 2–3 of the eight kinds of fun and traces every mechanic back to one (MDA). |
+| `game-ideation` | At least 6 concepts under a constraint card, a boundaries-first gate, a scored shortlist. |
+| `core-loop` | Moment-to-moment, session and long-term loops as Mermaid flowcharts. |
+| `design-diagrams` | Which diagram to draw when: storyboard, time-and-space map, triangle, matrix, module map. |
+| `game-brief` | The reader-facing brief, down to the smallest prototype that tests the fun. |
+| `one-page-design` | Librande's one-page method; renders a JSON spec to a dated SVG. |
+| `art-direction` | A style sheet, a shot list tied to the fun, and placeholder image prompts. |
 
 ## `herdr` — herdr Fleet
 
