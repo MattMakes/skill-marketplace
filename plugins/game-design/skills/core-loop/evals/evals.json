@@ -1,0 +1,42 @@
+{
+  "skill_name": "core-loop",
+  "evals": [
+    {
+      "id": 1,
+      "name": "three-loops-from-fun-targeting",
+      "prompt": "Concept: Fog Keeper — tend a lighthouse on a foggy island where the fog remembers what you did yesterday. Target fun from fun-targeting: Discovery, Submission, Narrative. Mechanics: trim the wick, wind the lens, log passing ships, leave lamps lit or dark on the shore path, the fog replays last night's choices as shapes. Draw the core loops.",
+      "expected_output": "Exactly 3 Mermaid flowchart blocks (moment-to-moment, session, long-term), each with action, system, feedback and decision nodes, every feedback edge labeled with one kind of fun, plus the nesting, the feedback-to-fun map and gaps.",
+      "files": [],
+      "expectations": [
+        "Outputs exactly 3 Mermaid flowchart blocks",
+        "Every feedback edge carries a kind-of-fun label",
+        "Each loop closes back to a player action"
+      ],
+      "checks": [
+        {"type": "in_order", "description": "sections in order", "patterns": ["^## Assumptions", "^## Moment-to-moment loop", "```mermaid", "^## Session loop", "```mermaid", "^## Long-term loop", "```mermaid", "^## Nesting", "^## Feedback-to-fun map", "^## Gaps"]},
+        {"type": "regex", "description": "exactly 3 mermaid flowchart blocks", "pattern": "^```mermaid\\s*\\n\\s*flowchart LR", "min": 3, "max": 3},
+        {"type": "regex", "description": "labeled feedback edges (>= 3)", "pattern": "\\bF\\d+(\\[\"[^\"]*\"\\])?\\s*-->\\|(Sensation|Fantasy|Narrative|Challenge|Fellowship|Discovery|Expression|Submission)\\|", "min": 3},
+        {"type": "not_regex", "description": "no unlabeled feedback edge", "pattern": "\\bF\\d+(\\[\"[^\"]*\"\\])?\\s*-->\\s*(?!\\|)"},
+        {"type": "regex", "description": "decision nodes are diamonds (>= 3)", "pattern": "\\bD\\d+\\{\"", "min": 3}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "concept-only",
+      "prompt": "Draw the gameplay loops for this: Clackety-Clack — a rhythm game where you slam one-way rail gates open on the clack of the wheels to route the day's only desert train; miss a beat and it takes the wrong branch. Sessions are 10 minutes.",
+      "expected_output": "Infers 2-3 target kinds (likely Challenge and Sensation) and states them under Assumptions, then draws exactly 3 labeled Mermaid loops without asking a question.",
+      "files": [],
+      "expectations": [
+        "States inferred target fun under Assumptions",
+        "Outputs exactly 3 Mermaid flowchart blocks",
+        "Does not ask the user a question"
+      ],
+      "checks": [
+        {"type": "regex", "description": "exactly 3 mermaid flowchart blocks", "pattern": "^```mermaid\\s*\\n\\s*flowchart LR", "min": 3, "max": 3},
+        {"type": "not_regex", "description": "no unlabeled feedback edge", "pattern": "\\bF\\d+(\\[\"[^\"]*\"\\])?\\s*-->\\s*(?!\\|)"},
+        {"type": "regex", "description": "assumptions name inferred fun", "pattern": "(?is)## Assumptions.*?(Challenge|Sensation).*?## Moment-to-moment loop", "min": 1},
+        {"type": "not_regex", "description": "no question to the user", "pattern": "(would you like|do you want|could you (tell|clarify)|let me know which)"}
+      ]
+    }
+  ]
+}
