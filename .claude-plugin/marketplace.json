@@ -5,7 +5,7 @@
     "name": "Matt Scott"
   },
   "description": "Claude Code plugin marketplace for engineering work: a development-workflow pipeline from brainstorm to shipped change, domain modelling and Blueprint diagrams alongside code intelligence in the code plugin, codebase priming, rich diff and PR explainers, wiki generation, security sweeps and generated end-to-end suites, a game-development review board backed by cited rules and a generative game-design studio, multi-agent fleet orchestration, skill and MCP-server authoring, and a toolkit of thinking, discipline and verification skills.",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "plugins": [
     {
       "name": "code",
@@ -95,7 +95,7 @@
       "displayName": "Game Design Studio",
       "source": "./plugins/game-design",
       "description": "Generative game design that runs headless: pick the target kinds of fun with MDA, ideate concepts under a constraint card with a boundaries-first gate, draw the core loops as flowcharts, write a reader-facing brief, and render a one-page design, design diagrams and an art-direction style sheet. Designs go to game:game-studio-cpo for critique.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "author": {
         "name": "Matt Scott"
       },
@@ -114,7 +114,7 @@
       "name": "herdr",
       "displayName": "herdr Fleet",
       "source": "./plugins/herdr",
-      "description": "Run a herdr multi-agent worker fleet: an orchestrator that decomposes work, spawns and assigns workers by tier and integrates results through the horch CLI; the worker side of that protocol; deterministic scripts for driving the herdr terminal workspace manager; and a setup skill that checks the machine and fills only the gaps. Requires the herdr CLI (herdr.dev), which is not bundled.",
+      "description": "Run a herdr multi-agent worker fleet. herdr-orchestrator decomposes the work, spawns and assigns workers by tier, answers blocked workers and integrates results through the horch CLI. herdr-worker is the other side of that protocol. herdr-atomic wraps the herdr terminal workspace manager in deterministic scripts. herdr-setup checks the machine (herdr CLI, horch on PATH, agent integrations) and fills only the gaps. Requires the herdr CLI (herdr.dev), which is not bundled.",
       "version": "1.1.0",
       "author": {
         "name": "Matt Scott"
