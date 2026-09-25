@@ -91,6 +91,22 @@ class RenderTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             render_one_page.text_lines_svg(["x"], 0, 0, 4)
 
+    def test_long_callout_wraps_instead_of_truncating(self):
+        long_text = " ".join(["word"] * 40)
+        spec = dict(MINIMAL_SPEC)
+        spec["callouts"] = [{"label": "Long", "text": long_text, "tier": 3, "anchor": "n"}]
+        svg = render_one_page.build_svg(spec, None)
+        self.assertNotIn("…", svg)
+        reasons = validate_one_page.validate(svg)
+        self.assertEqual(reasons, [])
+
+    def test_callout_too_long_for_region_raises(self):
+        huge_text = " ".join(["word"] * 400)
+        spec = dict(MINIMAL_SPEC)
+        spec["callouts"] = [{"label": "Huge", "text": huge_text, "tier": 3, "anchor": "n"}]
+        with self.assertRaisesRegex(render_one_page.CalloutFitError, "Huge.*does not fit"):
+            render_one_page.build_svg(spec, None)
+
 
 class ValidateTests(unittest.TestCase):
     def test_rejects_svg_with_no_date(self):
@@ -120,6 +136,14 @@ class ValidateTests(unittest.TestCase):
     def test_accepts_valid_svg(self):
         svg = render_one_page.build_svg(MINIMAL_SPEC, None)
         self.assertEqual(validate_one_page.validate(svg), [])
+
+    def test_rejects_svg_with_truncated_text(self):
+        svg = (
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
+            '<title>2026-09-24</title><text font-size="12">cut off…</text></svg>'
+        )
+        reasons = validate_one_page.validate(svg)
+        self.assertTrue(any("…" in r for r in reasons))
 
 
 if __name__ == "__main__":

@@ -23,7 +23,15 @@ MIN_FONT_PX = 8
 TIER_FONT_PX = {1: 22, 2: 16, 3: 10}
 TIER_LABEL_FONT_PX = {1: 16, 2: 13, 3: 10}
 TIER_CHARS_PER_LINE = {1: 26, 2: 30, 3: 34}
+# A callout box grows past these preferred sizes rather than truncate its text.
+# TIER_REGION_MAX_LINES is the hard limit for that growth (double the preferred
+# size): past it the text no longer fits its region and the render fails.
 TIER_MAX_LINES = {1: 4, 2: 5, 3: 6}
+TIER_REGION_MAX_LINES = {tier: n * 2 for tier, n in TIER_MAX_LINES.items()}
+
+
+class CalloutFitError(ValueError):
+    """Raised when a callout's text does not fit its region even after growing."""
 
 ANCHOR_DIRECTION = {
     "n": (0.0, -1.0),
@@ -45,9 +53,9 @@ CALLOUT_RADIUS_Y = 300
 CALLOUT_BOX_W = 260
 
 
-def wrap_text(text, chars_per_line, max_lines):
-    """Estimate word wrap by character-count-per-line. Returns a list of lines,
-    truncating with an ellipsis if the text does not fit in max_lines."""
+def wrap_text(text, chars_per_line):
+    """Estimate word wrap by character-count-per-line. Wraps onto as many
+    lines as the text needs; never truncates."""
     words = text.split()
     lines = []
     current = ""
@@ -58,14 +66,8 @@ def wrap_text(text, chars_per_line, max_lines):
         else:
             lines.append(current)
             current = word
-        if len(lines) == max_lines:
-            break
-    if current and len(lines) < max_lines:
+    if current:
         lines.append(current)
-    if len(lines) == max_lines and len(" ".join(words)) > sum(len(l) for l in lines):
-        last = lines[-1]
-        if len(last) > 3:
-            lines[-1] = last[: max(0, chars_per_line - 1)].rstrip() + "…"
     return lines
 
 
@@ -127,7 +129,7 @@ def render_central(spec, key_art_path):
         parts.append(lines)
     if caption:
         lines, _ = text_lines_svg(
-            wrap_text(caption, 60, 2), CENTER_X, y + CENTRAL_H + 24, 14, anchor="middle"
+            wrap_text(caption, 60), CENTER_X, y + CENTRAL_H + 24, 14, anchor="middle"
         )
         parts.append(lines)
     parts.append("</g>")
@@ -159,14 +161,16 @@ def render_callouts(callouts):
         font_px = TIER_FONT_PX[tier]
         label_font_px = TIER_LABEL_FONT_PX[tier]
         chars = TIER_CHARS_PER_LINE[tier]
-        max_lines = TIER_MAX_LINES[tier]
         text_x = box_cx
         y_cursor = box_cy
         if label:
             label_svg, used = text_lines_svg([label], text_x, y_cursor, label_font_px, anchor=text_anchor, weight="bold")
             parts.append(label_svg)
             y_cursor += used + 4
-        body_lines = wrap_text(text, chars, max_lines)
+        body_lines = wrap_text(text, chars)
+        if len(body_lines) > TIER_REGION_MAX_LINES[tier]:
+            name = label or text[:40] or f"callout #{i + 1}"
+            raise CalloutFitError(f"callout {name!r} does not fit: redesign")
         body_svg, _ = text_lines_svg(body_lines, text_x, y_cursor, font_px, anchor=text_anchor)
         parts.append(body_svg)
     return "\n".join(parts)
@@ -180,7 +184,7 @@ def render_sidebar(sidebar):
     parts = [f'<text x="{x}" y="{y}" font-size="16" font-family="Helvetica, Arial, sans-serif" font-weight="bold" fill="#1a1a1a">SIDEBAR</text>']
     cursor_y = y + 28
     for bullet in sidebar:
-        lines = wrap_text(bullet, 40, 3)
+        lines = wrap_text(bullet, 40)
         svg, used = text_lines_svg(
             [f"• {lines[0]}"] + lines[1:], x, cursor_y, 13
         )
@@ -206,7 +210,7 @@ def render_detail(detail):
         parts.append(svg)
         cursor_y += used + 6
     for note in detail.get("notes", []):
-        lines = wrap_text(note, 55, 2)
+        lines = wrap_text(note, 55)
         svg, used = text_lines_svg([f"- {lines[0]}"] + lines[1:], x + 12, cursor_y, 11)
         parts.append(svg)
         cursor_y += used + 4
@@ -218,7 +222,7 @@ def render_description(description):
         return ""
     x = 60
     y = HEIGHT - 60
-    lines = wrap_text(description, 140, 2)
+    lines = wrap_text(description, 140)
     svg, _ = text_lines_svg(lines, x, y, 13)
     return svg
 
@@ -235,7 +239,7 @@ def build_svg(spec, key_art_path):
         f'<text x="60" y="56" font-size="30" font-family="Helvetica, Arial, sans-serif" '
         f'font-weight="bold" fill="#1a1a1a">{esc(title)}</text>'
     )
-    purpose_lines = wrap_text(purpose, 140, 1)
+    purpose_lines = wrap_text(purpose, 140)
     svg, _ = text_lines_svg(purpose_lines, 60, 82, 14)
     header.append(svg)
     date_label = f"{date}" + (f"  v{version}" if version else "")
@@ -298,7 +302,11 @@ def main():
         spec = json.load(f)
 
     validate_spec(spec)
-    svg = build_svg(spec, args.key_art)
+    try:
+        svg = build_svg(spec, args.key_art)
+    except CalloutFitError as e:
+        print(str(e), file=sys.stderr)
+        sys.exit(1)
 
     with open(args.out, "w", encoding="utf-8") as f:
         f.write(svg)

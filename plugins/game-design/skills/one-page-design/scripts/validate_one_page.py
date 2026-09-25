@@ -12,6 +12,7 @@ import xml.etree.ElementTree as ET
 
 DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
 FONT_SIZE_RE = re.compile(r'font-size="([\d.]+)"')
+TRUNCATED_TEXT_RE = re.compile(r"<text[^>]*>[^<]*…\s*</text>")
 MIN_FONT_PX = 8
 
 
@@ -44,6 +45,9 @@ def validate(svg_text):
     view_box = root.get("viewBox")
     if not view_box:
         reasons.append("svg root has no viewBox attribute")
+
+    if TRUNCATED_TEXT_RE.search(svg_text):
+        reasons.append("a text node ends in an ellipsis (…), text was truncated")
 
     return reasons
 
