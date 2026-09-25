@@ -1,0 +1,66 @@
+{
+  "skill_name": "game-ideation",
+  "evals": [
+    {
+      "id": 1,
+      "name": "seeded-boundary-violation",
+      "prompt": "Constraint card: target fun = Challenge, Sensation; core verb = route; setting = a desert railway with one train a day; twist = every door is one-way; session length = 10 minutes; scope = one month solo.\nBoundaries (hard rules): no sexual content; no violence (no combat, killing, gore or weapons as a verb or theme); no real-money gambling.\nHistory: \"Signal Box — route trains through a snowy junction\".\nSeed concept to judge alongside yours: \"Rail Raiders — you ride the train and shoot the bandits who board it at each station.\"",
+      "expected_output": "At least 6 new concepts, each with a different frame; the seeded Rail Raiders concept is rejected at the boundary gate with a reason naming violence, has no scores, and is never the pick; the pick has the highest total.",
+      "files": [],
+      "expectations": [
+        "Outputs at least 6 new concepts with distinct frames",
+        "Rejects the seeded concept before scoring and records the reason",
+        "Does not pick a rejected concept",
+        "The pick has the highest total"
+      ],
+      "checks": [
+        {"type": "in_order", "description": "sections in order", "patterns": ["^## Assumptions", "^## Constraint card", "^## Concepts", "^## Boundary gate", "^## Scores", "^## Pick", "^## Runners-up"]},
+        {"type": "json_expr", "description": ">= 6 new concepts", "expr": "len([c for c in d['concepts'] if c['frame'] != 'supplied']) >= 6"},
+        {"type": "json_expr", "description": "new concepts use distinct frames", "expr": "len(set(c['frame'] for c in d['concepts'] if c['frame'] != 'supplied')) == len([c for c in d['concepts'] if c['frame'] != 'supplied'])"},
+        {"type": "json_expr", "description": "seed rejected with reason, unscored", "expr": "any('raider' in c['title'].lower() and c['rejected_reason'] and c['total'] is None and not c['scores'] for c in d['concepts'])"},
+        {"type": "json_expr", "description": "pick is not rejected", "expr": "all(not c['rejected_reason'] for c in d['concepts'] if c['title'] == d['pick'])"},
+        {"type": "json_expr", "description": "pick has the highest total", "expr": "max(c['total'] for c in d['concepts'] if c['total'] is not None) == [c['total'] for c in d['concepts'] if c['title'] == d['pick']][0]"},
+        {"type": "json_expr", "description": "totals follow the rubric weights", "expr": "all(abs(c['total'] - (0.35*c['scores']['fun_fit'] + 0.25*c['scores']['novelty'] + 0.15*c['scores']['clarity'] + 0.25*c['scores']['prototypability'])) <= 0.011 for c in d['concepts'] if c['total'] is not None)"}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "draw-missing-card",
+      "prompt": "Give me a game idea for tonight. I only know I want Discovery to be one of the target kinds of fun. No boundaries this time. History: \"Tide Clerk — catalog shells on tidal flats before the tide returns\", \"Moon Mail — deliver letters across a moon post office\".",
+      "expected_output": "Draws the missing card fields from the decks and states it under Assumptions, includes Discovery in the target fun, writes at least 6 concepts with distinct frames, notes that no boundaries were supplied, and picks a concept that is not a history entry.",
+      "files": [],
+      "expectations": [
+        "States under Assumptions that card fields were drawn",
+        "Keeps Discovery in the target fun",
+        "Does not ask the user a question"
+      ],
+      "checks": [
+        {"type": "json_expr", "description": "Discovery is a target", "expr": "'Discovery' in d['constraint_card']['target_fun'] and 2 <= len(d['constraint_card']['target_fun']) <= 3"},
+        {"type": "json_expr", "description": ">= 6 concepts", "expr": "len(d['concepts']) >= 6"},
+        {"type": "json_expr", "description": "card fields all filled", "expr": "all(d['constraint_card'][k] for k in ['core_verb','setting','twist','session_length','scope'])"},
+        {"type": "regex", "description": "assumption says card was drawn", "pattern": "(?is)## Assumptions.*?(drew|drawn|draw)", "min": 1},
+        {"type": "regex", "description": "notes no boundaries supplied", "pattern": "(?i)no boundaries supplied", "min": 1},
+        {"type": "json_expr", "description": "pick is not a history title", "expr": "d['pick'] not in ('Tide Clerk', 'Moon Mail')"},
+        {"type": "not_regex", "description": "no question to the user", "pattern": "(would you like|do you want|could you (tell|clarify)|let me know which)"}
+      ]
+    },
+    {
+      "id": 3,
+      "name": "gambling-line",
+      "prompt": "Constraint card: target fun = Fellowship, Challenge; core verb = trade; setting = a night market that moves every evening; twist = light is the only currency; session length = 20 minutes; scope = three months solo.\nBoundaries: no sexual content; no violence; no real-money gambling (playing cards, dice and chance mechanics with fictional currency are fine).\nSeed concepts to judge alongside yours:\n1. \"Lantern Dice — stallholders roll dice for lantern-light, an in-game currency that cannot be bought.\"\n2. \"Glow Pass — buy lantern-light crates with real money for a random chance at rare stalls, then cash out rare stalls for gift cards.\"",
+      "expected_output": "Glow Pass is rejected for real-money gambling; Lantern Dice passes the gate and is scored, because chance with fictional currency is allowed; at least 6 new concepts.",
+      "files": [],
+      "expectations": [
+        "Rejects Glow Pass for real-money gambling",
+        "Scores Lantern Dice instead of rejecting it",
+        "Outputs at least 6 new concepts"
+      ],
+      "checks": [
+        {"type": "json_expr", "description": "Glow Pass rejected", "expr": "any('glow pass' in c['title'].lower() and c['rejected_reason'] and c['total'] is None for c in d['concepts'])"},
+        {"type": "json_expr", "description": "Lantern Dice scored", "expr": "any('lantern dice' in c['title'].lower() and not c['rejected_reason'] and c['total'] is not None for c in d['concepts'])"},
+        {"type": "json_expr", "description": ">= 6 new concepts", "expr": "len([c for c in d['concepts'] if c['frame'] != 'supplied']) >= 6"},
+        {"type": "json_expr", "description": "2 runners-up, neither rejected", "expr": "len(d['runners_up']) == 2 and all(not c['rejected_reason'] for c in d['concepts'] if c['title'] in d['runners_up'])"}
+      ]
+    }
+  ]
+}
