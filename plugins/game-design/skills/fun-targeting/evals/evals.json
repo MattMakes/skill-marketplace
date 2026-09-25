@@ -1,0 +1,61 @@
+{
+  "skill_name": "fun-targeting",
+  "evals": [
+    {
+      "id": 1,
+      "name": "constraint-card",
+      "prompt": "Constraint card: core verb = tend; setting = a lighthouse on a foggy island; twist = the fog remembers what you did yesterday; session length = 10 minutes; scope = solo developer, 3 months. Pick the target fun and derive the mechanics.",
+      "expected_output": "Exactly 2 or 3 target aesthetics, each with a one-sentence experience goal; the other kinds listed as deprioritized; an MDA table; an aesthetic trace with a KEEP/FLAG/CUT verdict per mechanic; a JSON block that names all eight kinds once.",
+      "files": [],
+      "expectations": [
+        "Picks exactly 2 or 3 target aesthetics",
+        "Each target has a one-sentence experience goal",
+        "Names the deprioritized kinds",
+        "Traces every mechanic to an aesthetic with a verdict"
+      ],
+      "checks": [
+        {"type": "in_order", "description": "sections in order", "patterns": ["^## Assumptions", "^## Target aesthetics", "^## Deprioritized", "^## MDA table", "^## Aesthetic trace", "^## Cuts and flags"]},
+        {"type": "json_expr", "description": "2-3 target aesthetics", "expr": "2 <= len(d['aesthetics']) <= 3"},
+        {"type": "json_expr", "description": "targets + deprioritized cover all 8 kinds once", "expr": "sorted([a['kind'] for a in d['aesthetics']] + d['deprioritized']) == sorted(['Sensation','Fantasy','Narrative','Challenge','Fellowship','Discovery','Expression','Submission'])"},
+        {"type": "json_expr", "description": "every goal is one 'The player feels' sentence", "expr": "all(a['goal'].startswith('The player feels') for a in d['aesthetics'])"},
+        {"type": "json_expr", "description": "every trace row has a valid verdict", "expr": "len(d['trace']) >= 3 and all(t['verdict'] in ('KEEP','FLAG','CUT') for t in d['trace'])"}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "trace-every-listed-mechanic",
+      "prompt": "Concept: a cozy puzzle game where you rearrange furniture in tiny apartments so the tenants can reach their morning routine. Current mechanics: drag-and-rotate furniture, tenant path preview, undo stack, daily login streak rewards, global leaderboard of fastest solves, unlockable wallpaper patterns. Which of these mechanics earn their place?",
+      "expected_output": "Every one of the six listed mechanics appears in the trace. Mechanics that serve no target aesthetic are marked CUT or FLAG; the login streak is not KEEP unless tied to a target.",
+      "files": [],
+      "expectations": [
+        "All six listed mechanics appear in the aesthetic trace",
+        "At least one listed mechanic is marked CUT or FLAG",
+        "Picks exactly 2 or 3 target aesthetics"
+      ],
+      "checks": [
+        {"type": "json_expr", "description": "2-3 target aesthetics", "expr": "2 <= len(d['aesthetics']) <= 3"},
+        {"type": "json_expr", "description": "all 6 listed mechanics traced", "expr": "all(any(k in t['mechanic'].lower() for t in d['trace']) for k in ['drag','preview','undo','streak','leaderboard','wallpaper'])"},
+        {"type": "json_expr", "description": "at least one CUT or FLAG", "expr": "any(t['verdict'] in ('CUT','FLAG') for t in d['trace'])"},
+        {"type": "json_expr", "description": "CUT rows serve none", "expr": "all(t['serves'].lower() == 'none' for t in d['trace'] if t['verdict'] == 'CUT')"},
+        {"type": "regex", "description": "trace table present", "pattern": "^\\| Mechanic \\| Serves \\| Via dynamic \\| Verdict \\|", "min": 1, "max": 1}
+      ]
+    },
+    {
+      "id": 3,
+      "name": "too-many-aesthetics-given",
+      "prompt": "Upstream picked these target aesthetics: Discovery, Expression, Fellowship, Sensation. Concept: two players share one garden across time zones; each tends it while the other sleeps and leaves notes in the soil.",
+      "expected_output": "Keeps exactly 3 of the 4 supplied aesthetics (the first 3), records the dropped one under Assumptions, and still traces every mechanic.",
+      "files": [],
+      "expectations": [
+        "Outputs exactly 3 target aesthetics, not 4",
+        "States under Assumptions that one supplied aesthetic was dropped",
+        "Does not ask the user a question"
+      ],
+      "checks": [
+        {"type": "json_expr", "description": "exactly 3 aesthetics kept from the supplied 4", "expr": "len(d['aesthetics']) == 3 and set(a['kind'] for a in d['aesthetics']) <= {'Discovery','Expression','Fellowship','Sensation'}"},
+        {"type": "regex", "description": "assumption records the cap", "pattern": "(?is)## Assumptions.*?(first 3|first three|dropp|more than 3|only 3|capped|at most 3|kept 3|three of)", "min": 1},
+        {"type": "not_regex", "description": "no question to the user", "pattern": "(would you like|do you want|could you (tell|clarify)|let me know which)"}
+      ]
+    }
+  ]
+}
