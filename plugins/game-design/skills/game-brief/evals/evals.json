@@ -1,0 +1,60 @@
+{
+  "skill_name": "game-brief",
+  "evals": [
+    {
+      "id": 1,
+      "name": "full-pipeline-inputs",
+      "prompt": "Write the brief. Date: 2026-09-24.\nPick from game-ideation: Fog Keeper — tend a lighthouse on a foggy island where the fog remembers what you did yesterday. Runners-up: Lamp Ledger, Tidewright. Scope: three months solo.\nfun-targeting: aesthetics Discovery (The player feels a prickle of curiosity when the fog shifts in a way that echoes last night), Submission (The player feels calm when they walk the nightly round trimming the wick). Deprioritized: Sensation, Fantasy, Narrative, Challenge, Fellowship, Expression. Core verb: tend. Mechanics: trim the wick, wind the lens, log passing ships, leave shore lamps lit or dark, the fog replays last night's choices as shapes.\ncore-loop moment-to-moment block:\n```mermaid\nflowchart LR\n  A1[\"Trim the wick\"] --> S1[\"Flame steadies\"]\n  S1 --> F1[\"Beam sweeps wider through the fog\"]\n  F1 -->|Submission| D1{\"Wind the lens or walk the shore?\"}\n  D1 --> A1\n```",
+      "expected_output": "A brief with the frontmatter keys in the §6.4 order, every required section in order, one ### subsection per target aesthetic (Discovery, Submission), the supplied Mermaid block inside the play-by-play, and the exact Designer's doubts placeholder.",
+      "files": [],
+      "expectations": [
+        "Has every required section in order",
+        "Frontmatter carries date, aesthetics, deprioritized, core_verb, scope, runners_up, art, verdict, rating",
+        "One subsection per target aesthetic under Why it's fun",
+        "Leaves the Designer's doubts placeholder"
+      ],
+      "checks": [
+        {"type": "in_order", "description": "frontmatter keys in order", "patterns": ["^---\\s*$", "^date: 2026-09-24", "^aesthetics: \\[", "^deprioritized: \\[", "^core_verb: tend", "^scope: ", "^runners_up: \\[", "^art: placeholder", "^verdict: unreviewed", "^rating:", "^---\\s*$"]},
+        {"type": "in_order", "description": "required sections in order", "patterns": ["^# Fog Keeper", "^## Pitch", "^## Player fantasy", "^## 30-second play-by-play", "^## Why it's fun", "^### Discovery", "^### Submission", "^## Comparable games", "^## Scope for a solo developer", "^## Risks", "^## Smallest prototype that tests the fun", "^## Open questions", "^## Designer's doubts", "^_Pending critique by game:game-studio-cpo\\._"]},
+        {"type": "regex", "description": "exactly 2 aesthetic subsections", "pattern": "^### (Sensation|Fantasy|Narrative|Challenge|Fellowship|Discovery|Expression|Submission)\\s*$", "min": 2, "max": 2},
+        {"type": "regex", "description": "supplied mermaid block included", "pattern": "F1 -->\\|Submission\\| D1", "min": 1},
+        {"type": "regex", "description": "runners-up recorded", "pattern": "^runners_up: \\[.*Lamp Ledger.*Tidewright.*\\]", "min": 1}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "one-liner-only",
+      "prompt": "Brief for this concept, please: Clackety-Clack — a rhythm game where you slam one-way rail gates open on the clack of the wheels to route the day's only desert train.",
+      "expected_output": "Infers 2-3 target kinds and the missing facts, records each as an 'Assumed:' bullet under Open questions, and still outputs every required section in order with frontmatter; aesthetics subsections match the frontmatter.",
+      "files": [],
+      "expectations": [
+        "Has every required section in order",
+        "Records assumptions as 'Assumed:' bullets under Open questions",
+        "Does not ask the user a question"
+      ],
+      "checks": [
+        {"type": "in_order", "description": "required sections in order", "patterns": ["^---\\s*$", "^date: \\d{4}-\\d{2}-\\d{2}", "^verdict: unreviewed", "^---\\s*$", "^# Clackety-Clack", "^## Pitch", "^## Player fantasy", "^## 30-second play-by-play", "^## Why it's fun", "^### ", "^## Comparable games", "^## Scope for a solo developer", "^## Risks", "^## Smallest prototype that tests the fun", "^## Open questions", "^## Designer's doubts", "^_Pending critique by game:game-studio-cpo\\._"]},
+        {"type": "regex", "description": "2-3 aesthetic subsections", "pattern": "^### (Sensation|Fantasy|Narrative|Challenge|Fellowship|Discovery|Expression|Submission)\\s*$", "min": 2, "max": 3},
+        {"type": "regex", "description": "assumptions recorded", "pattern": "(?s)## Open questions.*?^- Assumed: .*## Designer's doubts", "min": 1},
+        {"type": "not_regex", "description": "no question to the user", "pattern": "(would you like|do you want|could you (tell|clarify)|let me know which)"}
+      ]
+    },
+    {
+      "id": 3,
+      "name": "art-skipped",
+      "prompt": "Write the brief for Dune Junction — route the day's only train through a single-screen desert junction of one-way gates, setting switches before it arrives. Date 2026-10-01. Target fun: Challenge, Discovery, Expression. Scope: one month solo. Art was skipped for this run.",
+      "expected_output": "Frontmatter has art: skipped, the date 2026-10-01, three aesthetics, and three ### subsections in the same order.",
+      "files": [],
+      "expectations": [
+        "Sets art: skipped",
+        "Three aesthetic subsections in the frontmatter order"
+      ],
+      "checks": [
+        {"type": "regex", "description": "art skipped", "pattern": "^art: skipped\\s*$", "min": 1, "max": 1},
+        {"type": "regex", "description": "date kept", "pattern": "^date: 2026-10-01\\s*$", "min": 1, "max": 1},
+        {"type": "in_order", "description": "aesthetic subsections in frontmatter order", "patterns": ["^aesthetics: \\[Challenge, Discovery, Expression\\]", "^## Why it's fun", "^### Challenge", "^### Discovery", "^### Expression", "^## Comparable games"]},
+        {"type": "regex", "description": "rating empty", "pattern": "^rating:\\s*$", "min": 1, "max": 1}
+      ]
+    }
+  ]
+}
