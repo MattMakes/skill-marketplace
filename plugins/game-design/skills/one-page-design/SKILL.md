@@ -79,6 +79,10 @@ SVG.
 
 ## "Doesn't fit" is a signal
 
-If the renderer's placeholder or wrapping looks cramped, or validation flags a sub-8px font, the
-design is too dense. Cut a tier-3 item or merge two callouts. Never ask the renderer to shrink
+The renderer measures every text block against its region (header, callout cell around the
+central illustration, sidebar/detail column, description band). A block that does not fit stops
+the render with a non-zero exit and `<block> does not fit: redesign` on stderr; text is never
+dropped. The validator rejects text outside the canvas, overlapping text, text across a box edge
+or a leader line, and an off-center central illustration. Any of these means the design is too
+dense. Cut a tier-3 item or merge two callouts. Never ask the renderer to shrink
 text below the floor.
