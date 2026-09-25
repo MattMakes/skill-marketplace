@@ -1,33 +1,95 @@
 {
-  "skill": "design-diagrams",
+  "skill_name": "design-diagrams",
   "evals": [
     {
-      "id": "matrix-shaped-problem-picks-matrix",
+      "id": 1,
+      "name": "matrix-shaped-problem-picks-matrix",
       "prompt": "Using the design-diagrams skill, I need a diagram for how 4 factions each play differently against 3 terrain types in my game. What diagram should I use and what's the recipe?",
-      "expected": "The skill picks the top-down matrix (row axis = factions, column axis = terrain), states the axes first, and emits the JSON/SVG matrix recipe, not a flowchart or triangle.",
-      "checks": [
+      "expected_output": "The skill picks the top-down matrix (row axis = factions, column axis = terrain), states the axes first, and emits the JSON/SVG matrix recipe, not a flowchart or triangle.",
+      "files": [],
+      "expectations": [
         "the response names 'matrix' or 'top-down matrix' as the diagram type",
         "the response names both axes explicitly (factions and terrain) before describing cells",
         "no flowchart or relationship-triangle recipe is offered as the primary answer"
+      ],
+      "checks": [
+        {
+          "type": "regex",
+          "description": "picks a matrix",
+          "pattern": "(?i)\\bmatrix\\b",
+          "min": 1
+        },
+        {
+          "type": "in_order",
+          "description": "axes named before the grid recipe",
+          "patterns": [
+            "(?i)factions?",
+            "(?i)terrain",
+            "```json"
+          ]
+        },
+        {
+          "type": "not_regex",
+          "description": "no flowchart recipe",
+          "pattern": "```mermaid"
+        }
       ]
     },
     {
-      "id": "wrong-metaphor-check-applied",
+      "id": 2,
+      "name": "wrong-metaphor-check-applied",
       "prompt": "Using the design-diagrams skill, review this idea: draw our 5 difficulty tiers as a circle so players can loop back to an easier tier at any time. Is that the right diagram?",
-      "expected": "The skill runs the wrong-metaphor check, flags that a circle folds a one-dimensional difficulty continuum and can place distant tiers next to each other, and recommends a labeled linear or time-and-space diagram instead.",
-      "checks": [
+      "expected_output": "The skill runs the wrong-metaphor check, flags that a circle folds a one-dimensional difficulty continuum and can place distant tiers next to each other, and recommends a labeled linear or time-and-space diagram instead.",
+      "files": [],
+      "expectations": [
         "the response explicitly names the 'wrong metaphor' check",
         "the response identifies that a circular layout folds/hides the linear difficulty relationship",
         "the response recommends an alternative (linear or time-and-space) diagram"
+      ],
+      "checks": [
+        {
+          "type": "regex",
+          "description": "names the wrong-metaphor check",
+          "pattern": "(?i)wrong[- ]metaphor",
+          "min": 1
+        },
+        {
+          "type": "regex",
+          "description": "explains the fold",
+          "pattern": "(?i)(fold|next to each other|adjacent|wraps? (around|back))",
+          "min": 1
+        },
+        {
+          "type": "regex",
+          "description": "recommends a linear or time-and-space diagram",
+          "pattern": "(?i)(linear|time[- ]and[- ]space|ladder|ramp|line)",
+          "min": 1
+        }
       ]
     },
     {
-      "id": "engine-loop-picks-flowchart",
+      "id": 3,
+      "name": "engine-loop-picks-flowchart",
       "prompt": "Using the design-diagrams skill, diagram the moment-to-moment loop: player throws a ball, dog fetches it, dog returns it, player throws again.",
-      "expected": "The skill picks a flowchart (engine loop) and emits a Mermaid flowchart template with player action, system response, feedback and next decision nodes.",
-      "checks": [
+      "expected_output": "The skill picks a flowchart (engine loop) and emits a Mermaid flowchart template with player action, system response, feedback and next decision nodes.",
+      "files": [],
+      "expectations": [
         "the response emits a mermaid flowchart code block",
         "the loop closes back to the first node (a repeating cycle, not a one-way sequence)"
+      ],
+      "checks": [
+        {
+          "type": "regex",
+          "description": "emits a mermaid flowchart",
+          "pattern": "```mermaid\\s*\\n\\s*flowchart",
+          "min": 1
+        },
+        {
+          "type": "regex",
+          "description": "loop closes back to the first node",
+          "pattern": "(?s)```mermaid\\s*\\n\\s*flowchart \\w+\\s*\\n\\s*(\\w+)\\b.*?-->\\s*(\\|[^|]*\\|\\s*)?\\1\\b",
+          "min": 1
+        }
       ]
     }
   ]

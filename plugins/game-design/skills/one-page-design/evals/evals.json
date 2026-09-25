@@ -1,33 +1,95 @@
 {
-  "skill": "one-page-design",
+  "skill_name": "one-page-design",
   "evals": [
     {
-      "id": "spec-renders-and-validates",
+      "id": 1,
+      "name": "spec-renders-and-validates",
       "prompt": "Using the one-page-design skill, write a JSON spec for a solo cozy game called 'Ember Garden' where the player feeds a fire to reveal a dark garden, then render it and validate it.",
-      "expected": "A JSON spec with title, purpose and a YYYY-MM-DD date is written, rendered with scripts/render_one_page.py to an SVG, and scripts/validate_one_page.py exits 0 on that SVG.",
-      "checks": [
+      "expected_output": "A JSON spec with title, purpose and a YYYY-MM-DD date is written, rendered with scripts/render_one_page.py to an SVG, and scripts/validate_one_page.py exits 0 on that SVG.",
+      "files": [],
+      "expectations": [
         "a spec file exists with non-empty title, purpose and date fields",
         "date field matches ^\\d{4}-\\d{2}-\\d{2}$",
         "render_one_page.py exits 0 against the spec",
         "validate_one_page.py exits 0 against the produced SVG"
+      ],
+      "checks": [
+        {
+          "type": "render_spec",
+          "description": "last JSON spec renders and validates",
+          "render": "scripts/render_one_page.py",
+          "validate": "scripts/validate_one_page.py"
+        },
+        {
+          "type": "json_expr",
+          "description": "spec has title, purpose, YYYY-MM-DD date",
+          "expr": "bool(d['title'].strip()) and bool(d['purpose'].strip()) and len(d['date']) == 10 and d['date'][4] == '-' and d['date'][7] == '-' and d['date'].replace('-','').isdigit()"
+        },
+        {
+          "type": "json_expr",
+          "description": "title names the game",
+          "expr": "'ember garden' in d['title'].lower()"
+        }
       ]
     },
     {
-      "id": "title-test-blocks-empty-title",
+      "id": 2,
+      "name": "title-test-blocks-empty-title",
       "prompt": "Using the one-page-design skill, try to build a one-pager for a game concept you have not named yet.",
-      "expected": "The skill applies the title test: it states it cannot proceed without a title, names why the page would exist, and does not emit a spec with an empty or placeholder title.",
-      "checks": [
+      "expected_output": "The skill applies the title test: it states it cannot proceed without a title, names why the page would exist, and does not emit a spec with an empty or placeholder title.",
+      "files": [],
+      "expectations": [
         "no spec is rendered with an empty or generic placeholder title such as 'Untitled' or 'TBD'",
         "the response names the title test explicitly"
+      ],
+      "checks": [
+        {
+          "type": "regex",
+          "description": "names the title test",
+          "pattern": "(?i)title test",
+          "min": 1
+        },
+        {
+          "type": "not_regex",
+          "description": "no placeholder title in a spec",
+          "pattern": "\"title\"\\s*:\\s*\"\\s*(untitled|tbd|todo|title|<[^\"]*>)?\\s*\""
+        },
+        {
+          "type": "not_regex",
+          "description": "no question to the user",
+          "pattern": "(would you like|do you want|could you (tell|clarify)|let me know which)"
+        }
       ]
     },
     {
-      "id": "renderer-cli-contract",
+      "id": 3,
+      "name": "renderer-cli-contract",
       "prompt": "Show the exact commands to render and validate a one-page-design spec at ./spec.json for the skill installed at plugins/game-design/skills/one-page-design.",
-      "expected": "python3 <skill-dir>/scripts/render_one_page.py <spec.json> -o <out.svg> [--key-art <path-to-png>], and python3 <skill-dir>/scripts/validate_one_page.py <out.svg>, both with the exact script names and flags from the SKILL.md.",
-      "checks": [
+      "expected_output": "python3 <skill-dir>/scripts/render_one_page.py <spec.json> -o <out.svg> [--key-art <path-to-png>], and python3 <skill-dir>/scripts/validate_one_page.py <out.svg>, both with the exact script names and flags from the SKILL.md.",
+      "files": [],
+      "expectations": [
         "the command names render_one_page.py and validate_one_page.py exactly",
         "the -o flag and optional --key-art flag are present with those exact names"
+      ],
+      "checks": [
+        {
+          "type": "regex",
+          "description": "exact render command",
+          "pattern": "python3 \\S*render_one_page\\.py \\S+ -o \\S+",
+          "min": 1
+        },
+        {
+          "type": "regex",
+          "description": "--key-art flag named",
+          "pattern": "--key-art",
+          "min": 1
+        },
+        {
+          "type": "regex",
+          "description": "exact validate command",
+          "pattern": "python3 \\S*validate_one_page\\.py \\S+\\.svg",
+          "min": 1
+        }
       ]
     }
   ]
