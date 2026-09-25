@@ -43,6 +43,22 @@ For an honest critique of a finished design, hand it to `game:game-studio-cpo` f
 plugin. The link goes one way: this plugin calls the review board, and the review board knows
 nothing about this plugin.
 
+## Running evals
+
+`scripts/run_evals.py` runs a skill's `evals/evals.json` under `claude -p` and grades the
+deterministic checks (regex, ordered text, JSON expressions, and rendered-spec validation).
+
+```bash
+python3 scripts/run_evals.py <plugin_dir> <skill_name> [--ids 1,2] [--out DIR] [--regrade]
+```
+
+- `<plugin_dir>` is the path to this plugin directory (for example `.` when run from here).
+- `--ids` limits the run to specific eval IDs.
+- `--out` sets the output directory for transcripts (default `eval-out`).
+- `--regrade` re-grades saved transcripts without calling `claude` again.
+
+Exit code is 0 when every eval passes.
+
 ## Sources
 
 - Stone Librande, "One-Page Designs", GDC 2010.
