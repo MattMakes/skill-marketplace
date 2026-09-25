@@ -9,6 +9,7 @@ Design a system, understand an existing codebase, explain a change, or verify th
 | Design a system with DDD, resume a model, or find the next modelling step | `code:ddd` |
 | Draw or animate an architecture, sequence, workflow, data flow, or schema relationship | `code:blueprint` |
 | Understand an unfamiliar repository | `code:core` |
+| Set up AGENTS.md instructions that stay current | `code:keys` |
 | Understand a diff, branch, or PR | `code:explain-diff` |
 | Document or verify implementation | `code:deepwiki`, `code:e2e-harness`, `code:security-sweep`, `code:complexity-sweep` |
 
@@ -122,6 +123,64 @@ tool still shows them, so a filled-in child doc costs **274 characters of
 context against 2,638 on disk**. That matters because a child doc loads every
 single time an agent touches its directory, which makes unfilled boilerplate a
 bill rather than a placeholder.
+
+---
+
+# `keys` — one AGENTS.md tree that stays current
+
+KEYS is [DOX](https://github.com/agent0ai/dox) renamed and made AGENTS.md-only.
+Claude Code reads `AGENTS.md`, so the project needs no `CLAUDE.md` and no
+symlinks. The root `AGENTS.md` holds the framework rules and the project-wide
+instructions. A child `AGENTS.md` sits at each real boundary, and every doc
+indexes its direct children. Before an edit, the agent reads the chain from the
+root to the file. After a meaningful change, it updates the docs it affected.
+
+## Using it
+
+```
+/keys
+```
+
+The first run scans the project, installs the root `AGENTS.md`, folds existing
+instructions into it, builds the child tree, and runs `keys.py check` until it
+reports `0 errors`. Later runs upgrade the framework block, fold anything new,
+and add docs for new boundaries.
+
+## Folding, not duplicating
+
+Two instruction files for one folder drift apart. `keys` folds each `CLAUDE.md`
+into the `AGENTS.md` beside it, and root rule files such as `.cursorrules`,
+`GEMINI.md` and `.github/copilot-instructions.md` into the root. It also
+proposes hand-written `.md` rule sets, such as `docs/conventions.md`, when only
+agents read them. It shows the fold plan and deletes nothing until you confirm.
+`CLAUDE.local.md` is personal, so `keys` leaves it alone.
+
+## `keys` or `core`
+
+| | `keys` | `core` |
+|---|---|---|
+| Instruction files | real `AGENTS.md` only | real `CLAUDE.md` with `AGENTS.md` symlinks |
+| Code graph | none | graphify, zero tokens |
+| Existing `CLAUDE.md` | folded into `AGENTS.md` | kept as the real file |
+| Needs | Python 3 | Python 3, graphify |
+
+## Layout
+
+```
+skills/keys/
+├── SKILL.md
+├── NOTICE.md              DOX license and the list of changes
+├── assets/
+│   ├── AGENTS-root.md     the root file: KEYS block, preferences, index
+│   └── AGENTS-child.md    the six-section child skeleton
+├── references/
+│   ├── dox-original.md    verbatim DOX source, for diffing
+│   └── folding.md         what folds where, and what is never deleted
+├── scripts/
+│   ├── keys.py            scan, install, check
+│   └── test_keys.py
+└── evals/evals.json
+```
 
 ---
 
@@ -271,6 +330,12 @@ rewrites it around `CLAUDE.md` as the real file so contracts load on demand
 rather than being traversed by hand, drops the manual re-read rule that
 on-demand loading makes redundant, and generates the child index mechanically
 instead of asking the agent to maintain it.
+
+`keys` is adapted from **[DOX](https://github.com/agent0ai/dox)** by Agent Zero
+(MIT). It keeps DOX's rules and its real `AGENTS.md` files, renames DOX to
+KEYS, and adds install markers, a checkable index format, a
+one-instruction-file rule and the fold workflow. The license text is in
+`skills/keys/NOTICE.md`.
 
 The graph layer is **[graphify](https://github.com/Graphify-Labs/graphify)**
 (PyPI package `graphifyy`), used as-is. This plugin only chooses the flags that
