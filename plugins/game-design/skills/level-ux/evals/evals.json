@@ -1,0 +1,137 @@
+{
+  "skill_name": "level-ux",
+  "evals": [
+    {
+      "id": 1,
+      "name": "folded-light-brews",
+      "prompt": "Design the levels and UX.\nIdea: Folded Light Brews.\nBrief (game-brief): You catch sunbeams in paper cups and brew them into personal stories, spending light, your only currency, to unfold a city folded from old letters. Player fantasy: a quiet keeper of a paper city that grows one letter at a time. Setting: a paper city folded from old letters. Twist: light is the only currency. Session length: open-ended and ambient. Scope: weekend prototype, 3 days, the core loop only, one solo developer. Risks: brewing could feel like a menu pick; ambient pacing bores; the light economy is unclear (too plentiful or too scarce); branching letters cause narrative scope creep.\nfun-targeting: blend story-you-shape (Narrative, Expression). Primary kind: Narrative. Target kinds: Narrative (The player feels a pull to know what happens next when spending light unfolds another letter segment), Expression (The player feels their collection says something about them when they name and arrange their brews). Deprioritized: Sensation, Fantasy, Challenge, Fellowship, Discovery, Submission. Core verb: brew. Aesthetic trace: spend light to unfold a letter segment -> Narrative KEEP; reveals persist in the city -> Narrative KEEP; ambient progress unfolds letters while idle -> Narrative KEEP; brew combines a sunbeam with a letter theme into a named brew -> Expression KEEP; naming and arranging brews -> Expression KEEP.\ncore-loop:\nMoment-to-moment: A1 Catch a sunbeam in a paper cup -> S1 Sunbeam is stored and assigned a theme from nearby letters -> F1 The cup glows with the caught color and its hinted letter theme -|Expression|-> D1 Brew it into a story or save the light? -> A1.\nSession: A2 Spend light to unfold a letter segment -> S2 The segment reveals story text and shifts the city's layout -> F2 New paragraphs appear and the folded street changes shape -|Narrative|-> D2 Brew this reveal into your collection or keep unfolding? -> A2.\nLong-term: A3 Return and check on your growing city -> S3 Ambient progress unfolded letters while you were away -> F3 New light has gathered and new letter segments await -|Narrative|-> D3 Which thread do you follow next? -> A3.\nContent boundaries: no sexual content, no violence, no real-money gambling.",
+      "expected_output": "A first-10-minutes table starting on the core verb, exactly 3 sample levels with layout sketches, controls for keyboard/mouse, controller and touch, a HUD list, a Mermaid screen flow, and the JSON block with levels = 3.",
+      "files": [],
+      "expectations": [
+        "Every required heading and subsection in order",
+        "Exactly 3 sample levels",
+        "A Mermaid flowchart screen flow",
+        "Controls cover 3 schemes"
+      ],
+      "checks": [
+        {
+          "type": "in_order",
+          "description": "heading, subsections and json in order",
+          "patterns": [
+            "^## Levels and UX\\s*$",
+            "^### First 10 minutes\\s*$",
+            "^### Sample levels\\s*$",
+            "^### Controls\\s*$",
+            "^### HUD\\s*$",
+            "^### Screen flow\\s*$",
+            "^```json"
+          ]
+        },
+        {
+          "type": "regex",
+          "description": "exactly one ## heading",
+          "pattern": "^## ",
+          "min": 1,
+          "max": 1
+        },
+        {
+          "type": "regex",
+          "description": "exactly 3 sample levels",
+          "pattern": "^#### ",
+          "min": 3,
+          "max": 3
+        },
+        {
+          "type": "regex",
+          "description": "difficulty on each level",
+          "pattern": "Difficulty\\W*[1-5]\\b",
+          "min": 3
+        },
+        {
+          "type": "regex",
+          "description": "screen flow is a Mermaid flowchart",
+          "pattern": "(?s)### Screen flow\\s*\\n.*?```mermaid\\s*\\n\\s*flowchart",
+          "min": 1
+        },
+        {
+          "type": "in_order",
+          "description": "controls cover 3 schemes",
+          "patterns": [
+            "^### Controls",
+            "(?i)keyboard",
+            "(?i)controller",
+            "(?i)touch",
+            "^### HUD"
+          ]
+        },
+        {
+          "type": "json_expr",
+          "description": "json keys",
+          "expr": "d.get('section') == 'level-ux' and d.get('levels') == 3 and isinstance(d.get('first10_rows'), int) and 1 <= d['first10_rows'] <= 10"
+        },
+        {
+          "type": "not_regex",
+          "description": "no question to the user",
+          "pattern": "(would you like me|do you want me|could you (tell|clarify)|let me know which)"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "concept-only",
+      "prompt": "Levels and UX for this idea.\nIdea: Dune Junction. Route the day's only train through a single-screen desert junction of one-way gates, setting switches before it arrives. Target fun: Challenge (primary), Discovery, Expression. Core verb: route. Scope: one month, one solo developer. Content boundaries: no violence.",
+      "expected_output": "Exactly 3 sample levels with rising difficulty, a Mermaid screen flow, and the JSON block.",
+      "files": [],
+      "expectations": [
+        "Exactly 3 sample levels",
+        "A Mermaid flowchart screen flow",
+        "Does not ask a question"
+      ],
+      "checks": [
+        {
+          "type": "in_order",
+          "description": "heading, subsections and json in order",
+          "patterns": [
+            "^## Levels and UX\\s*$",
+            "^### First 10 minutes\\s*$",
+            "^### Sample levels\\s*$",
+            "^### Controls\\s*$",
+            "^### HUD\\s*$",
+            "^### Screen flow\\s*$",
+            "^```json"
+          ]
+        },
+        {
+          "type": "regex",
+          "description": "exactly one ## heading",
+          "pattern": "^## ",
+          "min": 1,
+          "max": 1
+        },
+        {
+          "type": "regex",
+          "description": "exactly 3 sample levels",
+          "pattern": "^#### ",
+          "min": 3,
+          "max": 3
+        },
+        {
+          "type": "regex",
+          "description": "screen flow is a Mermaid flowchart",
+          "pattern": "(?s)### Screen flow\\s*\\n.*?```mermaid\\s*\\n\\s*flowchart",
+          "min": 1
+        },
+        {
+          "type": "json_expr",
+          "description": "json keys",
+          "expr": "d.get('section') == 'level-ux' and d.get('levels') == 3 and d.get('first10_rows', 0) >= 1"
+        },
+        {
+          "type": "not_regex",
+          "description": "no question to the user",
+          "pattern": "(would you like me|do you want me|could you (tell|clarify)|let me know which)"
+        }
+      ]
+    }
+  ]
+}

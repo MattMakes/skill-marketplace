@@ -1,0 +1,141 @@
+{
+  "skill_name": "prototype-plan",
+  "evals": [
+    {
+      "id": 1,
+      "name": "folded-light-brews",
+      "prompt": "Write the prototype and playtest plan.\nIdea: Folded Light Brews.\nBrief (game-brief): You catch sunbeams in paper cups and brew them into personal stories, spending light, your only currency, to unfold a city folded from old letters. Player fantasy: a quiet keeper of a paper city that grows one letter at a time. Setting: a paper city folded from old letters. Twist: light is the only currency. Session length: open-ended and ambient. Scope: weekend prototype, 3 days, the core loop only, one solo developer. Risks: brewing could feel like a menu pick; ambient pacing bores; the light economy is unclear (too plentiful or too scarce); branching letters cause narrative scope creep.\nfun-targeting: blend story-you-shape (Narrative, Expression). Primary kind: Narrative. Target kinds: Narrative (The player feels a pull to know what happens next when spending light unfolds another letter segment), Expression (The player feels their collection says something about them when they name and arrange their brews). Deprioritized: Sensation, Fantasy, Challenge, Fellowship, Discovery, Submission. Core verb: brew. Aesthetic trace: spend light to unfold a letter segment -> Narrative KEEP; reveals persist in the city -> Narrative KEEP; ambient progress unfolds letters while idle -> Narrative KEEP; brew combines a sunbeam with a letter theme into a named brew -> Expression KEEP; naming and arranging brews -> Expression KEEP.\ncore-loop:\nMoment-to-moment: A1 Catch a sunbeam in a paper cup -> S1 Sunbeam is stored and assigned a theme from nearby letters -> F1 The cup glows with the caught color and its hinted letter theme -|Expression|-> D1 Brew it into a story or save the light? -> A1.\nSession: A2 Spend light to unfold a letter segment -> S2 The segment reveals story text and shifts the city's layout -> F2 New paragraphs appear and the folded street changes shape -|Narrative|-> D2 Brew this reveal into your collection or keep unfolding? -> A2.\nLong-term: A3 Return and check on your growing city -> S3 Ambient progress unfolded letters while you were away -> F3 New light has gathered and new letter segments await -|Narrative|-> D3 Which thread do you follow next? -> A3.\nContent boundaries: no sexual content, no violence, no real-money gambling.",
+      "expected_output": "Three milestones (paper prototype, grey-box, vertical slice), at least one tagged playtest question for Narrative and for Expression, measurable metrics, one engine with a reason, risks mapped to milestones, and the JSON block.",
+      "files": [],
+      "expectations": [
+        "Every required heading and subsection in order",
+        "3 milestones in order",
+        ">= 1 playtest question per target kind",
+        "JSON parses with the contract keys"
+      ],
+      "checks": [
+        {
+          "type": "in_order",
+          "description": "heading, subsections and json in order",
+          "patterns": [
+            "^## Prototype and playtest plan\\s*$",
+            "^### Milestones\\s*$",
+            "^### Playtest questions\\s*$",
+            "^### Success metrics\\s*$",
+            "^### Tech notes\\s*$",
+            "^### Risks retired\\s*$",
+            "^```json"
+          ]
+        },
+        {
+          "type": "regex",
+          "description": "exactly one ## heading",
+          "pattern": "^## ",
+          "min": 1,
+          "max": 1
+        },
+        {
+          "type": "in_order",
+          "description": "3 milestones in order",
+          "patterns": [
+            "^### Milestones",
+            "^\\|\\s*\\**Paper prototype",
+            "^\\|\\s*\\**Gr[ae]y-box",
+            "^\\|\\s*\\**Vertical slice",
+            "^### Playtest questions"
+          ]
+        },
+        {
+          "type": "regex",
+          "description": "Narrative question",
+          "pattern": "^\\s*[-*] \\*\\*Narrative\\*\\*",
+          "min": 1
+        },
+        {
+          "type": "regex",
+          "description": "Expression question",
+          "pattern": "^\\s*[-*] \\*\\*Expression\\*\\*",
+          "min": 1
+        },
+        {
+          "type": "json_expr",
+          "description": "json keys and kinds",
+          "expr": "d.get('section') == 'prototype-plan' and d.get('milestones') == 3 and d.get('questions_by_kind', {}).get('Narrative', 0) >= 1 and d.get('questions_by_kind', {}).get('Expression', 0) >= 1"
+        },
+        {
+          "type": "regex",
+          "description": "risks from the brief retired",
+          "pattern": "(?is)### Risks retired.*(menu|pacing|economy|scope)",
+          "min": 1
+        },
+        {
+          "type": "not_regex",
+          "description": "no question to the user",
+          "pattern": "(would you like me|do you want me|could you (tell|clarify)|let me know which)"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "concept-only-three-kinds",
+      "prompt": "Prototype and playtest plan for this idea.\nIdea: Dune Junction. Route the day's only train through a single-screen desert junction of one-way gates, setting switches before it arrives. Target fun: Challenge (primary), Discovery, Expression. Core verb: route. Scope: one month, one solo developer. Content boundaries: no violence.",
+      "expected_output": "At least one tagged playtest question each for Challenge, Discovery and Expression, 3 milestones, and the JSON block.",
+      "files": [],
+      "expectations": [
+        ">= 1 playtest question per target kind",
+        "3 milestones",
+        "Does not ask a question"
+      ],
+      "checks": [
+        {
+          "type": "in_order",
+          "description": "heading, subsections and json in order",
+          "patterns": [
+            "^## Prototype and playtest plan\\s*$",
+            "^### Milestones\\s*$",
+            "^### Playtest questions\\s*$",
+            "^### Success metrics\\s*$",
+            "^### Tech notes\\s*$",
+            "^### Risks retired\\s*$",
+            "^```json"
+          ]
+        },
+        {
+          "type": "regex",
+          "description": "exactly one ## heading",
+          "pattern": "^## ",
+          "min": 1,
+          "max": 1
+        },
+        {
+          "type": "regex",
+          "description": "Challenge question",
+          "pattern": "^\\s*[-*] \\*\\*Challenge\\*\\*",
+          "min": 1
+        },
+        {
+          "type": "regex",
+          "description": "Discovery question",
+          "pattern": "^\\s*[-*] \\*\\*Discovery\\*\\*",
+          "min": 1
+        },
+        {
+          "type": "regex",
+          "description": "Expression question",
+          "pattern": "^\\s*[-*] \\*\\*Expression\\*\\*",
+          "min": 1
+        },
+        {
+          "type": "json_expr",
+          "description": "json keys and kinds",
+          "expr": "d.get('section') == 'prototype-plan' and d.get('milestones') == 3 and all(d.get('questions_by_kind', {}).get(k, 0) >= 1 for k in ['Challenge', 'Discovery', 'Expression'])"
+        },
+        {
+          "type": "not_regex",
+          "description": "no question to the user",
+          "pattern": "(would you like me|do you want me|could you (tell|clarify)|let me know which)"
+        }
+      ]
+    }
+  ]
+}
