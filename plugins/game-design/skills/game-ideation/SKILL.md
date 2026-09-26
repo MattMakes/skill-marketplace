@@ -24,7 +24,9 @@ Read these files before you start:
 ## Input
 
 The caller gives some of:
-- a **constraint card**: target fun (2–3 kinds), core verb, setting, twist, session length, scope;
+- a **constraint card**: target fun (2–3 kinds), core verb, setting, twist, session length, scope,
+  and optionally a **blend** from `../fun-targeting/references/blends.md` (id, name, kinds,
+  signature dynamic, loop pattern);
 - **boundaries**: content rules a concept must not cross;
 - a **history** list of past concepts, for novelty;
 - **seed concepts** the caller wants judged alongside yours.
@@ -35,6 +37,9 @@ The caller gives some of:
 - If the card is missing or incomplete, draw each missing field from its deck in
   `references/decks/` and say so under Assumptions. If the target fun is missing, pick 2 kinds
   that suit the verb.
+- If the card carries a blend, the target fun is exactly the blend's kinds, in its order, and you
+  score `fun_fit` against the blend's **signature dynamic** (see `references/rubric.md`). Every
+  concept's one-liner shows the core verb producing that dynamic.
 - Write **at least 6** new concepts. Each uses a different frame from `references/frames.md`.
 - Include every seed concept too, with the frame `supplied`. Seeds do not count toward the 6.
 - **Boundaries first.** Check every concept against every boundary **before** you score anything.
@@ -70,6 +75,7 @@ Write exactly these sections, in this order, with these headings:
 | Field | Value |
 |---|---|
 | Target fun | <Kind>, <Kind> |
+| Blend | <id> (<Name>): <signature dynamic>; "none" if no blend was given |
 | Core verb | <verb> |
 | Setting | <setting> |
 | Twist | <twist> |
@@ -101,7 +107,7 @@ End with a fenced `json` block. It is the contract for scripts that call this sk
 
 ```json
 {
-  "constraint_card": {"target_fun": ["<Kind>"], "core_verb": "", "setting": "", "twist": "", "session_length": "", "scope": ""},
+  "constraint_card": {"target_fun": ["<Kind>"], "blend": "<blend id, or null>", "core_verb": "", "setting": "", "twist": "", "session_length": "", "scope": ""},
   "concepts": [
     {"title": "", "one_liner": "", "frame": "", "scores": {"fun_fit": 4, "novelty": 3, "clarity": 5, "prototypability": 4}, "total": 3.95, "rejected_reason": null},
     {"title": "", "one_liner": "", "frame": "", "scores": {}, "total": null, "rejected_reason": "<boundary and why>"}

@@ -37,6 +37,26 @@
         {"type": "regex", "description": "assumptions name inferred fun", "pattern": "(?is)## Assumptions.*?(Challenge|Sensation).*?## Moment-to-moment loop", "min": 1},
         {"type": "not_regex", "description": "no question to the user", "pattern": "(would you like|do you want|could you (tell|clarify)|let me know which)"}
       ]
+    },
+    {
+      "id": 3,
+      "name": "primary-on-moment-edge",
+      "prompt": "Concept: Soup Relay — two to four friends run one night-market soup stall; the ladle, the bowls and the till are at opposite ends of a tiny cart. Sessions are 8 minutes.\nfun-targeting result: blend team-under-pressure; primary: Fellowship; target fun: Fellowship, Challenge, Sensation. Mechanics: pass bowls hand to hand, one ladle shared by all, an order clock, a gong and a steam burst on every served bowl, a nightly stall upgrade. Draw the core loops.",
+      "expected_output": "Exactly 3 labeled Mermaid loops. The moment-to-moment loop has at least one feedback edge labeled Fellowship (the primary). Challenge and Sensation each label an edge in the moment-to-moment or session loop. The output ends with the fold-in self-check line saying yes twice.",
+      "files": [],
+      "expectations": [
+        "The primary kind labels a moment-to-moment edge",
+        "Every target kind labels a moment-to-moment or session edge",
+        "Ends with the one-line fold-in self-check"
+      ],
+      "checks": [
+        {"type": "regex", "description": "exactly 3 mermaid flowchart blocks", "pattern": "^```mermaid\\s*\\n\\s*flowchart LR", "min": 3, "max": 3},
+        {"type": "regex", "description": "primary Fellowship on a moment-to-moment edge", "pattern": "(?s)^## Moment-to-moment loop(?:(?!\\n## ).)*-->\\|Fellowship\\|", "min": 1},
+        {"type": "regex", "description": "Challenge on a moment-to-moment or session edge", "pattern": "(?s)^## Moment-to-moment loop(?:(?!\\n## Long-term loop).)*-->\\|Challenge\\|", "min": 1},
+        {"type": "regex", "description": "Sensation on a moment-to-moment or session edge", "pattern": "(?s)^## Moment-to-moment loop(?:(?!\\n## Long-term loop).)*-->\\|Sensation\\|", "min": 1},
+        {"type": "not_regex", "description": "no unlabeled feedback edge", "pattern": "\\bF\\d+(\\[\"[^\"]*\"\\])?\\s*-->\\s*(?!\\|)"},
+        {"type": "in_order", "description": "self-check line after Gaps", "patterns": ["^## Gaps", "^\\*\\*Fold-in check:\\*\\* primary Fellowship on a moment-to-moment edge: yes\\..*session edge: yes"]}
+      ]
     }
   ]
 }

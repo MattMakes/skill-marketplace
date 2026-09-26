@@ -61,6 +61,24 @@
         {"type": "json_expr", "description": ">= 6 new concepts", "expr": "len([c for c in d['concepts'] if c['frame'] != 'supplied']) >= 6"},
         {"type": "json_expr", "description": "2 runners-up, neither rejected", "expr": "len(d['runners_up']) == 2 and all(not c['rejected_reason'] for c in d['concepts'] if c['title'] in d['runners_up'])"}
       ]
+    },
+    {
+      "id": 4,
+      "name": "blend-on-card",
+      "prompt": "Constraint card: blend = curious-expedition (Curious expedition); kinds = Discovery, Narrative; signature dynamic = The player follows their own questions through the world, and each place they reach answers one question with a piece of the story and raises the next; core verb = map; setting = a drowned library under a salt lake; twist = the water level changes with the moon; session length = 20 minutes; scope = three months solo.\nBoundaries: no sexual content; no violence; no real-money gambling.\nHistory: none.",
+      "expected_output": "The constraint card keeps the blend and uses exactly its kinds as the target fun; the Blend row names the signature dynamic; at least 6 concepts are scored with the rubric.",
+      "files": [],
+      "expectations": [
+        "Target fun is exactly the blend's kinds, in order",
+        "The card records the blend id",
+        "Scores follow the rubric weights"
+      ],
+      "checks": [
+        {"type": "json_expr", "description": "card keeps the blend and its kinds", "expr": "d['constraint_card'].get('blend') == 'curious-expedition' and d['constraint_card']['target_fun'] == ['Discovery', 'Narrative']"},
+        {"type": "regex", "description": "Blend row in the card table", "pattern": "^\\| Blend \\| curious-expedition", "min": 1, "max": 1},
+        {"type": "json_expr", "description": ">= 6 new concepts", "expr": "len([c for c in d['concepts'] if c['frame'] != 'supplied']) >= 6"},
+        {"type": "json_expr", "description": "totals follow the rubric weights", "expr": "all(abs(c['total'] - (0.35*c['scores']['fun_fit'] + 0.25*c['scores']['novelty'] + 0.15*c['scores']['clarity'] + 0.25*c['scores']['prototypability'])) <= 0.011 for c in d['concepts'] if c['total'] is not None)"}
+      ]
     }
   ]
 }

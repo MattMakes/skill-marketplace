@@ -1,7 +1,7 @@
 {
   "name": "game-design",
   "displayName": "Game Design Studio",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Generative game design that runs headless: pick the target kinds of fun with MDA, ideate concepts under a constraint card with a boundaries-first gate, draw the core loops as flowcharts, write a reader-facing brief, and render a one-page design, design diagrams and an art-direction style sheet. Designs go to game:game-studio-cpo for critique.",
   "author": {
     "name": "Matt Scott"

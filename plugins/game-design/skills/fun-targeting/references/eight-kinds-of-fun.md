@@ -23,12 +23,47 @@ Note: LeBlanc's MDA paper glosses Expression as "self-discovery"; 8kindsoffun.co
 ## Picking 2–3 kinds
 
 1. Pick the kinds the concept's core verb serves most directly. The core verb is the strongest signal.
-2. Prefer kinds that reinforce each other: Challenge + Sensation (action), Discovery + Narrative
-   (exploration), Expression + Submission (cozy building), Fellowship + Challenge (co-op).
+2. Pick them as a **blend** from `blends.md`, not one kind at a time (see below).
 3. Deprioritize a kind that competes for the same moment. Submission and Challenge rarely share a
    moment; Narrative pacing and Expression freedom often conflict.
 4. Every game touches several kinds. Deprioritized means "we will not spend design effort on it",
    not "it is absent".
+
+## Blends, primary and supporting kinds, and the fold-in rule
+
+A **blend** is a proven combination of 2–3 kinds that reinforce each other through **one shared
+dynamic**. The MDA paper describes games this way: Charades is Fellowship, Expression, Challenge,
+and "Charades emphasizes Fellowship over Challenge". Kinds picked at random compete for the same
+moment; kinds from a blend come from the same player behavior. `blends.md` is the deck of blends.
+
+- **Primary kind**: the first kind of the blend. The core verb must produce it every few seconds.
+  It wins when two kinds compete for a design decision.
+- **Supporting kinds**: the other 1–2 kinds. The same core loop produces them too, a little less
+  often or a little less strongly.
+- **Signature dynamic**: the one player behavior that produces every kind of the blend at once.
+  If a design does not show this behavior, it does not deliver the blend.
+
+**Folded in** means that the same moment-to-moment or session loop produces every target kind. A
+kind that only a long-term system (unlocks, collections, a shop, a story between levels) or a side
+system produces is **bolted on**, not folded in. The player spends most of their time in the core
+loop, so a bolted-on kind is absent most of the time. Fix a bolted-on kind by changing the core
+loop, never by dropping the kind.
+
+Good (folded in):
+- **Party performance** (Fellowship, Expression, Challenge): in Charades the one act of performing
+  a clue is personal style (Expression), a race against the clock (Challenge) and a shared laugh
+  (Fellowship).
+- **Story in objects** (Narrative, Submission, Discovery): in Unpacking each calm placement of an
+  object (Submission) reveals something new in the box (Discovery) and a piece of a life
+  (Narrative).
+
+Bad (bolted on):
+- A brewing game targets Narrative and Expression, but brewing is a menu pick from fixed recipes
+  and the story arrives in letters between days. Neither kind comes from the core verb. Fix: let
+  the player's own ingredient choices change the brew and have customers react to it in the moment.
+- A mirror puzzle game targets Challenge and Expression, but every puzzle has one solution and
+  Expression lives only in a shop of lantern skins. Fix: allow many valid solutions and make the
+  player's route the visible result.
 
 ## Writing an experience goal
 

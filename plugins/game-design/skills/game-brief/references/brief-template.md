@@ -28,7 +28,7 @@ rating:                       # left empty; the reader fills it
 | **Pitch** | 1–2 sentences | Says what the player does, where, and the twist. No adjectives like "innovative" or "unique". |
 | **Player fantasy** | 2–3 sentences | Who the player gets to be and what that feels like, in second person ("You are…"). |
 | **30-second play-by-play** | 4–8 numbered beats | Concrete moments with rough timestamps (0:00, 0:05…). A reader can picture the screen. |
-| **Why it's fun** | one `###` subsection per target aesthetic | Each subsection: the experience goal, the moment it happens, and the mechanic that produces it. |
+| **Why it's fun** | one `###` subsection per target aesthetic, primary first | Each subsection: the experience goal, the core-verb moment that produces it (using the core verb word), and the mechanic in that moment. Never a meta or side system. |
 | **Comparable games** | 2–4 bullets | A real game title, what this brief borrows from it, and how it differs. |
 | **Scope for a solo developer** | a short table or list | Content counts, systems, art needs, and a rough time estimate for one person. |
 | **Risks** | 3–5 bullets | Design risks first (is the fun real?), then production risks. Each with a mitigation. |

@@ -56,6 +56,66 @@
         {"type": "regex", "description": "assumption records the cap", "pattern": "(?is)## Assumptions.*?(first 3|first three|dropp|more than 3|only 3|capped|at most 3|kept 3|three of)", "min": 1},
         {"type": "not_regex", "description": "no question to the user", "pattern": "(would you like|do you want|could you (tell|clarify)|let me know which)"}
       ]
+    },
+    {
+      "id": 4,
+      "name": "given-blend-kept",
+      "prompt": "Concept: Soup Relay — two to four friends run one night-market soup stall; the ladle, the bowls and the till are at opposite ends of a tiny cart. Session length: 8 minutes.\nBlend: team-under-pressure (Team under pressure). Kinds: Fellowship, Challenge, Sensation. Signature dynamic: Players shout, hand off and cover for each other under a clock, so every save is shared, tense and physical at once. Loop pattern: A player grabs and passes an item → the shared goal advances or a task goes wrong → a loud, juicy cue shows who needs help → the team decides who covers the gap next.\nPick the target fun and derive the mechanics.",
+      "expected_output": "Targets exactly Fellowship, Challenge, Sensation in that order with Fellowship as primary; the Blend line names team-under-pressure; the MDA table contains the signature dynamic; a fold-in check shows every kind produced by a moment or session mechanic.",
+      "files": [],
+      "expectations": [
+        "Keeps exactly the blend's kinds in the blend's order",
+        "Fellowship is the primary",
+        "The MDA table contains the blend's signature dynamic",
+        "Every target kind has a KEEP mechanic in the moment or session loop"
+      ],
+      "checks": [
+        {"type": "in_order", "description": "sections in order, with the blend line and fold-in check", "patterns": ["^## Assumptions", "^\\*\\*Blend:\\*\\* team-under-pressure \\(Team under pressure\\) [—–-] primary: Fellowship", "^## Target aesthetics", "^## Deprioritized", "^## MDA table", "^## Fold-in check", "^## Aesthetic trace", "^## Cuts and flags"]},
+        {"type": "json_expr", "description": "exactly the blend's kinds, in order", "expr": "[a['kind'] for a in d['aesthetics']] == ['Fellowship', 'Challenge', 'Sensation']"},
+        {"type": "json_expr", "description": "blend id and primary", "expr": "d['blend'] == 'team-under-pressure' and d['primary'] == 'Fellowship'"},
+        {"type": "regex", "description": "signature dynamic inside the MDA table", "pattern": "(?s)^## MDA table(?:(?!\\n## ).)*Players shout, hand off and cover for each other under a clock", "min": 1},
+        {"type": "json_expr", "description": "every target kind folded into moment or session", "expr": "all(any(a['kind'] in t['serves'] and t['verdict'] == 'KEEP' and t.get('loop') in ('moment','session') for t in d['trace']) for a in d['aesthetics'])"},
+        {"type": "json_expr", "description": "every trace row names a valid loop", "expr": "all(t.get('loop') in ('moment','session','long-term','side') for t in d['trace'])"}
+      ]
+    },
+    {
+      "id": 5,
+      "name": "picks-a-deck-blend",
+      "prompt": "Concept: Kite Post — you glide a paper kite over a windy valley to carry letters between hilltop villages; gusts change every morning.",
+      "expected_output": "Without a given blend, picks one blend from references/blends.md, uses its kinds with the first as primary, and says under Assumptions why the blend fits the core verb.",
+      "files": [],
+      "expectations": [
+        "The blend id exists in blends.md",
+        "The primary is the first target kind",
+        "Assumptions explain the blend choice"
+      ],
+      "checks": [
+        {"type": "json_expr", "description": "blend id comes from the deck", "expr": "d['blend'] in ['team-under-pressure', 'party-performance', 'flow-mastery', 'clever-solve', 'curious-expedition', 'object-story', 'life-in-a-role', 'job-fantasy', 'embodied-rider', 'sensory-drift', 'cozy-builder', 'shared-sandbox', 'silent-companions', 'soothing-restore', 'daily-garden', 'network-puzzle']"},
+        {"type": "json_expr", "description": "primary is the first target", "expr": "d['primary'] == d['aesthetics'][0]['kind'] and 2 <= len(d['aesthetics']) <= 3"},
+        {"type": "regex", "description": "blend line present", "pattern": "^\\*\\*Blend:\\*\\* [a-z0-9-]+ \\([^)]+\\) [—–-] primary: (Sensation|Fantasy|Narrative|Challenge|Fellowship|Discovery|Expression|Submission)\\s*$", "min": 1, "max": 1},
+        {"type": "regex", "description": "assumptions explain the blend", "pattern": "(?is)## Assumptions.*?blend.*?## Target aesthetics", "min": 1},
+        {"type": "json_expr", "description": "every target kind folded into moment or session", "expr": "all(any(a['kind'] in t['serves'] and t['verdict'] == 'KEEP' and t.get('loop') in ('moment','session') for t in d['trace']) for a in d['aesthetics'])"},
+        {"type": "not_regex", "description": "no question to the user", "pattern": "(would you like|do you want|could you (tell|clarify)|let me know which)"}
+      ]
+    },
+    {
+      "id": 6,
+      "name": "cosmetic-expression-redesigned",
+      "prompt": "Concept: Lantern Row — rotate mirrors to route one beam of light through a night market until every lantern is lit.\nBlend: network-puzzle (Growing network). Kinds: Challenge, Expression.\nCurrent mechanics: rotate mirrors, a 60-second timer per board, a star rating per board, a cosmetic shop that sells lantern skins for stars. Every board has exactly one solution. Today Expression comes only from the lantern skin shop.\nPick the target fun and derive the mechanics.",
+      "expected_output": "Keeps Challenge and Expression. The fold-in check finds Expression bolted on (only the cosmetic shop) and redesigns the core loop, for example many valid mirror layouts, so a moment or session mechanic produces Expression. The shop stays a side or long-term mechanic and does not pass the check.",
+      "files": [],
+      "expectations": [
+        "Keeps Expression as a target instead of dropping it",
+        "Redesigns the core loop so a moment or session mechanic produces Expression",
+        "Does not pass the fold-in check with the cosmetic shop"
+      ],
+      "checks": [
+        {"type": "json_expr", "description": "keeps the blend's kinds", "expr": "[a['kind'] for a in d['aesthetics']] == ['Challenge', 'Expression'] and d['blend'] == 'network-puzzle'"},
+        {"type": "json_expr", "description": "Expression from a core-loop mechanic that is not the shop", "expr": "any('Expression' in t['serves'] and t['verdict'] == 'KEEP' and t.get('loop') in ('moment','session') and not any(w in t['mechanic'].lower() for w in ('shop', 'skin', 'cosmetic')) for t in d['trace'])"},
+        {"type": "json_expr", "description": "the shop is not a core-loop mechanic", "expr": "all(t.get('loop') in ('long-term','side') for t in d['trace'] if 'shop' in t['mechanic'].lower() or 'skin' in t['mechanic'].lower())"},
+        {"type": "json_expr", "description": "every target kind folded into moment or session", "expr": "all(any(a['kind'] in t['serves'] and t['verdict'] == 'KEEP' and t.get('loop') in ('moment','session') for t in d['trace']) for a in d['aesthetics'])"},
+        {"type": "regex", "description": "fold-in check records a redesign", "pattern": "(?is)^## Fold-in check.*?redesign.*?^## Aesthetic trace", "min": 1}
+      ]
     }
   ]
 }

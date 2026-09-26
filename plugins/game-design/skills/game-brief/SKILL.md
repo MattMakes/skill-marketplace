@@ -21,7 +21,8 @@ Read `references/brief-template.md` before you start.
 ## Input
 
 A concept (title and one-liner at minimum). Ideally also: the `game-ideation` result (constraint
-card, runners-up), the `fun-targeting` result (target kinds, experience goals, mechanics), the
+card, runners-up), the `fun-targeting` result (blend, primary kind, target kinds, experience
+goals, mechanics), the
 `core-loop` result (Mermaid loops), and a date.
 
 ## Rules
@@ -31,6 +32,12 @@ card, runners-up), the `fun-targeting` result (target kinds, experience goals, m
 - Use exactly the section headings below, in exactly this order. Do not add, rename or skip one.
 - **Why it's fun** has one `###` subsection per target kind of fun, titled with the kind's name
   only (for example `### Discovery`), in the same order as the `aesthetics` frontmatter list.
+- The **primary** kind comes first, in `aesthetics` and in **Why it's fun**. The primary is the
+  one the caller names as primary; otherwise the first supplied kind.
+- Each **Why it's fun** subsection names the moment of the core verb that produces the kind, and
+  uses the core verb word itself (for example "each time you **tend** the wick …"). A long-term or
+  side system (unlocks, a shop, collections, a story between sessions) never counts as the source.
+  If only such a system produces a kind, say so under **Risks** as a fold-in risk.
 - Target kinds: use the ones supplied. If none are supplied, pick 2–3 from the eight kinds
   (Sensation, Fantasy, Narrative, Challenge, Fellowship, Discovery, Expression, Submission).
 - `aesthetics` has 2 or 3 items. `aesthetics` and `deprioritized` together name all eight kinds once.
@@ -82,8 +89,8 @@ rating:
 ...
 
 ## Why it's fun
-### <Kind>
-<experience goal; the moment; the mechanic that produces it>
+### <Primary Kind>
+<experience goal; the core-verb moment that produces it; the mechanic in that moment>
 
 ### <Kind>
 ...

@@ -87,7 +87,7 @@
         {
           "type": "regex",
           "description": "loop closes back to the first node",
-          "pattern": "(?s)```mermaid\\s*\\n\\s*flowchart \\w+\\s*\\n\\s*(\\w+)\\b.*?-->\\s*(\\|[^|]*\\|\\s*)?\\1\\b",
+          "pattern": "(?s)```mermaid\\s*\\n\\s*flowchart \\w+\\s*\\n(?:\\s*(?:subgraph|direction)\\b[^\\n]*\\n)*\\s*(\\w+)\\b.*?-->\\s*(\\|[^|]*\\|\\s*)?\\1\\b",
           "min": 1
         }
       ]

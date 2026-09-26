@@ -13,9 +13,9 @@ claude plugin install game-design@skill-marketplace
 
 | Skill | What it does | Output |
 |---|---|---|
-| `fun-targeting` | Picks 2–3 of LeBlanc's eight kinds of fun, each with a one-sentence experience goal, names the kinds it deprioritizes, and derives dynamics and mechanics backwards (MDA). Traces every mechanic to the fun it serves; a mechanic that serves none is cut or flagged. | MDA table and aesthetic trace |
+| `fun-targeting` | Picks a proven **blend** of 2–3 of LeBlanc's eight kinds of fun from a curated deck (`references/blends.md`), each kind with a one-sentence experience goal, names the kinds it deprioritizes, and derives dynamics and mechanics backwards (MDA). Enforces the fold-in rule: the core loop, not a meta system, produces every target kind. Traces every mechanic to the fun it serves and the loop it lives in; a mechanic that serves none is cut or flagged. | Blend, MDA table, fold-in check and aesthetic trace |
 | `game-ideation` | Generates at least 6 concepts under a constraint card, each through a different frame. Rejects any concept that crosses the caller's content boundaries before scoring, then scores the rest on fun fit, novelty, one-sentence clarity and prototypability. Keeps the runners-up. | Shortlist, pick, and a JSON block |
-| `core-loop` | Librande's "flowchart first": the moment-to-moment, session and long-term loops, each as player action → system response → feedback → next decision, with every feedback edge labeled by the fun it serves. | Three Mermaid flowcharts |
+| `core-loop` | Librande's "flowchart first": the moment-to-moment, session and long-term loops, each as player action → system response → feedback → next decision, with every feedback edge labeled by the fun it serves. The primary kind labels a moment-to-moment edge; every target kind labels a moment-to-moment or session edge. | Three Mermaid flowcharts |
 | `design-diagrams` | A catalog of which diagram to draw when: engine-loop flowchart, timed storyboard, time-and-space map, relationship triangle, top-down matrix, module map, plus the "wrong metaphor" check. | Diagrams for the brief |
 | `game-brief` | The reader-facing brief: pitch, player fantasy, a 30-second play-by-play, why it's fun per target aesthetic, comparables, solo scope, risks, the smallest prototype that tests the fun, and open questions. | `<Title>.md` with frontmatter |
 | `one-page-design` | Librande's one-page method as rules. Writes a JSON spec; a stdlib Python script renders it to a dated SVG and validates it. | `One-Page.svg` and its spec |
@@ -30,6 +30,26 @@ fun-targeting → game-ideation → core-loop → design-diagrams → game-brief
 ```
 
 Invoke them namespaced: `game-design:fun-targeting`, `game-design:game-brief`, and so on.
+
+## Blends and the fold-in rule
+
+A **blend** is a proven combination of 2–3 kinds of fun that one shared dynamic produces together,
+for example *Team under pressure* (Fellowship, Challenge, Sensation) or *Curious expedition*
+(Discovery, Narrative). The deck in `skills/fun-targeting/references/blends.md` cites a source for
+each blend (the MDA paper's examples, design talks, genre analysis). The first kind is the primary.
+`fun-targeting` never invents a combination outside the deck, and `game-ideation` accepts a blend on
+the constraint card and scores fun fit against its signature dynamic.
+
+The **fold-in rule**: every target kind comes from the moment-to-moment or session loop, the thing
+the player does all the time. A kind that only a shop, an unlock track or a story between levels
+produces is bolted on, and the skills redesign the core loop instead of passing it.
+`fun-targeting`, `core-loop` and `game-brief` all check it.
+
+The deck is plain Markdown with a fixed format, so scripts can parse it. Run its format test with:
+
+```bash
+python3 -m unittest discover -s skills/fun-targeting/tests
+```
 
 ## Content boundaries
 

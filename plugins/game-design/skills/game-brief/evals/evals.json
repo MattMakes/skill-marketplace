@@ -55,6 +55,24 @@
         {"type": "in_order", "description": "aesthetic subsections in frontmatter order", "patterns": ["^aesthetics: \\[Challenge, Discovery, Expression\\]", "^## Why it's fun", "^### Challenge", "^### Discovery", "^### Expression", "^## Comparable games"]},
         {"type": "regex", "description": "rating empty", "pattern": "^rating:\\s*$", "min": 1, "max": 1}
       ]
+    },
+    {
+      "id": 4,
+      "name": "why-fun-names-core-verb",
+      "prompt": "Write the brief. Date: 2026-09-25.\nPick from game-ideation: Soup Relay — two to four friends run one night-market soup stall; the ladle, the bowls and the till are at opposite ends of a tiny cart. Runners-up: []. Scope: two months solo.\nfun-targeting: blend team-under-pressure, primary Fellowship. Aesthetics: Fellowship (The player feels a rush of trust when a friend catches the bowl they tossed a second before the order clock runs out), Challenge (The player feels tense focus when three orders stack up and the one ladle is at the far end), Sensation (The player feels a jolt of delight when a served bowl lands with a gong and a burst of steam). Deprioritized: Fantasy, Narrative, Discovery, Expression, Submission. Core verb: cook. Mechanics: pass bowls hand to hand, one shared ladle, an order clock, a gong and steam burst per served bowl, a nightly stall upgrade.",
+      "expected_output": "Why it's fun has Fellowship, Challenge and Sensation subsections in that order, and each names the cooking moment that produces the kind, not the nightly stall upgrade.",
+      "files": [],
+      "expectations": [
+        "Why it's fun subsections are in the aesthetics order, primary first",
+        "Each subsection names the core verb moment that produces the kind"
+      ],
+      "checks": [
+        {"type": "in_order", "description": "subsections primary first", "patterns": ["^aesthetics: \\[Fellowship, Challenge, Sensation\\]", "^## Why it's fun", "^### Fellowship", "^### Challenge", "^### Sensation", "^## Comparable games"]},
+        {"type": "regex", "description": "Fellowship subsection names the core verb", "pattern": "(?s)^### Fellowship\\s*\\n(?:(?!\\n##).)*?\\b[Cc]ook", "min": 1, "max": 1},
+        {"type": "regex", "description": "Challenge subsection names the core verb", "pattern": "(?s)^### Challenge\\s*\\n(?:(?!\\n##).)*?\\b[Cc]ook", "min": 1, "max": 1},
+        {"type": "regex", "description": "Sensation subsection names the core verb", "pattern": "(?s)^### Sensation\\s*\\n(?:(?!\\n##).)*?\\b[Cc]ook", "min": 1, "max": 1},
+        {"type": "regex", "description": "core verb recorded", "pattern": "^core_verb: cook\\s*$", "min": 1, "max": 1}
+      ]
     }
   ]
 }

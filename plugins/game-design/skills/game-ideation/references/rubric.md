@@ -20,11 +20,14 @@ Score each criterion as an integer from 1 to 5.
 
 | Score | Fun fit | Novelty | Clarity | Prototypability |
 |---|---|---|---|---|
-| 5 | The core verb produces the target fun directly, every minute. | Nothing in the history list or well-known games does this. | Anyone understands it from the one-liner alone. | A playable test of the fun fits in a weekend. |
-| 4 | Serves the target fun most of the time. | One familiar element, used in a fresh way. | Clear in one sentence, with one term to explain. | A test fits in one week. |
-| 3 | Serves the target fun only in some moments. | A known formula with a new theme. | Needs two sentences. | A test needs two to four weeks. |
-| 2 | Serves a different kind of fun better than the target. | Close to one history entry or a well-known game. | Needs a paragraph. | A test needs custom tech or lots of content. |
-| 1 | Does not serve the target fun. | Nearly the same as a history entry. | Cannot be said simply. | Cannot be tested without building most of the game. |
+| 5 | The core verb produces the blend's signature dynamic, and so every target kind, every minute. | Nothing in the history list or well-known games does this. | Anyone understands it from the one-liner alone. | A playable test of the fun fits in a weekend. |
+| 4 | Produces the signature dynamic most of the time; one target kind is weaker. | One familiar element, used in a fresh way. | Clear in one sentence, with one term to explain. | A test fits in one week. |
+| 3 | Produces the signature dynamic only in some moments, or one target kind comes only from a meta or side system. | A known formula with a new theme. | Needs two sentences. | A test needs two to four weeks. |
+| 2 | Produces a different blend's dynamic better than the target blend's. | Close to one history entry or a well-known game. | Needs a paragraph. | A test needs custom tech or lots of content. |
+| 1 | Does not produce the signature dynamic. | Nearly the same as a history entry. | Cannot be said simply. | Cannot be tested without building most of the game. |
+
+Fun fit: when the card has no blend, read "signature dynamic" as "the target fun" and "blend" as
+"kinds of fun".
 
 ## Total
 
