@@ -1,6 +1,6 @@
 ---
 name: keys
-description: Install KEYS in the current project - a self-maintaining hierarchy of AGENTS.md contracts adapted from DOX - and build its child tree and indexes in the same run. Folds existing CLAUDE.md files and other agent-instruction or convention .md files (.cursorrules, GEMINI.md, copilot instructions, agent rule notes) into the owning AGENTS.md, then deletes them after the user confirms, so each folder has one instruction file and nothing drifts. Use when the user says "/keys", "set up keys", "install KEYS", "install DOX", "set up AGENTS.md", "initialize the AGENTS.md tree", "consolidate CLAUDE.md into AGENTS.md", "one instruction file per folder", or "stop my agent docs drifting". Also use it again after a big refactor or merge to refresh the tree. It builds no code graph and writes no CLAUDE.md; for a graphify knowledge graph with CLAUDE.md contracts, use code:core instead.
+description: Install KEYS, a self-maintaining AGENTS.md hierarchy with child tree and indexes. Merges CLAUDE.md, GEMINI.md, .cursorrules, and similar agent-instruction files into the owning AGENTS.md, deleting them after user confirmation.
 ---
 
 # keys
