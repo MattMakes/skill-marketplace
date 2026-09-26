@@ -65,6 +65,7 @@ Design, understand, and verify systems. Choose the entry point for the job:
 | `ddd` | Starts or resumes domain modelling; routes through nine step skills with shared artifacts, validation gates, and a review page. |
 | `blueprint` | Creates standalone architecture, workflow, sequence, data-flow and state diagrams with animated walkthroughs, offline fonts, and image export. Also supplies diagrams to DDD and explain-diff. |
 | `core` | Primes an existing repo into a knowledge graph and `CLAUDE.md` contracts. |
+| `keys` | Stands up a self-maintaining `AGENTS.md` tree and folds `CLAUDE.md` and other agent-instruction files into it. |
 | `explain-diff` | Explains a diff, branch or PR with background, intuition, a code walkthrough, an interactive quiz, and embedded Blueprint diagrams. |
 | `deepwiki` | Generates and maintains wiki documentation with source citations and validated Mermaid. |
 | `security-sweep` | Audits security across stacks with OWASP, STRIDE, secrets and supply-chain checks. |

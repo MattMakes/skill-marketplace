@@ -1,23 +1,7 @@
-<!--
-Verbatim copy of the DOX root template from https://github.com/agent0ai/dox
-(MIT, agent0ai), kept for provenance so the adaptation in
-../assets/CORE-root.md can be diffed against its source.
+# KEYS framework
 
-CORE changes four things:
-  - DOX -> CORE, and AGENTS.md -> CLAUDE.md as the real file
-  - drops the manual root-to-target traversal, because Claude Code loads a
-    subdirectory's CLAUDE.md on its own when it reads a file there
-  - generates the Child CORE Index mechanically instead of by hand
-  - adds the rule that a negative claim taken from a knowledge graph needs a
-    confirming grep before it becomes a contract
-
-This file is reference material. It is not installed into any repository.
--->
-
-# DOX framework
-
-- DOX is highly performant AGENTS.md hierarchy installed here
-- Agent must follow DOX instructions across any edits
+- KEYS is highly performant AGENTS.md hierarchy installed here
+- Agent must follow KEYS instructions across any edits
 
 ## Core Contract
 
@@ -32,13 +16,13 @@ This file is reference material. It is not installed into any repository.
 4. Read every AGENTS.md found along each route
 5. If a parent AGENTS.md lists a child AGENTS.md whose scope contains the path, read that child and continue from there
 6. Use the nearest AGENTS.md as the local contract and parent docs for repo-wide rules
-7. If docs conflict, the closer doc controls local work details, but no child doc may weaken DOX
+7. If docs conflict, the closer doc controls local work details, but no child doc may weaken KEYS
 
-Do not rely on memory. Re-read the applicable DOX chain in the current session before editing.
+Do not rely on memory. Re-read the applicable KEYS chain in the current session before editing.
 
 ## Update After Editing
 
-Every meaningful change requires a DOX pass before the task is done.
+Every meaningful change requires a KEYS pass before the task is done.
 
 Update the closest owning AGENTS.md when a change affects:
 
@@ -48,12 +32,12 @@ Update the closest owning AGENTS.md when a change affects:
 - user preferences about behavior, communication, process, organization, or quality
 - AGENTS.md creation, deletion, move, rename, or index contents
 
-Update parent docs when parent-level structure, ownership, workflow, or child index changes. Update child docs when parent changes alter local rules. Remove stale or contradictory text immediately. Small edits that do not change behavior or contracts may leave docs unchanged, but the DOX pass still must happen.
+Update parent docs when parent-level structure, ownership, workflow, or child index changes. Update child docs when parent changes alter local rules. Remove stale or contradictory text immediately. Small edits that do not change behavior or contracts may leave docs unchanged, but the KEYS pass still must happen.
 
 ## Hierarchy
 
-- Root AGENTS.md is the DOX rail: project-wide instructions, global preferences, durable workflow rules, and the top-level Child DOX Index
-- Child AGENTS.md files own domain-specific instructions and their own Child DOX Index
+- Root AGENTS.md is the KEYS rail: project-wide instructions, global preferences, durable workflow rules, and the top-level Child KEYS Index
+- Child AGENTS.md files own domain-specific instructions and their own Child KEYS Index
 - Each parent explains what its direct children cover and what stays owned by the parent
 - The closer a doc is to the work, the more specific and practical it must be
 
@@ -69,7 +53,7 @@ Default section order:
 - Local Contracts
 - Work Guidance
 - Verification
-- Child DOX Index
+- Child KEYS Index
 
 ## Style
 
@@ -83,9 +67,9 @@ Default section order:
 
 ## Closeout
 
-1. Re-check changed paths against the DOX chain
+1. Re-check changed paths against the KEYS chain
 2. Update nearest owning docs and any affected parents or children
-3. Refresh every affected Child DOX Index
+3. Refresh every affected Child KEYS Index
 4. Remove stale or contradictory text
 5. Run existing verification when relevant
 6. Report any docs intentionally left unchanged and why
@@ -94,6 +78,6 @@ Default section order:
 
 When the user requests a durable behavior change, record it here or in the relevant child AGENTS.md
 
-## Child DOX Index
+## Child KEYS Index
 
-This project is not yet indexed. Before continuing you must scan the project, build the DOX tree and replace this message with the actual index. Go deep and scan files recursively to properly evaluate complexity and create nested DOX files where needed.
+This project is not yet indexed. Before continuing you must scan the project, build the KEYS tree and replace this message with the actual index. Go deep and scan files recursively to properly evaluate complexity and create nested KEYS files where needed.

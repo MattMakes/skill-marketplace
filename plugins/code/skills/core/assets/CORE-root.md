@@ -1,8 +1,3 @@
-<!-- CORE is adapted from DOX (github.com/agent0ai/dox, MIT), rewritten around
-     CLAUDE.md as the real file so contracts load on demand instead of being
-     traversed by hand. HTML comments are stripped before this file reaches the
-     context window, so notes like this one are free. -->
-
 # CORE
 
 CORE is a tree of contracts. Each `CLAUDE.md` in this repository is binding for
