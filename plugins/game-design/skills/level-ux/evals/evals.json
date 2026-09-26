@@ -54,15 +54,22 @@
           "min": 1
         },
         {
-          "type": "in_order",
-          "description": "controls cover 3 schemes",
-          "patterns": [
-            "^### Controls",
-            "(?i)keyboard",
-            "(?i)controller",
-            "(?i)touch",
-            "^### HUD"
-          ]
+          "type": "regex",
+          "description": "controls include keyboard",
+          "pattern": "(?is)### Controls\\s*\\n(?:(?!### HUD).)*keyboard",
+          "min": 1
+        },
+        {
+          "type": "regex",
+          "description": "controls include controller",
+          "pattern": "(?is)### Controls\\s*\\n(?:(?!### HUD).)*controller",
+          "min": 1
+        },
+        {
+          "type": "regex",
+          "description": "controls include touch",
+          "pattern": "(?is)### Controls\\s*\\n(?:(?!### HUD).)*touch",
+          "min": 1
         },
         {
           "type": "json_expr",

@@ -1,8 +1,8 @@
 # game-design
 
 A design studio for game ideas. Where the `game` plugin reviews work, this plugin produces it: target
-kinds of fun, concepts, core loops, a brief, a one-page design, diagrams and an art-direction style
-sheet. Every skill runs headless: it never asks a question, it infers and states its assumptions, and
+kinds of fun, concepts, core loops, a brief, a one-page design, diagrams, an art-direction style
+sheet and a deep design (systems and economy, progression, levels and UX, a prototype plan). Every skill runs headless: it never asks a question, it infers and states its assumptions, and
 it writes a fixed output format, so a scheduled agent on a local model can run it as well as Claude Code.
 
 ```bash
@@ -20,6 +20,10 @@ claude plugin install game-design@skill-marketplace
 | `game-brief` | The reader-facing brief: pitch, player fantasy, a 30-second play-by-play, why it's fun per target aesthetic, comparables, solo scope, risks, the smallest prototype that tests the fun, and open questions. | `<Title>.md` with frontmatter |
 | `one-page-design` | Librande's one-page method as rules. Writes a JSON spec; a stdlib Python script renders it to a dated SVG and validates it. | `One-Page.svg` and its spec |
 | `art-direction` | A style sheet (palette, shape language, lighting, references in words, never living artists' names), a shot list tied to the target fun, and 3 image prompts with fixed negative prompts. Generated images are placeholders; the style sheet is the deliverable. | Style sheet, shot list, prompts |
+| `systems-economy` | At most 8 systems and the resources between them as sources, sinks and converters (Adams and Dormans), balance levers with starting values, the first hour in numbers, failure and recovery. Every system and resource names the kind it serves; a side system that serves none is redesigned into the loop or cut. | `## Systems and economy` and a JSON block |
+| `progression-content` | Decides the game length up front (Librande), plans at most 10 sessions and 12 unlocks, draws a timed whole-game storyboard of 6–10 panels, and counts the content with solo-dev hours. | `## Progression and content` and a JSON block |
+| `level-ux` | The first 10 minutes beat by beat, exactly 3 sample levels with layout sketches, controls for keyboard/mouse, controller and touch, the HUD, and a Mermaid screen flow. | `## Levels and UX` and a JSON block |
+| `prototype-plan` | Three milestones (paper prototype, grey-box, vertical slice) with exit criteria, playtest questions for every target kind, measurable success metrics, a solo-dev engine choice, and the milestone that retires each risk. | `## Prototype and playtest plan` and a JSON block |
 
 ## Pipeline
 
@@ -27,7 +31,20 @@ Run them in this order; each one reads the previous one's output:
 
 ```
 fun-targeting → game-ideation → core-loop → design-diagrams → game-brief → one-page-design → art-direction
+  → systems-economy → progression-content → level-ux → prototype-plan
 ```
+
+The four deep-design skills each read the brief, the `fun-targeting` output and the `core-loop`
+output, and write one section. Together they form a `Design.md`. Check one with:
+
+```bash
+python3 scripts/check_deep_sections.py Design.md [--kinds Narrative,Expression]
+```
+
+It exits 0 when all four sections have their subsections, table columns and JSON keys (for example
+`unserved` is empty, `levels` is 3, `milestones` is 3, every target kind has a playtest question),
+and prints the reasons per section on stderr otherwise. Its tests run with
+`python3 -m unittest discover -s scripts/tests`.
 
 Invoke them namespaced: `game-design:fun-targeting`, `game-design:game-brief`, and so on.
 
@@ -43,7 +60,8 @@ the constraint card and scores fun fit against its signature dynamic.
 The **fold-in rule**: every target kind comes from the moment-to-moment or session loop, the thing
 the player does all the time. A kind that only a shop, an unlock track or a story between levels
 produces is bolted on, and the skills redesign the core loop instead of passing it.
-`fun-targeting`, `core-loop` and `game-brief` all check it.
+`fun-targeting`, `core-loop` and `game-brief` all check it, and the four deep-design skills tie every
+system, session, level and playtest question to a target kind.
 
 The deck is plain Markdown with a fixed format, so scripts can parse it. Run its format test with:
 
@@ -85,3 +103,6 @@ Exit code is 0 when every eval passes.
 - Marc LeBlanc, "8 Kinds of Fun", 8kindsoffun.com.
 - Robin Hunicke, Marc LeBlanc and Robert Zubek, "MDA: A Formal Approach to Game Design and Game
   Research", AAAI Workshop on Challenges in Game AI, 2004.
+- Ernest Adams and Joris Dormans, *Game Mechanics: Advanced Game Design*, New Riders, 2012.
+- Jesse Schell, *The Art of Game Design: A Book of Lenses*.
+- Tracy Fullerton, *Game Design Workshop: A Playcentric Approach to Creating Innovative Games*.
