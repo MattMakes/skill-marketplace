@@ -50,7 +50,7 @@
         {
           "type": "not_regex",
           "description": "no 'in the style of' a named person or studio",
-          "pattern": "in the style of [A-Z]"
+          "pattern": "(?-i:[Ii]n the style of (?:the )?[A-Z])"
         },
         {
           "type": "not_regex",

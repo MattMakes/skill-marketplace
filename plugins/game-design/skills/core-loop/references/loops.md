@@ -53,3 +53,18 @@ earned per move buy upgrades per session).
 Label every edge that leaves a feedback node with the one kind of fun that feedback serves
 (Sensation, Fantasy, Narrative, Challenge, Fellowship, Discovery, Expression or Submission).
 A feedback that serves none of the target kinds is a candidate to cut.
+
+One action often produces several kinds at once: a placement pops with sound (Sensation), shows the
+player's taste (Expression) and settles with no pressure (Submission). Draw one feedback node per
+kind (`F1`, `F2`, `F3`, at most 3 per loop), each fed by the same system response and each leading to
+the same decision, so every kind the core verb produces has its own labeled edge:
+
+```mermaid
+flowchart LR
+  A1["Place a piece"] --> S1["Piece adapts to its neighbors"]
+  S1 --> F1["The spot takes a shape only your choices made"]
+  S1 --> F2["Pop, ruffle and chime on landing"]
+  F1 -->|Expression| D1{"Where does it grow next?"}
+  F2 -->|Sensation| D1
+  D1 --> A1
+```

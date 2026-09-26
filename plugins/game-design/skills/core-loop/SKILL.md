@@ -38,9 +38,15 @@ optional.
   - `D` = next decision (diamond), for example `D1{"Save or spend?"}`
 - Each loop has at least one of each: `A`, `S`, `F`, `D`. The last decision leads back to an action,
   so the loop closes.
-- **Every edge that leaves an `F` node has a label**: exactly one kind of fun name, for example
-  `F1 -->|Challenge| D1`. Use only the eight names: Sensation, Fantasy, Narrative, Challenge,
-  Fellowship, Discovery, Expression, Submission.
+- **One feedback node per kind**: in the moment-to-moment and session loops, draw one `F` node for
+  each target kind that loop produces: `F1`, `F2`, `F3`, at most 3 per loop. The same system
+  response fans out to each `F`, and each `F` leads to the same decision. Put the primary on `F1` of
+  the moment-to-moment loop. The long-term loop keeps one `F` node.
+- Number the nodes from 1 in each Mermaid block (`A1`, `S1`, `F1`, `D1`), because each block is a
+  separate graph.
+- **Every edge that leaves an `F` node has a label**: exactly one kind of fun name and nothing
+  else, for example `F1 -->|Challenge| D1`. Use only the eight names: Sensation, Fantasy,
+  Narrative, Challenge, Fellowship, Discovery, Expression, Submission.
 - Put all node text in double quotes. Do not use parentheses or quotes inside node text.
 - Label feedback with a target kind wherever you can. A feedback edge labeled with a non-target
   kind goes into **Gaps**.
@@ -53,10 +59,10 @@ optional.
 ## Steps
 
 1. Name the core verb and the target kinds of fun.
-2. Draw the moment-to-moment loop (seconds): the core verb, the rule it triggers, the feedback,
-   the next small choice.
-3. Draw the session loop (one sitting): the session goal, how the game resolves it, the reward,
-   the choice that ends or extends the sitting.
+2. Draw the moment-to-moment loop (seconds): the core verb, the rule it triggers, one feedback per
+   target kind the verb produces, the next small choice.
+3. Draw the session loop (one sitting): the session goal, how the game resolves it, one reward per
+   target kind the sitting produces, the choice that ends or extends the sitting.
 4. Draw the long-term loop (days): what carries over, how it changes the next session, why the
    player returns.
 5. Write the nesting: what the inner loop feeds into the outer loop.
@@ -79,8 +85,12 @@ Write exactly these sections, in this order, with these headings:
 ```mermaid
 flowchart LR
   A1["<player action>"] --> S1["<system response>"]
-  S1 --> F1["<feedback>"]
-  F1 -->|<Kind>| D1{"<next decision>"}
+  S1 --> F1["<feedback that produces the primary kind>"]
+  S1 --> F2["<feedback that produces a second target kind>"]
+  S1 --> F3["<feedback that produces a third target kind>"]
+  F1 -->|<Primary>| D1{"<next decision>"}
+  F2 -->|<Kind>| D1
+  F3 -->|<Kind>| D1
   D1 --> A1
 ```
 
@@ -89,7 +99,12 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-  ...
+  A1["<session goal action>"] --> S1["<how the game resolves it>"]
+  S1 --> F1["<reward that produces a target kind>"]
+  S1 --> F2["<reward that produces another target kind>"]
+  F1 -->|<Kind>| D1{"<end or extend the sitting?>"}
+  F2 -->|<Kind>| D1
+  D1 --> A1
 ```
 
 ## Long-term loop
@@ -97,8 +112,14 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-  ...
+  A1["<return action>"] --> S1["<what carried over>"]
+  S1 --> F1["<feedback>"]
+  F1 -->|<Kind>| D1{"<why come back?>"}
+  D1 --> A1
 ```
+
+Draw only the `F` nodes a loop needs: 1 to 3 in the moment-to-moment and session loops, each with a
+different kind, and exactly 1 in the long-term loop.
 
 ## Nesting
 - Moment-to-moment → session: <what the inner loop produces for the outer one>
@@ -112,11 +133,12 @@ flowchart LR
 ## Gaps
 - <one line per gap; "None" if the loops close and every feedback serves a target>
 
-**Fold-in check:** primary <Kind> on a moment-to-moment edge: yes. Every target kind on a moment-to-moment or session edge: yes.
+**Fold-in check:** primary <Kind> on a moment-to-moment edge: yes. Every target kind on a moment-to-moment or session edge: yes (<Kind>: moment-to-moment F1; <Kind>: moment-to-moment F2; <Kind>: session F1).
 ````
 
 The self-check is the last line of the output. It says `yes` twice, because you redesign the loops
-until both parts hold.
+until both parts hold. The parentheses list every target kind once, in target order, with the loop
+and the `F` node whose edge carries it.
 
 ## Next step
 

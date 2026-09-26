@@ -57,6 +57,28 @@
         {"type": "not_regex", "description": "no unlabeled feedback edge", "pattern": "\\bF\\d+(\\[\"[^\"]*\"\\])?\\s*-->\\s*(?!\\|)"},
         {"type": "in_order", "description": "self-check line after Gaps", "patterns": ["^## Gaps", "^\\*\\*Fold-in check:\\*\\* primary Fellowship on a moment-to-moment edge: yes\\..*session edge: yes"]}
       ]
+    },
+    {
+      "id": 4,
+      "name": "three-kind-blend-one-feedback-per-kind",
+      "prompt": "Concept: Moonpost Fur Garden — plant tiny mailboxes, letters and blooms in the fur of a sleeping moon-post creature; every piece adapts to its neighbors. No timer, no fail state. Sessions are 2 minutes at a bus stop.\nfun-targeting result: blend cozy-builder; primary: Expression; target fun: Expression, Submission, Sensation. Mechanics: free placement anywhere on the fur, neighbor-aware adaptation, a pop-in animation with a fur ruffle and a per-piece chime, an idle breath-and-settle rhythm, a persistent garden save. Draw the core loops.",
+      "expected_output": "Exactly 3 labeled Mermaid loops. The moment-to-moment and session loops each have one feedback node per kind they produce, at most 3. Expression (the primary) labels a moment-to-moment edge. Submission and Sensation each label a moment-to-moment or session edge, so Sensation does not live only in the long-term loop. The output ends with the fold-in self-check line, which lists each kind with the loop edge that carries it.",
+      "files": [],
+      "expectations": [
+        "The primary Expression labels a moment-to-moment edge",
+        "Submission and Sensation each label a moment-to-moment or session edge",
+        "No loop has more than 3 feedback nodes",
+        "The self-check line lists each target kind with its loop edge"
+      ],
+      "checks": [
+        {"type": "regex", "description": "exactly 3 mermaid flowchart blocks", "pattern": "^```mermaid\\s*\\n\\s*flowchart LR", "min": 3, "max": 3},
+        {"type": "regex", "description": "primary Expression on a moment-to-moment edge", "pattern": "(?s)^## Moment-to-moment loop(?:(?!\\n## ).)*-->\\|Expression\\|", "min": 1},
+        {"type": "regex", "description": "Submission on a moment-to-moment or session edge", "pattern": "(?s)^## Moment-to-moment loop(?:(?!\\n## Long-term loop).)*-->\\|Submission\\|", "min": 1},
+        {"type": "regex", "description": "Sensation on a moment-to-moment or session edge", "pattern": "(?s)^## Moment-to-moment loop(?:(?!\\n## Long-term loop).)*-->\\|Sensation\\|", "min": 1},
+        {"type": "not_regex", "description": "no unlabeled feedback edge", "pattern": "\\bF\\d+(\\[\"[^\"]*\"\\])?\\s*-->\\s*(?!\\|)"},
+        {"type": "not_regex", "description": "at most 3 feedback nodes per loop", "pattern": "\\bF([4-9]|\\d\\d+)\\["},
+        {"type": "in_order", "description": "self-check line after Gaps lists all 3 kinds", "patterns": ["^## Gaps", "^\\*\\*Fold-in check:\\*\\* primary Expression on a moment-to-moment edge: yes\\..*session edge: yes \\((?=[^)]*Expression)(?=[^)]*Submission)(?=[^)]*Sensation)"]}
+      ]
     }
   ]
 }
