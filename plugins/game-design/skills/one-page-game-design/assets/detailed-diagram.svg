@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1684 1191" data-paper-size="A2" role="img" aria-labelledby="title description">
+  <title id="title">Glasswing Station detailed game-system design</title>
+  <desc id="description">A fictional one-page design for a cooperative orbital greenhouse game. Six linked subsystems show a shift from forecast through harvest, including oxygen and power flows, a conditional solar-flare branch, failure recovery, rules, a numeric trace, and open decisions.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 Z" fill="context-stroke"/>
+    </marker>
+    <marker id="diamond" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 5 L5 0 L10 5 L5 10 Z" fill="context-stroke"/>
+    </marker>
+    <style>
+      text { font-family: Arial, Helvetica, sans-serif; fill: #18242c; }
+      .paper { fill: #f7f3e8; }
+      .title { font-size: 34px; font-weight: 700; letter-spacing: .4px; }
+      .subtitle { font-size: 17px; fill: #485964; }
+      .meta { font-size: 15px; fill: #485964; }
+      .panel { fill: #fffdf7; stroke: #50636b; stroke-width: 2; }
+      .panelHead { font-size: 20px; font-weight: 700; fill: #fff; letter-spacing: .5px; }
+      .headA { fill: #176c6d; } .headB { fill: #385b8e; } .headC { fill: #6d5184; }
+      .node rect { fill: #fff; stroke: #263943; stroke-width: 2; }
+      .nodeTitle { font-size: 17px; font-weight: 700; }
+      .nodeBody { font-size: 14px; fill: #40515b; }
+      .rule { font-size: 13px; font-weight: 700; fill: #9b402e; }
+      .edge { fill: none; stroke: #344e5a; stroke-width: 2.5; marker-end: url(#arrow); }
+      .resource { fill: none; stroke: #0d7a76; stroke-width: 4; marker-end: url(#arrow); }
+      .power { fill: none; stroke: #d1751e; stroke-width: 4; marker-end: url(#arrow); }
+      .risk { fill: none; stroke: #a13d35; stroke-width: 3; stroke-dasharray: 9 6; marker-end: url(#diamond); }
+      .recover { fill: none; stroke: #376c3d; stroke-width: 3; stroke-dasharray: 4 5; marker-end: url(#arrow); }
+      .edgeLabel { font-size: 13px; font-weight: 700; paint-order: stroke; stroke: #f7f3e8; stroke-width: 5; stroke-linejoin: round; }
+      .noteBox { fill: #fff9df; stroke: #876e28; stroke-width: 2; }
+      .noteHead { font-size: 17px; font-weight: 700; }
+      .noteText { font-size: 14px; }
+      .tiny { font-size: 12px; fill: #52616a; }
+    </style>
+  </defs>
+
+  <rect class="paper" width="1684" height="1191"/>
+  <g id="page-metadata">
+    <text class="title" x="44" y="55">GLASSWING STATION</text>
+    <text class="subtitle" x="44" y="82">Fictional cooperative systems design - stabilize an orbital greenhouse across a 12-minute shift</text>
+    <text class="meta" x="1640" y="50" text-anchor="end">Scope: one complete shift and recovery loop</text>
+    <text class="meta" x="1640" y="74" text-anchor="end">Revision 0.4 | 2026-09-27 | A2 landscape</text>
+    <path d="M44 98 H1640" stroke="#18242c" stroke-width="3"/>
+  </g>
+
+  <!-- Main clockwise trace: panels 1-3 across the top, then 4-6 across the bottom. -->
+  <g id="subsystem-forecast">
+    <rect class="panel" x="44" y="122" width="500" height="290" rx="12"/>
+    <path class="headA" d="M44 134 Q44 122 56 122 H532 Q544 122 544 134 V164 H44Z"/>
+    <text class="panelHead" x="62" y="150">1 / ORBIT FORECAST</text>
+    <g id="node-scan" class="node"><rect x="62" y="183" width="214" height="80" rx="8"/><text class="nodeTitle" x="76" y="210">Scan weather ring</text><text class="nodeBody" x="76" y="234">Reveal 2 of 3 hazard cards.</text><text class="rule" x="76" y="253">R-01: spend 1 Power</text></g>
+    <g id="node-mark" class="node"><rect x="312" y="183" width="214" height="80" rx="8"/><text class="nodeTitle" x="326" y="210">Mark safe windows</text><text class="nodeBody" x="326" y="234">Place 2 timing markers.</text><text class="rule" x="326" y="253">R-02: windows last 3 min</text></g>
+    <g id="node-assign" class="node"><rect x="62" y="295" width="214" height="80" rx="8"/><text class="nodeTitle" x="76" y="322">Assign crew</text><text class="nodeBody" x="76" y="346">Each specialist takes 1 bay.</text><text class="rule" x="76" y="365">R-03: no duplicate bay</text></g>
+    <g id="node-commit" class="node"><rect x="312" y="295" width="214" height="80" rx="8"/><text class="nodeTitle" x="326" y="322">Commit shift plan</text><text class="nodeBody" x="326" y="346">Lock 3 tasks before start.</text><text class="rule" x="326" y="365">R-04: +1 Trust if kept</text></g>
+    <path class="edge" d="M276 223 H312"/><path class="edge" d="M169 263 V295"/><path class="edge" d="M419 263 V295"/><path class="edge" d="M276 335 H312"/>
+  </g>
+
+  <g id="subsystem-power">
+    <rect class="panel" x="592" y="122" width="500" height="290" rx="12"/>
+    <path class="headB" d="M592 134 Q592 122 604 122 H1080 Q1092 122 1092 134 V164 H592Z"/>
+    <text class="panelHead" x="610" y="150">2 / POWER GRID</text>
+    <g id="node-collect" class="node"><rect x="610" y="183" width="214" height="80" rx="8"/><text class="nodeTitle" x="624" y="210">Collect sunlight</text><text class="nodeBody" x="624" y="234">Gain 6 Power in clear orbit.</text><text class="rule" x="624" y="253">R-05: flare yields 2</text></g>
+    <g id="node-store" class="node"><rect x="860" y="183" width="214" height="80" rx="8"/><text class="nodeTitle" x="874" y="210">Charge battery</text><text class="nodeBody" x="874" y="234">Store up to 8 Power.</text><text class="rule" x="874" y="253">R-06: overflow is lost</text></g>
+    <g id="node-route-power" class="node"><rect x="610" y="295" width="214" height="80" rx="8"/><text class="nodeTitle" x="624" y="322">Route circuits</text><text class="nodeBody" x="624" y="346">Allocate to Life / Grow / Lab.</text><text class="rule" x="624" y="365">R-07: routing costs 0 Power</text></g>
+    <g id="node-shed" class="node"><rect x="860" y="295" width="214" height="80" rx="8"/><text class="nodeTitle" x="874" y="322">Shed load</text><text class="nodeBody" x="874" y="346">Disable 1 bay; prevent outage.</text><text class="rule" x="874" y="365">R-08: stress +1</text></g>
+    <path class="power" d="M824 223 H860"/><path class="power" d="M967 263 V295"/><path class="edge" d="M860 335 H824"/><path class="edge" d="M717 295 V263"/>
+    <text class="edgeLabel" x="842" y="211" text-anchor="middle">POWER</text>
+  </g>
+
+  <g id="subsystem-life-support">
+    <rect class="panel" x="1140" y="122" width="500" height="290" rx="12"/>
+    <path class="headA" d="M1140 134 Q1140 122 1152 122 H1628 Q1640 122 1640 134 V164 H1140Z"/>
+    <text class="panelHead" x="1158" y="150">3 / LIFE SUPPORT</text>
+    <g id="node-scrub" class="node"><rect x="1158" y="183" width="214" height="80" rx="8"/><text class="nodeTitle" x="1172" y="210">Scrub carbon</text><text class="nodeBody" x="1172" y="234">Spend 2 Power; gain 3 Air.</text><text class="rule" x="1172" y="253">R-09: Air maximum 9</text></g>
+    <g id="node-pressurize" class="node"><rect x="1408" y="183" width="214" height="80" rx="8"/><text class="nodeTitle" x="1422" y="210">Pressurize bays</text><text class="nodeBody" x="1422" y="234">Spend 1 Air per active bay.</text><text class="rule" x="1422" y="253">R-10: resolve left to right</text></g>
+    <g id="node-leak-check" class="node"><rect x="1158" y="295" width="214" height="80" rx="8"/><text class="nodeTitle" x="1172" y="322">Check seals</text><text class="nodeBody" x="1172" y="346">Cancel first Leak this shift.</text><text class="rule" x="1172" y="365">R-11: needs Engineer</text></g>
+    <g id="node-emergency-air" class="node"><rect x="1408" y="295" width="214" height="80" rx="8"/><text class="nodeTitle" x="1422" y="322">Emergency canister</text><text class="nodeBody" x="1422" y="346">Recover 2 Air; lose 1 Trust.</text><text class="rule" x="1422" y="365">R-12: once per shift</text></g>
+    <path class="resource" d="M1372 223 H1408"/><path class="edge" d="M1265 263 V295"/><path class="risk" d="M1515 263 V295"/><path class="recover" d="M1408 335 H1372"/>
+    <text class="edgeLabel" x="1390" y="211" text-anchor="middle">AIR</text>
+  </g>
+
+  <g id="subsystem-cultivation">
+    <rect class="panel" x="44" y="466" width="500" height="290" rx="12"/>
+    <path class="headB" d="M44 478 Q44 466 56 466 H532 Q544 466 544 478 V508 H44Z"/>
+    <text class="panelHead" x="62" y="494">4 / CULTIVATION</text>
+    <g id="node-mix" class="node"><rect x="62" y="527" width="214" height="80" rx="8"/><text class="nodeTitle" x="76" y="554">Mix nutrients</text><text class="nodeBody" x="76" y="578">Convert 2 Water to 3 Feed.</text><text class="rule" x="76" y="597">R-13: contamination risk</text></g>
+    <g id="node-irrigate" class="node"><rect x="312" y="527" width="214" height="80" rx="8"/><text class="nodeTitle" x="326" y="554">Irrigate beds</text><text class="nodeBody" x="326" y="578">Spend 1 Feed per crop row.</text><text class="rule" x="326" y="597">R-14: dry row gains Wilt</text></g>
+    <g id="node-pollinate" class="node"><rect x="62" y="639" width="214" height="80" rx="8"/><text class="nodeTitle" x="76" y="666">Guide pollinators</text><text class="nodeBody" x="76" y="690">Match 2 colors for +1 Yield.</text><text class="rule" x="76" y="709">R-15: 30-second task</text></g>
+    <g id="node-harvest" class="node"><rect x="312" y="639" width="214" height="80" rx="8"/><text class="nodeTitle" x="326" y="666">Harvest crop</text><text class="nodeBody" x="326" y="690">Gain Food = health + Yield.</text><text class="rule" x="326" y="709">R-16: Wilt subtracts 1</text></g>
+    <path class="resource" d="M276 567 H312"/><path class="edge" d="M169 607 V639"/><path class="edge" d="M419 607 V639"/><path class="resource" d="M276 679 H312"/>
+    <text class="edgeLabel" x="294" y="555" text-anchor="middle">FEED</text>
+  </g>
+
+  <g id="subsystem-hazards">
+    <rect class="panel" x="592" y="466" width="500" height="290" rx="12"/>
+    <path class="headC" d="M592 478 Q592 466 604 466 H1080 Q1092 466 1092 478 V508 H592Z"/>
+    <text class="panelHead" x="610" y="494">5 / HAZARDS AND RECOVERY</text>
+    <g id="node-draw-hazard" class="node"><rect x="610" y="527" width="214" height="80" rx="8"/><text class="nodeTitle" x="624" y="554">Draw hazard</text><text class="nodeBody" x="624" y="578">At minute 4 and minute 8.</text><text class="rule" x="624" y="597">R-17: forecasted card first</text></g>
+    <g id="node-test-flare" class="node"><rect x="860" y="527" width="214" height="80" rx="8"/><text class="nodeTitle" x="874" y="554">Solar flare?</text><text class="nodeBody" x="874" y="578">IF yes: Power gain becomes 2.</text><text class="rule" x="874" y="597">R-18: ELSE normal flow</text></g>
+    <g id="node-outage" class="node"><rect x="610" y="639" width="214" height="80" rx="8"/><text class="nodeTitle" x="624" y="666">Grid outage</text><text class="nodeBody" x="624" y="690">If Power &lt; 0: freeze tasks.</text><text class="rule" x="624" y="709">R-19: Stress +2</text></g>
+    <g id="node-restart" class="node"><rect x="860" y="639" width="214" height="80" rx="8"/><text class="nodeTitle" x="874" y="666">Manual restart</text><text class="nodeBody" x="874" y="690">2 crew spend 30 seconds.</text><text class="rule" x="874" y="709">R-20: recover to 1 Power</text></g>
+    <path class="edge" d="M824 567 H860"/><path class="risk" d="M967 607 V639"/><path class="risk" d="M860 679 H824"/><path class="recover" d="M824 701 C840 735 940 735 967 719"/>
+    <text class="edgeLabel" x="936" y="625">YES</text><text class="edgeLabel" x="883" y="735">RECOVERY</text>
+  </g>
+
+  <g id="subsystem-score-progression">
+    <rect class="panel" x="1140" y="466" width="500" height="290" rx="12"/>
+    <path class="headB" d="M1140 478 Q1140 466 1152 466 H1628 Q1640 466 1640 478 V508 H1140Z"/>
+    <text class="panelHead" x="1158" y="494">6 / SHIPMENTS AND LEGACY</text>
+    <g id="node-pack" class="node"><rect x="1158" y="527" width="214" height="80" rx="8"/><text class="nodeTitle" x="1172" y="554">Pack shipment</text><text class="nodeBody" x="1172" y="578">Spend 4 Food per crate.</text><text class="rule" x="1172" y="597">R-21: maximum 3 crates</text></g>
+    <g id="node-score" class="node"><rect x="1408" y="527" width="214" height="80" rx="8"/><text class="nodeTitle" x="1422" y="554">Score contract</text><text class="nodeBody" x="1422" y="578">Crates x2 + Trust - Stress.</text><text class="rule" x="1422" y="597">R-22: target score 7</text></g>
+    <g id="node-upgrade" class="node"><rect x="1158" y="639" width="214" height="80" rx="8"/><text class="nodeTitle" x="1172" y="666">Choose module</text><text class="nodeBody" x="1172" y="690">Spend 3 Trust; add 1 rule.</text><text class="rule" x="1172" y="709">R-23: keep between shifts</text></g>
+    <g id="node-next-shift" class="node"><rect x="1408" y="639" width="214" height="80" rx="8"/><text class="nodeTitle" x="1422" y="666">Set next orbit</text><text class="nodeBody" x="1422" y="690">Escalate hazard tier by 1.</text><text class="rule" x="1422" y="709">R-24: loss repeats tier</text></g>
+    <path class="resource" d="M1372 567 H1408"/><path class="edge" d="M1515 607 V639"/><path class="edge" d="M1408 679 H1372"/><path class="edge" d="M1372 701 C1390 735 1490 735 1515 719"/>
+    <text class="edgeLabel" x="1390" y="555" text-anchor="middle">FOOD</text>
+  </g>
+
+  <g id="cross-system-connections">
+    <path class="edge" d="M544 320 C565 320 570 220 592 220"/><text class="edgeLabel" x="569" y="265" text-anchor="middle">PLAN</text>
+    <path class="power" d="M1092 220 H1140"/><text class="edgeLabel" x="1116" y="207" text-anchor="middle">2 POWER</text>
+    <path class="resource" d="M1390 412 C1390 442 294 436 294 466"/><text class="edgeLabel" x="842" y="439" text-anchor="middle">STABLE AIR ENABLES CULTIVATION</text>
+    <path class="edge" d="M544 680 H592"/><text class="edgeLabel" x="568" y="667" text-anchor="middle">STATUS</text>
+    <path class="risk" d="M842 466 V412"/><text class="edgeLabel" x="854" y="442">FLARE</text>
+    <path class="resource" d="M1092 680 H1140"/><text class="edgeLabel" x="1116" y="667" text-anchor="middle">YIELD</text>
+    <path class="recover" d="M1265 756 C1265 797 398 797 398 756"/><text class="edgeLabel" x="830" y="793" text-anchor="middle">MODULE CHANGES NEXT SHIFT</text>
+  </g>
+
+  <g id="support-notes">
+    <rect class="noteBox" x="44" y="830" width="500" height="298" rx="10"/>
+    <text class="noteHead" x="62" y="860">NUMERIC TRACE / NORMAL SHIFT</text>
+    <text class="noteText" x="62" y="886">1. Assume P 4, Air 4, Water 4, Trust 2, Stress 0, crop health 6.</text>
+    <text class="noteText" x="62" y="912">2. No plan bonus. Scan: 4 - 1 = 3 Power. Collect: 3 + 6 = 9, clamp 8.</text>
+    <text class="noteText" x="62" y="938">3. R-07 is cost-free. R-09 scrub: Power 8 - 2 = 6; Air 4 + 3 = 7.</text>
+    <text class="noteText" x="62" y="964">4. Three active bays consume 3 Air: 7 - 3 = 4 Air.</text>
+    <text class="noteText" x="62" y="990">5. Mix twice: Water 4 -&gt; 0; Feed 0 -&gt; 6.</text>
+    <text class="noteText" x="62" y="1016">6. Irrigate 3 rows: Feed 6 - 3 = 3. No row gains Wilt.</text>
+    <text class="noteText" x="62" y="1042">7. Match 2 colors: Yield +1. Harvest: health 6 + 1 - Wilt 0 = 7 Food.</text>
+    <text class="noteText" x="62" y="1068">8. Pack: Food 7 - 4 = 3. Score = 2 + Trust 2 - Stress 0 = 4.</text>
+    <text class="noteText" x="62" y="1104">Result: the team needs 3 more score for target 7.</text>
+
+    <rect class="noteBox" x="592" y="830" width="500" height="298" rx="10"/>
+    <text class="noteHead" x="610" y="860">FAILURE / RECOVERY TRACE</text>
+    <text class="noteText" x="610" y="886">Assume a flare state before scrub: Power 1, Air 1, Trust 2, Stress 0.</text>
+    <text class="noteText" x="610" y="912">Scrub: Power 1 - 2 = -1. It does not finish, so Air stays 1.</text>
+    <text class="noteText" x="610" y="938">R-19 causes an outage: tasks freeze; Stress 0 + 2 = 2.</text>
+    <text class="noteText" x="610" y="964">Two crew restart for 30 seconds: Power -1 -&gt; 1.</text>
+    <text class="noteText" x="610" y="990">Canister: Air 1 + 2 = 3; Trust 2 - 1 = 1.</text>
+    <text class="noteText" x="610" y="1016">The shift continues. Failure reduces score but does not end the campaign.</text>
+    <text class="noteHead" x="610" y="1040">LEGEND</text>
+    <path class="power" d="M610 1066 H670"/><text class="noteText" x="684" y="1071">Power flow</text>
+    <path class="resource" d="M802 1066 H862"/><text class="noteText" x="876" y="1071">Air / Feed / Food flow</text>
+    <path class="risk" d="M610 1100 H670"/><text class="noteText" x="684" y="1105">Failure or conditional branch</text>
+    <path class="recover" d="M884 1100 H944"/><text class="noteText" x="958" y="1105">Recovery path</text>
+
+    <rect class="noteBox" x="1140" y="830" width="500" height="298" rx="10"/>
+    <text class="noteHead" x="1158" y="860">DESIGN INTENT AND OPEN DECISIONS</text>
+    <text class="noteText" x="1158" y="890">Experience: coordinate scarce time, announce tradeoffs, and recover together.</text>
+    <text class="noteText" x="1158" y="918">Win signal: score 7+ and keep Air at 2+ when the 12-minute timer ends.</text>
+    <text class="noteText" x="1158" y="946">Loss signal: score below 7 or Air below 2. Keep modules; repeat the tier.</text>
+    <text class="noteText" x="1158" y="986">OPEN-01: Does 30 seconds make restart costly enough for 3 players?</text>
+    <text class="noteText" x="1158" y="1014">OPEN-02: Should excess Food convert to Trust at a 3:1 rate?</text>
+    <text class="noteText" x="1158" y="1042">OPEN-03: Can a solo player assign 2 roles without excess tracking?</text>
+    <text class="noteText" x="1158" y="1070">PLAYTEST: Can first-time teams predict the flare cascade by minute 4?</text>
+    <text class="tiny" x="1158" y="1108">Uncertainty stays explicit. Do not treat open decisions as confirmed rules.</text>
+  </g>
+</svg>
