@@ -19,8 +19,6 @@ jobs:
     timeout-minutes: 20
     env:
       PLAYWRIGHT_VERSION: "1.55.0"
-      PLAYWRIGHT_INSTALL_DIR: ${{ runner.temp }}/one-page-game-design-playwright
-      VALIDATION_OUTPUT_DIR: ${{ runner.temp }}/one-page-game-design-validation
 
     steps:
       - name: Check out the repository
@@ -32,6 +30,11 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "24"
+
+      - name: Initialize temporary paths
+        run: |
+          printf '%s\n' "PLAYWRIGHT_INSTALL_DIR=${RUNNER_TEMP}/one-page-game-design-playwright" >> "$GITHUB_ENV"
+          printf '%s\n' "VALIDATION_OUTPUT_DIR=${RUNNER_TEMP}/one-page-game-design-validation" >> "$GITHUB_ENV"
 
       - name: Install browser and PDF tools
         run: |
