@@ -1,0 +1,191 @@
+document:
+  title: "Relay Orchard"
+  scope: "Full 3-day restoration loop: repair the receiver and install the signal relay"
+  audience: ["design team", "a future programmer who must implement the system"]
+  revision: "1 (v1)"
+  date: "2026-09-27"
+
+format:
+  mode: heavy-svg
+  status: confirmed
+  reason: >
+    The brief names six interacting systems (day/forecast, location/travel,
+    energy/recovery, water/tending/fruit, trading/scrap, receiver/research/relay)
+    that must stay simultaneously visible, plus concrete AP/energy/resource
+    quantities, a rule table, and two required traces. detail-modes.md names
+    this exact combination (cross-system dependencies, resource conversions,
+    local rule tables, normal and failure scenarios) as the heavy-SVG signal.
+  scope: "One 3-day restoration campaign and its cross-system consequences"
+  paper_size: A2
+  source_artifact: "v1/relay-orchard.svg"
+  pdf_artifact: "v1/relay-orchard.pdf"
+  selected_at_revision: "1 (v1)"
+
+intent:
+  experience: "Make the player feel resourceful and caring while restoring the orchard's radio observatory."
+  player_promise: "Every AP and resource choice visibly moves the receiver repair and relay install forward or costs a real setback."
+
+constraints:
+  - id: C-01
+    status: confirmed
+    statement: "Day 3 is a hard deadline: install the relay before it ends, or the outcome is incomplete restoration."
+  - id: C-02
+    status: confirmed
+    statement: "No combat, multiplayer, monetization, equipment leveling, or procedural map exists in this design."
+
+# Every rule below is quoted or restated from the confirmed fixture text.
+# IDs match the <text id="rule-R-xx"> elements in v1/relay-orchard.svg.
+decisions:
+  - id: R-01
+    status: confirmed
+    statement: "Each day has 6 AP. Each action consumes its AP cost immediately. Actions cannot start without required AP and resources."
+    affects: []
+    note: "Governs every action node; not attached to one node in the SVG. Labeled once, near the sys-day panel header (id=rule-R-01), separate from R-01b's start-state node."
+  - id: R-01b
+    status: confirmed
+    statement: "Day 1 starts at dawn with 6 AP, 6 energy, 2 water, 2 scrap, 0 fruit, 0 credits, 0 research. Resource stores have no capacity limit in this prototype."
+    affects: [node-dawn]
+  - id: R-03
+    status: confirmed
+    statement: "Travel between Workshop and Grove, Workshop and Reservoir, or Workshop and Observatory costs 1 AP and 1 energy. Routes are bidirectional. No other routes exist."
+    affects: [node-workshop, node-grove, node-reservoir, node-observatory, edge-travel-grove, edge-travel-reservoir, edge-travel-observatory]
+  - id: R-02
+    status: confirmed
+    statement: >
+      The player starts at Workshop. Returning there before ending a day is
+      optional. Ending the day moves the player to Workshop for free and
+      resets AP to 6 at the next dawn. It preserves resource stores and
+      project progress (for example, receiver repair and tended markers).
+    affects: [node-day-end]
+  - id: R-04
+    status: confirmed
+    statement: "A portable solar charger works at any location: spend 1 AP to gain 2 energy. This is the recovery path when energy reaches 0. It does not move the player."
+    affects: [node-charger]
+  - id: R-05
+    status: confirmed
+    statement: "At Reservoir, collect 2 water for 1 AP."
+    affects: [node-collect-water]
+  - id: R-06a
+    status: confirmed
+    statement: "At Grove, tending consumes 1 AP and 1 water and adds 1 tended marker. Markers accumulate within the day."
+    affects: [node-tend]
+  - id: R-06b
+    status: confirmed
+    statement: "At the next dawn, each marker produces 2 fruit and is cleared."
+    affects: [node-dawn-fruit]
+  - id: R-07
+    status: confirmed
+    statement: "A storm reduces the combined dawn fruit yield by 1, to a minimum of 0."
+    affects: [node-storm, node-storm-fruit]
+  - id: R-08
+    status: confirmed
+    statement: "A forecast at each dawn announces whether the next dawn will be clear or stormy. The forecast is accurate."
+    affects: [node-forecast]
+  - id: R-09
+    status: confirmed
+    statement: "At Workshop, trade 2 fruit for 3 credits, costing 1 AP. No other trades exist."
+    affects: [node-trade-fruit, node-trade-scope]
+  - id: R-10
+    status: confirmed
+    statement: "At Workshop, buy 1 scrap for 2 credits, costing 1 AP. No other trades exist."
+    affects: [node-buy-scrap, node-trade-scope]
+  - id: R-11
+    status: confirmed
+    statement: "At Observatory, scan the sky for 1 AP and 2 energy to gain 1 research. A scan requires a repaired receiver."
+    affects: [node-scan]
+  - id: R-12
+    status: confirmed
+    statement: "Repairing the receiver at Observatory costs 1 AP and 2 scrap. The repair persists."
+    affects: [node-repair]
+  - id: R-13
+    status: confirmed
+    statement: "Installing the signal relay at Observatory costs 2 AP, 2 research, and 1 scrap. Installation persists and wins the game if completed before the player ends day 3."
+    affects: [node-install]
+  - id: R-14
+    status: confirmed
+    statement: "If day 3 ends before installation, show an incomplete-restoration outcome. The story consequence and replay behavior are undecided."
+    affects: [node-incomplete]
+  - id: R-15
+    status: confirmed
+    statement: >
+      The resource HUD and action preview show AP, energy, and resource
+      costs before confirmation. A disabled action names the missing
+      prerequisite. Feedback uses text and shape as well as color. Sound is
+      optional.
+    affects: []
+
+proposals: []
+# No proposals were introduced. Every decision above is confirmed directly
+# by the fixture text; nothing in v1 required inventing a new mechanic.
+
+open_questions:
+  - id: Q-01
+    status: open
+    question: "What is the exact weather schedule or random model behind the accurate forecast?"
+    blocks: []
+  - id: Q-02
+    status: open
+    question: "What story consequence follows an incomplete-restoration outcome?"
+    blocks: []
+  - id: Q-03
+    status: open
+    question: "What replay behavior follows an incomplete-restoration outcome (retry, continue, end)?"
+    blocks: []
+  - id: Q-04
+    status: open
+    question: "Does progress save between real-world play sessions?"
+    blocks: []
+
+not_applicable:
+  - id: NA-01
+    concern: "multiplayer"
+    reason: "The confirmed scope is single-player desktop (C-02)."
+  - id: NA-02
+    concern: "combat"
+    reason: "Confirmed: no combat exists (C-02)."
+  - id: NA-03
+    concern: "monetization"
+    reason: "Confirmed: no monetization exists (C-02)."
+
+relationships:
+  - id: E-map-day
+    from: node-day-end
+    to: node-workshop
+    label: "ending the day returns the player to Workshop free"
+  - id: E-storm-fruit
+    from: node-storm
+    to: node-storm-fruit
+    label: "a stormy dawn cuts that dawn's combined fruit yield by 1"
+  - id: E-fruit-trade
+    from: node-dawn-fruit
+    to: node-trade-fruit
+    label: "matured fruit is the only input to the credit trade"
+  - id: E-scrap-flow
+    from: node-scrap-uses
+    to: node-repair
+    label: "bought scrap funds receiver repair (2) and relay install (1)"
+  - id: E-scan-gate
+    from: node-repair
+    to: node-scan
+    label: "scanning requires the receiver to already be repaired"
+  - id: E-research-install
+    from: node-scan
+    to: node-install
+    label: "each scan's research accumulates toward the 2 research the install needs"
+  - id: E-energy-recover
+    from: node-charger
+    to: node-scan-cost
+    label: "the charger is the only stated way to recover energy for further travel or scanning"
+
+playtest_hypotheses:
+  - id: T-01
+    hypothesis: "Can new players identify the missing energy and use the charger without help?"
+    observation: "Observe whether players recover from a blocked energy-costing action without a prompt beyond the confirmed missing-prerequisite feedback."
+
+traces:
+  normal:
+    label: "3-day win, clear weather both dawns"
+    file_reference: "See <g id=\"trace-normal\"> in v1/relay-orchard.svg and verification.md for the full recomputation."
+  failure_recovery:
+    label: "energy-shortage recovery: a blocked action at 0 energy, unchanged state, charger cost and gain, then resumed progress to a Day-3 win"
+    file_reference: "See <g id=\"trace-failure\"> in v1/relay-orchard.svg and verification.md for the full recomputation."

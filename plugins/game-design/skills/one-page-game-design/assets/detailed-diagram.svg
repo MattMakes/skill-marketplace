@@ -72,7 +72,7 @@
     <text id="edge-label-stored-power" class="edgeLabel" x="842" y="277" text-anchor="middle">STORED POWER</text>
     <path id="edge-routing-to-load-shedding" class="edge" d="M824 335 H860"/>
     <text id="edge-label-low-supply" class="edgeLabel" x="842" y="398" text-anchor="middle">IF LOW</text>
-    <text id="local-reference-negative-power-to-r19" class="edgeLabel" x="610" y="398">Power &lt; 0: see R-19</text>
+    <text id="local-reference-negative-power-to-r19" class="edgeLabel" x="908" y="398">Power &lt; 0: see R-19</text>
   </g>
 
   <g id="subsystem-life-support">

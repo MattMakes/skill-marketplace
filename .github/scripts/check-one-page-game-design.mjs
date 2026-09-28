@@ -171,7 +171,7 @@ async function makeA1Variant() {
 
 async function optionalRelayFixtures() {
   for (const revision of ['v1', 'v2']) {
-    const input = join(skillRoot, 'evals', 'relay-orchard', revision, 'diagram.svg');
+    const input = join(skillRoot, 'evals', 'relay-orchard', revision, 'relay-orchard.svg');
     try {
       await access(input);
     } catch {
