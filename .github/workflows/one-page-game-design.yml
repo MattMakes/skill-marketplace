@@ -1,0 +1,76 @@
+name: One-page game design browser validation
+
+on:
+  pull_request:
+    paths:
+      - "plugins/game-design/skills/one-page-game-design/**"
+      - "plugins/game-design/.claude-plugin/plugin.json"
+      - ".claude-plugin/marketplace.json"
+      - ".github/workflows/one-page-game-design.yml"
+      - ".github/scripts/check-one-page-game-design.mjs"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser-validation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      PLAYWRIGHT_VERSION: "1.55.0"
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+
+      - name: Initialize temporary paths
+        run: |
+          printf '%s\n' "PLAYWRIGHT_INSTALL_DIR=${RUNNER_TEMP}/one-page-game-design-playwright" >> "$GITHUB_ENV"
+          printf '%s\n' "VALIDATION_OUTPUT_DIR=${RUNNER_TEMP}/one-page-game-design-validation" >> "$GITHUB_ENV"
+
+      - name: Install browser and PDF tools
+        run: |
+          mkdir -p "$VALIDATION_OUTPUT_DIR"
+          npm install \
+            --prefix "$PLAYWRIGHT_INSTALL_DIR" \
+            --cache "$RUNNER_TEMP/npm-cache" \
+            --no-save \
+            --ignore-scripts \
+            --registry https://registry.npmjs.org \
+            "playwright@$PLAYWRIGHT_VERSION"
+          node "$PLAYWRIGHT_INSTALL_DIR/node_modules/playwright/cli.js" install --with-deps chromium
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends poppler-utils
+          echo "PLAYWRIGHT_MODULE_PATH=$PLAYWRIGHT_INSTALL_DIR/node_modules/playwright" >> "$GITHUB_ENV"
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check plugins/game-design/skills/one-page-game-design/scripts/export_pdf.mjs
+          node --check plugins/game-design/skills/one-page-game-design/scripts/export_pdf.test.mjs
+          node --check .github/scripts/check-one-page-game-design.mjs
+
+      - name: Run focused exporter tests in strict browser mode
+        env:
+          REQUIRE_BROWSER_TESTS: "1"
+        run: node --test plugins/game-design/skills/one-page-game-design/scripts/export_pdf.test.mjs
+
+      - name: Export and inspect PDF evidence
+        if: always()
+        run: node .github/scripts/check-one-page-game-design.mjs "$VALIDATION_OUTPUT_DIR"
+
+      - name: Upload browser-validation evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: one-page-game-design-browser-validation
+          path: ${{ env.VALIDATION_OUTPUT_DIR }}
+          if-no-files-found: warn
+          retention-days: 14
