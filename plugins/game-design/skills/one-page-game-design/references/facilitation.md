@@ -94,6 +94,10 @@ Concrete example: the courier sees a storm forecast, selects the short channel, 
 
 Failure and recovery example: the courier enters the channel without enough repair stock and loses the cargo. The game returns the boat to the last lit beacon with damaged steering and an expired contract. A low-risk salvage job supplies a repair kit, so the campaign continues. If the economy cannot fund that job, record a potential loss spiral as an open contradiction.
 
+## Walkthrough verification
+
+Before adding scenarios, list the scenarios the user explicitly requests. Verify that each requested scenario appears in the delivered design. When numbers matter, use a step table that calculates each action's applicable costs, resources, location, and persistent state. Make a rejected action follow its confirmed action-guard rule. Do not invent resource consumption. Label assumptions and counterfactual branches in each scenario. Test available legal recovery choices before claiming that a setback forces a loss. Keep a complete supporting sequence when you make a precise claim about an alternative plan.
+
 ## Contradictions and branches
 
 Do not normalize incompatible claims into vague prose. Give the conflict an ID and show its impact:

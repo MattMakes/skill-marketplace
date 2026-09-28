@@ -70,6 +70,10 @@ Use whitespace, routing lanes, connector bridges, or repeated local references t
 
 Heavy SVG is a static artifact. Do not add or promise the HTML selection panel, scripting, hover-only content, or keyboard selection. Ordinary viewer zoom is sufficient. Keep the file offline and self-contained: do not use scripts, `foreignObject`, external stylesheets, external resource references, CSS imports, or remote fonts.
 
+## Connector verification
+
+Audit each arrow's source, target, direction, and meaning against a rule or explicit proposal. Do not use sequence or resource-flow arrows only to fill the layout. Check that each visible endpoint reaches its intended node and avoids unrelated nodes and text. Use named local references when a long connector cannot remain clear. Match rule and relationship identifiers between the diagram and design record. Check both arrowheads when a relationship is bidirectional.
+
 ## Print contract
 
 In light HTML, declare one paper size in CSS and in the visible metadata. Default to A3 landscape:
