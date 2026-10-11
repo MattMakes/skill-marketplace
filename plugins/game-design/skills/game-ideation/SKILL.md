@@ -26,7 +26,8 @@ Read these files before you start:
 The caller gives some of:
 - a **constraint card**: target fun (2–3 kinds), core verb, setting, twist, session length, scope,
   and optionally a **blend** from `../fun-targeting/references/blends.md` (id, name, kinds,
-  signature dynamic, loop pattern);
+  signature dynamic, loop pattern), and optionally a **tone** and a **spark** (an outside source of
+  inspiration) from `references/decks/`;
 - **boundaries**: content rules a concept must not cross;
 - a **history** list of past concepts, for novelty;
 - **seed concepts** the caller wants judged alongside yours.
@@ -40,6 +41,8 @@ The caller gives some of:
 - If the card carries a blend, the target fun is exactly the blend's kinds, in its order, and you
   score `fun_fit` against the blend's **signature dynamic** (see `references/rubric.md`). Every
   concept's one-liner shows the core verb producing that dynamic.
+- The card is a springboard, not a checklist. Each concept keeps the target fun and the core verb, and
+  builds on at least one of the other card entries; drop any entry that weakens the hook.
 - Write **at least 6** new concepts. Each uses a different frame from `references/frames.md`.
 - Include every seed concept too, with the frame `supplied`. Seeds do not count toward the 6.
 - **Boundaries first.** Check every concept against every boundary **before** you score anything.

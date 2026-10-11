@@ -159,3 +159,57 @@ bullet keys below in this order, one line each.
 - source: genre analysis of network-building puzzle games
 - pitfall: Expression lives only in color themes while there is one right layout, so the pressure pushes every player to the same network.
 - boundary-safe verbs: route, build, deliver, map, weave
+
+## bluff-and-read: Bluff and read
+- kinds: Fellowship, Challenge
+- signature dynamic: Every player holds a secret and acts in the open, so reading a friend's face, hiding your own and winning the round are one act.
+- loop pattern: A player makes a claim or a move that may be a bluff → the others watch and question it → a reveal shows who read whom → the table decides whom to trust next.
+- reference games: Spyfall, Fibbage, Skull, Liar's Dice
+- source: Hunicke, LeBlanc and Zubek, "MDA" (2004): Fellowship and Challenge as aesthetics; genre analysis of social deduction and bluffing party games
+- pitfall: Fellowship lives only in a chat lobby while the bluff is resolved by a hidden stat, so nobody ever reads a real person.
+- boundary-safe verbs: bluff, deduce, bid, haggle, negotiate, persuade
+
+## physics-comedy: Physics comedy
+- kinds: Sensation, Fellowship, Expression
+- signature dynamic: Players steer wobbly bodies through simple jobs, so the floppy motion, the shared laughter and each player's clumsy style come from the same physics.
+- loop pattern: A player grabs or moves something with loose controls → physics resolves it in a surprising way → the mishap is visible and funny to everyone → the group improvises the next attempt together.
+- reference games: Human Fall Flat, Totally Reliable Delivery Service, Octodad: Dadliest Catch
+- source: Nicole Lazzaro, "Why We Play Games: Four Keys to More Emotion Without Story" (2004): people fun (amusement shared with others) and easy fun; genre analysis of physics-based co-op games
+- pitfall: Sensation lives only in ragdoll animation after a failure while the actual task is precise and frustrating, so the wobble punishes instead of delighting.
+- boundary-safe verbs: carry, stack, deliver, balance, juggle, assemble
+
+## engine-builder: Engine builder
+- kinds: Challenge, Discovery, Expression
+- signature dynamic: The player adds one piece at a time to a machine of combos, so finding a new synergy, beating the target and building a personal strategy happen in the same choice.
+- loop pattern: The player picks one new piece from a few offered → the piece combines with the ones already in the engine → the payoff shows how strong the combo is → the player chooses the next piece to sharpen or change the engine.
+- reference games: Dominion, Wingspan, Splendor, Shapez
+- source: genre analysis of deck-building and engine-building games (Dominion, 2008, onward)
+- pitfall: Expression disappears because one dominant combo wins every run, so every player builds the same engine.
+- boundary-safe verbs: combine, assemble, build, trade, schedule
+
+## mischief-sandbox: Mischief sandbox
+- kinds: Expression, Discovery
+- signature dynamic: The player pokes a little world of rules and characters to set off chain reactions, so every experiment is both a joke the player makes and a new fact about how the world works.
+- loop pattern: The player tries something the world did not ask for → the characters and objects react by their own rules → the reaction shows a new consequence or a chain of them → the player plans the next, bigger idea.
+- reference games: Untitled Goose Game, Scribblenauts, Katamari Damacy
+- source: Nicole Lazzaro, "Why We Play Games: Four Keys to More Emotion Without Story" (2004): easy fun (curiosity, role play, experimenting); genre analysis of systemic sandbox games
+- pitfall: Discovery runs out because each object has one scripted reaction, so the world stops answering new ideas after the first hour.
+- boundary-safe verbs: tinker, mix, arrange, carry, untangle
+
+## decipher: Decipher
+- kinds: Challenge, Narrative
+- signature dynamic: The player works out an unknown language or record from fragments, so each correct guess both cracks a hard puzzle and reveals part of the story.
+- loop pattern: The player finds a fragment in context → they form a guess about what it means → the next use of the fragment confirms or breaks the guess → the confirmed meaning opens the next part of the story.
+- reference games: Chants of Sennaar, Heaven's Vault
+- source: Nicole Lazzaro, "Why We Play Games: Four Keys to More Emotion Without Story" (2004): hard fun (mastery of a difficult goal); genre analysis of deciphering games
+- pitfall: Narrative lives in a codex the player reads after solving, while the puzzle itself is abstract symbol matching that tells no story.
+- boundary-safe verbs: decode, deduce, translate, catalog, map
+
+## rival-sport: Rival sport
+- kinds: Challenge, Fellowship, Fantasy
+- signature dynamic: Two players or teams read each other in a fast, simple sport, so outplaying a friend, the shared rivalry and feeling like an athlete happen in the same move.
+- loop pattern: A player commits to a pass, throw or line → the opponent reads it and answers → the point or the save shows who read whom → both sides adjust for the next exchange.
+- reference games: Rocket League, Windjammers, Mario Tennis
+- source: Hunicke, LeBlanc and Zubek, "MDA" (2004): Challenge and Fellowship from competition; genre analysis of competitive arcade sports games
+- pitfall: Fellowship lives only in a ranked ladder while matches are against bots, so there is no rival to read.
+- boundary-safe verbs: pass, throw, steer, juggle, balance, glide
