@@ -1,0 +1,30 @@
+{
+  "name": "craft",
+  "displayName": "Engineering Craft",
+  "version": "0.1.0",
+  "description": "Engineering practice and discipline, vendored from eleven upstream skill collections. Designing code: a deep-module vocabulary (module, interface, depth, seam, adapter) with a design-it-twice pattern, domain modelling that keeps a GLOSSARY.md and ADRs current, architecture decision record templates, contract-first API and event coordination, throwaway prototypes that answer one design question, and an architecture review that finds shallow modules and reports them as HTML. Discipline while coding: the smallest complete change (ponytail), Karpathy's four principles backed by Python checkers and a pre-commit gate, backend decision criteria with fail-fast fallback rules, implementing from fetched official docs with citations, a written CONSTRAINTS.md quality bar guarded against being quietly lowered, fresh-context adversarial review of non-trivial decisions, and no completion claims without fresh command output. Debugging and performance: a feedback-loop-first diagnosis loop and a measure/identify/fix/verify/guard optimization loop with keep-or-revert rules. Improving a codebase: a read-only senior-advisor audit that writes self-contained handoff plans, deprecation and expand/contract schema migration, clustering an issue backlog into plan-master issues, session retrospectives on the agent's environment, and CodeTour walkthroughs. Finishing: a test-gated branch-finishing menu and PR history cleanup with a tree-hash identity check. Contains third-party skills under their own licenses — see NOTICE.md.",
+  "author": {
+    "name": "Matt Scott"
+  },
+  "keywords": [
+    "engineering",
+    "design",
+    "domain-modeling",
+    "adr",
+    "contract-first",
+    "prototype",
+    "yagni",
+    "simplicity",
+    "constraints",
+    "verification",
+    "debugging",
+    "performance",
+    "migration",
+    "deprecation",
+    "issues",
+    "retrospective",
+    "code-tour",
+    "git",
+    "pull-request"
+  ]
+}
