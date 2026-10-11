@@ -1,0 +1,24 @@
+{
+  "name": "pstack",
+  "displayName": "pstack Principles",
+  "version": "0.1.0",
+  "description": "Lauren Tan's pstack engineering principles and the procedures built on them. Sixteen one-page principles (type-system discipline, model the domain, minimize reader load, boundary discipline, separate before serializing shared state, make operations idempotent, build the lever, encode lessons in structure, test behavior not implementation, attack the premise, laziness protocol, sequence verifiable units, explain the number, foundational thinking, migrate callers then delete legacy APIs, subtract before you add) plus: architect sketches types and module shape before code and designs twice through arena, which runs N parallel candidates with a cross-model judge and grafts the best parts; why reconstructs design rationale from git, PRs and whatever MCPs are connected with five confidence tiers; blast-radius finds what a change breaks beyond the diff and proves the one safety fact by running code; benchmark-checklist vets any perf number; correct makes recurring agent mistakes impossible at the strongest level that works; technical-writing layers Diataxis, Google style, STE and Global English; show-me-your-work keeps an append-only TSV decision trail with a cross-model audit; typescript-best-practices grounds the type principle in syntax; create- and maintain-verification-skill generate and upkeep a project-local app-driving skill with a feature map. Contains third-party skills under their own licenses — see NOTICE.md.",
+  "author": {
+    "name": "Matt Scott"
+  },
+  "keywords": [
+    "principles",
+    "architecture",
+    "type-system",
+    "design",
+    "arena",
+    "multi-model",
+    "design-rationale",
+    "blast-radius",
+    "benchmark",
+    "technical-writing",
+    "decision-log",
+    "typescript",
+    "verification"
+  ]
+}
