@@ -1,0 +1,26 @@
+{
+  "name": "verify",
+  "displayName": "Verification and Testing",
+  "version": "0.1.0",
+  "description": "Prove a change works. verify-feature drives a change through its real surface (CLI, API, UI, library, agent) and captures runtime evidence instead of trusting green tests; verify-this turns \"does it work\" into a falsifiable claim with baseline and treatment and one of VERIFIED, NOT VERIFIED or INCONCLUSIVE; santa-method gates output behind two independent reviewers who must both pass; control-cli and control-ui build local harnesses for interactive CLIs and for browser or Electron UIs; full-page-screenshot captures a whole page over the Chrome DevTools Protocol with one dependency-free Node script. For QA: dogfood explores a web app and writes a repro-backed issue report, adversarial-ux-test roleplays a hostile user and filters the rant into real tickets, webapp-testing scripts Playwright against local servers it starts for you, ui-demo records polished demo videos, ios-simulator drives the iOS Simulator with 21 accessibility-driven scripts, and windows-desktop-e2e tests WPF, WinForms, Win32 and Qt apps with pywinauto. For test suites: playwright-pro (init, generate from 55 templates, review, fix flaky), react-testing, integration-e2e-testing (lanes, budgets, ROI), bats-testing-patterns, test-audit (retire low-value tests in approved batches) and k6-load-testing. Review lenses: click-path-audit for buttons whose handlers undo each other, api-design-reviewer with an OpenAPI linter, breaking-change detector and scorecard, python-anti-patterns and ai-debt-detector. Contains third-party skills under their own licenses — see NOTICE.md.",
+  "author": {
+    "name": "Matt Scott"
+  },
+  "keywords": [
+    "verification",
+    "testing",
+    "qa",
+    "e2e",
+    "playwright",
+    "browser-automation",
+    "load-testing",
+    "k6",
+    "ios-simulator",
+    "windows-desktop",
+    "screenshots",
+    "api-review",
+    "test-audit",
+    "dogfood",
+    "code-review"
+  ]
+}
