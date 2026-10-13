@@ -7,7 +7,7 @@ grouped by the section of `SKILL.md` they belong to. Numbers are examples from 1
 
 | Symptom | Cause | Fix |
 | --- | --- | --- |
-| Rates are only 0 % or 100 %; 60 seeds give about 6 distinct fights | A bot that never misses | Count distinct outcomes; add 1 shared seeded skill draw; do not let each unit invent its own |
+| Rates are only 0 % or 100 %; for example, 40 seeds give only 5 distinct fights (a sample value) | A bot that never misses | Count distinct outcomes; add 1 shared seeded skill draw; do not let each unit invent its own |
 | The coach check passes only after a change to the tight bot | The tight line was made weaker to pass | Keep the real player line; add a wide line as an extra steering |
 | The coached line loses | The bot followed a ring while the game drew a lane, or overshot the guide dots | Read the coach target from the game code; add a "follow exactly" steering |
 | A tight line closes 0 loops | It switched between 2 radii | Hold 1 tight radius for the whole fight |

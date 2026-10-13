@@ -3,10 +3,13 @@
 
     python3 report.py <trace file or folder>... --out <dir> [--json [<path>]] [--walls <wall.json>...]
                       [--targets <targets.json>] [--near 0.10] [--baseline balanced]
+                      [--group-key group] [--chapter-key chapter]
 
 Writes report.md and report.html to --out, and balance.json with --json. Folders are searched at every depth;
-JSON files without a diag-trace/1 schema are skipped. The trace field "biome" is the chapter and "vehicle" is the
-group (class, character or vehicle). Schemas: references/contract-template.md and references/balance-json.md.
+JSON files without a diag-trace/1 schema are skipped. The run field "chapter" holds the chapter (level, zone, act)
+and the run field "group" holds the group (class, character or vehicle); the spoke field "group" is the spoke's group.
+If your traces use other names, pass them with --chapter-key and --group-key; no other field name changes.
+Schemas: references/contract-template.md and references/balance-json.md.
 """
 import argparse
 import html
@@ -16,6 +19,10 @@ import sys
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
+
+# The trace field names of the chapter and the group. main() sets them from --chapter-key and --group-key.
+CHAPTER_KEY = "chapter"
+GROUP_KEY = "group"
 
 
 def minutes(seconds): return seconds / 60
@@ -48,15 +55,15 @@ def buys_per_run(trace):
     values = [len(run.get("purchases", [])) for run in trace["runs"]]
     return {"median": statistics.median(values) if values else 0, "min": min(values) if values else 0,
             "zero_share": sum(v == 0 for v in values) / len(values) if values else 0}
-def biome_order(trace): return list(dict.fromkeys(run.get("biome", "") for run in trace["runs"]))
+def chapter_sequence(trace): return list(dict.fromkeys(run.get(CHAPTER_KEY, "") for run in trace["runs"]))
 def currency_availability(trace):
     currencies = trace["meta"].get("data", {}).get("spend_order", [])
     answer = {}
-    for biome in biome_order(trace):
-        runs = [r for r in trace["runs"] if r.get("biome") == biome]
+    for chapter in chapter_sequence(trace):
+        runs = [r for r in trace["runs"] if r.get(CHAPTER_KEY) == chapter]
         paid = {c: sum(p.get("paid", {}).get(c, 0) for r in runs for p in r.get("purchases", [])) for c in currencies}
         total = sum(paid.values())
-        answer[biome] = {c: {"haul_median": statistics.median([r.get("haul", {}).get(c, 0) for r in runs]),
+        answer[chapter] = {c: {"haul_median": statistics.median([r.get("haul", {}).get(c, 0) for r in runs]),
                               "bank_median": statistics.median([r.get("bank_before", {}).get(c, 0) for r in runs]),
                               "bank_max": max(r.get("bank_before", {}).get(c, 0) for r in runs), "paid": paid[c],
                               "paid_share": paid[c] / total if total else 0} for c in currencies}
@@ -111,17 +118,17 @@ def policies(traces, near):
 def chapter_order(traces):
     order = []
     for trace in traces:
-        for biome in biome_order(trace):
-            if biome not in order: order.append(biome)
+        for chapter in chapter_sequence(trace):
+            if chapter not in order: order.append(chapter)
     return order
 def chapter_minutes(trace, chapter, order):
     runs = trace["runs"]
-    starts = [index for index, run in enumerate(runs) if run.get("biome", "") == chapter]
+    starts = [index for index, run in enumerate(runs) if run.get(CHAPTER_KEY, "") == chapter]
     if not starts: return None
     start = starts[0]
     chapter_index = order.index(chapter)
     if chapter_index + 1 < len(order):
-        next_runs = [index for index, run in enumerate(runs) if run.get("biome", "") == order[chapter_index + 1]]
+        next_runs = [index for index, run in enumerate(runs) if run.get(CHAPTER_KEY, "") == order[chapter_index + 1]]
         if not next_runs: return None
         end = next_runs[0] - 1
     else:
@@ -186,19 +193,19 @@ def spokes(traces, policy_rows, wall_files, baseline):
                                    "health_delta": probe.get("health_delta", 0), "killed": probe.get("result") == "killed"})
         breaks.sort(key=lambda item: item["health_delta"])
         info = metadata.get(spoke, {})
-        answers.append({"id": spoke, "kind": info.get("kind", "stat"), "group": info.get("vehicle", ""),
+        answers.append({"id": spoke, "kind": info.get("kind", "stat"), "group": info.get(GROUP_KEY, ""),
                         "loo_worth_min": worth[2], "loo_progress_lost": (worth[1] - worth[0]) if worth[2] is None and worth[0] is not None else 0,
                         "level5_min": level5, "closed_in": sorted(set(closed)), "wall_breaks": breaks})
     return answers
 def groups(traces, policy_rows):
     near_names = {row["name"] for row in policy_rows if row["near_optimal"]}
     result = {}
-    for group in sorted({run.get("vehicle", "") for trace in traces for run in trace["runs"]}):
+    for group in sorted({run.get(GROUP_KEY, "") for trace in traces for run in trace["runs"]}):
         selected = [trace for trace in traces if policy_name(trace) in near_names]
         gains = defaultdict(float); first = {}
         for trace in selected:
             for run in trace["runs"]:
-                if run.get("vehicle", "") != group: continue
+                if run.get(GROUP_KEY, "") != group: continue
                 for purchase in run.get("purchases", []):
                     spoke = purchase.get("spoke")
                     if spoke:
@@ -206,7 +213,7 @@ def groups(traces, policy_rows):
                         first.setdefault(spoke, run.get("run", 0))
         count = len(selected) or 1
         level_gain = {spoke: value / count for spoke, value in gains.items()}
-        result[group] = {"chapters": list(dict.fromkeys(run.get("biome", "") for trace in traces for run in trace["runs"] if run.get("vehicle", "") == group)),
+        result[group] = {"chapters": list(dict.fromkeys(run.get(CHAPTER_KEY, "") for trace in traces for run in trace["runs"] if run.get(GROUP_KEY, "") == group)),
                          "spoke_order": sorted(level_gain, key=lambda spoke: (-level_gain[spoke], first[spoke])), "level_gain": level_gain}
     return result
 def currencies(traces):
@@ -215,7 +222,7 @@ def currencies(traces):
         currencies = trace["meta"].get("data", {}).get("spend_order", [])
         for run in trace["runs"]:
             for currency in currencies:
-                entry = values[run.get("biome", "")][currency]
+                entry = values[run.get(CHAPTER_KEY, "")][currency]
                 entry["haul"].append(run.get("haul", {}).get(currency, 0)); entry["bank"].append(run.get("bank_before", {}).get(currency, 0))
                 paid = sum(purchase.get("paid", {}).get(currency, 0) for purchase in run.get("purchases", []))
                 entry["paid"] += paid
@@ -279,12 +286,12 @@ def markdown(traces, near, balance=None):
     out.append(table(["policy", "skip", "progress", "baseline progress", "worth minutes"], [[name, spoke, p, bp, "LESS PROGRESS" if worth is None else fmt(worth)] for name, spoke, p, bp, worth in leave_one_out(traces)]))
     out += ["## Major clear minutes per trace\n", table(["policy", "boss", "minutes"], [[policy_name(t), boss, fmt(value)] for t in traces for boss, value in major_clear_minutes(t).items()]), "## Stalls, tries per kill, buys per run\n"]
     out.append(table(["policy", "stall", "tries per kill", "buys median", "buys min", "zero share"], [[policy_name(t), stall(t), ", ".join(f"{k}: {v}" for k,v in tries_per_kill(t).items()), fmt(buys_per_run(t)["median"]), buys_per_run(t)["min"], fmt(buys_per_run(t)["zero_share"])] for t in traces]))
-    out += ["## Currency availability per biome\n"]
+    out += ["## Currency availability per chapter\n"]
     rows=[]
     for t in traces:
-        for biome, currencies in currency_availability(t).items():
-            for currency, values in currencies.items(): rows.append([policy_name(t), biome, currency, *map(fmt, values.values())])
-    out.append(table(["policy", "biome", "currency", "haul median", "bank median", "bank max", "paid", "paid share"], rows))
+        for chapter, currencies in currency_availability(t).items():
+            for currency, values in currencies.items(): rows.append([policy_name(t), chapter, currency, *map(fmt, values.values())])
+    out.append(table(["policy", "chapter", "currency", "haul median", "bank median", "bank max", "paid", "paid share"], rows))
     out += ["## Spoke milestones per trace\n"]
     rows=[]
     for t in traces:
@@ -314,7 +321,10 @@ def html_report(traces, near, balance=None):
         else: tables.append("".join(f"<h2>{line[3:]}</h2>" if line.startswith("## ") else f"<h1>{line[2:]}</h1>" if line.startswith("# ") else "" for line in block.splitlines()))
     return "<!doctype html><html><body>"+"\n".join(tables)+chart(traces,1,"Power against minutes")+chart(traces,2,"Pool haul against minutes")+"</body></html>"
 def main(argv=None):
-    parser=argparse.ArgumentParser(); parser.add_argument("inputs", nargs="+"); parser.add_argument("--out", required=True); parser.add_argument("--near", type=float, default=.10); parser.add_argument("--json", nargs="?", const=""); parser.add_argument("--walls", nargs="*", default=[]); parser.add_argument("--targets"); parser.add_argument("--baseline", default="balanced"); args=parser.parse_args(argv)
+    global CHAPTER_KEY, GROUP_KEY
+    parser=argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter); parser.add_argument("inputs", nargs="+"); parser.add_argument("--out", required=True); parser.add_argument("--near", type=float, default=.10); parser.add_argument("--json", nargs="?", const=""); parser.add_argument("--walls", nargs="*", default=[]); parser.add_argument("--targets"); parser.add_argument("--baseline", default="balanced")
+    parser.add_argument("--chapter-key", default="chapter", help="the run field that holds the chapter id"); parser.add_argument("--group-key", default="group", help="the run and spoke field that holds the group id"); args=parser.parse_args(argv)
+    CHAPTER_KEY, GROUP_KEY = args.chapter_key, args.group_key
     try: traces=load_paths(args.inputs)
     except ValueError as error: print(error, file=sys.stderr); return 2
     try:

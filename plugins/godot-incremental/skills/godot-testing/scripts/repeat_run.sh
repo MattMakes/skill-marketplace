@@ -4,6 +4,9 @@
 # Example: sh repeat_run.sh ./game test_focus 20
 # Each run writes its own log to a new temp folder. The script prints the folder and the fail count.
 # The timeout uses perl, because macOS has no `timeout` command.
+case "$1" in
+  -h|--help) echo "usage: sh repeat_run.sh <project dir> <filter> [runs] [timeout seconds]"; exit 0 ;;
+esac
 project=$1
 filter=$2
 runs=${3:-20}

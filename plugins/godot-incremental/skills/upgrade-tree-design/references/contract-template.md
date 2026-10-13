@@ -1,8 +1,9 @@
 # Contract template: the diag hub, its data file, its runtime API, the trace and the policy
 
 Copy this file into the new game's plan folder as its `diag-contract.md`. Replace every `<...>`. The game side, the
-bot and the report all work to this contract, so they can be built in parallel. Keep the field names: the bundled
-`scripts/report.py` reads the trace by these names.
+bot and the report all work to this contract, so they can be built in parallel. Keep the field names, or record each
+change in the contract: the bundled `scripts/report.py` reads the trace by these names. The group and chapter field
+names are configurable (section 2).
 
 ## 1. Terms
 
@@ -32,16 +33,22 @@ A generator writes it from the shipped tree data. It keeps an existing `price` b
   "spend_order": ["<rarest>", "...", "<commonest>"],
   "price": {"base": 3.0, "growth": 1.02, "stage_x": {"<group 1>": 1.0, "<group 2>": 10.0}},
   "spokes": [
-    {"id": "speed", "name": "Speed", "kind": "stat", "stat": "speed", "step": 0.04, "vehicle": "", "opens_with": ""},
-    {"id": "<verb>", "name": "<name>", "kind": "special", "row": "<shipped row id>", "vehicle": "<group>",
+    {"id": "speed", "name": "Speed", "kind": "stat", "stat": "speed", "step": 0.04, "group": "", "opens_with": ""},
+    {"id": "<verb>", "name": "<name>", "kind": "special", "row": "<shipped row id>", "group": "<group>",
      "opens_with": ""},
     {"id": "<ability>", "name": "<name>", "kind": "ability", "row": "<shipped row id>", "boss": "<unlock event id>",
-     "vehicle": "", "opens_with": ""}
+     "group": "", "opens_with": ""}
   ]
 }
 ```
 
-(The field `vehicle` holds the group, and the run field `biome` holds the chapter. Keep both names: the bundled report reads them.)
+The spoke field `group` and the run field `group` (section 4) hold the group. The run field `chapter` holds the
+chapter. If your game already uses other names (for example `hero` and `zone`), pick 1 of 2 options and record it here:
+
+- Pass the names to the tools: `report.py --group-key hero --chapter-key zone` and `make_policies.py --group-key hero`.
+- Or write a small adapter that renames the fields into a copy of each trace before the report runs.
+
+The flags keep the game's own vocabulary in its files. The adapter is the better choice when more fields differ.
 
 Generator rules to decide per game (write them down in the contract):
 1. Which shipped rows count (every row that some tree lists, plus shared passives).
@@ -88,7 +95,7 @@ effective_levels(group) -> dict                   extra_nodes() -> list     rese
            "data": {"version": 1, "cap_step": 5, "cap_share": 0.8, "spend_order": [], "price": {}},
            "spokes": []},
   "runs": [
-    {"run": 1, "vehicle": "<group>", "field": "<level id>", "biome": "<chapter id>", "end": "<reason>",
+    {"run": 1, "group": "<group>", "field": "<level id>", "chapter": "<chapter id>", "end": "<reason>",
      "run_s": 10.8, "game_s": 10.8, "wall_s": 3.2,
      "bosses": [{"id": "", "kind": "mini|major", "result": "killed|left|run_ended", "reason": "",
                  "health_left": 0.0, "first_kill": true}],
@@ -105,7 +112,7 @@ effective_levels(group) -> dict                   extra_nodes() -> list     rese
   finished row current again, so its buys are not lost.
 - `bank_before` is the bank after the haul is banked, before the shop. Every currency of `spend_order` is a key of
   `haul`, `bank_before`, `bank_after` and `paid`.
-- `events` kinds: `tier_up`, `spoke_opened`, `spoke_closed`, `vehicle_unlocked`, `ability` (first unlock only).
+- `events` kinds: `tier_up`, `spoke_opened`, `spoke_closed`, `group_unlocked`, `ability` (first unlock only).
 - `stats`: 5 to 10 derived stats that explain power and economy (power, health, speed, width or range, ...).
 - Rewrite the file through a temporary file and a rename. Cast counts back to integers after a reload.
 

@@ -1,7 +1,7 @@
 extends SceneTree
-## A project-wide parse check. It loads every .gd, .tscn and .tres file under res:// and lists
-## each file that fails to load, and each script that cannot instantiate.
-##   godot --headless --path <project> -s <absolute path>/parse_check.gd
+## Run: godot --headless --path <project> -s <absolute path>/parse_check.gd (GDScript, not Python).
+## Needs: a Godot 4 binary and an imported project. It loads every .gd, .tscn and .tres file under
+## res:// and lists each file that fails to load, and each script that cannot instantiate.
 ##   godot --headless --path <project> -s <absolute path>/parse_check.gd -- --skip=captures,exports
 ## --skip lists folder names to leave out. Folders that start with "." and folders that hold a
 ## .gdignore file are skipped. Run the import first, or new class names read as unknown.

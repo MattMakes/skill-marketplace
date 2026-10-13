@@ -1,5 +1,5 @@
 extends RefCounted
-## The base class for test files that run_tests.gd runs.
+## The base class for test files that run_tests.gd runs (Godot 4.5+). Do not run it alone.
 ## Usage: a test file res://tests/<folder>/test_<name>.gd starts with
 ##   extends "res://tests/test_case.gd"
 ## Every method whose name starts with "test_" is one test. A test can use await.

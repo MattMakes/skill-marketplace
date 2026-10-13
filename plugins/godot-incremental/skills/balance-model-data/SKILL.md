@@ -171,8 +171,11 @@ agreement.
 5. Generate doc tables from the model with a generator that replaces only its own marked block.
    Diff the doc and confirm that only table lines changed. Run it twice to prove it is
    idempotent.
-6. For game text, parse the doc rows into JSON with a count per section, and add a test that
-   loads the JSON.
+6. Optional, for game text: first name the 1 source of truth for player-facing text, for
+   example a localization resource (`.po` or `.csv` translation files) or a text table in the
+   design docs. The other files must agree with it. If the source is a design-doc table,
+   parse its rows into JSON with a count per section, and add a test that loads the JSON. If
+   the source is a localization resource, check the docs against its keys instead.
 7. For new content, write a model script that imports the current models, adds the new
    content, and prints its checks with ALL PASS. Check that the other models' outputs do not
    change. Generate the doc tables from it.

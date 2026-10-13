@@ -76,9 +76,14 @@ leaks and gaps that a person does not see by eye.
 9. For a demo cut, follow the section "Demo cut by export plugin".
 10. Gate store features behind a platform backend seam (an interface with a real backend and a
     fake backend for tests).
-    In the demo, unlock no achievements and keep rich presence. Store guides commonly ask
-    this.
-    Check: a test that the demo flag blocks every unlock.
+    Decide achievements and rich presence for each edition and each store as 2 separate
+    decisions. Base each decision on the current store guidance that you cite (section
+    "Store launch research"). Store rules differ and change.
+    For example, a store guide can say that a demo unlocks no achievements but keeps rich
+    presence. Keep that only when your cited guidance says it.
+    Put each decision in data that the backend seam reads, not in many screens.
+    Check: a test for each edition that the backend seam allows exactly the unlocks and the
+    presence that the decision allows.
 11. Audit each built pack.
     - Search it for forbidden paths, content ids and dev files (tests, tools, trailer scenes).
     - Search the UID cache file too. It lists paths of files that are not in the pack.
@@ -219,6 +224,8 @@ each fact.
    Convert them to text (`scripts/html_to_text.py`), so you can quote exact numbers.
 3. Read the rules for fees, waits, required assets, the content survey, demos, festivals, the
    handheld check and legal rules (for example trader rules in the EU).
+   Read the rules for achievements and rich presence in each edition too. Step 10 of
+   "Method: export builds and editions" uses them.
 4. Search the web for facts outside the store docs. Confirm each with a fetch of the source.
 5. Record each fact and its source in a research log.
 6. When 2 pages disagree, plan with the safe value and record the conflict.

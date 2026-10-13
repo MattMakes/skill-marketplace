@@ -71,8 +71,7 @@ that proves it.
    - leading silence under 1 ms for a one-shot, so the sound lands on the event frame;
    - a sharp onset for impact cues;
    - a near-silent last sample for a one-shot, so it does not click when it stops;
-   - for a loop, the seam step at most the 99th-percentile step inside the file, and no large
-     step across the first and last 64 samples.
+   - for a loop, the seam rules in "Measure a loop seam" below.
    Fix each recipe that breaks a rule and run the report again.
 8. **Wire the cues in one audio autoload.** Only that autoload creates players; check with a
    grep for player nodes elsewhere. Use a bounded pool of players, so a burst of events cannot
@@ -117,8 +116,8 @@ the player hears. Measure the mix from a recording of the real game.
    PASS or FAIL against its rule.
 7. **A/B one setting at a time.** Change 1 bus setting. Record and meter again. Save the chosen
    configuration before an A/B and restore it from the copy after.
-8. **Check loops after encoding.** Measure each seam on the decoded file (for example the
-   `.ogg`), not only on the source WAV. A codec can add error at the edges.
+8. **Check loops after encoding.** Follow "Measure a loop seam" below on the decoded file
+   (for example the `.ogg`), not only on the source WAV. A codec can add error at the edges.
 9. **Pin the result.** Add a test that pins the chosen bus values. Commit the bus layout file
    in the form the editor rewrites it, with its `.uid` file.
 10. **Re-check after fixes.** When review fixes land, measure on the base branch with no local
@@ -128,6 +127,37 @@ the player hears. Measure the mix from a recording of the real game.
 Reward cues need care. Use the maximum momentary loudness, not gated integrated loudness, to
 rank short reward tiers. Normalize them by loudness, not by peak, so a bigger reward is
 louder.
+
+## Measure a loop seam
+
+This skill owns loop-seam measurement. Other skills (for example `release-and-store` for a
+trailer music bed) call this section instead of a second procedure. A seam is the join where
+the last sample of a loop plays next to the first sample.
+
+1. **Measure the file that ships.** If the game or the video plays an encoded file (`.ogg`,
+   `.mp3`, a QOA import), decode it to integer PCM first, at its own rate:
+   `ffmpeg -v error -i loop_wind.ogg -c:a pcm_s16le /tmp/seam/loop_wind.wav`.
+   Measure the source WAV too, so you can tell a recipe fault from a codec fault.
+2. **Run the report.** `python3 -I scripts/wav_report.py /tmp/seam/*.wav`. Read 2 fields:
+   - `loop_seam_ratio`: the step from the last sample to the first sample, divided by the
+     99th-percentile step inside the file;
+   - `edge_step_ratio`: the largest step across the last N and the first N samples joined
+     (N is 64 by default; set it with `--edge`), divided by the same 99th-percentile step.
+3. **Apply the rules.**
+   - `loop_seam_ratio` at most 1.0. The seam step is then no larger than a normal step inside
+     the file, so the ear does not hear a click.
+   - `edge_step_ratio` under a limit that you set and write in the audio contract (for example
+     1.5, a sample value). This catches a codec ramp or a short glitch near the edges.
+4. **Fix and measure again.** For a scripted loop, render it as a circular buffer so the end
+   flows into the start. For an edited track, move the loop start or cut to a zero crossing.
+   For an encoded file that fails while its source passes, encode again (for example at a
+   higher quality) and decode again. Never mark a seam as passed from the source WAV only.
+5. **Record the result.** Write 1 row per loop: file, decoded or source, both ratios, PASS or
+   FAIL. Check the rows with a script, not from memory.
+
+A video music bed that loops (a trailer or a store clip) uses the same steps. Measure the
+seam on the audio that the final encode holds. Decode the audio track of the video to PCM.
+Cut exactly 1 loop period that starts at the loop start, and run the report on that cut.
 
 ## Music sets
 
@@ -230,5 +260,6 @@ generator, from edited album tracks, or from an AI music web service.
 - `godot-testing`: the test loop, how to prove a test can fail, and the finish gate.
 - `visual-verification`: windowed captures; a Movie Maker recording needs a real window too.
 - `feature-seams-and-saves`: ship a new music set behind a settings choice and a data seam.
-- `release-and-store`: the trailer and store audio use the same loudness numbers.
+- `release-and-store`: the trailer and store audio use the same loudness numbers, and its
+  music-bed seam check calls "Measure a loop seam" in this skill.
 - `fleet-game-dev`: shared-file waits, shell pitfalls and when to ask before a paid step.

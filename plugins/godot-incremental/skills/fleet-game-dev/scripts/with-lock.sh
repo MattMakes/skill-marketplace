@@ -1,5 +1,6 @@
 #!/bin/sh
-# Usage: with-lock.sh <role> <lockdir>[,<lockdir>...] <command> [args...]
+# Usage: sh with-lock.sh <role> <lockdir>[,<lockdir>...] <command> [args...]
+#   POSIX shell script: run it with sh or bash, not with python3. sh with-lock.sh --help prints this.
 #   Takes the first free lock of the comma-separated list, runs 1 command, releases.
 #   Take and release use the if-mkdir shape: release only inside the success branch,
 #   and only when the owner line names this role and pid. It never removes another lock.
@@ -7,7 +8,8 @@
 #        LOCK_STALE seconds after which a held lock is reported, not removed (default 1800).
 #   Exit code: the command's code, or 75 when no lock frees within LOCK_WAIT.
 set -u
-[ $# -ge 3 ] || { sed -n '2,8p' "$0" >&2; exit 64; }
+case "${1:-}" in -h|--help) sed -n '2,9p' "$0"; exit 0 ;; esac
+[ $# -ge 3 ] || { sed -n '2,9p' "$0" >&2; exit 64; }
 role=$1; locks=$2; shift 2
 wait_max=${LOCK_WAIT:-600}
 step=${LOCK_STEP:-15}

@@ -46,9 +46,11 @@ failure", "this test catches the bug") rests on a run you can repeat, not on a r
    assert and on any engine error or `push_error`, through a registered `Logger`. It counts skips
    as skips, prints passed, failed and skipped, and exits 1 when 0 tests ran. Check: a run with a
    filter that matches nothing exits 1. Why: a green run with 0 tests looks like a pass.
-2. **Import first.** Run `godot --headless --path <project> --import` after each checkout, merge
-   or new `class_name` file. Check: exit code 0. Why: a stale class cache after a merge can fail
-   hundreds of tests that your change never touched.
+2. **Start from a clean import and parse check.** This loop assumes the prerequisite that
+   `headless-godot-runs` owns: the import after each checkout, merge or new `class_name` file,
+   and the project parse check. Follow its "Import and parse hygiene" section. Check: both pass
+   before you record the baseline. Why: a stale class cache after a merge can fail hundreds of
+   tests that your change never touched.
 3. **Record a baseline before any edit.** Run the full suite, or at least the target folders.
    Write down passed, failed and skipped counts and each known failure with its cause. Check: the
    baseline is in your notes before the first edit.
@@ -65,10 +67,9 @@ failure", "this test catches the bug") rests on a run you can repeat, not on a r
 7. **Inject what is not there yet.** Use a test double for a dependency that has not landed.
    Inject test data. Production code reads the real data only when no data is injected. Replace
    the double with the real node when the dependency lands.
-8. **Widen the run.** Run the system's folder, then the full suite, then a parse check that loads
-   every script and scene, then a main or demo scene headless with `--quit-after <frames>` and a
-   log file. Run `git diff --check`. Check: only the files you own changed. Why a parse check:
-   the exit code of `--check-only` is not a reliable signal for a whole project.
+8. **Widen the run.** Run the system's folder, then the full suite, then the project parse check
+   from `headless-godot-runs`, then a main or demo scene headless with `--quit-after <frames>`
+   and a log file. Run `git diff --check`. Check: only the files you own changed.
 9. **Compare by name, not by count.** Diff the FAIL lines with the baseline. Explain every new
    test in the passed count (for example "+21 = the 21 new tests"). Check: no new FAIL name, and
    no "leaked at exit" line (see "Leaked at exit").
@@ -221,7 +222,7 @@ Run this gate before a unit of work reports done or ready to land.
 1. Merge the newest base branch. Resolve conflicts before any test; a suite on a file with
    conflict markers is not valid. When 2 units add rows at 1 place, keep both. Regenerate
    generated files.
-2. Run the import.
+2. Run the import and the parse check (see `headless-godot-runs`).
 3. Run each design model or data check. Compare its FAIL lines with the base; your change adds
    none. Confirm the data exporter writes no change, or restore its output.
 4. Run the full suite. Record passed, failed, skipped and any leak line.
@@ -317,8 +318,8 @@ Run this gate before a unit of work reports done or ready to land.
   `add_node()` with auto-free, `frames()`, `seconds()`, `tap()`, `scratch_path()`.
 - **Reset hook** (`res://tests/reset_tests.gd`): a static `reset(tree)` that resets each stateful
   autoload and points saves and settings at scratch files. Do not prefix it with `test_`.
-- **Parse check tool**: a headless script that loads every script and scene and prints checked and
-  failed counts with file names.
+- **Parse check tool**: use `scripts/parse_check.gd` from `headless-godot-runs`. This skill does
+  not ship a second copy.
 - **Repeat-run loop** (`scripts/repeat_run.sh`): N runs of 1 filter, 1 log per run, a fail count.
 - **Test spot helper**: reads test positions from level data, so tests survive layout changes.
 - **Baseline report template**: date, base commit, passed/failed/skipped, known failures with
@@ -327,10 +328,25 @@ Run this gate before a unit of work reports done or ready to land.
   After.
 - **Allowed-flake list**: test name, cause, owner, date added.
 
+## Bundled scripts
+
+None of the scripts is Python. Run each one with its own tool.
+
+- `scripts/run_tests.gd`: copy it and `test_case.gd` to `res://tests/`. Run
+  `godot --headless --path <project> -s res://tests/run_tests.gd`. It needs Godot 4.5 or newer.
+- `scripts/test_case.gd`: the base class that test files extend. The runner loads it; do not run
+  it alone.
+- `scripts/repeat_run.sh`: run `sh scripts/repeat_run.sh <project dir> <filter> [runs]`. It needs
+  `perl` and a `godot` binary on PATH, or the binary path in `GODOT`.
+
+Smoke test for the GDScript files: make an empty project in a temp folder (a `project.godot` with
+`config_version=5`), copy both scripts to `res://tests/`, add 1 `test_*.gd` file, and run the
+runner. Check: it prints "1 passed" and exits 0.
+
 ## Related skills
 
-- `headless-godot-runs`: import and parse hygiene, tool save isolation, process cleanup. Run its
-  checks before this loop.
+- `headless-godot-runs`: owns the import, the project parse check, tool save isolation and
+  process cleanup. Run its checks before this loop. This skill owns the test semantics.
 - `visual-verification`: the window gate and real captures for tests that skip headless.
 - `safe-refactor-and-review`: proof that a refactor keeps behaviour, and review fix waves.
 - `fleet-game-dev`: the worktree unit flow, landing, and the orchestrator's check of done claims.

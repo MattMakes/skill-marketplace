@@ -83,8 +83,9 @@ a script (see "Art drawn by script") and start at step 4.
     scan scripts before the new PNG files import, so preloads fail once. Delete stray preview
     PNG files and `.import` files that are not deliverables. A changed PNG needs an import, or
     Godot shows the stale texture.
-11. **See it in the game.** Capture the asset on the real screen. Add a test that each new kind
-    draws its own cell and that 2 old kinds keep theirs.
+11. **See it in the game.** Hand the in-game capture to `visual-verification`. It stages the
+    state, captures at native size and compares before and after. Add a test that each new
+    kind draws its own cell and that 2 old kinds keep theirs.
 
 The checks of an art-only unit are palette, size, manifest and import. Leave the full test
 suite to the unit that lands the work. An art unit that runs the full suite in a sandbox can
@@ -123,7 +124,8 @@ prefer an image-model source, because review rejects finals drawn from simple sh
 6. Run the checks: 0 off-palette pixels, old cells byte-identical, a 2x2 tile without seams.
 7. Look for other users of the old file. If another screen reads it, add a new file.
 8. Append manifest rows as text, so the other rows keep their format. Parse the manifest.
-9. Re-import, capture the art in the game and run the palette check on the capture.
+9. Re-import. Get an in-game capture through `visual-verification`. Run the palette check on
+   its 1x image.
 
 If the real art comes from another unit, build the screen with flat placeholders first. A
 placeholder script makes 1 flat cell per manifest row at the right size. Merge the real art
@@ -154,7 +156,8 @@ Use this when a sprite, a bullet, an icon or a glyph must read at 1x over every 
    Diff the old and new sheets. Confirm that only the target cells changed.
 7. Run the table again. Expect 0 fails.
 8. Build previews of the key frames (idle, attack, exposed pose) over each background at 1x
-   and 4x. Confirm that each key pose differs at 1x. Capture the art in the game at 1x and 2x.
+   and 4x. Confirm that each key pose differs at 1x. For the in-game check at 1x and 2x, use
+   `visual-verification`. It owns the window captures and the before and after comparison.
 9. Record both contrast numbers per background in the notes.
 
 A palette rule can also keep enemy colours out of the colour range of the ground and the props.
@@ -196,7 +199,8 @@ plus a parts table.
    that use the model, before they write code against it.
 7. Add animation and the reduced-motion behaviour. Test the public API.
 8. Add each new material to the shader warm-up list and run its guard test.
-9. Capture on each renderer that the game ships. Compare with the concept sheet.
+9. Get captures on each renderer that the game ships through `visual-verification`. Compare
+   them with the concept sheet.
 
 When a face shows the wrong art, check the face-to-cell mapping first. In one case every face
 used an empty cell and the art was correct.
@@ -210,7 +214,7 @@ Use this when collision sizes must match the drawn sprites or models.
    from the opaque pixel bounds for a sprite.
 3. Write the values into the data source. Re-export the game data.
 4. Update the tests that assert the old numbers in the same commit. Expect several.
-5. Capture the result with the collision shapes visible.
+5. Get a capture with the collision shapes visible through `visual-verification`.
 
 ## Pitfalls
 
@@ -288,8 +292,9 @@ Both scripts use the standard library only. Run them with `python3 -I`.
 
 ## Related skills
 
-- `visual-verification`: real window captures of the art in the game and visual diffs. This
-  skill makes the art; that skill proves how it looks on screen.
+- `visual-verification`: owns the rendered in-game review: window captures at native 1x
+  size, before and after pairs and pixel measures. This skill owns the source assets and their
+  checks (size, palette, grid, outline, preserved cells, contrast against background colours).
 - `headless-godot-runs`: the import flags, the `.import` hygiene and tool scripts that must
   not name project classes.
 - `godot-testing`: the tests that each kind draws its own cell and the cell-boundary tests.

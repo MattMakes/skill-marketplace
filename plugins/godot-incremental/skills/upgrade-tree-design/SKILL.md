@@ -1,6 +1,6 @@
 ---
 name: upgrade-tree-design
-description: Design, price and judge an incremental game's upgrade tree, skill tree or meta-progression from bot playtests and human playtests, not from guesses. It swaps the shipped tree for a dev-only hub-and-spoke diagnostic tree over every real upgradeable stat, lets bots with different buy policies play the real game headless, calibrates one price curve per chapter, measures each upgrade's worth by leave-one-out, and writes balance.json, the data each real tree is built from. It also covers strategy advocates, fun-band sweeps, a measured buy order, audits for dead or unfelt nodes, spend gates, upgrade cues, human playtests and design research. Use it whenever someone wants to balance, tune, price or playtest a tech tree, upgrade path, shop or currency economy, or asks which upgrades matter, what the best buy order is, why players stall at a boss, why they have currency but nothing to buy, or whether an upgrade is felt, even if nobody says "diagnostic tree".
+description: Design, price and judge an incremental game's upgrade tree, skill tree or meta-progression from bot playtests and human playtests, not from guesses. It swaps the shipped tree for a dev-only hub-and-spoke diagnostic tree over every real upgradeable stat, lets bots with different buy policies play the real game headless, calibrates one price curve per chapter, measures each upgrade's worth by leave-one-out, and writes balance.json, the data each real tree is built from. It also covers strategy advocates, fun-band sweeps, a measured buy order, audits for dead or unfelt nodes, spend gates, upgrade cues, human playtests and design research. Use it whenever someone wants to balance, tune, price or playtest a tech tree, upgrade path, shop or currency economy, or asks which upgrades matter, what the best buy order is, whether upgrade access, prices or the buy order make players stall at a boss, why they have currency but nothing to buy, or whether an upgrade is felt, even if nobody says "diagnostic tree". For a boss stall with no upgrade or economy cause, use bot-balance-loop.
 ---
 
 # Upgrade tree design: measure the tree with bots, judge it with people
@@ -29,7 +29,8 @@ The shape of the diagnostic tree is deliberate:
 ## When to use
 
 - A new or reworked upgrade tree, tech tree or meta-progression needs prices and an order from data.
-- Players stall at a boss, finish a chapter too fast, or report "currency but nothing to buy".
+- Players stall at a boss because of upgrade access, prices or the buy order, finish a chapter too fast, or report
+  "currency but nothing to buy".
 - You must pick global tuning (price base, caps, curves, spikes) against a stated fun target.
 - You must learn which upgrades are dead, unfelt, or out of step with their text.
 - Humans must play a build to answer design questions, and their play must be compared with the bots.
@@ -91,13 +92,14 @@ contract exists.
    balanced baseline (all weights 1) on 3 seeds, 4 or 5 themes from the game's verbs, 1 leave-one-out policy per
    shared stat spoke, and 5 seeded random policies. Generate the set with `scripts/make_policies.py`. Check: every
    trace exists, every log has 0 script errors, and the baseline seed spread is known.
-8. **Probe each wall.** A wall is a boss with 3 or more failed tries. Replay that try from its snapshot once per spoke
+8. **Probe each wall.** A wall is a boss with more failed tries than the owner allows (for example 3 or more). Replay that try from its snapshot once per spoke
    with +1 and +3 levels (a probe, not a buy). Check: the baseline replay equals the original try. The spokes with
    the biggest health drop are the spike candidates for that point of the real tree.
 9. **Test a weaker player.** Run the top 3 policies with a seeded skill draw that misses fight verbs. A tree that
    works only for a perfect bot fails real players.
 10. **Report.** Run `scripts/report.py` on the sweep root with `--json`, the wall files and the targets. It writes
-    `report.md`, `report.html` and `balance.json` (schema in `references/balance-json.md`). If you rebuild the report
+    `report.md`, `report.html` and `balance.json` (schema in `references/balance-json.md`). If your traces name the
+    group or the chapter field differently, add `--group-key` and `--chapter-key`. If you rebuild the report
     for your own trace format, build it from small fixture traces with unit tests first, then run it on 1 real trace.
     Check: the report has no WARNING about traces with different stop rules, or you report 1 sweep at a time.
 11. **Read the numbers as a designer.** Pace: a SLOW chapter with a WALL mark needs a fight answer; a SLOW chapter
@@ -184,7 +186,9 @@ whether the player can feel each node.
    stat with no reader is a dead node. Test your search on a known hit before you trust an empty result.
 3. Flag a node as dead when its stat is already at a game cap at the run where the node opens.
 4. From the pacing model or traces, list the run where each node opens and compare it with the boss runs. Compute
-   the cost of each level in runs of income. A level that costs more than about 3 runs is a wall.
+   the cost of each level in runs of income. Ask the owner to set the wall band before you read the costs. For
+   example, the owner can call a level that costs more than 3 runs of income a wall. The right band depends on the
+   run length and the genre, so do not use the sample value as a fact.
 5. Agree a lean (wing-first) build with the design lead. Run it and the plain build at the same encounter states,
    each with its own save slot. Compare tries to kill and resources left.
 6. Take 2 windowed runs at the same seed, with the wing at level 0 and at the max, and compare captures at the same

@@ -2,6 +2,7 @@
 """Write the policy set of a diag sweep (contract section 5) from a diag_tree.json data file.
 
     python3 make_policies.py --data <diag_tree.json> --out <dir> [--themes <themes.json>] [--random 5] [--specials early]
+                           [--group-key group]
 
 Output in <dir>:
   balanced.json                 every weight 1: the baseline.
@@ -40,12 +41,14 @@ def main(argv=None):
     parser.add_argument("--themes", help="a JSON file: {theme name: {spoke id: weight}}")
     parser.add_argument("--random", type=int, default=5, help="the count of random policies")
     parser.add_argument("--specials", default="early", choices=["early", "late", "never"])
+    parser.add_argument("--group-key", default="group",
+                        help="the spoke field that holds the group id; an empty value means a shared spoke")
     args = parser.parse_args(argv)
 
     with open(args.data, encoding="utf-8") as f:
         spokes = json.load(f)["spokes"]
     ids = {s["id"] for s in spokes}
-    shared_stats = [s["id"] for s in spokes if s.get("kind") == "stat" and not s.get("vehicle")]
+    shared_stats = [s["id"] for s in spokes if s.get("kind") == "stat" and not s.get(args.group_key)]
     themes = {}
     if args.themes:
         with open(args.themes, encoding="utf-8") as f:

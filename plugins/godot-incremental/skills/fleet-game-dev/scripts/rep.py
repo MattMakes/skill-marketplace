@@ -1,4 +1,4 @@
-"""Usage: python3 -I rep.py <file> <pairs.json>
+"""Usage: python3 -I rep.py <file> <pairs.json>   (or: python3 -I rep.py --help)
 
 Replace text in 1 file by exact pairs. pairs.json is a list of [old, new] strings.
 Each old text must occur exactly once in the file at the time it is applied.
@@ -21,6 +21,9 @@ def apply_pairs(text, pairs):
 
 
 def main(argv):
+    if len(argv) >= 2 and argv[1] in ("-h", "--help"):
+        print(__doc__)
+        return 0
     if len(argv) != 3:
         print(__doc__, file=sys.stderr)
         return 64

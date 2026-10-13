@@ -5,8 +5,9 @@ description: >-
   enforces a rule before you change it, scan the code base for measured fix candidates, run
   read-only reviews whose numbered findings small fix units close, and isolate render or feel
   bugs whose cause is unknown. Use it whenever someone refactors gameplay, draw, mesh, model or
-  save code; makes hot code faster; switches a renderer or a render path; adds a mode behind a
-  flag; moves, renames or deletes a function, constant or rule; asks "did this change anything",
+  save code; makes hot code faster; switches a renderer or a render path; must prove that a
+  planned mode behind a flag leaves the old path unchanged when the flag is off; moves, renames
+  or deletes a function, constant or rule; asks "did this change anything",
   "is this dead code", "what should we clean up", "review this build" or "why does this draw
   nothing / feel wrong / judder"; or sees a measure that differs from a recorded table. Use it
   even if nobody says "refactor", "golden trace" or "code review".
@@ -61,8 +62,9 @@ everything the game did.
    | Model or table code | A dump of the computed tables or the simulator output |
    | Save code | A fixture save written with the old code, plus a test that loads it |
 
-   Check: the reference covers the events that matter. If a scenario has no kill, add 1 fixed
-   enemy, so kill events enter the proof.
+   Check: the reference covers at least 1 deterministic event of the system that you change. If
+   the scenario has no such event, add 1 fixed source for it. For example, if you change combat
+   code and the scenario has no kill, add 1 fixed enemy, so kill events enter the proof.
 3. **Remove drift.** Use the same seed, a fixed frame rate and no delta smoothing. Pin every
    timing setting that can vary, for example hit-stop. Make the baseline twice and diff the 2
    runs. Check: the 2 runs match byte for byte. If they cannot match, record the normal spread

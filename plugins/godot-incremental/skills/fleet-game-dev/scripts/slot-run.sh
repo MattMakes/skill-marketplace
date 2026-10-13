@@ -1,5 +1,6 @@
 #!/bin/sh
-# Usage: slot-run.sh <role> <command> [args...]
+# Usage: sh slot-run.sh <role> <command> [args...]   (or: sh slot-run.sh --help)
+#   POSIX shell script: run it with sh or bash, not with python3.
 #   Runs 1 command in a free slot of a shared mkdir slot pool, under nice.
 #   Env: SLOT_DIR (default /tmp/godot-slots), SLOT_COUNT (default 4),
 #        SLOT_WAIT seconds to wait for a slot (default 600), SLOT_STEP (default 5),
@@ -8,7 +9,8 @@
 #     slot-run.sh unit-a perl -e 'alarm 540; exec @ARGV' godot --headless --path . -s tool.gd
 #   Exit code: the command's code, or 75 when no slot frees within SLOT_WAIT.
 set -u
-[ $# -ge 2 ] || { sed -n '2,9p' "$0" >&2; exit 64; }
+case "${1:-}" in -h|--help) sed -n '2,10p' "$0"; exit 0 ;; esac
+[ $# -ge 2 ] || { sed -n '2,10p' "$0" >&2; exit 64; }
 role=$1; shift
 dir=${SLOT_DIR:-/tmp/godot-slots}
 count=${SLOT_COUNT:-4}

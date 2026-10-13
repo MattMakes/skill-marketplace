@@ -4,6 +4,7 @@
 Usage:
   python3 -I wav_report.py [--rate HZ] [--edge N] FILE.wav [FILE.wav ...]
   python3 -I wav_report.py --selftest
+  python3 -I wav_report.py --help
 
 Fields:
   rate, channels, length_ms        from the header (--rate overrides a wrong header only)
@@ -162,6 +163,9 @@ def selftest() -> int:
 
 
 def main(argv: list[str]) -> int:
+    if "--help" in argv or "-h" in argv:
+        print(__doc__)
+        return 0
     if argv == ["--selftest"]:
         return selftest()
     rate, edge, files = None, 64, []

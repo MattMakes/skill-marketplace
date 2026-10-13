@@ -1,7 +1,8 @@
 extends SceneTree
-## A template for a headless Godot tool (a bot, probe, capture, bench or fixture maker).
-## Copy it, rename it, and fill in _run(). Keep the copy outside the test folder.
-##   godot --headless --path <project> -s <absolute path to the copy> -- --limit=60
+## Run: godot --headless --path <project> -s <absolute path to the copy> -- --limit=60
+## Needs: a Godot 4 binary (GDScript, not Python). A template for a headless tool (a bot, probe,
+## capture, bench or fixture maker). Copy it, rename it, and fill in _run(). Keep the copy outside
+## the test folder.
 ## Rules that keep it compiling: a `-s` script compiles before the autoloads exist, so do not
 ## name an autoload or a `class_name` script here. Reach autoloads with root.get_node() and
 ## call(), load game scripts with load() at run time, and keep game objects untyped.

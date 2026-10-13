@@ -292,6 +292,17 @@ for every person and agent.
   `scripts/godot-run.sh` is a start.
 - A process lister that marks your own Godot processes by path. `scripts/godot-procs.sh` is a
   start.
+
+The bundled scripts are POSIX `sh` and GDScript, not Python, so do not check them with
+`python3`. Check them as follows:
+
+- `sh -n scripts/godot-run.sh` and `bash -n scripts/godot-run.sh`, then a trivial run:
+  `sh scripts/godot-run.sh 5 /tmp/run-smoke.log true` exits 0.
+- `sh -n scripts/godot-procs.sh`, then `sh scripts/godot-procs.sh /tmp` lists 0 or more lines.
+- For each `.gd` file, make a tiny project in a temporary folder (a `project.godot` with
+  `config_version=5`). Run `godot --headless --path <folder> -s <absolute path to the file>`.
+  `parse_check.gd` prints `PARSE_CHECK checked=0 failed=0`. `tool_template.gd` prints
+  `TOOL_DONE code=1`, because the tiny project has no `Config` autoload.
 - A run-mode helper in the game: script mode, test mode, worktree path, and the tool save and
   settings paths from 1 environment variable.
 - A test path helper: a per-process scratch folder and save, deleted at exit.

@@ -110,7 +110,9 @@ Tests for a seam:
 ## Flagged mode rollout
 
 Use this for a large change: a new game mode, a new render path, a design option. It must not
-change the shipped game until it is ready.
+change the shipped game until it is ready. This skill owns the mode rollout: the flag, the
+stages, the flag-on tests and the turn-on gate. `safe-refactor-and-review` owns only the
+identity proof (hash or `cmp` compares, paired runs) that Stage 2 step 3 calls for.
 
 **Stage 1: prototype.**
 
@@ -133,12 +135,17 @@ change the shipped game until it is ready.
 1. Add 1 top-level data flag, off by default. Every new code path checks the flag first.
 2. Add the new data rows with the flag off.
 3. With the flag off, run the full suite. It must give the same result as the baseline. The
-   shipped data export must stay byte-equal.
+   shipped data export must stay byte-equal. Use the identity proof of
+   `safe-refactor-and-review` for this compare.
 4. If a balance model exists, give the new mode its own profile. The old profile output must
    stay byte-equal.
 5. Port only the chosen part from the proto branch, with tests. Keep proto files out.
-6. Measure the perf cost with the flag on.
-7. Keep an open-items file for the mode. Clear it before the flag turns on.
+6. Add tests for the mode with the flag on. Each test sets the flag in setup and resets it in
+   teardown, because a leaked flag changes later tests.
+7. Measure the perf cost with the flag on.
+8. Keep an open-items file for the mode. Clear it before the flag turns on.
+9. Turn the flag on only when the open-items file is empty, the flag-off suite still matches
+   the baseline and the flag-on tests pass.
 
 **Mode fields on content rows.** When 2 modes share data, give each content row a mode field
 (for example `single`, `world`, `both`). Runtime systems, hint lists, index pages and tests
@@ -278,7 +285,7 @@ Use this when a tool script writes input maps or other settings into `project.go
 
 ## Related skills
 
-- `safe-refactor-and-review`: proves the flag-off path is unchanged and finds every reader of a key.
+- `safe-refactor-and-review`: the identity proof for the flag-off path, and the search for every reader of a key.
 - `godot-testing`: the test loop, and how to prove that a seam test can fail.
 - `headless-godot-runs`: scratch projects for engine probes, and tools that stay off the real save.
 - `godot-perf`: the A/B frame-cost measure for a variant, a mode or a graphics option.

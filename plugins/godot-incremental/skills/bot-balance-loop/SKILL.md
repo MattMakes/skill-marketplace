@@ -1,6 +1,6 @@
 ---
 name: bot-balance-loop
-description: Tune bosses, encounters and game rules with scripted bots that play the real Godot game headless, then compare the measured tables against written target bands. The loop writes the bands first, builds a fight tool with several bot steerings (coached, tight, wide, wait, ram), runs fixed seeds with repeatable flags, builds a table of first-try wins, mean tries, resource left and fight length, names each odd result BOT or GAME, and changes 1 lever at a time. It also covers model start states, rule probes, a shared pipeline, wall triage by snapshot replay, a full-playthrough bot, coach text from winning fights and telegraph-to-hit tests. Use it whenever someone wants to balance or retune a boss, check a kill rate or a difficulty band, find out why players or bots stall at an encounter, measure a rule change with numbers, or run a bot playthrough of the whole game, even if nobody says "bot table" or "target band".
+description: Tune bosses, encounters and game rules with scripted bots that play the real Godot game headless, then compare the measured tables against written target bands. The loop writes the bands first, builds a fight tool with several bot steerings (coached, tight, wide, wait, ram), runs fixed seeds with repeatable flags, builds a table of first-try wins, mean tries, resource left and fight length, names each odd result BOT or GAME, and changes 1 lever at a time. It also covers model start states, rule probes, a shared pipeline, wall triage by snapshot replay, a full-playthrough bot, coach text from winning fights and telegraph-to-hit tests. Use it whenever someone wants to balance or retune a boss, check a kill rate or a difficulty band, find out why players or bots stall at an encounter, measure a rule change with encounter bots or a full-playthrough bot, or run a bot playthrough of the whole game, even if nobody says "bot table" or "target band".
 ---
 
 # Bot balance loop: bot fights, measure tables and wall diagnosis
@@ -130,8 +130,9 @@ A table is only as good as its repeat. Make 2 runs of 1 seed give 1 result befor
 6. If runs still differ, record the spread with more repeats. Boss fights can still vary with both flags (one
    observed suspect is worker-thread timing under load). Use medians of 3 replays and win counts over 10 or more
    fights, and make no claim smaller than the spread.
-7. A bot that never misses gives only 0 % or 100 %. Count distinct outcomes (60 seeds once gave about 6 distinct
-   fights). Add 1 shared seeded "skill draw" that adds misses, and use the same draw in every tool.
+7. A bot that never misses gives only 0 % or 100 %. Count distinct outcomes. For example, 40 seeds can
+   give only 5 distinct fights (a sample value). Add 1 shared seeded "skill draw" that adds misses, and use the same
+   draw in every tool.
 
 ## Rule and effect probes
 
@@ -197,7 +198,9 @@ fault before you change data. Many walls turn out to be bot faults.
 8. Split a logged value into its causes, for example contact hits against bullet hits. Add small counters that turn
    a question into 1 number per fight.
 9. To find which single upgrade passes a wall, replay the try from its snapshot as a baseline. The baseline must
-   equal the original try. Then replay with +1 level on each upgrade, and rank the probes.
+   equal the original try (same seed, same state file, same flags). Then replay with +1 level on each upgrade, 1
+   upgrade per probe, and rank the probes by the change in win count or end health. The upgrade list and the buy
+   policy come from the caller (for example `upgrade-tree-design`); this section owns the replay and the ranking.
 10. Rebuild the encounter states from the bot's own purchase log, and probe levers on those reachable states. Patch
     probe rows locally and restore them before any commit.
 11. Report the cause with numbers and 1 fix per factor (F1, F2, ...), measured alone and as a set. If a new player
@@ -240,8 +243,9 @@ When players stall at a boss, show the move that wins, taken from a winning figh
 2. Run 1 verbose fight per winning line. Read when and where damage lands. Compare the traces before you name a line
    the winner; 2 lines can give the same rows for an unrelated reason.
 3. Read the coach level rules first. A coach that a past kill turned off can not help this player.
-4. Write the move per phase as a data row: at most 4 steps, at most 8 words each, each step a thing the winning bot
-   did, with the cue that starts each step (path size, timing cue, dodge line).
+4. Write the move per phase as a data row. Take the step and word limits from the card that shows the hint in
+   your UI; for example, a card that fits 4 lines of 8 words gives at most 4 steps of 8 words. Make each step a thing
+   the winning bot did, with the cue that starts each step (path size, timing cue, dodge line).
 5. Propose the row and wait for approval. No encounter numbers change.
 6. Show the row after N losses (for example 2) to the same boss. Test that it shows at the right loss count, only for
    that boss, and that the text fits its card. Capture the card in a winning fight.
@@ -310,7 +314,8 @@ long batch or a wall triage.
 
 ## Related skills
 
-- `upgrade-tree-design`: chooses the tree, the buy policies and the fun bands; this skill measures fights at a state.
+- `upgrade-tree-design`: chooses the tree, the buy policies and the fun bands, and gives the upgrade list for wall
+  probes; this skill owns wall diagnosis (snapshot replay and +1 level probes) and measures fights at a state.
 - `balance-model-data`: owns the model, the row edit, the export and model-to-game parity; this skill gives it game
   tables.
 - `headless-godot-runs`: owns the `-s` tool rules, the flags, process traces and run cleanup.

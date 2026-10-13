@@ -38,6 +38,9 @@ def check(doc):
 
 
 def main(argv):
+    if argv[:1] in (["--help"], ["-h"]):
+        print(__doc__.strip())
+        return 0
     if len(argv) != 1:
         print("\n".join(__doc__.strip().splitlines()[2:4]))
         return 2

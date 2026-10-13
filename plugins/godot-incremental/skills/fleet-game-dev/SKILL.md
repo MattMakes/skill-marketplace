@@ -400,10 +400,12 @@ that this list does not name.
   CONSTRAINTS, DONE WHEN, REPORT.
 - **Owner check script**: reads the plans and fails when a file has 0 or 2 owners. Keep it
   in the repo, not in `/tmp`.
-- **Slot runner** (`scripts/slot-run.sh`): `mkdir` slot pool, owner file, stale-pid cleanup,
-  `nice`. 1 command per call.
-- **Lock helper** (`scripts/with-lock.sh`): take-wait-run-release in the if-mkdir shape.
-- **Asserted edit helper** (`scripts/rep.py`): pairs of old and new text, each must match once.
+- **Slot runner** (`scripts/slot-run.sh`, run with `sh`): `mkdir` slot pool, owner file,
+  stale-pid cleanup, `nice`. 1 command per call. `sh scripts/slot-run.sh --help` prints usage.
+- **Lock helper** (`scripts/with-lock.sh`, run with `sh`): take-wait-run-release in the
+  if-mkdir shape. `sh scripts/with-lock.sh --help` prints usage.
+- **Asserted edit helper** (`scripts/rep.py`, run with `python3 -I`): pairs of old and new
+  text, each must match once.
 - **Unit notes file**: changes, checks with counts, QUESTION and answer blocks with dates,
   gotchas for the next unit.
 - **Handoff file**: the shape in [Compaction handoff](#compaction-handoff).
@@ -424,5 +426,6 @@ that this list does not name.
 - `upgrade-tree-design`: the design side of the gameplay-change rule.
 - `feature-seams-and-saves`: what a seam looks like when a scope question asks for one.
 - `safe-refactor-and-review`: review units and fix waves that a steward lands.
-- The herdr plugin (`herdr-worker`, `herdr-orchestrator`): the fleet CLI and the generic
-  worker and orchestrator loops.
+
+Companion plugin, outside this plugin: the herdr plugin gives the fleet CLI and the generic
+worker and orchestrator loops (its skills are `herdr-worker` and `herdr-orchestrator`).

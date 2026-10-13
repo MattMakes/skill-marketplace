@@ -85,8 +85,8 @@ The main procedure is an A/B measure. Every other section feeds it or ends in it
     setting. Check: the probe sets the setting key.
 12. **Prove behaviour and gain for a speedup.** Write value tests that pass on the old code and a
     speed test that fails on it. Then:
-    - prove equal behaviour: pixel-identical captures at a fixed fps, and the same game result in
-      every A/B run;
+    - prove equal behaviour: the same game result in every A/B run, and, for a draw change,
+      identical pixels by the `visual-verification` method (fixed state, 1x, noise floor);
     - prove the gain with the pairs above;
     - break one key call in the new code and check that a test fails, then restore it;
     - run the A/B again on the final code before you report.
@@ -184,9 +184,9 @@ gives you a public write-up of perf techniques and asks which ones apply.
    technique as done, not applicable, or candidate.
 4. For each candidate, list the measured or estimated gain, the build cost, the risk, the look
    change, the files, and conflicts with work in progress.
-5. Prototype the best ideas on a branch in a second worktree that never merges. Show before and
-   after captures for any look change. Keep prototype-only commits (for example step timers) off
-   the main branch.
+5. Prototype the best ideas on a branch in a second worktree that never merges. For any look
+   change, get before-and-after evidence with `visual-verification`. Keep prototype-only commits
+   (for example step timers) off the main branch.
 6. Build only the safest change for real, with a test. Prove identity and gain with a paired A/B.
 7. Rank the top 5 to 8. Write a plan skeleton per top idea: goal, files, steps with checks.
 8. Cite each web source with its URL. Never send project code or unreleased names to a web service.
@@ -210,8 +210,9 @@ Use this when you must learn a technique or an exact engine behaviour from an ou
 7. Tell the people who need it early when a fact affects work in progress.
 8. Write the report: source, licence, a technique table, ranked recommendations with the change each
    needs, and the tested code. Put any project defect you found first.
-9. For a port, record baseline stills and frame times first. Port with a source comment and a
-   third-party notice. Then compare captures at 1x and 4x and run an interleaved A/B.
+9. For a port, record baseline frame times first. Port with a source comment and a third-party
+   notice. Then run an interleaved A/B. For the look of the port, use `visual-verification`: it
+   owns the fixed-state before-and-after captures and the pixel-diff noise floor.
 
 ## Shader warm-up
 
@@ -255,9 +256,9 @@ on single meshes but fails on MultiMesh instances.
    behind a shader flag, so single meshes keep the old path. Check which built-ins exist in each
    shader stage in the engine docs.
 6. Run a headless probe that counts nodes and draw calls for both modes.
-7. Capture near, far and behind cases. Count visible pixels per instance and check the ratios
-   against the plan. Write the numbers and the old-and-new capture pairs into the notes. Acceptance
-   needs numbers, not only images.
+7. Check near, far and behind cases with `visual-verification`. It gives the captures and the
+   pixel counts. Check the visible pixels per instance against the plan, and write the numbers into
+   the notes. Acceptance needs numbers, not only images.
 8. Prove the gain with the [Method](#method) pairs.
 
 ## Physics interpolation
@@ -408,8 +409,9 @@ seed, the same every run, without blocked paths or load hitches.
 - `bot-balance-loop`: plays the game with bots for balance numbers; this skill reuses its drives
   for perf scenarios only.
 - `safe-refactor-and-review`: proves that a change keeps behaviour; this skill adds the speed proof.
-- `visual-verification`: real window captures and the pixel-diff noise floor that prove "same
-  pixels".
+- `visual-verification`: owns the visual proof. It gives fixed-state window captures, 1x
+  comparison, before-and-after pairs and the pixel-diff noise floor that prove "same pixels". This
+  skill gives only the paired timing evidence.
 - `headless-godot-runs`: tool-script hygiene, flags and process cleanup for the headless probes
   here.
 - `godot-testing`: the test loop, proof that a test can fail, and the exit leak hunt at suite end.
