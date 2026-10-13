@@ -4,8 +4,8 @@
   "owner": {
     "name": "Matt Scott"
   },
-  "description": "Claude Code plugin marketplace for engineering work: a development-workflow pipeline from brainstorm to shipped change, domain modelling and Blueprint diagrams alongside code intelligence in the code plugin, codebase priming, rich diff and PR explainers, wiki generation, security sweeps and generated end-to-end suites, a game-development review board backed by cited rules and a generative game-design studio, multi-agent fleet orchestration, skill and MCP-server authoring, and a toolkit of thinking, discipline and verification skills.",
-  "version": "2.3.1",
+  "description": "Claude Code plugin marketplace for engineering work: a development-workflow pipeline from brainstorm to shipped change, domain modelling and Blueprint diagrams alongside code intelligence in the code plugin, codebase priming, rich diff and PR explainers, wiki generation, security sweeps and generated end-to-end suites, a game-development review board backed by cited rules and a generative game-design studio, Godot incremental-game building with bots and a balance model, multi-agent fleet orchestration, skill and MCP-server authoring, and a toolkit of thinking, discipline and verification skills.",
+  "version": "2.4.0",
   "plugins": [
     {
       "name": "code",
@@ -108,6 +108,27 @@
         "core-loop",
         "one-page-design",
         "art-direction"
+      ]
+    },
+    {
+      "name": "godot-incremental",
+      "displayName": "Godot Incremental Build",
+      "source": "./plugins/godot-incremental",
+      "description": "Build a Godot game step by step with scripted bots, headless tests, a scripted balance model and a worker fleet. Thirteen skills mined from the agent sessions of one long Godot build: bot balance loops and measure tables, the balance model as the source of game data, upgrade-tree design with bot policies and human playtests, feature seams and save migrations, headless Godot runs without side effects, the headless test loop and finish gate, safe refactors and review waves, real-window visual verification, frame-cost measurement, a palette-locked pixel-art pipeline, procedural audio and mix loudness, exports and store assets, and the fleet habits that keep many agent sessions from stepping on each other.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Matt Scott"
+      },
+      "license": "MIT",
+      "category": "development",
+      "keywords": [
+        "godot",
+        "game-balance",
+        "bots",
+        "headless",
+        "playtest",
+        "pixel-art",
+        "multi-agent"
       ]
     },
     {
