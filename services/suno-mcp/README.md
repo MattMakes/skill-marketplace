@@ -103,12 +103,43 @@ Discord); the MCP server never runs with those hosts. Your session is saved in
 browser; if it does, use another Suno sign-in method, or set `SUNO_BROWSER_CHANNEL=chrome` to use
 your installed Chrome binary (with a separate, allowlisted profile — not your everyday one).
 
-## Connect it to Claude
+## Connect it to an MCP client
 
-Claude Code:
+The server uses stdio. It starts the browser only when a tool needs Suno, so
+tool discovery proves that the MCP connection works but does not prove that a
+saved Suno session works.
+
+### Codex
+
+Use the [Codex MCP CLI documentation](https://learn.chatgpt.com/docs/extend/mcp?surface=cli)
+to register a local stdio server:
 
 ```bash
-claude mcp add suno -- uv run --directory /absolute/path/to/services/suno-mcp --frozen --offline suno-local serve
+codex mcp add suno -- uv run --directory /absolute/path/to/services/suno-mcp --frozen --offline suno-local serve
+```
+
+The equivalent `~/.codex/config.toml` entry is:
+
+```toml
+[mcp_servers.suno]
+command = "uv"
+args = ["run", "--directory", "/absolute/path/to/services/suno-mcp", "--frozen", "--offline", "suno-local", "serve"]
+startup_timeout_sec = 30
+tool_timeout_sec = 240
+```
+
+The 240-second tool timeout allows `suno_wait_for_songs` to use its full
+180-second wait. If `[mcp_servers.suno]` already exists, add
+`startup_timeout_sec = 30` and `tool_timeout_sec = 240` inside that existing
+table. Do not create a second table with the same name.
+
+### Claude Code
+
+Use the [Claude Code MCP documentation](https://code.claude.com/docs/en/mcp)
+to register the server in user scope:
+
+```bash
+claude mcp add --transport stdio --scope user suno -- uv run --directory /absolute/path/to/services/suno-mcp --frozen --offline suno-local serve
 ```
 
 Claude Desktop (`~/Library/Application Support/Claude/claude_desktop_config.json`), Cursor
@@ -127,6 +158,28 @@ Claude Desktop (`~/Library/Application Support/Claude/claude_desktop_config.json
 ```
 
 `--frozen --offline` means starting the server never resolves or downloads a package.
+
+Use an absolute path to `uv` in a GUI client when that client does not inherit
+your shell `PATH`. For example, set `"command": "/absolute/path/to/uv"` in a
+JSON configuration or set `command = "/absolute/path/to/uv"` in the Codex TOML
+entry.
+
+Run `uv sync --frozen` and install Chromium before you register the server.
+The `--frozen --offline` launch then uses only the installed lockfile state.
+Run `uv run --frozen --offline suno-local login` interactively before a tool
+needs authenticated Suno access. The login command opens a browser and saves
+the session profile.
+
+Close the login browser before you start a server. Login and 2 active servers
+cannot share one `SUNO_PROFILE_DIR` at the same time. To run concurrent
+sessions, set a different `SUNO_PROFILE_DIR` for each server and log in to each
+profile separately.
+
+After registration, restart Codex or Claude Code. Run `codex mcp list` or
+`claude mcp list` to check the registration. In Claude Code, run `/mcp` after
+the restart to inspect the server. A listed server and discovered tools only
+verify MCP transport. Run an authenticated Suno tool, such as
+`suno_get_credits`, to verify the saved Suno login.
 
 ## Tools
 
