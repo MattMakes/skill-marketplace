@@ -1,0 +1,39 @@
+{
+  "description": "Opt-in hook wiring for agentic:agent-memory. Installing the plugin wires nothing; copy the three entries below into the hooks section of your settings.json (user or project) to run the loop unattended. SessionStart injects L3 (global persona) + L2 (current project context). UserPromptSubmit recalls relevant L1 atoms. SessionEnd asynchronously captures L0 into L1, detects contradictions, and stages promotions for human adoption. The UserPromptSubmit hook is provisional: DESIGN.md section 9.5 is an open decision whose option (c) is to drop it, because its 100ms recall budget is dominated by python interpreter cold-start. Every hook fails open (exit 0, no memory) and never blocks. Disable individually with AGENT_MEMORY_SESSIONSTART=0, AGENT_MEMORY_USERPROMPTSUBMIT=0, AGENT_MEMORY_SESSIONEND=0. The hook 'timeout' field is in SECONDS and 1 is its floor; the real requirement is the 100ms internal self-budget that user_prompt_submit.py enforces against its own monotonic clock (DESIGN.md section 5.2). If your settings file does not expand ${CLAUDE_PLUGIN_ROOT}, substitute the absolute path of the installed agentic plugin.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/skills/agent-memory/scripts/session_start.py\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/skills/agent-memory/scripts/user_prompt_submit.py\"",
+            "timeout": 1
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/skills/agent-memory/scripts/session_end.py\"",
+            "async": true
+          }
+        ]
+      }
+    ]
+  }
+}

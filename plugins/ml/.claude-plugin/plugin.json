@@ -1,0 +1,26 @@
+{
+  "name": "ml",
+  "displayName": "LLM Training and ML Pipelines",
+  "version": "0.1.0",
+  "description": "Post-train a model end to end, eval-gated. finetuning-method-selection decides whether to fine-tune at all (RAG and prompting off-ramps first) and routes by data shape to SFT, DPO/ORPO/KTO, GRPO/RLVR or continued pretraining, with a memory-math worksheet and a dated base-model catalog. eval-harness-first builds the golden set, one binary grader per failure bucket, judge calibration and the base-model baseline before any training config is written. dataset-curation formats, templates, packs and documents the training data with a synthetic-data collapse guard and a dataset card. lora-qlora-recipes gives the all-linear, alpha-equals-2r LoRA/QLoRA recipe with Unsloth defaults, the TRL mapping and failure signatures. preference-optimization picks and configures DPO, ORPO, KTO or SimPO and constructs the pairs. grpo-rlvr-training sets up GRPO with verifiable rewards, the mandatory reward-inspection gate and variant selection by failure mode. checkpoint-promotion gates a trained checkpoint on data hygiene, a drift budget, a paired arena and a canary before it ships. Alongside: rag-architect designs and evaluates RAG pipelines with a corpus-driven chunking optimizer, a requirements-to-design planner and a precision/recall/NDCG retrieval evaluator; recsys-pipeline-architect designs Source-Hydrator-Filter-Scorer-Selector-SideEffect ranking pipelines for any top-K problem. Contains third-party skills under their own licenses — see NOTICE.md.",
+  "author": {
+    "name": "Matt Scott"
+  },
+  "keywords": [
+    "fine-tuning",
+    "llm",
+    "lora",
+    "qlora",
+    "dpo",
+    "grpo",
+    "rlvr",
+    "evaluation",
+    "dataset",
+    "checkpoint",
+    "rag",
+    "retrieval",
+    "recommender",
+    "ranking",
+    "machine-learning"
+  ]
+}

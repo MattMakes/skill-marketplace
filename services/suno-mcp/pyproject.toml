@@ -1,0 +1,30 @@
+# Direct dependencies are pinned exactly and uv.lock pins every transitive one by sha256.
+# Install with `uv sync --frozen` so nothing resolves at install time, and launch with
+# `uv run --frozen --offline` so starting the server never touches the package index.
+# python-dotenv is not a direct dependency (upstream used it to read .env from the launch
+# directory). It still arrives transitively through mcp's FastMCP settings, which is why the
+# server is built on the SDK's low-level Server instead: nothing here ever calls it.
+[project]
+name = "suno-local"
+version = "0.1.0"
+description = "A local Suno MCP server on your own suno.com login, locked to Suno's hosts"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = [
+  "mcp==1.27.2",
+  "httpx==0.28.1",
+  "playwright==1.56.0",
+]
+
+[project.scripts]
+suno-local = "suno_local.cli:main"
+
+[dependency-groups]
+dev = ["pytest==8.4.2"]
+
+[build-system]
+requires = ["uv_build>=0.11,<0.12"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
