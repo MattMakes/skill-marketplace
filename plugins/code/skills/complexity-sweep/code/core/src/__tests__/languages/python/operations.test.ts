@@ -436,18 +436,18 @@ describe("pythonHalstead", () => {
     const src = `def add(a, b):
     return a + b
 `;
-    // Hand count. def and add are skipped.
-    // Operators: ( ) , : return + -> n1 = 6, N1 = 6.
+    // Hand count. def, add, ( ) , and : are not counted.
+    // Operators: return + -> n1 = 2, N1 = 2.
     // Operands: a b a b -> n2 = 2, N2 = 4.
     const result = halstead(src);
-    expect(result.detail).toEqual({ n1: 6, n2: 2, N1: 6, N2: 4 });
-    // V = N log2(n) = 10 * log2(8) = 30.
-    expect(result.value).toBeCloseTo(30, 10);
-    // D = (n1 / 2) * (N2 / n2) = 3 * 2 = 6. E = D * V = 180.
+    expect(result.detail).toEqual({ n1: 2, n2: 2, N1: 2, N2: 4 });
+    // V = N log2(n) = 6 * log2(4) = 12.
+    expect(result.value).toBeCloseTo(12, 10);
+    // D = (n1 / 2) * (N2 / n2) = 1 * 2 = 2. E = D * V = 24.
     const difficulty = pythonHalsteadDifficulty(syntaxCtx("python", src)) as MetricResult;
     const effort = pythonHalsteadEffort(syntaxCtx("python", src)) as MetricResult;
-    expect(difficulty.value).toBeCloseTo(6, 10);
-    expect(effort.value).toBeCloseTo(180, 10);
+    expect(difficulty.value).toBeCloseTo(2, 10);
+    expect(effort.value).toBeCloseTo(24, 10);
     expect(difficulty.detail).toEqual(result.detail);
     expect(effort.detail).toEqual(result.detail);
   });
@@ -461,9 +461,9 @@ describe("pythonHalstead", () => {
     return y
 `;
     // Hand count.
-    // Operators: ( ) :x3 if > =x2 else - return -> n1 = 9, N1 = 12.
+    // Operators: if > =x2 else unary- return -> n1 = 6, N1 = 7.
     // Operands: x x 0 y "pos" y 1 y -> distinct x 0 y "pos" 1, n2 = 5, N2 = 8.
-    expect(halstead(src).detail).toEqual({ n1: 9, n2: 5, N1: 12, N2: 8 });
+    expect(halstead(src).detail).toEqual({ n1: 6, n2: 5, N1: 7, N2: 8 });
   });
 
   it("skips the docstring, comments and nested units; a string and not in count once", () => {
@@ -474,13 +474,13 @@ describe("pythonHalstead", () => {
         return 99
     return [v for v in xs if v not in f"a{xs}"]
 `;
-    // Hand count.
-    // Operators: ( ) : return [ for in if "not in" ] -> n1 = 10, N1 = 10.
+    // Hand count. The list brackets are structural.
+    // Operators: return for in if "not in" -> n1 = 5, N1 = 5.
     // Operands: xs v v xs v f"a{xs}" -> n2 = 3, N2 = 6.
     const { operators, operands } = collectPythonHalsteadCounts(syntaxCtx("python", src).node);
     expect(operators.get("not in")).toBe(1);
     expect(operands.get('f"a{xs}"')).toBe(1);
-    expect(halstead(src).detail).toEqual({ n1: 10, n2: 3, N1: 10, N2: 6 });
+    expect(halstead(src).detail).toEqual({ n1: 5, n2: 3, N1: 5, N2: 6 });
   });
 
   it("counts a lambda", () => {
@@ -488,9 +488,9 @@ describe("pythonHalstead", () => {
     return lambda q: q
 `;
     // Hand count.
-    // Operators: ( ) :x2 return lambda -> n1 = 5, N1 = 6.
+    // Operators: return lambda -> n1 = 2, N1 = 2.
     // Operands: q q -> n2 = 1, N2 = 2.
-    expect(halstead(src).detail).toEqual({ n1: 5, n2: 1, N1: 6, N2: 2 });
+    expect(halstead(src).detail).toEqual({ n1: 2, n2: 1, N1: 2, N2: 2 });
   });
 
   it("skips parameter, return and assignment annotations", () => {
@@ -502,18 +502,137 @@ describe("pythonHalstead", () => {
     c = a
     return c
 `;
-    // Hand count for both:
-    // Operators: ( , = ) : = return -> n1 = 6, N1 = 7.
+    // Hand count for both. The default-parameter `=` is structural.
+    // Operators: = return -> n1 = 2, N1 = 2.
     // Operands: a b None c a c -> n2 = 4, N2 = 6.
-    expect(halstead(typed).detail).toEqual({ n1: 6, n2: 4, N1: 7, N2: 6 });
+    expect(halstead(typed).detail).toEqual({ n1: 2, n2: 4, N1: 2, N2: 6 });
     expect(halstead(plain).detail).toEqual(halstead(typed).detail);
   });
 
   it("skips generic type parameters", () => {
-    // Hand count for both: operators ( ) : return (n1 = 4, N1 = 4); operands x x (n2 = 1, N2 = 2).
+    // Hand count for both: operators return (n1 = 1, N1 = 1); operands x x (n2 = 1, N2 = 2).
     const generic = halstead("def g[T](x: T) -> T:\n    return x\n").detail;
-    expect(generic).toEqual({ n1: 4, n2: 1, N1: 4, N2: 2 });
+    expect(generic).toEqual({ n1: 1, n2: 1, N1: 1, N2: 2 });
     expect(halstead("def g(x):\n    return x\n").detail).toEqual(generic);
+  });
+});
+
+describe("pythonHalstead rule rows (design 5.9)", () => {
+  it("counts 1 = per = token, an annotated value and :=", () => {
+    const src = `def f():
+    a = b = 1
+    c: int
+    return (z := 2)
+`;
+    // Hand count. `c: int` has no value, so it has no `=`.
+    // Operators: = x2 (chain), = (walrus), return -> n1 = 2, N1 = 4.
+    // Operands: a b 1 c z 2 -> n2 = 6, N2 = 6.
+    expect(halstead(src).detail).toEqual({ n1: 2, n2: 6, N1: 4, N2: 6 });
+  });
+
+  it("counts augmented assignment and each comparison token", () => {
+    const src = `def f(a, b, c):
+    a //= b
+    return a < b <= c is not None
+`;
+    // Hand count.
+    // Operators: //= < <= "is not" return -> n1 = 5, N1 = 5.
+    // Operands: a b c a b a b c None -> n2 = 4, N2 = 9.
+    expect(halstead(src).detail).toEqual({ n1: 5, n2: 4, N1: 5, N2: 9 });
+  });
+
+  it("counts unary and binary operators by key", () => {
+    const src = `def f(a, b, c):
+    return ~a + -b @ +c
+`;
+    // Hand count.
+    // Operators: return ~ unary- unary+ + @ -> n1 = 6, N1 = 6.
+    // Operands: a b c a b c -> n2 = 3, N2 = 6.
+    expect(halstead(src).detail).toEqual({ n1: 6, n2: 3, N1: 6, N2: 6 });
+  });
+
+  it("counts a call spread but not a parameter splat or a keyword-argument =", () => {
+    const src = `def f(*args, **kw):
+    return g(*args, k=1, **kw)
+`;
+    // Hand count.
+    // Operators: return () ... x2 -> n1 = 3, N1 = 4.
+    // Operands: args kw g args k 1 kw -> n2 = 5, N2 = 7.
+    expect(halstead(src).detail).toEqual({ n1: 3, n2: 5, N1: 4, N2: 7 });
+  });
+
+  it("counts elif as else and if, and a conditional expression as ?:", () => {
+    const src = `def f(a):
+    if a:
+        pass
+    elif a > 1:
+        pass
+    return 1 if a else 2
+`;
+    // Hand count. `pass` is structural.
+    // Operators: if, else if (elif), >, return, ?: -> n1 = 5, N1 = 6.
+    // Operands: a a a 1 1 a 2 -> n2 = 3, N2 = 7.
+    expect(halstead(src).detail).toEqual({ n1: 5, n2: 3, N1: 6, N2: 7 });
+  });
+
+  it("counts loops, a loop else and a comprehension", () => {
+    const src = `def f(xs):
+    while xs:
+        break
+    for x in xs:
+        continue
+    else:
+        pass
+    return {k: v for k, v in xs}
+`;
+    // Hand count. `break`, `continue`, `pass` and the dict braces are structural.
+    // Operators: while, for in (statement), else, return, for in (comprehension)
+    // -> n1 = 5, N1 = 7.
+    // Operands: xs xs x xs k v k v xs -> n2 = 4, N2 = 9.
+    expect(halstead(src).detail).toEqual({ n1: 5, n2: 4, N1: 7, N2: 9 });
+  });
+
+  it("counts match, case and a case guard", () => {
+    const src = `def f(a):
+    match a:
+        case 1:
+            return 2
+        case 2 if a:
+            return 3
+`;
+    // Hand count. The guard maps to the `if` row.
+    // Operators: match, case x2, return x2, if -> n1 = 4, N1 = 6.
+    // Operands: a a 1 2 2 a 3 -> n2 = 4, N2 = 7.
+    expect(halstead(src).detail).toEqual({ n1: 4, n2: 4, N1: 6, N2: 7 });
+  });
+
+  it("counts exception keywords and the other keyword operators", () => {
+    const src = `def f(a):
+    try:
+        raise ValueError(a)
+    except ValueError as e:
+        del e
+    else:
+        assert a
+    finally:
+        with a as b:
+            await b
+`;
+    // Hand count. `as` is structural.
+    // Operators: try raise () except del else assert finally with await -> n1 = 10, N1 = 10.
+    // Operands: a ValueError a ValueError e e a a b b -> n2 = 4, N2 = 10.
+    expect(halstead(src).detail).toEqual({ n1: 10, n2: 4, N1: 10, N2: 10 });
+  });
+
+  it("counts yield and yield from as yield", () => {
+    const src = `def f(a):
+    yield a
+    yield from a
+`;
+    // Hand count.
+    // Operators: yield x2 -> n1 = 1, N1 = 2.
+    // Operands: a a a -> n2 = 1, N2 = 3.
+    expect(halstead(src).detail).toEqual({ n1: 1, n2: 1, N1: 2, N2: 3 });
   });
 });
 

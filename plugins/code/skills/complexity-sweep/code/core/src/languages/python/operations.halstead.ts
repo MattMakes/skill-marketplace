@@ -1,13 +1,14 @@
-// Python Halstead counts (design 5.9). Port of the classification scheme of
-// `metrics/halstead.ts` onto tree-sitter leaf tokens.
+// Python Halstead counts (design 5.9). Port of the semantic classification
+// scheme of `metrics/halstead.ts`.
 //
+// - Operators: named nodes, keyed by the 5.9 table (a call is 1 `()`, an
+//   attribute is 1 `.`, an `if_statement` is `if`, ...). Anonymous leaves are
+//   never counted on their own, so parentheses, brackets, braces, commas and
+//   colons stay structural.
 // - Operands: identifiers and literals. A whole string (f-strings included)
 //   is 1 operand; the walk does not descend into it.
-// - Operators: every other leaf token (keywords, operators, punctuation),
-//   keyed by its token text. `not in` and `is not` are 1 operator each.
-// - Skipped: type-only syntax, comments, nested units, and the unit header
-//   tokens `async`, `def` and the function name (the TypeScript metric skips
-//   the `function` keyword and the function name). Lambdas count.
+// - Skipped: type-only syntax, comments, decorators, nested units, the
+//   docstring and the unit name. Lambdas count.
 
 import { createNodeCache, sameNode, walkDescendants } from "../syntaxHelpers";
 import type { SyntaxNode } from "../types";
@@ -37,9 +38,6 @@ const OPERAND_TYPES: ReadonlySet<string> = new Set([
   "string",
 ]);
 
-/** Operator tokens that the grammar builds from 2 keyword leaves. */
-const COMPOUND_OPERATOR_TYPES: ReadonlySet<string> = new Set(["not in", "is not"]);
-
 /** Type-only subtrees, like the TypeScript TYPE_ONLY_KINDS. */
 const TYPE_ONLY_TYPES: ReadonlySet<string> = new Set([
   "type",
@@ -47,10 +45,56 @@ const TYPE_ONLY_TYPES: ReadonlySet<string> = new Set([
   "type_alias_statement",
 ]);
 
-/** Leaves that are layout, not tokens of the program. */
-const LAYOUT_TYPES: ReadonlySet<string> = new Set(["comment", "line_continuation"]);
+/** Subtrees that hold no operator or operand of the unit. */
+const SKIPPED_TYPES: ReadonlySet<string> = new Set([
+  "comment",
+  "line_continuation",
+  "decorator",
+]);
 
-const UNIT_HEADER_KEYWORDS: ReadonlySet<string> = new Set(["async", "def"]);
+/** Named nodes that give exactly 1 operator with a fixed key. */
+const FIXED_OPERATORS: ReadonlyMap<string, string> = new Map([
+  ["named_expression", "="],
+  ["not_operator", "not"],
+  ["attribute", "."],
+  ["subscript", "[]"],
+  ["call", "()"],
+  ["list_splat", "..."],
+  ["dictionary_splat", "..."],
+  ["if_statement", "if"],
+  // Port choice: a comprehension filter and a case guard are conditionals,
+  // so they map to the `if` row of 5.9.
+  ["if_clause", "if"],
+  ["else_clause", "else"],
+  ["conditional_expression", "?:"],
+  ["while_statement", "while"],
+  ["match_statement", "match"],
+  ["case_clause", "case"],
+  ["try_statement", "try"],
+  ["except_clause", "except"],
+  ["finally_clause", "finally"],
+  ["raise_statement", "raise"],
+  ["return_statement", "return"],
+  ["await", "await"],
+  ["yield", "yield"],
+  ["lambda", "lambda"],
+  ["with_statement", "with"],
+  ["assert_statement", "assert"],
+  ["delete_statement", "del"],
+]);
+
+/** Named nodes that give a fixed list of operators. */
+const MULTI_OPERATORS: ReadonlyMap<string, readonly string[]> = new Map([
+  ["elif_clause", ["else", "if"]],
+  ["for_statement", ["for", "in"]],
+  ["for_in_clause", ["for", "in"]],
+]);
+
+const UNARY_KEYS: ReadonlyMap<string, string> = new Map([
+  ["-", "unary-"],
+  ["+", "unary+"],
+  ["~", "~"],
+]);
 
 const countsCache = createNodeCache<PythonHalsteadCounts>();
 
@@ -60,24 +104,67 @@ function increment(map: Map<string, number>, key: string): void {
 
 /**
  * True for type-only syntax: an annotation `type` node, a generic parameter
- * list, a `type X = ...` statement, the `->` token, and the `:` before an
- * annotation. The anonymous `type` keyword is not a type node.
+ * list and a `type X = ...` statement. The anonymous `type` keyword is not a
+ * type node.
  */
 function isTypeSyntax(node: SyntaxNode): boolean {
-  if (node.isNamed && TYPE_ONLY_TYPES.has(node.type)) return true;
-  if (node.type === "->") return true;
-  if (node.type === ":") {
-    const next = node.nextSibling;
-    return next !== null && next.isNamed && next.type === "type";
-  }
-  return false;
+  return node.isNamed && TYPE_ONLY_TYPES.has(node.type);
 }
 
-/** `async`, `def` and the name of the unit itself. */
-function isUnitHeaderToken(node: SyntaxNode, fn: SyntaxNode): boolean {
-  if (!sameNode(node.parent, fn)) return false;
-  if (UNIT_HEADER_KEYWORDS.has(node.type)) return true;
-  return sameNode(node, fn.childForFieldName("name"));
+/** Text of the `operator` field, or null when the node has none. */
+function operatorText(node: SyntaxNode): string | null {
+  return node.childForFieldName("operator")?.type ?? null;
+}
+
+/** `=` per `=` token: 1 for `a = 1` and for `a: int = 1`, 0 for `a: int`. */
+function countAssignment(node: SyntaxNode, operators: Map<string, number>): void {
+  for (const child of node.children) {
+    if (child !== null && !child.isNamed && child.type === "=") increment(operators, "=");
+  }
+}
+
+/**
+ * 1 operator per operator token of a comparison chain. The grammar builds
+ * `not in` and `is not` as 1 anonymous node each.
+ */
+function countComparison(node: SyntaxNode, operators: Map<string, number>): void {
+  for (const child of node.children) {
+    if (child !== null && !child.isNamed) increment(operators, child.type);
+  }
+}
+
+/** Operators of a named node by the 5.9 table. A structural node adds none. */
+function classifyOperator(node: SyntaxNode, operators: Map<string, number>): void {
+  const fixed = FIXED_OPERATORS.get(node.type);
+  if (fixed !== undefined) {
+    increment(operators, fixed);
+    return;
+  }
+  const multi = MULTI_OPERATORS.get(node.type);
+  if (multi !== undefined) {
+    for (const key of multi) increment(operators, key);
+    return;
+  }
+  switch (node.type) {
+    case "assignment":
+      countAssignment(node, operators);
+      return;
+    case "comparison_operator":
+      countComparison(node, operators);
+      return;
+    case "augmented_assignment":
+    case "binary_operator":
+    case "boolean_operator": {
+      const text = operatorText(node);
+      if (text !== null) increment(operators, text);
+      return;
+    }
+    case "unary_operator": {
+      const key = UNARY_KEYS.get(operatorText(node) ?? "");
+      if (key !== undefined) increment(operators, key);
+      return;
+    }
+  }
 }
 
 /**
@@ -95,25 +182,21 @@ export function collectPythonHalsteadCounts(fn: SyntaxNode): PythonHalsteadCount
   const operands = new Map<string, number>();
   const body = fn.childForFieldName("body");
   const docstring = body === null ? null : pythonDocstring(body);
+  const name = fn.childForFieldName("name");
 
   walkDescendants(fn, (node) => {
     if (isPythonFunction(node)) return false;
     if (isTypeSyntax(node)) return false;
-    if (LAYOUT_TYPES.has(node.type)) return false;
+    if (SKIPPED_TYPES.has(node.type)) return false;
     if (docstring !== null && sameNode(node, docstring)) return false;
-    if (isUnitHeaderToken(node, fn)) return false;
+    if (!node.isNamed) return false;
+    if (sameNode(node, name)) return false;
 
     if (OPERAND_TYPES.has(node.type)) {
       increment(operands, node.text);
       return false;
     }
-    if (COMPOUND_OPERATOR_TYPES.has(node.type)) {
-      increment(operators, node.type);
-      return false;
-    }
-    if (node.childCount === 0 && node.startIndex !== node.endIndex) {
-      increment(operators, node.text);
-    }
+    classifyOperator(node, operators);
     return true;
   });
 

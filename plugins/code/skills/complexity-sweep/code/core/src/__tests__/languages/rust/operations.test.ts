@@ -232,10 +232,12 @@ describe("Rust scope depth", () => {
 describe("Rust Halstead metrics", () => {
   it("has exact counts for an addition function", () => {
     const actual = halstead("fn add(a: i32, b: i32) -> i32 { return a + b; }");
-    // Operators: ( , ) { return + ; } = 8 distinct, 8 total. `fn` and `add` are header.
+    // Operators: return + = 2 distinct, 2 total. `fn` and `add` are header.
+    // Punctuation ( , ) { ; } is structural (design 5.9).
     // Operands: a and b, each twice.
-    expect(actual.detail).toEqual({ n1: 8, n2: 2, N1: 8, N2: 4 });
-    expect(actual.value).toBeCloseTo(12 * Math.log2(10), 10);
+    expect(actual.detail).toEqual({ n1: 2, n2: 2, N1: 2, N2: 4 });
+    // V = N log2(n) = 6 * log2(4) = 12.
+    expect(actual.value).toBeCloseTo(12, 10);
   });
 
   it("has exact counts for let and macro tokens", () => {
@@ -243,9 +245,9 @@ describe("Rust Halstead metrics", () => {
     const volume = result<HalsteadDetail>(rustHalsteadVolume(syntaxCtx("rust", source)));
     const difficulty = result<HalsteadDetail>(rustHalsteadDifficulty(syntaxCtx("rust", source)));
     const effort = result<HalsteadDetail>(rustHalsteadEffort(syntaxCtx("rust", source)));
-    // Operators: ( ) { let = ; ! ( ) ; } = 8 distinct, 11 total (`:` is type syntax).
+    // Operators: let = !() = 3 distinct, 3 total (`:` is type syntax).
     // Operands: x, 1, use_it = 3 distinct; x, 1, use_it, x = 4 uses.
-    const detail = { n1: 8, n2: 3, N1: 11, N2: 4 };
+    const detail = { n1: 3, n2: 3, N1: 3, N2: 4 };
     expect(volume.detail).toEqual(detail);
     expect(difficulty.detail).toEqual(detail);
     expect(effort.detail).toEqual(detail);
@@ -273,36 +275,32 @@ where T: Clone { let y: Vec<T> = x; y; }`);
 
   it("counts a node with only anonymous children once (D2)", () => {
     const actual = halstead("fn f() { loop { break; } }");
-    // Tokens after the header: ( ) { loop { break ; } }.
-    // Operators: ( ) { } loop break ; = 7 distinct, 9 total. No operands.
-    // The `break_expression` node and the `parameters` node must not add a
-    // second count on top of their leaf tokens.
-    // Punctuation counts as operators here because design 5.9 and the Python
-    // port classify every leaf token. The TypeScript metric has no tokens for
-    // blocks, so it cannot be compared bracket for bracket.
-    expect(actual.detail).toEqual({ n1: 7, n2: 0, N1: 9, N2: 0 });
+    // Operators: loop = 1 distinct, 1 total. No operands.
+    // `break` and the punctuation are structural (design 5.9), like the
+    // TypeScript metric, which has no tokens for blocks or `break`.
+    expect(actual.detail).toEqual({ n1: 1, n2: 0, N1: 1, N2: 0 });
   });
 
   it("skips the fn keyword and the function name (D3)", () => {
-    // Tokens after the header: ( ) { } = 4 operators. The name `solo` and `fn` are skipped.
-    expect(halstead("fn solo() {}").detail).toEqual({ n1: 4, n2: 0, N1: 4, N2: 0 });
+    // No operators: ( ) { } are structural. The name `solo` and `fn` are skipped.
+    expect(halstead("fn solo() {}").detail).toEqual({ n1: 0, n2: 0, N1: 0, N2: 0 });
   });
 
   it("skips visibility and function modifiers (D3)", () => {
     // `pub(crate)`, `const` and `unsafe` are header syntax.
-    // Tokens after the header: ( ) { } = 4 operators.
+    // No operators and no operands: ( ) { } are structural.
     const actual = halstead("pub(crate) const unsafe fn solo() {}");
-    expect(actual.detail).toEqual({ n1: 4, n2: 0, N1: 4, N2: 0 });
+    expect(actual.detail).toEqual({ n1: 0, n2: 0, N1: 0, N2: 0 });
     // `async` is a function modifier too.
     expect(halstead("pub async fn solo() {}").detail)
-      .toEqual({ n1: 4, n2: 0, N1: 4, N2: 0 });
+      .toEqual({ n1: 0, n2: 0, N1: 0, N2: 0 });
   });
 
   it("keeps parameters and body tokens after the header (D3)", () => {
     const actual = halstead("pub fn id(x: i32) -> i32 { x }");
-    // Operators: ( ) { } = 4 distinct, 4 total (the `:` and `->` are type syntax).
+    // No operators: ( ) { } : -> are structural.
     // Operands: x twice (parameter pattern and body).
-    expect(actual.detail).toEqual({ n1: 4, n2: 1, N1: 4, N2: 2 });
+    expect(actual.detail).toEqual({ n1: 0, n2: 1, N1: 0, N2: 2 });
   });
 
   it("does not classify comment text as Halstead tokens", () => {
@@ -559,37 +557,38 @@ describe("Rust scope depth block kinds (design 5.8)", () => {
 describe("Rust Halstead rule rows (design 5.9)", () => {
   it("counts a string literal as one operand", () => {
     const actual = halstead('fn f() { let s = "a b + c"; }');
-    // Operators: ( ) { let = ; } = 7 distinct, 7 total.
+    // Operators: let = = 2 distinct, 2 total.
     // Operands: s and the whole string = 2 distinct, 2 total.
-    expect(actual.detail).toEqual({ n1: 7, n2: 2, N1: 7, N2: 2 });
+    expect(actual.detail).toEqual({ n1: 2, n2: 2, N1: 2, N2: 2 });
   });
 
   it("counts a raw string and a char literal as one operand each", () => {
     const actual = halstead("fn f() { g(r#\"x\"#, 'c'); }");
-    // Operators: ( ) { ( , ) ; } = 6 distinct ( ) { , ; }, 8 total.
+    // Operators: () = 1 distinct, 1 total.
     // Operands: g, the raw string, the char = 3 distinct, 3 total.
-    expect(actual.detail).toEqual({ n1: 6, n2: 3, N1: 8, N2: 3 });
+    expect(actual.detail).toEqual({ n1: 1, n2: 3, N1: 1, N2: 3 });
   });
 
   it("classifies the tokens of a macro token tree", () => {
     const actual = halstead('fn f() { println!("{}", x); }');
-    // Operators: ( ) { ! ( , ) ; } = 7 distinct ( ) { } ! , ;, 9 total.
+    // Operators: !() = 1 distinct, 1 total. The `,` in the token tree is structural.
     // Operands: println, the string, x = 3 distinct, 3 total.
-    expect(actual.detail).toEqual({ n1: 7, n2: 3, N1: 9, N2: 3 });
+    expect(actual.detail).toEqual({ n1: 1, n2: 3, N1: 1, N2: 3 });
   });
 
   it("counts closure tokens in the enclosing unit", () => {
     const actual = halstead("fn f() { let g = |x| x + 1; }");
-    // Operators: ( ) { let = | | + ; } = 9 distinct ( ) { } let = | + ;, 10 total.
+    // Operators: let = closure + = 4 distinct, 4 total. The `|` tokens are structural.
     // Operands: g, x, x, 1 = 3 distinct, 4 total.
-    expect(actual.detail).toEqual({ n1: 9, n2: 3, N1: 10, N2: 4 });
+    expect(actual.detail).toEqual({ n1: 4, n2: 3, N1: 4, N2: 4 });
   });
 
   it("counts self and a field name as operands", () => {
     const actual = halstead("fn m(&self) -> i32 { self.x }");
-    // Operators: ( & ) { . } = 6 distinct, 6 total. The `->` and the type are skipped.
+    // Operators: . = 1 distinct, 1 total. The `&` of `&self` is parameter syntax,
+    // not a reference expression. The `->` and the type are skipped.
     // Operands: self twice and x = 2 distinct, 3 total.
-    expect(actual.detail).toEqual({ n1: 6, n2: 2, N1: 6, N2: 3 });
+    expect(actual.detail).toEqual({ n1: 1, n2: 2, N1: 1, N2: 3 });
   });
 
   it("skips an attribute on a statement", () => {
@@ -600,8 +599,66 @@ describe("Rust Halstead rule rows (design 5.9)", () => {
   });
 
   it("excludes every token of a nested unit", () => {
-    // Operators: ( ) { } = 4. The nested unit adds no token and no operand.
+    // No operators: ( ) { } are structural. The nested unit adds no operator and no operand.
     expect(halstead("fn outer() { fn inner() { hidden(); } }").detail)
-      .toEqual({ n1: 4, n2: 0, N1: 4, N2: 0 });
+      .toEqual({ n1: 0, n2: 0, N1: 0, N2: 0 });
+  });
+
+  it("counts let, let-else, assignment and compound assignment", () => {
+    const actual = halstead(
+      "fn f(o: Option<i32>) { let Some(v) = o else { return; }; let mut x = v; x = 1; x += v; }",
+    );
+    // Operators: let x2, = x3 (2 let values, 1 assignment), else, return, += -> n1 = 5, N1 = 8.
+    // `mut` is structural.
+    // Operands: o Some v o x v x 1 x v -> n2 = 5, N2 = 10.
+    expect(actual.detail).toEqual({ n1: 5, n2: 5, N1: 8, N2: 10 });
+  });
+
+  it("counts unary, dereference and reference operators", () => {
+    const actual = halstead("fn f(x: i32) -> i32 { let p = &mut x; let q = &x; -*p + !*q }");
+    // Operators: let x2, = x2, &mut, &, unary-, unary* x2, !, + -> n1 = 8, N1 = 11.
+    // Operands: x p x q x p q -> n2 = 3, N2 = 7.
+    expect(actual.detail).toEqual({ n1: 8, n2: 3, N1: 11, N2: 7 });
+  });
+
+  it("counts paths, ranges, struct expressions, ? and as", () => {
+    const actual = halstead(
+      "fn f() { let r = a::b::c(0..=9, ..n)?; let s = P { x: 1, y }; let k = g() as u8; }",
+    );
+    // Operators: let x3, = x3, :: x2, () x2, ..=, .., ?, struct{}, as -> n1 = 9, N1 = 15.
+    // The struct name `P` and `u8` are type syntax.
+    // Operands: r a b c 0 9 n s x 1 y k g -> n2 = 13, N2 = 13.
+    expect(actual.detail).toEqual({ n1: 9, n2: 13, N1: 15, N2: 13 });
+  });
+
+  it("counts if let, match arms, a match guard, loops, closures and await", () => {
+    const actual = halstead(`fn f(o: Option<i32>) {
+  if let Some(v) = o { }
+  match o { Some(1) if v => 2, _ => 3 };
+  while x { }
+  loop { break; }
+  for i in xs { }
+  let c = move |a| a;
+  h.await;
+}`);
+    // Operators: if x2 (1 is the guard), let x2 (let_condition, let_declaration), match,
+    // => x2, while, loop, for, in, =, closure, await -> n1 = 11, N1 = 14.
+    // `move`, `break` and the `_` pattern are structural.
+    // Operands: o Some v o o Some 1 v 2 3 x i xs c a a h -> n2 = 12, N2 = 17.
+    expect(actual.detail).toEqual({ n1: 11, n2: 12, N1: 14, N2: 17 });
+  });
+
+  it("counts the && of a let chain", () => {
+    const actual = halstead("fn f() { if let Some(v) = o && v > 1 { } }");
+    // Operators: if let && > -> n1 = 4, N1 = 4.
+    // Operands: Some v o v 1 -> n2 = 4, N2 = 5.
+    expect(actual.detail).toEqual({ n1: 4, n2: 4, N1: 4, N2: 5 });
+  });
+
+  it("classifies operator tokens of a macro token tree by text", () => {
+    const actual = halstead('fn f() { println!("{}", a.b + c::d && !e); }');
+    // Operators: !() and the tokens . + :: && ! -> n1 = 6, N1 = 6. The `,` is structural.
+    // Operands: println "{}" a b c d e -> n2 = 7, N2 = 7.
+    expect(actual.detail).toEqual({ n1: 6, n2: 7, N1: 6, N2: 7 });
   });
 });
