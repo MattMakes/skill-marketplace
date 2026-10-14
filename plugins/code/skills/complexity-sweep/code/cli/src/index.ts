@@ -63,7 +63,8 @@ async function main(): Promise<void> {
 
   if (cliOverrides.format === HELP_SENTINEL) {
     printHelp(registry);
-    process.exit(0);
+    process.exitCode = 0;
+    return;
   }
 
   // TTY override — config-declared `format` is overridden when stdout is piped.
@@ -82,7 +83,8 @@ async function main(): Promise<void> {
   const sources = await loadSources(globs, config);
   if (sources.length === 0) {
     console.error("No source files found matching the provided patterns.");
-    process.exit(2);
+    process.exitCode = 2;
+    return;
   }
 
   const metrics = analyzeProject(sources, registry, {
@@ -95,7 +97,10 @@ async function main(): Promise<void> {
   const output = renderOutput(config.format, metrics, violations, config, cliOverrides, registry.getAll());
   console.log(output);
 
-  process.exit(computeExitCode(config.thresholdAction, violations));
+  // Set the exit code and return instead of calling `process.exit`: when stdout
+  // is a pipe, Node writes asynchronously and `process.exit` would cut the
+  // output at the pipe buffer size (64 KiB).
+  process.exitCode = computeExitCode(config.thresholdAction, violations);
 }
 
 // ---------- argv parsing ----------

@@ -40,7 +40,8 @@ async function main() {
     }, cliOverrides);
     if (cliOverrides.format === HELP_SENTINEL) {
         printHelp(registry);
-        process.exit(0);
+        process.exitCode = 0;
+        return;
     }
     // TTY override — config-declared `format` is overridden when stdout is piped.
     if (!cliOverrides.format) {
@@ -56,7 +57,8 @@ async function main() {
     const sources = await loadSources(globs, config);
     if (sources.length === 0) {
         console.error("No source files found matching the provided patterns.");
-        process.exit(2);
+        process.exitCode = 2;
+        return;
     }
     const metrics = (0, static_analysis_core_1.analyzeProject)(sources, registry, {
         weights: { cyclomaticComplexity: config.weights.cyclomaticComplexity },
@@ -65,7 +67,10 @@ async function main() {
     const violations = (0, thresholds_1.checkThresholds)(allFunctions, config.thresholds);
     const output = renderOutput(config.format, metrics, violations, config, cliOverrides, registry.getAll());
     console.log(output);
-    process.exit(computeExitCode(config.thresholdAction, violations));
+    // Set the exit code and return instead of calling `process.exit`: when stdout
+    // is a pipe, Node writes asynchronously and `process.exit` would cut the
+    // output at the pipe buffer size (64 KiB).
+    process.exitCode = computeExitCode(config.thresholdAction, violations);
 }
 function parseArgs(args) {
     const cliOverrides = {};

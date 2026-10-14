@@ -1,7 +1,7 @@
 // End-to-end test of the built CLI. Build core and cli first (`npm run build`
 // in each); this test runs `dist/index.js`, not the TypeScript source.
 
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -9,6 +9,34 @@ import { join, resolve } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 const CLI = resolve(__dirname, "..", "..", "dist", "index.js");
+const CORE_SRC = resolve(__dirname, "..", "..", "..", "core", "src");
+
+// The built CLI must write all of stdout when stdout is a pipe. The pipe
+// buffer holds 65,536 bytes; a `process.exit` right after the write cut the
+// output at that size.
+const PIPE_BUFFER_BYTES = 65_536;
+
+interface CliRun {
+  stdout: Buffer;
+  code: number | null;
+}
+
+/** Run the built CLI with stdout as a pipe and collect every byte. */
+function runCli(args: readonly string[], cwd: string): Promise<CliRun> {
+  return new Promise((resolvePromise, reject) => {
+    const child = spawn("node", [CLI, ...args], {
+      cwd,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    const chunks: Buffer[] = [];
+    child.stdout.on("data", (chunk: Buffer) => chunks.push(chunk));
+    child.stderr.resume();
+    child.on("error", reject);
+    child.on("close", (code) => {
+      resolvePromise({ stdout: Buffer.concat(chunks), code });
+    });
+  });
+}
 
 const FILES: Record<string, string> = {
   "a.ts": "export function a(x: number): number { if (x > 0) return 1; return 0; }\n",
@@ -70,5 +98,36 @@ describe("built CLI", () => {
       status = (err as { status: number | null }).status;
     }
     expect(status).toBe(2);
+  });
+
+  it("writes complete JSON to a pipe when the output exceeds 65,536 bytes", async () => {
+    const { stdout, code } = await runCli(
+      ["--format", "json", "--threshold-action", "none", `${CORE_SRC}/**/*.ts`],
+      dir,
+    );
+
+    expect(stdout.length).toBeGreaterThan(PIPE_BUFFER_BYTES);
+    const output = JSON.parse(stdout.toString("utf8")) as { files: CliFile[] };
+    expect(output.files.length).toBeGreaterThan(0);
+    expect(code).toBe(0);
+  });
+
+  it("exits 1 with --threshold-action error when a function breaks an error threshold", async () => {
+    const branches = Array.from(
+      { length: 30 },
+      (_, i) => `  if (x === ${i}) return ${i};\n`,
+    ).join("");
+    writeFileSync(
+      join(dir, "complex.ts"),
+      `export function complex(x: number): number {\n${branches}  return -1;\n}\n`,
+    );
+
+    const { stdout, code } = await runCli(
+      ["--format", "json", "--threshold-action", "error", join(dir, "complex.ts")],
+      dir,
+    );
+
+    expect(code).toBe(1);
+    expect(() => JSON.parse(stdout.toString("utf8"))).not.toThrow();
   });
 });
