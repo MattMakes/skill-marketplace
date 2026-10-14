@@ -3,14 +3,16 @@
 // CLI entry for `static-analysis-cli`.
 //
 // Flow: parse argv → load cosmiconfig → build registry + load plugins →
-// merge defaults/file/CLI → discover source files via ts-morph → analyze →
-// evaluate thresholds → format → stdout → exit.
+// merge defaults/file/CLI → discover source files (TypeScript/JavaScript via
+// ts-morph, Python/Rust via tree-sitter) → analyze → evaluate thresholds →
+// format → stdout → exit.
 Object.defineProperty(exports, "__esModule", { value: true });
 const node_path_1 = require("node:path");
 const static_analysis_core_1 = require("static-analysis-core");
 const cosmiconfig_1 = require("cosmiconfig");
 const ts_morph_1 = require("ts-morph");
 const config_1 = require("./config");
+const discover_1 = require("./discover");
 const formatJson_1 = require("./formatJson");
 const formatPretty_1 = require("./formatPretty");
 const formatTable_1 = require("./formatTable");
@@ -51,12 +53,12 @@ async function main() {
             validateMetricKey("metric", key, allMetricKeys);
         }
     }
-    const sourceFiles = discoverSources(globs, config);
-    if (sourceFiles.length === 0) {
+    const sources = await loadSources(globs, config);
+    if (sources.length === 0) {
         console.error("No source files found matching the provided patterns.");
         process.exit(2);
     }
-    const metrics = (0, static_analysis_core_1.analyzeProject)(sourceFiles, registry, {
+    const metrics = (0, static_analysis_core_1.analyzeProject)(sources, registry, {
         weights: { cyclomaticComplexity: config.weights.cyclomaticComplexity },
     });
     const allFunctions = metrics.files.flatMap((f) => f.functions);
@@ -132,28 +134,32 @@ async function loadFileConfig(configPath) {
     return { fileConfig: {}, configDir: process.cwd() };
 }
 // ---------- source discovery ----------
-function discoverSources(globs, config) {
+/**
+ * Expand the patterns, route each file by extension, and load it: ts-morph
+ * SourceFiles for TypeScript/JavaScript, UTF-8 text for Python and Rust.
+ * The tree-sitter parsers load only when a Python or Rust file matches.
+ * The result is sorted by path.
+ */
+async function loadSources(globs, config) {
+    const patterns = globs.length > 0 ? globs : config.include;
+    const discovered = (0, discover_1.discoverSources)(patterns, config.exclude);
     const project = new ts_morph_1.Project({
         skipAddingFilesFromTsConfig: true,
         compilerOptions: { allowJs: true },
     });
-    const patterns = globs.length > 0 ? globs : config.include;
-    for (const pattern of patterns) {
-        project.addSourceFilesAtPaths(pattern);
+    const sources = new Map();
+    for (const filePath of discovered.typescriptPaths) {
+        sources.set(filePath, project.addSourceFileAtPath(filePath));
     }
-    return project.getSourceFiles().filter((sf) => {
-        const path = sf.getFilePath();
-        if (path.includes("/node_modules/"))
-            return false;
-        return !config.exclude.some((ex) => globToRegex(ex).test(path));
+    for (const input of discovered.syntaxInputs) {
+        sources.set(input.filePath, input);
+    }
+    if (discovered.syntaxInputs.length > 0)
+        await (0, static_analysis_core_1.initSyntaxParsers)();
+    return discovered.routed.flatMap(({ filePath }) => {
+        const source = sources.get(filePath);
+        return source === undefined ? [] : [source];
     });
-}
-/** Replicates the shipped glob→regex transform verbatim (order-sensitive). */
-function globToRegex(glob) {
-    return new RegExp(glob
-        .replace(/\*\*/g, ".*")
-        .replace(/\*/g, "[^/]*")
-        .replace(/\./g, "\\."));
 }
 // ---------- validation + help ----------
 function validateMetricKey(label, key, allKeys) {

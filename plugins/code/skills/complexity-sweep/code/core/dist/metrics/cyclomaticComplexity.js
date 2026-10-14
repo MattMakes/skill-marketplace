@@ -17,6 +17,7 @@ const DEFAULT_WEIGHTS = {
     logicalOr: 1,
     nullishCoalescing: 1,
     ternary: 1,
+    tryOperator: 1, // Rust only; no TypeScript construct reads it.
 };
 const FUNCTION_KINDS = new Set([
     ts_morph_1.SyntaxKind.FunctionDeclaration,

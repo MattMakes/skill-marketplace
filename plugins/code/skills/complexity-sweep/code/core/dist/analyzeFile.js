@@ -1,6 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.analyzeFile = analyzeFile;
+exports.analyzeSyntaxFile = analyzeSyntaxFile;
+const languages_1 = require("./languages");
+const treeSitter_1 = require("./languages/treeSitter");
 const astHelpers_1 = require("./utils/astHelpers");
 /**
  * Run every registered metric against every function-like in `sourceFile`.
@@ -25,29 +28,115 @@ const astHelpers_1 = require("./utils/astHelpers");
 function analyzeFile(sourceFile, registry, options) {
     const extracted = (0, astHelpers_1.extractFunctions)(sourceFile);
     const filePath = sourceFile.getFilePath();
-    const executionOrder = registry.getExecutionOrder();
     const effectiveOptions = options ?? {};
-    const functions = extracted.map((fn) => computeFunctionMetrics(fn, sourceFile, filePath, executionOrder, effectiveOptions));
-    const summary = buildFileSummary(functions, executionOrder);
-    return { filePath, functions, summary };
+    const active = resolveActiveMetrics(registry.getExecutionOrder(), (def) => (fn, dependencyValues) => def.compute({
+        node: fn.node,
+        sourceFile,
+        options: effectiveOptions,
+        dependencyValues,
+    }));
+    const functions = extracted.map((fn) => runMetrics(fn, filePath, active));
+    const summary = buildFileSummary(functions, active);
+    return { filePath, language: "typescript", functions, summary };
 }
-function computeFunctionMetrics(fn, sourceFile, filePath, executionOrder, options) {
+/**
+ * Run every registered metric against every function in a Python or Rust
+ * file parsed with tree-sitter.
+ *
+ * Same preconditions, circuit breaker and summary rules as `analyzeFile`,
+ * plus:
+ *  - The compute for a metric is `def.syntaxCompute[language]` when set,
+ *    else `backend.metrics[def.key]`.
+ *  - A metric with no compute is absent from `metrics` (not NaN), and every
+ *    metric that depends on it is absent too. The file summary leaves out
+ *    the absent keys.
+ *  - A file with syntax errors gets 1 warning and is analyzed anyway (ts-morph
+ *    also analyzes files with syntax errors).
+ *  - When parsing or extraction throws, the file gets 1 warning and 0
+ *    functions. One bad file does not stop a run.
+ *  - `initSyntaxParsers()` must have resolved before the call.
+ */
+function analyzeSyntaxFile(input, registry, options, backend = (0, languages_1.getSyntaxBackend)(input.language)) {
+    const { filePath, language } = input;
+    const effectiveOptions = options ?? {};
+    const backendComputes = backend.metrics;
+    let file;
+    const active = resolveActiveMetrics(registry.getExecutionOrder(), (def) => {
+        const compute = def.syntaxCompute?.[language] ?? backendComputes[def.key];
+        if (compute === undefined)
+            return undefined;
+        return (fn, dependencyValues) => {
+            if (file === undefined)
+                throw new Error("File is not parsed.");
+            return compute({
+                language,
+                node: fn.node,
+                file,
+                options: effectiveOptions,
+                dependencyValues,
+            });
+        };
+    });
+    let extracted = [];
+    try {
+        file = (0, treeSitter_1.parseSyntaxSource)(input);
+        if (file.tree.rootNode.hasError) {
+            console.warn(`Warning: Syntax errors in ${filePath}; the results can be incomplete.`);
+        }
+        extracted = backend.extractFunctions(file);
+    }
+    catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        console.warn(`Warning: Could not analyze ${filePath}: ${message}`);
+        file?.tree.delete();
+        return {
+            filePath,
+            language,
+            functions: [],
+            summary: buildFileSummary([], active),
+        };
+    }
+    try {
+        const functions = extracted.map((fn) => runMetrics(fn, filePath, active));
+        const summary = buildFileSummary(functions, active);
+        return { filePath, language, functions, summary };
+    }
+    finally {
+        file.tree.delete();
+    }
+}
+/**
+ * The metrics that run for one language, in execution order. A metric with
+ * no compute (`resolveCompute` returns undefined) is left out, and so is
+ * every metric that depends on a left-out metric.
+ */
+function resolveActiveMetrics(executionOrder, resolveCompute) {
+    const active = [];
+    const absent = new Set();
+    for (const def of executionOrder) {
+        const compute = def.dependencies.some((dep) => absent.has(dep))
+            ? undefined
+            : resolveCompute(def);
+        if (compute === undefined) {
+            absent.add(def.key);
+            continue;
+        }
+        active.push({ def, compute });
+    }
+    return active;
+}
+function runMetrics(fn, filePath, active) {
     const metrics = {};
     const details = {};
     const failed = new Set();
-    for (const def of executionOrder) {
+    for (const { def, compute } of active) {
         if (def.dependencies.some((dep) => failed.has(dep))) {
             metrics[def.key] = Number.NaN;
             failed.add(def.key);
             continue;
         }
         try {
-            const result = def.compute({
-                node: fn.node,
-                sourceFile,
-                options,
-                dependencyValues: metrics,
-            });
+            const result = compute(fn, metrics);
             applyResult(def, result, fn.name, filePath, metrics, details, failed);
         }
         catch (err) {
@@ -94,7 +183,8 @@ function isValid(n) {
 function warnInvalid(key, value, fnName, filePath) {
     console.warn(`Warning: Metric "${key}" returned invalid value (${value}) for ${fnName} in ${filePath}`);
 }
-function buildFileSummary(functions, executionOrder) {
+function buildFileSummary(functions, active) {
+    const executionOrder = active.map((m) => m.def);
     const max = {};
     const avg = {};
     for (const def of executionOrder) {
