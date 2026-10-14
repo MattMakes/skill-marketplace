@@ -577,3 +577,70 @@ describe("buildPythonDefUse: nested function defaults (review F2)", () => {
     expect(defUse(text, 0)).toEqual([]);
   });
 });
+
+describe("buildPythonDefUse: docstring (calibration defect D1)", () => {
+  it("starts a parameter entry on the last line of a multi-line docstring", () => {
+    const text = src(
+      "def f(a):",
+      '    """Line one.',
+      "    Line two.",
+      '    Line three."""',
+      "    b = a + 1",
+      "    return b",
+    );
+    // Hand count: the docstring ends on line 4. a [4,5], b [5,6].
+    expect(defUse(text)).toEqual([
+      { name: "a", defLine: 4, lastUseLine: 5 },
+      { name: "b", defLine: 5, lastUseLine: 6 },
+    ]);
+    // Spans: a 1, b 1. VSpan = max span = 1. Live per line: 4→1, 5→2, 6→1. PLV = 2.
+    expect(run(pythonVariableSpan, text)).toBe(1);
+    expect(run(pythonPeakLiveVariables, text)).toBe(2);
+  });
+
+  it("starts a parameter entry on the line of a 1-line docstring", () => {
+    const text = src(
+      "def f(a):",
+      '    """Doc."""',
+      "    b = a + 1",
+      "    return b",
+    );
+    // Hand count: a [2,3], b [3,4]. Spans 1, 1. VSpan = 1.
+    expect(defUse(text)).toEqual([
+      { name: "a", defLine: 2, lastUseLine: 3 },
+      { name: "b", defLine: 3, lastUseLine: 4 },
+    ]);
+    expect(run(pythonVariableSpan, text)).toBe(1);
+  });
+
+  it("does not change entries of a function with no docstring", () => {
+    const text = src(
+      "def f(a):",
+      "    b = a + 1",
+      "    return b",
+    );
+    // Hand count: a [1,2], b [2,3]. Spans 1, 1. VSpan = 1.
+    expect(defUse(text)).toEqual([
+      { name: "a", defLine: 1, lastUseLine: 2 },
+      { name: "b", defLine: 2, lastUseLine: 3 },
+    ]);
+    expect(run(pythonVariableSpan, text)).toBe(1);
+  });
+
+  it("records no entry for self and moves the other parameters after the docstring", () => {
+    const text = src(
+      "class C:",
+      "    def m(self, a):",
+      '        """Doc one.',
+      '        Doc two."""',
+      "        b = a + 1",
+      "        return b",
+    );
+    // Hand count: no entry for self. The docstring ends on line 4. a [4,5], b [5,6].
+    expect(defUse(text)).toEqual([
+      { name: "a", defLine: 4, lastUseLine: 5 },
+      { name: "b", defLine: 5, lastUseLine: 6 },
+    ]);
+    expect(run(pythonVariableSpan, text)).toBe(1);
+  });
+});

@@ -19,11 +19,16 @@
 //   an annotation or a class argument) belongs to the enclosing unit. The nested
 //   body is the only part that the binding scan skips.
 // - The unit's own name is not an occurrence (it binds in the enclosing scope).
+// - When the body starts with a docstring, a parameter entry has `defLine` =
+//   the last line of the docstring (design 5.6, "Docstring"). Otherwise the
+//   docstring lines would count in every parameter span. Other entries and
+//   comment lines in the body do not change.
 
 import type { DefUseEntry } from "../../utils/defUseAnalysis";
-import { createNodeCache, lineOf, sameNode, walkDescendants } from "../syntaxHelpers";
+import { createNodeCache, endLineOf, lineOf, sameNode, walkDescendants } from "../syntaxHelpers";
 import type { SyntaxNode } from "../types";
 import { isPythonFunction } from "./nodeTypes";
+import { pythonDocstring } from "./operations.scopeDepth";
 
 export type { DefUseEntry };
 
@@ -177,11 +182,19 @@ export function pythonScope(fn: SyntaxNode): PythonScope {
   const params = parameterNameNodes(fn.childForFieldName("parameters"));
   for (const param of params) scope.localNames.add(param.text);
   const bound = new Set<string>();
-  for (const param of unitParameterNodes(fn)) bind(scope, bound, param);
+  const paramLine = parameterDefLine(fn);
+  for (const param of unitParameterNodes(fn)) bind(scope, bound, param, paramLine);
 
   collectBindings(fn, scope, bound);
   scopeCache.set(fn, scope);
   return scope;
+}
+
+/** The `defLine` of a parameter entry: the end of a leading docstring, else the line of the name. */
+function parameterDefLine(fn: SyntaxNode): number | null {
+  const body = fn.childForFieldName("body");
+  const docstring = body === null ? null : pythonDocstring(body);
+  return docstring === null ? null : endLineOf(docstring);
 }
 
 /** Records `global` and `nonlocal` names of the unit (nested units skipped). */
@@ -305,13 +318,21 @@ function isDeclaredOutside(scope: PythonScope, name: string): boolean {
   return scope.declaredGlobal.has(name) || scope.declaredNonlocal.has(name);
 }
 
-/** Records the first binding of a name. `bound` holds the names that have an entry. */
-function bind(scope: PythonScope, bound: Set<string>, nameNode: SyntaxNode): void {
+/**
+ * Records the first binding of a name. `bound` holds the names that have an
+ * entry. `line` replaces the line of the name node when it is not null.
+ */
+function bind(
+  scope: PythonScope,
+  bound: Set<string>,
+  nameNode: SyntaxNode,
+  line: number | null = null,
+): void {
   const name = nameNode.text;
   if (isDeclaredOutside(scope, name) || bound.has(name)) return;
   bound.add(name);
   scope.localNames.add(name);
-  scope.bindings.push({ name, line: lineOf(nameNode) });
+  scope.bindings.push({ name, line: line ?? lineOf(nameNode) });
 }
 
 function nonNull(nodes: (SyntaxNode | null)[]): SyntaxNode[] {
