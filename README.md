@@ -99,12 +99,14 @@ game-development books. **Start with `game-studio-cpo`.**
 
 ## `game-design` — Game Design Studio
 
-Generative game design that runs headless, the counterpart to the `game` review board. Run the
-skills in pipeline order; send the result to `game:game-studio-cpo` for critique.
-**Start with `fun-targeting`.**
+Choose the workflow for the job. Use `game-design:one-page-game-design` to work through decisions
+with the user and produce adaptive HTML or SVG plus PDF. Use the existing headless pipeline for
+generative design, then send its result to `game:game-studio-cpo` for critique. Start that pipeline
+with `fun-targeting`; use `game-design:one-page-design` for its headless JSON-spec rendering step.
 
 | Skill | What it does |
 |---|---|
+| `one-page-game-design` | Collaboratively produces light interactive HTML or a detailed standalone SVG, a one-page PDF, and a saved design record. |
 | `fun-targeting` | Picks 2–3 of the eight kinds of fun and traces every mechanic back to one (MDA). |
 | `game-ideation` | At least 6 concepts under a constraint card, a boundaries-first gate, a scored shortlist. |
 | `core-loop` | Moment-to-moment, session and long-term loops as Mermaid flowcharts. |
@@ -112,6 +114,10 @@ skills in pipeline order; send the result to `game:game-studio-cpo` for critique
 | `game-brief` | The reader-facing brief, down to the smallest prototype that tests the fun. |
 | `one-page-design` | Librande's one-page method; renders a JSON spec to a dated SVG. |
 | `art-direction` | A style sheet, a shot list tied to the fun, and placeholder image prompts. |
+
+A3 is the default page size for light mode. A2 or larger is the default for heavy mode; these are
+defaults, not restrictions. The optional exporter requires Node.js, Playwright or `playwright-core`,
+and Chromium or Chrome. It does not install these dependencies.
 
 ## `herdr` — herdr Fleet
 
