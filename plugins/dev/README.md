@@ -2,7 +2,7 @@
 
 A development workflow as a chained skill pipeline: prime the codebase, turn an idea into a
 design, turn the design into a plan an engineer with zero context could execute, execute it in
-batches with reviewer subagents, verify it against the plan, review it from eleven perspectives,
+batches with reviewer subagents, verify it against the plan, review it from twelve perspectives,
 describe the change, hand off. Every step reads and writes one `ai_docs/` workspace inside the
 repository you are working in.
 
@@ -43,7 +43,7 @@ installed, so `code-sweep --change 42` works on either.
 | `execute-plan` | Executes a plan in batches with checkpoints, implementer and reviewer subagents, and resume. |
 | `swarm` | Orchestrates agent teams (build, research, review, debug) with quality gates. |
 | `check-implementation` | Verifies the implementation matches the plan: components, tests, build. |
-| `code-sweep` | Eleven parallel specialized reviewers, one severity-ranked report. Self-contained. |
+| `code-sweep` | Twelve parallel specialized reviewers, one severity-ranked report. The interface auditor runs the `design` plugin's gates when it is installed. |
 | `review-git-changes` | Grades a branch across six aspects from its git history. |
 | `change-description` | Generates the change description from the story ticket and the diff. |
 | `debug` | Systematic debugging before any fix; root-cause tracing, condition-based waiting, defense in depth. |

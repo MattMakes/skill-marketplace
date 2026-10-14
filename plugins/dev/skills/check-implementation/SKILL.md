@@ -20,7 +20,15 @@ description: Verify implementation matches the plan by checking components, test
    - Note: matches, deviations, missing pieces
 4. **Run the project's test suite** — capture full output, count passes/failures
 5. **Run the project's build command** — capture exit code and any errors
-6. **Report findings** using the output format below
+6. **If the plan built UI, measure it** — when the change adds or alters screens or components and the `design` plugin is installed, run its gate suite against the rendered pages or component harnesses (a preview page, a Storybook static build, or the HTML the plan produced) and report the real `N/N` line:
+
+   ```bash
+   KIT=$(ls -d "${CLAUDE_PLUGIN_ROOT}"/../design/shared "${CLAUDE_PLUGIN_ROOT}"/../../design/*/shared 2>/dev/null | sort -V | tail -1)
+   node "$KIT/scripts/accuracy_report.mjs" <rendered page or dir> [--tokens <design-tokens.json>] [--theme <theme.css>] [--src <ui source dir>]
+   ```
+
+   It checks contrast in every state, axe, keyboard, target size, responsive layout and theme consistency, light and dark. Render gates need Playwright once per install (`npm install --prefix "$KIT"`); a gate that cannot run counts as unmeasured, never as a pass. Without the `design` plugin, report the UI as unmeasured.
+7. **Report findings** using the output format below
 
 ## Verification Standards
 
@@ -31,6 +39,7 @@ description: Verify implementation matches the plan by checking components, test
 | Tests pass | Ran test command, saw 0 failures | "Tests were written, so they probably pass" |
 | Build succeeds | Ran build command, exit code 0 | "No syntax errors visible" |
 | Edge cases handled | Found handling code or tests | "The plan mentions them" |
+| UI is accessible and on-theme | Ran the design gate suite, saw its `N/N` line | "It looks fine in the screenshot" |
 
 ## Verification Gate
 
@@ -187,6 +196,9 @@ Report findings as:
 
 ### Build Result
 - 🏗️ [PASS/FAIL] — [command used, exit code]
+
+### UI Gates (when the plan built UI)
+- [N/N checks passed, or UNMEASURED and why] — [command used]
 
 ### Recommendation
 [Fix issues / Ready to proceed / Needs discussion]

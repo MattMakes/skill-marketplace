@@ -4,15 +4,15 @@
   "owner": {
     "name": "Matt Scott"
   },
-  "description": "Claude Code plugin marketplace for engineering work: a development-workflow pipeline from brainstorm to shipped change, the 9-step DDD Starter Modelling Process as a chained pipeline with a bundled diagram renderer, codebase priming, rich diff and PR explainers, wiki generation, security sweeps and generated end-to-end suites, a game-development review board backed by cited rules, multi-agent fleet orchestration, skill and MCP-server authoring, and a toolkit of thinking, discipline and verification skills.",
-  "version": "1.3.0",
+  "description": "Claude Code plugin marketplace for engineering work: a development-workflow pipeline from brainstorm to shipped change, the 9-step DDD Starter Modelling Process as a chained pipeline with a bundled diagram renderer, codebase priming, rich diff and PR explainers, wiki generation, security sweeps and generated end-to-end suites, a UX/UI design-system kit with measured accessibility gates, a game-development review board backed by cited rules, multi-agent fleet orchestration, skill and MCP-server authoring, and a toolkit of thinking, discipline and verification skills.",
+  "version": "1.4.0",
   "plugins": [
     {
       "name": "code",
       "displayName": "Code Intelligence",
       "source": "./plugins/code",
       "description": "Understand a codebase, then verify it. core primes a repo once — a deterministic zero-token knowledge graph via graphify plus a CORE tree of CLAUDE.md contracts with AGENTS.md symlinks — so later questions cost a graph query instead of a file sweep. explain-diff turns a diff, branch or PR into a self-contained HTML explainer with background, intuition, a code walkthrough and a quiz; it narrates itself, reading its prose aloud with a follow-along player, when a local text-to-speech service is available. deepwiki generates and maintains wiki-style docs with line-level citations and validated Mermaid diagrams. e2e-harness discovers a polyglot system from its own docs and generates runnable end-to-end suites across Node, Python, Go, C#, Rust, Kafka and Playwright. security-sweep orchestrates a multi-agent OWASP, STRIDE, secrets, supply-chain and LLM-security audit with a verifier fan-out and a CSO report. complexity-sweep measures 14 complexity metrics on TypeScript and JavaScript and turns each violation into a refactoring. CORE is adapted from DOX (agent0ai/dox, MIT); explain-diff is adapted from Geoffrey Litt's explain-diff gist.",
-      "version": "1.2.0",
+      "version": "1.4.0",
       "author": {
         "name": "Matt Scott"
       },
@@ -41,8 +41,8 @@
       "name": "dev",
       "displayName": "Development Workflow",
       "source": "./plugins/dev",
-      "description": "A development workflow as a chained skill pipeline over one ai_docs/ workspace: prime the codebase, brainstorm a design, analyze it from eight perspectives, break it into SLC phases, write a zero-context implementation plan, execute it in batches with reviewer subagents or a swarm, verify against the plan, review from eleven perspectives, describe the change, and hand off. Bundles four agents (codebase-locator, codebase-analyzer, codebase-pattern-finder, code-reviewer). Adapted in part from obra/superpowers, HumanLayer, wshobson/agents and BMAD-METHOD; see NOTICE.md.",
-      "version": "1.0.0",
+      "description": "A development workflow as a chained skill pipeline over one ai_docs/ workspace: prime the codebase, brainstorm a design, analyze it from eight perspectives, break it into SLC phases, write a zero-context implementation plan, execute it in batches with reviewer subagents or a swarm, verify against the plan, review from twelve perspectives, describe the change, and hand off. Bundles four agents (codebase-locator, codebase-analyzer, codebase-pattern-finder, code-reviewer). Adapted in part from obra/superpowers, HumanLayer, wshobson/agents and BMAD-METHOD; see NOTICE.md.",
+      "version": "1.1.0",
       "author": {
         "name": "Matt Scott"
       },
@@ -81,6 +81,30 @@
         "decisions",
         "blueprint",
         "nodejs"
+      ]
+    },
+    {
+      "name": "design",
+      "displayName": "UX/UI Design System",
+      "source": "./plugins/design",
+      "description": "A senior design architect as a skill set: DTCG design tokens in three tiers, component specs with the eight interactive states, WCAG 2.2 AA to AAA and i18n/RTL accessibility, a taste layer against generated-looking UI, 138 design-system specs, any-framework code generation, and render gates that measure contrast, states, axe, keyboard, target size, overflow, reduced motion and responsive behaviour in light and dark, instead of claiming them. Bundles the design-critic agent. Adapted from plugin87/ux-ui-agent-skills (MIT); see README.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Matt Scott"
+      },
+      "license": "MIT",
+      "category": "design",
+      "keywords": [
+        "design-system",
+        "design-tokens",
+        "dtcg",
+        "ui",
+        "ux",
+        "accessibility",
+        "wcag",
+        "frontend",
+        "figma",
+        "playwright"
       ]
     },
     {
@@ -127,7 +151,7 @@
       "displayName": "Matt's Toolkit",
       "source": "./plugins/tools",
       "description": "Cross-cutting skills: divergent ideation, human-sounding prose, spaced-repetition decks, model and subagent routing, an engineering persona, plan verification before and after implementation, and completion discipline for long autonomous runs. Plus eight vendored engineering disciplines: systematic debugging, test-driven development, receiving code review, git worktrees, advanced git workflows, error-handling patterns, code review excellence and API design principles. Contains third-party skills under their own licenses — see README.",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "author": {
         "name": "Matt Scott"
       },

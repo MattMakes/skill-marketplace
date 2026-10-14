@@ -2,8 +2,9 @@
 
 A Claude Code plugin marketplace for engineering work. The plugins are grouped by the job they do:
 carry a change from idea to review (`dev`), design a system before building it (`ddd`), understand
-and verify a codebase you did not write (`code`), review game work (`game`), run a fleet of agents
-(`herdr`), think and finish well (`tools`), and make more skills (`meta`).
+and verify a codebase you did not write (`code`), design and measure user interfaces (`design`),
+review game work (`game`), run a fleet of agents (`herdr`), think and finish well (`tools`), and
+make more skills (`meta`).
 
 ## Install
 
@@ -13,6 +14,7 @@ claude plugin marketplace add MattMakes/skill-marketplace
 claude plugin install dev@skill-marketplace
 claude plugin install ddd@skill-marketplace
 claude plugin install code@skill-marketplace
+claude plugin install design@skill-marketplace
 claude plugin install game@skill-marketplace
 claude plugin install herdr@skill-marketplace
 claude plugin install tools@skill-marketplace
@@ -41,7 +43,7 @@ merge request on GitLab or a pull request on GitHub; the skills detect `glab` or
 | `execute-plan` | Executes that plan in batches, with review checkpoints and parallel dispatch. |
 | `swarm` | Orchestrates agent teams for build, research, review or debug work. |
 | `check-implementation` | Verifies the built code matches the plan: components, tests, build. |
-| `code-sweep` | Dispatches a panel of specialized reviewers in parallel, one concern each, into one ranked report. |
+| `code-sweep` | Dispatches a panel of twelve specialized reviewers in parallel, one concern each, into one ranked report. |
 | `review-git-changes` | Grades a branch across several aspects from its git history and diff. |
 | `change-description` | Writes the description for a change from the ticket and the diff. |
 | `debug` | Systematic debugging that finds the cause before proposing a fix. |
@@ -90,6 +92,37 @@ Understand a codebase, then verify it.
 | `security-sweep` | A multi-agent security audit with per-stack OWASP, STRIDE, secrets and supply-chain catalogs. |
 | `complexity-sweep` | Flags over-complex TypeScript and JavaScript functions and either refactors them or writes the refactoring prompt. |
 | `e2e-harness` | Discovers a polyglot system from its own docs and generates a runnable end-to-end suite across Node, Python, Go, C#, Rust, Kafka and Playwright. |
+
+## `design` — UX/UI Design System
+
+A senior design architect: DTCG tokens, component specs with all eight interactive states, WCAG 2.2
+AA to AAA, a taste layer, 138 design-system specs, code for any framework, and render gates that
+measure accessibility in light and dark instead of claiming it. **Start with `design-doctrine`**,
+then `design-screen`. The render gates need Playwright once per install; the plugin README has the
+command.
+
+| Skill | What it does |
+|---|---|
+| `design-doctrine` | The verification protocol and house rules every other design skill assumes. **Start here.** |
+| `design-screen` | A page, screen or app end to end: brief inference, direction, tokens, build, gates, critic. |
+| `design-component` | One component's spec: anatomy, variants, the eight states, tokens, accessibility. |
+| `design-code` | Accessible, token-driven code for React, Next.js, SwiftUI, Vue, Svelte, Flutter and more. |
+| `design-tokens` | DTCG tokens in three tiers: palettes, type, spacing, motion, theming. |
+| `data-dashboard` | Dense data screens with charts drawn from tokens. |
+| `apply-aesthetic` | An archetype or one of 138 named design systems, resolved into tokens. |
+| `a11y-audit` | WCAG 2.2 and ARIA findings, each with criterion, severity and fix. |
+| `design-review` | A six-dimension scored review with Nielsen's heuristics. |
+| `ux-writing` | Interface copy: buttons, errors, empty states, confirmations. |
+| `design-qa`, `performance`, `token-build`, `figma-integration` | CI gates, Core Web Vitals, token pipelines, Figma sync. |
+
+User-started commands: `/design:grill-me`, `/design:gate`, `/design:critique`, `/design:brandkit`,
+`/design:redesign`, `/design:image-to-code`, `/design:prototype`, `/design:migrate-design-system`,
+`/design:governance`, `/design:scaffold-project`. Agent: `design-critic`.
+
+The kit is wired into the other plugins: `dev:code-sweep` has an interface auditor that runs its
+gates, `dev:analyze-design` and `dev:brainstorm` add a UX lens when there is a UI,
+`dev:check-implementation` gates the UI a plan built, and `code:explain-diff` measures its own
+pages. Adapted from [plugin87/ux-ui-agent-skills](https://github.com/plugin87/ux-ui-agent-skills), MIT.
 
 ## `game` — Game Dev Review Board
 
@@ -184,7 +217,9 @@ Some skills write outside their own install directory, on purpose, when you run 
 into `~/.claude/skills` (`CLAUDE_SKILLS_DIR` overrides); `core`'s prime installs `graphify` plus
 git and Claude Code hooks into the repo you point it at (`graph.sh --no-hooks` skips the hooks);
 and `meta`'s `harvest` clones the GitHub repository you name and copies its skills into
-`~/.claude/skills`. [SECURITY.md](SECURITY.md) spells them all out. The `dev` and `ddd` pipelines
+`~/.claude/skills`; `design`'s render gates install Playwright into the plugin's own `shared/`
+when you run the install command its skills print, keep gate receipts in the plugin data directory
+or the OS temp directory, and its `scaffold-project` writes a new project where you point it. [SECURITY.md](SECURITY.md) spells them all out. The `dev` and `ddd` pipelines
 write their working documents inside the repository you run them in (`ai_docs/` and `ddd/`), which
 is the point.
 
@@ -208,7 +243,7 @@ Most of a clone is the `ddd` plugin's golden test fixtures. `.gitignore` keeps t
 
 | Ignored | Why |
 |---|---|
-| `**/node_modules/` | the Playwright fixture install under `code/skills/e2e-harness/evals/fixtures/`, which dwarfs the fixture itself; also the install for `code/skills/complexity-sweep`'s bundled CLI, which the skill runs `npm install` for on first use |
+| `**/node_modules/` | the Playwright fixture install under `code/skills/e2e-harness/evals/fixtures/`, which dwarfs the fixture itself; also the install for `code/skills/complexity-sweep`'s bundled CLI, which the skill runs `npm install` for on first use; and `design/shared`'s Playwright and axe-core runtime for the render gates |
 | `**/e2e/artifacts/` | regenerated by `e2e run` |
 | `__pycache__/`, `.pytest_cache/` | test caches |
 
