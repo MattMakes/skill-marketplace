@@ -1,0 +1,210 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1684 1191" data-paper-size="A2" role="img" aria-labelledby="rel-title rel-desc">
+  <title id="rel-title">Relay Orchard: 3-day restoration system design</title>
+  <desc id="rel-desc">A one-page heavy design for Relay Orchard, a solo 3-day desktop game about repairing a radio observatory. Six linked subsystems show a spatial travel map, local rules with stable IDs, a normal 3-day win trace, an energy-shortage recovery trace, and open decisions.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 Z" fill="context-stroke"/>
+    </marker>
+    <marker id="diamond" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 5 L5 0 L10 5 L5 10 Z" fill="context-stroke"/>
+    </marker>
+    <marker id="arrow-start" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="context-stroke"/>
+    </marker>
+    <style>
+      text { font-family: Arial, Helvetica, sans-serif; fill: #18242c; }
+      .paper { fill: #f7f3e8; }
+      .title { font-size: 32px; font-weight: 700; letter-spacing: .4px; }
+      .subtitle { font-size: 15px; fill: #485964; }
+      .meta { font-size: 13px; fill: #485964; }
+      .panel { fill: #fffdf7; stroke: #50636b; stroke-width: 2; }
+      .panelHead { font-size: 18px; font-weight: 700; fill: #fff; letter-spacing: .4px; }
+      .headA { fill: #176c6d; } .headB { fill: #385b8e; } .headC { fill: #6d5184; }
+      .node rect { fill: #fff; stroke: #263943; stroke-width: 2; }
+      .nodeTitle { font-size: 13px; font-weight: 700; }
+      .nodeBody { font-size: 12px; fill: #40515b; }
+      .rule { font-size: 11px; font-weight: 700; fill: #9b402e; }
+      .edge { fill: none; stroke: #344e5a; stroke-width: 2.5; marker-end: url(#arrow); }
+      .edgeBoth { fill: none; stroke: #344e5a; stroke-width: 2.5; marker-end: url(#arrow); marker-start: url(#arrow-start); }
+      .resource { fill: none; stroke: #0d7a76; stroke-width: 4; marker-end: url(#arrow); }
+      .risk { fill: none; stroke: #a13d35; stroke-width: 3; stroke-dasharray: 9 6; marker-end: url(#diamond); }
+      .recover { fill: none; stroke: #376c3d; stroke-width: 3; stroke-dasharray: 4 5; marker-end: url(#arrow); }
+      .edgeLabel { font-size: 12px; font-weight: 700; paint-order: stroke; stroke: #f7f3e8; stroke-width: 5; stroke-linejoin: round; }
+      .noteBox { fill: #fff9df; stroke: #876e28; stroke-width: 2; }
+      .noteHead { font-size: 15px; font-weight: 700; }
+      .noteText { font-size: 11.5px; }
+      .tiny { font-size: 11px; fill: #52616a; }
+      .mapNode circle { fill: #fff; stroke: #263943; stroke-width: 2.5; }
+      .mapLabel { font-size: 13px; font-weight: 700; }
+      .openBadge { fill: #fff; stroke: #7a5b12; stroke-width: 2; stroke-dasharray: 6 4; }
+      .openText { font-size: 11px; font-weight: 700; fill: #7a5b12; }
+      .winBadge { fill: #eaf6ea; stroke: #2f6b32; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <rect class="paper" width="1684" height="1191"/>
+
+  <g id="page-metadata">
+    <text class="title" x="44" y="55">RELAY ORCHARD</text>
+    <text class="subtitle" x="44" y="80">What must the player track over 3 days to repair the receiver and install the relay before Day 3 ends?</text>
+    <text class="meta" x="1640" y="50" text-anchor="end">Scope: full 3-day restoration; solo desktop; AP/energy/resource economy</text>
+    <text class="meta" x="1640" y="74" text-anchor="end">Revision 1 (v1) | 2026-09-27 | A2 landscape</text>
+    <path d="M44 98 H1640" stroke="#18242c" stroke-width="3"/>
+  </g>
+
+  <!-- Row 1 -->
+  <g id="sys-day">
+    <rect class="panel" x="44" y="122" width="500" height="290" rx="12"/>
+    <path class="headA" d="M44 134 Q44 122 56 122 H532 Q544 122 544 134 V164 H44Z"/>
+    <text class="panelHead" x="62" y="150">1 / DAY AND FORECAST</text>
+    <text id="rule-R-01" class="tiny" x="62" y="176">R-01: 6 AP/day; an action needs its AP + resources to start</text>
+    <g id="node-dawn" class="node"><rect x="62" y="183" width="214" height="80" rx="8"/><text class="nodeTitle" x="76" y="210">Dawn 1 start state</text><text class="nodeBody" x="76" y="234">AP6 En6 Wtr2 Scr2; rest start 0.</text><text id="rule-R-01b" class="rule" x="76" y="253">R-01b: no store capacity limit</text></g>
+    <g id="node-forecast" class="node"><rect x="312" y="183" width="214" height="80" rx="8"/><text class="nodeTitle" x="326" y="210">Weather forecast</text><text class="nodeBody" x="326" y="234">Names next dawn: clear or storm.</text><text id="rule-R-08" class="rule" x="326" y="253">R-08: accurate; schedule OPEN</text></g>
+    <g id="node-day-end" class="node"><rect x="62" y="295" width="214" height="80" rx="8"/><text class="nodeTitle" x="76" y="322">End the day</text><text class="nodeBody" x="76" y="346">Free to Workshop; AP resets.</text><text id="rule-R-02" class="rule" x="76" y="365">R-02: stores/progress persist</text></g>
+    <g id="node-storm" class="node"><rect x="312" y="295" width="214" height="80" rx="8"/><text class="nodeTitle" x="326" y="322">Storm effect</text><text class="nodeBody" x="326" y="346">Cuts combined dawn fruit yield by 1.</text><text id="rule-R-07" class="rule" x="326" y="365">R-07: floor 0; see subsystem 4</text></g>
+    <path id="edge-dawn-forecast" class="edge" d="M276 223 H312"/>
+    <path id="edge-forecast-storm" class="risk" d="M419 263 V295"/>
+    <text id="E-map-day" class="tiny" x="62" y="396">END DAY: return to Workshop; next dawn AP6 (R-02).</text>
+  </g>
+
+  <g id="sys-map">
+    <rect class="panel" x="592" y="122" width="500" height="290" rx="12"/>
+    <path class="headB" d="M592 134 Q592 122 604 122 H1080 Q1092 122 1092 134 V164 H592Z"/>
+    <text class="panelHead" x="610" y="150">2 / LOCATION AND TRAVEL (ENTRY POINT)</text>
+    <g id="map-nodes" class="mapNode">
+      <circle id="node-workshop" cx="842" cy="288" r="32"/>
+      <text class="mapLabel" x="842" y="284" text-anchor="middle">WORK-</text>
+      <text class="mapLabel" x="842" y="298" text-anchor="middle">SHOP</text>
+      <circle id="node-grove" cx="700" cy="288" r="26"/>
+      <text class="mapLabel" x="700" y="292" text-anchor="middle">GROVE</text>
+      <circle id="node-reservoir" cx="842" cy="198" r="26"/>
+      <text class="mapLabel" x="842" y="192" text-anchor="middle">RESER-</text>
+      <text class="mapLabel" x="842" y="204" text-anchor="middle">VOIR</text>
+      <circle id="node-observatory" cx="984" cy="288" r="32"/>
+      <text class="mapLabel" x="984" y="284" text-anchor="middle">OBSER-</text>
+      <text class="mapLabel" x="984" y="296" text-anchor="middle">VATORY</text>
+    </g>
+    <path id="edge-travel-grove" class="edgeBoth" d="M728 288 H810"/>
+    <path id="edge-travel-reservoir" class="edgeBoth" d="M842 224 V256"/>
+    <path id="edge-travel-observatory" class="edgeBoth" d="M874 288 H952"/>
+    <text id="rule-R-03" class="rule" x="700" y="345">R-03: every leg costs 1 AP + 1 energy; bidirectional</text>
+    <text class="tiny" x="610" y="365">No route connects Grove, Reservoir, or Observatory directly.</text>
+    <text class="tiny" x="610" y="382">Player starts Day 1 at Workshop. Charger (subsystem 3) works at any node.</text>
+    <text class="tiny" x="610" y="399">The map shows legal travel; other panels explain costs and resource dependencies.</text>
+  </g>
+
+  <g id="sys-energy">
+    <rect class="panel" x="1140" y="122" width="500" height="290" rx="12"/>
+    <path class="headC" d="M1140 134 Q1140 122 1152 122 H1628 Q1640 122 1640 134 V164 H1140Z"/>
+    <text class="panelHead" x="1158" y="150">3 / ENERGY AND RECOVERY</text>
+    <g id="node-travel-cost" class="node"><rect x="1158" y="183" width="214" height="80" rx="8"/><text class="nodeTitle" x="1172" y="210">Travel drains energy</text><text class="nodeBody" x="1172" y="234">Each Workshop leg costs 1 energy.</text><text class="rule" x="1172" y="253">R-03 (shared with subsystem 2)</text></g>
+    <g id="node-scan-cost" class="node"><rect x="1408" y="183" width="214" height="80" rx="8"/><text class="nodeTitle" x="1422" y="210">Scan drains energy</text><text class="nodeBody" x="1422" y="234">Observatory scan costs 2 energy.</text><text class="rule" x="1422" y="253">R-11 (see subsystem 6)</text></g>
+    <g id="node-charger" class="node"><rect x="1158" y="295" width="214" height="80" rx="8"/><text class="nodeTitle" x="1172" y="322">Solar charger</text><text class="nodeBody" x="1172" y="346">Any location: 1 AP to gain 2 energy.</text><text id="rule-R-04" class="rule" x="1172" y="365">R-04: recovery path at 0 energy</text></g>
+    <g id="node-energy-persist" class="node"><rect x="1408" y="295" width="214" height="80" rx="8"/><text class="nodeTitle" x="1422" y="322">Energy carries over</text><text class="nodeBody" x="1422" y="346">Dawn resets AP only, not energy.</text><text class="rule" x="1422" y="365">Entailed by R-02; see both traces</text></g>
+    <path id="edge-charger-travel" class="recover" d="M1265 295 V263"/>
+    <path id="E-energy-recover" class="recover" d="M1372 335 C1392 335 1388 223 1408 223"/>
+  </g>
+
+  <!-- Row 2 -->
+  <g id="sys-water">
+    <rect class="panel" x="44" y="466" width="500" height="290" rx="12"/>
+    <path class="headB" d="M44 478 Q44 466 56 466 H532 Q544 466 544 478 V508 H44Z"/>
+    <text class="panelHead" x="62" y="494">4 / WATER, TENDING, AND FRUIT</text>
+    <g id="node-collect-water" class="node"><rect x="62" y="527" width="214" height="80" rx="8"/><text class="nodeTitle" x="76" y="554">Collect water</text><text class="nodeBody" x="76" y="578">Reservoir: 1 AP to gain 2 water.</text><text id="rule-R-05" class="rule" x="76" y="597">R-05</text></g>
+    <g id="node-tend" class="node"><rect x="312" y="527" width="214" height="80" rx="8"/><text class="nodeTitle" x="326" y="554">Tend the grove</text><text class="nodeBody" x="326" y="578">Grove: 1 AP + 1 water to +1 marker.</text><text id="rule-R-06a" class="rule" x="326" y="597">R-06a: markers accumulate in-day</text></g>
+    <g id="node-dawn-fruit" class="node"><rect x="62" y="639" width="214" height="80" rx="8"/><text class="nodeTitle" x="76" y="666">Marker matures</text><text class="nodeBody" x="76" y="690">Next dawn: 2 fruit per marker.</text><text id="rule-R-06b" class="rule" x="76" y="709">R-06b: marker is cleared after</text></g>
+    <g id="node-storm-fruit" class="node"><rect x="312" y="639" width="214" height="80" rx="8"/><text class="nodeTitle" x="326" y="666">Storm reduces yield</text><text class="nodeBody" x="326" y="690">Combined fruit -1 that dawn, min 0.</text><text class="rule" x="326" y="709">R-07 (see subsystem 1)</text></g>
+    <path id="edge-water-tend" class="resource" d="M276 567 H312"/>
+    <path id="edge-tend-markers" class="resource" d="M419 607 C419 623 169 623 169 639"/>
+    <path id="edge-yield-storm-adjustment" class="risk" d="M276 679 H312"/>
+    <text class="edgeLabel" x="294" y="627" text-anchor="middle">MARKERS</text>
+    <text id="E-fruit-trade" class="tiny" x="62" y="744">FRUIT: trade at Workshop (R-09), after dawn yield (R-06b/R-07).</text>
+  </g>
+
+  <g id="sys-trade">
+    <rect class="panel" x="592" y="466" width="500" height="290" rx="12"/>
+    <path class="headA" d="M592 478 Q592 466 604 466 H1080 Q1092 466 1092 478 V508 H592Z"/>
+    <text class="panelHead" x="610" y="494">5 / TRADING AND SCRAP</text>
+    <g id="node-trade-fruit" class="node"><rect x="610" y="527" width="214" height="80" rx="8"/><text class="nodeTitle" x="624" y="554">Sell fruit</text><text class="nodeBody" x="624" y="578">Workshop: 2 fruit to 3 credits, 1 AP.</text><text id="rule-R-09" class="rule" x="624" y="597">R-09</text></g>
+    <g id="node-buy-scrap" class="node"><rect x="860" y="527" width="214" height="80" rx="8"/><text class="nodeTitle" x="874" y="554">Buy scrap</text><text class="nodeBody" x="874" y="578">2 credits + 1 AP to 1 scrap.</text><text id="rule-R-10" class="rule" x="874" y="597">R-10</text></g>
+    <g id="node-trade-scope" class="node"><rect x="610" y="639" width="214" height="80" rx="8"/><text class="nodeTitle" x="624" y="666">Trade scope</text><text class="nodeBody" x="624" y="690">No other trades exist at Workshop.</text><text class="rule" x="624" y="709">Guard on R-09 / R-10</text></g>
+    <g id="node-scrap-uses" class="node"><rect x="860" y="639" width="214" height="80" rx="8"/><text class="nodeTitle" x="874" y="666">Scrap spent downstream</text><text class="nodeBody" x="874" y="690">Repair uses 2 scrap; install uses 1.</text><text class="rule" x="874" y="709">See R-12, R-13</text></g>
+    <path id="edge-credit-purchase" class="resource" d="M824 567 H860"/>
+    <path id="edge-purchased-scrap" class="resource" d="M967 607 V639"/>
+    <text id="E-scrap-flow" class="tiny" x="610" y="744">SCRAP: funds receiver repair (R-12) and relay installation (R-13).</text>
+  </g>
+
+  <g id="sys-relay">
+    <rect class="panel" x="1140" y="466" width="500" height="290" rx="12"/>
+    <path class="headC" d="M1140 478 Q1140 466 1152 466 H1628 Q1640 466 1640 478 V508 H1140Z"/>
+    <text class="panelHead" x="1158" y="494">6 / RECEIVER, RESEARCH, AND RELAY</text>
+    <g id="node-repair" class="node"><rect x="1158" y="527" width="214" height="80" rx="8"/><text class="nodeTitle" x="1172" y="554">Repair the receiver</text><text class="nodeBody" x="1172" y="578">Observatory: 1 AP + 2 scrap.</text><text id="rule-R-12" class="rule" x="1172" y="597">R-12: persists; gates scan</text></g>
+    <g id="node-scan" class="node"><rect x="1408" y="527" width="214" height="80" rx="8"/><text class="nodeTitle" x="1422" y="554">Scan the sky</text><text class="nodeBody" x="1422" y="578">1 AP + 2 energy to gain 1 research.</text><text id="rule-R-11" class="rule" x="1422" y="597">R-11: needs repaired receiver</text></g>
+    <g id="node-install" class="node"><rect x="1158" y="639" width="214" height="80" rx="8"/><text class="nodeTitle" x="1172" y="666">Install the relay</text><text class="nodeBody" x="1172" y="690">2 AP + 2 research + 1 scrap.</text><text id="rule-R-13" class="rule" x="1172" y="709">R-13: persists; WINS pre-Day3-end</text></g>
+    <g id="node-incomplete" class="node"><rect x="1408" y="639" width="214" height="80" rx="8"/><text class="nodeTitle" x="1422" y="666">Incomplete restoration</text><text class="nodeBody" x="1422" y="690">Day 3 ends before install completes.</text><text id="rule-R-14" class="rule" x="1422" y="709">R-14: consequence OPEN (Q-02/Q-03)</text></g>
+    <path id="E-scan-gate" class="edge" d="M1372 567 H1408"/><path id="E-research-install" class="resource" d="M1515 607 C1515 626 1265 626 1265 639"/>
+    <text class="edgeLabel" x="1390" y="627" text-anchor="middle">RESEARCH</text>
+    <rect class="winBadge" x="1158" y="722" width="214" height="24" rx="6"/>
+    <text class="openText" x="1265" y="739" text-anchor="middle" fill="#2f6b32">WIN if installed before Day 3 ends (R-13)</text>
+  </g>
+
+  <g id="cross-system-connections">
+    <path id="edge-dawn-fruit-context" class="edge" d="M294 412 V466"/><text class="edgeLabel" x="294" y="440" text-anchor="middle">DAWN CLEARS MARKER</text>
+    <path id="edge-workshop-trade-context" class="edge" d="M842 412 V466"/><text class="edgeLabel" x="842" y="440" text-anchor="middle">WORKSHOP HOSTS TRADE</text>
+    <path id="edge-energy-scan-context" class="edge" d="M1390 412 V466"/><text class="edgeLabel" x="1390" y="440" text-anchor="middle">ENERGY GATES SCAN</text>
+    <path id="E-storm-fruit" class="risk" d="M419 375 C419 420 566 420 566 500 V640 C566 668 548 679 526 679"/>
+  </g>
+
+  <!-- Row 3: traces, legend, open decisions -->
+  <g id="trace-normal">
+    <rect class="noteBox" x="44" y="830" width="500" height="298" rx="10"/>
+    <text class="noteHead" x="62" y="852">NORMAL TRACE / 3-DAY WIN (clear weather both dawns)</text>
+    <text id="trace-normal-1" class="noteText" x="62" y="874">1. Dawn 1, Workshop: AP6 En6 Wtr2 Scr2 Frt0 Cred0 Res0 (R-01, R-01b).</text>
+    <text id="trace-normal-2" class="noteText" x="62" y="892">2. To Grove (R-03): AP5 En5. Tend (R-06a): AP4 Wtr1, +1 marker.</text>
+    <text id="trace-normal-3" class="noteText" x="62" y="910">3. To Workshop, to Observatory (R-03 x2): AP2 En3. Repair (R-12): AP1 Scr0.</text>
+    <text id="trace-normal-4" class="noteText" x="62" y="928">4. Scan (R-11): AP0 En1 Res1. No AP-costing action can start; player ends the day.</text>
+    <text id="trace-normal-5" class="noteText" x="62" y="946">5. Dawn 2, clear: marker matures, +2 fruit (R-06b). Start: AP6 En1 Wtr1 Frt2 Res1.</text>
+    <text id="trace-normal-6" class="noteText" x="62" y="964">6. Charge (R-04): AP5 En3. Sell fruit (R-09): AP4 Cred3. Buy scrap (R-10): AP3 Scr1.</text>
+    <text id="trace-normal-7" class="noteText" x="62" y="982">7. To Observatory: AP2 En2. Scan: AP1 En0 Res2. Player ends Day 2 with 1 AP unused.</text>
+    <text id="trace-normal-8" class="noteText" x="62" y="1000">8. Dawn 3: AP6 En0 Scr1 Res2. Charge (R-04): AP5 En2. To Observatory: AP4 En1.</text>
+    <text id="trace-normal-9" class="noteText" x="62" y="1018">9. Install (R-13): AP2 Res0 Scr0. Done before Day 3 ends: WIN (AP2, En1 spare).</text>
+    <text class="tiny" x="62" y="1059">The required energy-shortage recovery trace appears at right.</text>
+  </g>
+
+  <g id="trace-failure">
+    <rect class="noteBox" x="592" y="830" width="500" height="298" rx="10"/>
+    <text class="noteHead" x="610" y="852">ENERGY-SHORTAGE RECOVERY TRACE</text>
+    <text id="trace-fail-1" class="noteText" x="610" y="874">1. Resume at Day 3 start (from the normal trace above): AP6 En0 Wtr1 Scr1 Res2 Cred1.</text>
+    <text id="trace-fail-2" class="noteText" x="610" y="892">2. Attempt: to Observatory (R-03; needs 1 AP + 1 energy). BLOCKED: has 0 energy.</text>
+    <text id="trace-fail-3" class="noteText" x="610" y="910">3. State is unchanged: AP6 En0 (R-01, R-15 name the missing prerequisite).</text>
+    <text id="trace-fail-4" class="noteText" x="610" y="928">4. Charge (R-04): cost 1 AP, gain 2 energy. AP5 En2.</text>
+    <text id="trace-fail-5" class="noteText" x="610" y="946">5. Resume: to Observatory (R-03) now succeeds: AP4 En1. Repair persists (R-12).</text>
+    <text id="trace-fail-6" class="noteText" x="610" y="964">6. Install (R-13): AP2 Res0 Scr0. Done before Day 3 ends: WIN (AP2, En1 spare).</text>
+    <text class="noteHead" x="610" y="989">LEGEND</text>
+    <path class="edgeBoth" d="M610 1006 H660"/><text class="noteText" x="672" y="1011">Travel route (2-way)</text>
+    <path class="resource" d="M610 1028 H660"/><text class="noteText" x="672" y="1033">Resource flow</text>
+    <path class="risk" d="M610 1050 H660"/><text class="noteText" x="672" y="1055">Storm / conditional</text>
+    <path class="recover" d="M900 1006 H950"/><text class="noteText" x="962" y="1011">Recovery (charger)</text>
+    <rect class="openBadge" x="900" y="1022" width="18" height="14"/><text class="noteText" x="926" y="1033">= OPEN, not confirmed</text>
+    <text id="rule-R-15" class="tiny" x="610" y="1078">A disabled action names its missing prerequisite in the live HUD (R-15); step 2 is that case.</text>
+  </g>
+
+  <g id="open-issues">
+    <rect class="noteBox" x="1140" y="830" width="500" height="298" rx="10"/>
+    <text class="noteHead" x="1158" y="852">DESIGN INTENT AND OPEN DECISIONS</text>
+    <text class="noteText" x="1158" y="874">Experience: feel resourceful and caring while restoring the orchard's observatory.</text>
+    <text class="noteText" x="1158" y="892">Win: install the relay before Day 3 ends (R-13). Loss: incomplete restoration (R-14).</text>
+    <rect class="openBadge" x="1158" y="902" width="464" height="20" rx="4"/>
+    <text id="open-Q-01" class="openText" x="1166" y="916">Q-01 OPEN: weather schedule/random model; the forecast is accurate.</text>
+    <rect class="openBadge" x="1158" y="926" width="464" height="20" rx="4"/>
+    <text id="open-Q-02" class="openText" x="1166" y="940">Q-02 OPEN: story consequence after incomplete restoration.</text>
+    <rect class="openBadge" x="1158" y="950" width="464" height="20" rx="4"/>
+    <text id="open-Q-03" class="openText" x="1166" y="964">Q-03 OPEN: replay behavior after incomplete restoration.</text>
+    <rect class="openBadge" x="1158" y="974" width="464" height="20" rx="4"/>
+    <text id="open-Q-04" class="openText" x="1166" y="988">Q-04 OPEN: saving progress between real-world play sessions.</text>
+    <text id="playtest-T-01" class="noteText" x="1158" y="1016">PLAYTEST T-01 (test hypothesis, not a confirmed rule):</text>
+    <text class="noteText" x="1158" y="1034">Can new players identify the missing energy and use the charger without help?</text>
+    <text class="tiny" x="1158" y="1068">No combat, multiplayer, monetization, equipment leveling, or procedural map (C-02).</text>
+    <text class="tiny" x="1158" y="1085">Open items stay open. This page does not silently resolve them as confirmed rules.</text>
+  </g>
+</svg>

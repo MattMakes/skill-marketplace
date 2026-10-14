@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Beaconfall Courier — one-page game design</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #18212b;
+      --muted: #52606d;
+      --paper: #f7f4ec;
+      --panel: #fffdf7;
+      --line: #46606f;
+      --action: #a5462d;
+      --selected: #fff0a8;
+      --related: #dcecf1;
+      --open: #fff4df;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #dce2e5;
+      font: 16px/1.4 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .page {
+      width: min(100% - 2rem, 1320px);
+      margin: 1rem auto;
+      padding: clamp(1rem, 2vw, 2rem);
+      background: var(--paper);
+      box-shadow: 0 0.35rem 1.5rem rgb(24 33 43 / 18%);
+    }
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.75rem 2rem;
+      align-items: end;
+      padding-bottom: 0.8rem;
+      border-bottom: 3px solid var(--ink);
+    }
+    h1, h2, p { margin-top: 0; }
+    h1 { margin-bottom: 0.15rem; font-size: clamp(1.7rem, 3vw, 2.8rem); line-height: 1.05; }
+    h2 { margin-bottom: 0.45rem; font-size: 1.05rem; text-transform: uppercase; letter-spacing: 0.055em; }
+    .eyebrow, .metadata, .scope { color: var(--muted); }
+    .eyebrow { margin-bottom: 0.3rem; font-size: 0.78rem; font-weight: 750; letter-spacing: 0.11em; text-transform: uppercase; }
+    .scope { margin-bottom: 0; }
+    .metadata { text-align: right; font-size: 0.9rem; }
+    .metadata p { margin-bottom: 0.15rem; }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(16rem, 1fr);
+      gap: 1.2rem;
+      margin-top: 1.2rem;
+    }
+    .diagram-card, .panel, .print-notes section {
+      border: 1.5px solid var(--line);
+      border-radius: 0.65rem;
+      background: var(--panel);
+    }
+    .diagram-card { padding: 0.75rem; min-width: 0; }
+    svg { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; }
+    .edge { fill: none; stroke: var(--line); stroke-width: 3; marker-end: url(#arrow); transition: opacity 120ms, stroke-width 120ms; }
+    .edge-label { fill: var(--ink); font-size: 14px; font-weight: 650; text-anchor: middle; paint-order: stroke; stroke: var(--panel); stroke-width: 5px; stroke-linejoin: round; }
+    .node { cursor: pointer; outline: none; }
+    .node rect { fill: var(--panel); stroke: var(--ink); stroke-width: 3; transition: fill 120ms, opacity 120ms; }
+    .node text { fill: var(--ink); text-anchor: middle; pointer-events: none; }
+    .node .node-title { font-size: 18px; font-weight: 760; }
+    .node .node-subtitle { font-size: 13px; }
+    .node:focus-visible rect { stroke: #005fcc; stroke-width: 6; stroke-dasharray: 9 4; }
+    .diagram.has-selection .node:not(.is-selected):not(.is-related),
+    .diagram.has-selection .edge:not(.is-related),
+    .diagram.has-selection .edge-label:not(.is-related) { opacity: 0.24; }
+    .node.is-selected rect { fill: var(--selected); stroke-width: 6; }
+    .node.is-selected .node-title::after { content: ""; }
+    .node.is-related rect { fill: var(--related); stroke-width: 4; }
+    .edge.is-related { stroke: var(--action); stroke-width: 6; }
+    .edge-label.is-related { fill: var(--action); font-weight: 800; }
+    .selected-badge { display: none; fill: var(--ink); font-size: 12px; font-weight: 800; text-anchor: middle; }
+    .node.is-selected .selected-badge { display: block; }
+    .sidebar { display: grid; align-content: start; gap: 0.8rem; }
+    .panel { padding: 1rem; }
+    .panel p:last-child, .panel ul:last-child { margin-bottom: 0; }
+    button {
+      min-height: 2.75rem;
+      padding: 0.55rem 0.9rem;
+      border: 2px solid var(--ink);
+      border-radius: 0.4rem;
+      color: var(--ink);
+      background: white;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button:hover { background: var(--related); }
+    button:focus-visible { outline: 4px solid #005fcc; outline-offset: 3px; }
+    .legend { display: grid; gap: 0.45rem; margin: 0; padding: 0; list-style: none; }
+    .swatch { display: inline-block; width: 1.2rem; height: 0.8rem; margin-right: 0.45rem; border: 2px solid var(--ink); vertical-align: -0.05rem; }
+    .swatch.selected { background: var(--selected); border-width: 3px; }
+    .swatch.related { background: var(--related); }
+    .swatch.open { background: var(--open); border-style: dashed; }
+    .print-notes {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.8rem;
+      margin-top: 0.8rem;
+    }
+    .print-notes section { padding: 0.8rem; }
+    .print-notes ul { margin: 0; padding-left: 1.1rem; }
+    .open-issue { background: var(--open) !important; border-style: dashed !important; }
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 760px) {
+      .page { width: 100%; margin: 0; padding: 1rem; }
+      header, .layout, .print-notes { grid-template-columns: 1fr; }
+      .metadata { text-align: left; }
+      .layout { gap: 0.8rem; }
+      .sidebar { grid-template-columns: 1fr; }
+      svg { min-width: 42rem; }
+      .diagram-scroll { overflow-x: auto; padding-bottom: 0.4rem; }
+      button { width: 100%; }
+    }
+
+    @page { size: A3 landscape; margin: 10mm; }
+    @media print {
+      html, body { width: 100%; min-height: 0; background: white; }
+      body { font-size: 10pt; line-height: 1.25; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .page { width: auto; margin: 0; padding: 0; box-shadow: none; background: white; }
+      header { padding-bottom: 3mm; }
+      h1 { font-size: 25pt; }
+      .layout { grid-template-columns: minmax(0, 4fr) minmax(52mm, 1fr); gap: 4mm; margin-top: 4mm; }
+      .diagram-card { padding: 2mm; }
+      svg { width: 100%; height: 171mm; aspect-ratio: auto; }
+      .interactive-only { display: none !important; }
+      .print-notes { grid-template-columns: repeat(3, 1fr); gap: 3mm; margin-top: 3mm; }
+      .panel, .print-notes section { padding: 3mm; break-inside: avoid; }
+      .diagram.has-selection .node,
+      .diagram.has-selection .edge,
+      .diagram.has-selection .edge-label { opacity: 1 !important; }
+      .node rect, .edge { transition: none; }
+      .node.is-selected rect, .node.is-related rect { fill: var(--panel); stroke-width: 3; }
+      .node:focus-visible rect { stroke: var(--ink); stroke-width: 3; stroke-dasharray: none; }
+      .edge.is-related { stroke: var(--line); stroke-width: 3; }
+      .edge-label.is-related { fill: var(--ink); font-weight: 650; }
+      .selected-badge { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <div>
+        <p class="eyebrow">Fictional example · whole-game overview</p>
+        <h1>Beaconfall Courier</h1>
+        <p class="scope">Scope: the repeatable journey from accepting a delivery to improving the lighthouse network.</p>
+      </div>
+      <div class="metadata" aria-label="Document metadata">
+        <p><strong>Revision:</strong> 0.3</p>
+        <p><strong>Date:</strong> 2026-09-27</p>
+        <p><strong>Audience:</strong> design team and playtesters</p>
+      </div>
+    </header>
+
+    <div class="layout">
+      <section class="diagram-card" aria-labelledby="diagram-heading">
+        <h2 id="diagram-heading">Journey and resource loop</h2>
+        <p id="diagram-summary" class="visually-hidden">A design diagram with five stages. The courier accepts a contract, plans a route, crosses a storm, delivers a beacon part, and upgrades the boat. Supplies support crossing the storm. Trust earned from delivery unlocks harder contracts.</p>
+        <div class="diagram-scroll">
+          <svg class="diagram" viewBox="0 0 960 600" role="img" aria-labelledby="svg-title svg-desc" data-diagram>
+            <title id="svg-title">Beaconfall Courier game design diagram</title>
+            <desc id="svg-desc">Five interactive nodes show the delivery journey and its resource relationships. Select a node for details.</desc>
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"></path>
+              </marker>
+            </defs>
+
+            <path id="edge-contract-route" class="edge" data-from="node-contract" data-to="node-route" d="M 240 134 C 310 134, 320 134, 390 134"></path>
+            <text id="label-contract-route" class="edge-label" x="315" y="119">choose risk</text>
+            <path id="edge-route-storm" class="edge" data-from="node-route" data-to="node-storm" d="M 570 134 C 650 134, 670 174, 710 242"></path>
+            <text id="label-route-storm" class="edge-label" x="655" y="153">spend supplies</text>
+            <path id="edge-storm-delivery" class="edge" data-from="node-storm" data-to="node-delivery" d="M 710 358 C 670 426, 650 466, 570 466"></path>
+            <text id="label-storm-delivery" class="edge-label" x="664" y="447">arrive or recover</text>
+            <path id="edge-delivery-upgrade" class="edge" data-from="node-delivery" data-to="node-upgrade" d="M 390 466 C 320 466, 310 466, 240 466"></path>
+            <text id="label-delivery-upgrade" class="edge-label" x="315" y="451">earn trust</text>
+            <path id="edge-upgrade-contract" class="edge" data-from="node-upgrade" data-to="node-contract" d="M 150 408 C 72 350, 72 250, 150 192"></path>
+            <text id="label-upgrade-contract" class="edge-label" x="78" y="300" transform="rotate(-90 78 300)">unlock contracts</text>
+            <path id="edge-route-delivery" class="edge" data-from="node-route" data-to="node-delivery" d="M 480 192 L 480 408" stroke-dasharray="10 7"></path>
+            <text id="label-route-delivery" class="edge-label" x="480" y="305">route promise</text>
+
+            <g id="node-contract" class="node" role="button" tabindex="0" aria-label="Accept contract. Goal: choose cargo, deadline, and reward." data-title="Accept contract" data-detail="Choose one cargo, a destination, and a deadline. The contract makes risk and reward visible before departure.">
+              <rect x="60" y="76" width="180" height="116" rx="16"></rect>
+              <text class="node-title" x="150" y="124">Accept contract</text>
+              <text class="node-subtitle" x="150" y="151">cargo · deadline · reward</text>
+              <text class="selected-badge" x="150" y="178">SELECTED</text>
+            </g>
+            <g id="node-route" class="node" role="button" tabindex="0" aria-label="Plan route. Trade time, safety, and supplies." data-title="Plan route" data-detail="Compare known channels. A safer path costs time; a faster path exposes the boat to stronger weather.">
+              <rect x="390" y="76" width="180" height="116" rx="16"></rect>
+              <text class="node-title" x="480" y="124">Plan route</text>
+              <text class="node-subtitle" x="480" y="151">time ↔ safety ↔ supplies</text>
+              <text class="selected-badge" x="480" y="178">SELECTED</text>
+            </g>
+            <g id="node-storm" class="node" role="button" tabindex="0" aria-label="Cross storm. Read waves and commit fuel or cargo." data-title="Cross storm" data-detail="Read the wave pattern, then commit fuel or risk cargo. Failure damages the boat but keeps recovery possible.">
+              <rect x="710" y="242" width="190" height="116" rx="16"></rect>
+              <text class="node-title" x="805" y="290">Cross storm</text>
+              <text class="node-subtitle" x="805" y="317">read · commit · recover</text>
+              <text class="selected-badge" x="805" y="344">SELECTED</text>
+            </g>
+            <g id="node-delivery" class="node" role="button" tabindex="0" aria-label="Deliver beacon part. Earn trust based on condition and time." data-title="Deliver beacon part" data-detail="Delivery scores cargo condition and arrival time. Islanders grant trust and reveal consequences in the next voyage.">
+              <rect x="390" y="408" width="180" height="116" rx="16"></rect>
+              <text class="node-title" x="480" y="456">Deliver part</text>
+              <text class="node-subtitle" x="480" y="483">condition + time → trust</text>
+              <text class="selected-badge" x="480" y="510">SELECTED</text>
+            </g>
+            <g id="node-upgrade" class="node" role="button" tabindex="0" aria-label="Upgrade boat. Spend trust to add one capability." data-title="Upgrade boat" data-detail="Spend trust on one visible capability. Each upgrade changes route options instead of only increasing a number.">
+              <rect x="60" y="408" width="180" height="116" rx="16"></rect>
+              <text class="node-title" x="150" y="456">Upgrade boat</text>
+              <text class="node-subtitle" x="150" y="483">trust → new capability</text>
+              <text class="selected-badge" x="150" y="510">SELECTED</text>
+            </g>
+
+            <g aria-label="Supply resource">
+              <rect x="386" y="270" width="188" height="62" rx="31" fill="#e6efe0" stroke="#37533a" stroke-width="3"></rect>
+              <text x="480" y="295" text-anchor="middle" font-size="16" font-weight="750">SUPPLIES</text>
+              <text x="480" y="317" text-anchor="middle" font-size="13">fuel · repair kit · cargo space</text>
+            </g>
+          </svg>
+        </div>
+      </section>
+
+      <aside class="sidebar" aria-label="Diagram support information">
+        <section class="panel interactive-only" aria-live="polite" aria-atomic="true">
+          <h2 id="detail-title">Explore the diagram</h2>
+          <p id="detail-copy">Select a stage to emphasize its direct relationships. Use a pointer, or focus a stage and press Enter or Space.</p>
+          <button id="reset" type="button">Reset diagram</button>
+        </section>
+        <section class="panel">
+          <h2>Legend</h2>
+          <ul class="legend">
+            <li><span class="swatch selected"></span>Selected stage (screen only)</li>
+            <li><span class="swatch related"></span>Direct relationship (screen only)</li>
+            <li><span class="swatch open"></span>Unresolved choice</li>
+            <li>Solid arrow: required progression</li>
+            <li>Dashed arrow: promise checked later</li>
+          </ul>
+        </section>
+        <section class="panel">
+          <h2>Player experience</h2>
+          <p>Make tense, informed commitments and see isolated islands reconnect because of each delivery.</p>
+        </section>
+      </aside>
+    </div>
+
+    <div class="print-notes">
+      <section>
+        <h2>Key rules</h2>
+        <ul>
+          <li>Accept only 1 active contract.</li>
+          <li>Choose a route before the weather is revealed.</li>
+          <li>A failed crossing costs time or cargo, never the full campaign.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Feedback and consequences</h2>
+        <ul>
+          <li>Forecasts show likely wave patterns.</li>
+          <li>Boat damage changes steering immediately.</li>
+          <li>Lit beacons make later routes safer.</li>
+        </ul>
+      </section>
+      <section class="open-issue">
+        <h2>Unresolved choices</h2>
+        <ul>
+          <li>Does late delivery reduce trust or change the story?</li>
+          <li>Can players abandon cargo to save fuel?</li>
+          <li>Playtest: can a new player predict storm risk after 1 voyage?</li>
+        </ul>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    (() => {
+      const diagram = document.querySelector('[data-diagram]');
+      const nodes = [...diagram.querySelectorAll('.node')];
+      const edges = [...diagram.querySelectorAll('.edge')];
+      const detailTitle = document.querySelector('#detail-title');
+      const detailCopy = document.querySelector('#detail-copy');
+      const resetButton = document.querySelector('#reset');
+      const initialTitle = detailTitle.textContent;
+      const initialCopy = detailCopy.textContent;
+
+      function reset() {
+        diagram.classList.remove('has-selection');
+        nodes.forEach((node) => {
+          node.classList.remove('is-selected', 'is-related');
+          node.setAttribute('aria-pressed', 'false');
+        });
+        edges.forEach((edge) => {
+          edge.classList.remove('is-related');
+          document.querySelector(`#label-${edge.id.slice(5)}`)?.classList.remove('is-related');
+        });
+        detailTitle.textContent = initialTitle;
+        detailCopy.textContent = initialCopy;
+      }
+
+      function select(node) {
+        reset();
+        diagram.classList.add('has-selection');
+        node.classList.add('is-selected');
+        node.setAttribute('aria-pressed', 'true');
+        edges.forEach((edge) => {
+          if (edge.dataset.from === node.id || edge.dataset.to === node.id) {
+            edge.classList.add('is-related');
+            document.querySelector(`#label-${edge.id.slice(5)}`)?.classList.add('is-related');
+            const otherId = edge.dataset.from === node.id ? edge.dataset.to : edge.dataset.from;
+            document.querySelector(`#${otherId}`)?.classList.add('is-related');
+          }
+        });
+        detailTitle.textContent = node.dataset.title;
+        detailCopy.textContent = node.dataset.detail;
+      }
+
+      nodes.forEach((node) => {
+        node.setAttribute('aria-pressed', 'false');
+        node.addEventListener('click', () => select(node));
+        node.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            select(node);
+          }
+        });
+      });
+      resetButton.addEventListener('click', reset);
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') reset();
+      });
+    })();
+  </script>
+</body>
+</html>

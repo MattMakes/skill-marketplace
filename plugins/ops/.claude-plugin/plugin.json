@@ -1,0 +1,28 @@
+{
+  "name": "ops",
+  "displayName": "Production Operations",
+  "version": "0.1.0",
+  "description": "Running software in production. Instrument code so it can be operated (structured logs, RED metrics, OpenTelemetry, symptom-based alerts with runbooks); define SLOs with an error-budget calculator that emits multi-window burn-rate alerts; run feature flags as a lifecycle with a flag-debt scanner, rollout planner and kill-switch audit; design chaos experiments with blast-radius math; plan zero-downtime migrations with compatibility and rollback generators; gate releases with a pre-production scanner across eight categories and a pre-launch checklist with staged-rollout thresholds; design CI/CD pipelines with promotion gates and canary or blue-green strategies and generate GitHub Actions workflows; analyze Dockerfiles and compose files, Terraform modules and state, and production Kubernetes manifests; cut Conventional-Commits changelogs and semver bumps; update dependencies and triage Dependabot PRs; generate human-in-the-loop bash wizards for manual setup steps; and write blameless postmortems. Contains third-party skills under their own licenses — see NOTICE.md.",
+  "author": {
+    "name": "Matt Scott"
+  },
+  "keywords": [
+    "observability",
+    "slo",
+    "sre",
+    "feature-flags",
+    "chaos-engineering",
+    "migrations",
+    "release",
+    "ci-cd",
+    "github-actions",
+    "docker",
+    "kubernetes",
+    "terraform",
+    "changelog",
+    "dependencies",
+    "dependabot",
+    "postmortem",
+    "devops"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "stack",
+  "displayName": "Stack References",
+  "version": "0.1.0",
+  "description": "Library and framework references with the gotchas a model gets wrong. GreenSock's official GSAP set (core, timeline, ScrollTrigger, plugins, utils, React, Vue/Svelte); a motion/react token-and-pattern system in three layers; Remotion's rules for programmatic video; Vercel's React and Next.js performance rules and the React docs' discipline for when not to use an Effect; shadcn/ui's official skill with project context from its CLI; Supabase's Postgres performance and RLS rules, opinionated PostgreSQL table design, Prisma traps, and zero-downtime migrations; the C++ Core Guidelines by section, Boost.Asio with version floors, and Swift 6.2 strict concurrency; .NET backend patterns and saga orchestration. Contains third-party skills under their own licenses — see NOTICE.md.",
+  "author": {
+    "name": "Matt Scott"
+  },
+  "keywords": [
+    "gsap",
+    "animation",
+    "motion",
+    "remotion",
+    "react",
+    "nextjs",
+    "shadcn",
+    "postgres",
+    "prisma",
+    "migrations",
+    "cpp",
+    "asio",
+    "swift",
+    "dotnet",
+    "saga",
+    "reference"
+  ]
+}

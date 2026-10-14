@@ -1,0 +1,25 @@
+{
+  "name": "agentic",
+  "displayName": "Agent Engineering",
+  "version": "0.1.0",
+  "description": "Building and running agents. loop-design-check gates whether a task deserves a loop, makes the goal machine-decidable and reviews a loop against five failure modes; agent-architecture-audit diagnoses a misbehaving agent stack across twelve layers with severity-ranked, code-first findings; human-gate runs the human sign-off lane of a loop with a single-file review page, a parseable feedback batch and a gate that refuses to close on open blockers; autoresearch-agent runs a Karpathy-style optimize loop that edits one file, evaluates, commits improvements and resets failures; agent-memory is a four-tier CLAUDE.md memory where promotion is earned by recurrence and adopted by a human; stow sweeps a session for durable knowledge and files it into existing CLAUDE.md, AGENTS.md or TODO conventions with tiered decay; writing-for-agents is the craft of documents agents consume; llm-friendly-context rewrites vague prompt wording into executable instructions; cli-for-agents is the checklist for CLIs agents can run reliably; book-to-skill compiles books and doc folders into progressive-disclosure skills with a validator and token budgets. Contains third-party skills under their own licenses — see NOTICE.md.",
+  "author": {
+    "name": "Matt Scott"
+  },
+  "keywords": [
+    "agents",
+    "agent-loops",
+    "autonomous",
+    "memory",
+    "claude-md",
+    "human-in-the-loop",
+    "review-gate",
+    "autoresearch",
+    "optimization",
+    "writing-for-agents",
+    "prompts",
+    "cli",
+    "skills",
+    "knowledge-base"
+  ]
+}

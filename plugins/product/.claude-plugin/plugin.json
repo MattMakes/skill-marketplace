@@ -1,0 +1,24 @@
+{
+  "name": "product",
+  "displayName": "Product Thinking and Specs",
+  "version": "0.1.0",
+  "description": "From idea to buildable spec. Interview skills that extract what the user actually wants before any plan exists: interview-me (one question at a time until 95% confidence), grilling (design-tree rounds with a recommended answer each), grill-with-docs (the same against CONTEXT.md and ADRs, with stdlib linters), requirement-convergence (outcome vs proposed requirements, user-authored non-goals, cost bands), intent-driven-development (AC-NNN acceptance criteria) and advanced-elicitation (a 71-method critique catalog served by a picker). Product critique: office-hours (YC-partner diagnostic with six forcing questions that ends in a design doc), product-brainstorming (HMW, JTBD, opportunity trees, SCAMPER, OODA), roast (five-angle adversarial panel and a GO/RESHAPE/KILL judge), prfaq (Amazon Working Backwards), devil (finds what a spec is silent about and rules Approve/Conditional/Reject), plan-ceo-review (founder-mode scope review plus an 11-section deep review), plan-design-review (seven UI/UX passes on a plan) and scientific-problem-selection (Fischbach and Walsh problem choice). Specs and PRDs: write-spec (PRD with INVEST stories, P0/P1/P2, metrics and acceptance criteria), spec (principal-engineer interrogation filed as a GitHub issue), spec-driven-workflow (RFC 2119 specs with a generator, validator and test extractor), code-to-prd (reverse-engineers a codebase into a PRD) and documentation-criteria (which of PRD, ADR, UI spec, design doc and work plan a change needs). Research: synthesize-research (thematic analysis of interviews and surveys), deep-research (triangulated multi-source investigation), deepread (claim-vs-evidence close reading) and litreview (PubMed and OpenAlex literature orientation). Contains third-party skills under their own licenses — see NOTICE.md.",
+  "author": {
+    "name": "Matt Scott"
+  },
+  "keywords": [
+    "product",
+    "prd",
+    "spec",
+    "requirements",
+    "acceptance-criteria",
+    "interview",
+    "brainstorming",
+    "office-hours",
+    "prfaq",
+    "plan-review",
+    "research",
+    "literature-review",
+    "user-research"
+  ]
+}

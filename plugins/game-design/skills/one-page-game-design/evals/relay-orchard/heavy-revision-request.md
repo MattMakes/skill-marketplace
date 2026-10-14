@@ -1,0 +1,1 @@
+Resume Relay Orchard from the saved record. Change the starting energy from 6 to 3. Increase the portable charger's yield from 2 energy to 3 energy for the same 1 AP. Preserve all other confirmed rules. Update the diagram, PDF, record, and both traces. Keep the earlier revision. Explain whether the revision changes the feasibility of installing the relay by the end of day 3.

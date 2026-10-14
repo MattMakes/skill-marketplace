@@ -1,0 +1,25 @@
+{
+  "name": "design",
+  "displayName": "Design Craft",
+  "version": "0.1.0",
+  "description": "Frontend design and UX craft. Design direction and anti-slop methods: frontend-design (Anthropic's calibrated guidance against templated defaults), impeccable (a design director with 25 playbook commands from critique to overdrive), hallmark (macrostructures, component archetypes and a 66-gate slop test for greenfield pages, audits, redesigns and URL studies), ui-ux-pro-max (a local search over curated styles, palettes, font pairings, UX guidelines and 22 stack guides), make-interfaces-feel-better (concentric radii, optical alignment, tabular numbers, interruptible motion), design-system-patterns (tokens, theming, component architecture) and design-md (a DESIGN.md token spec for a codebase). Motion: emil-design-eng (Emil Kowalski's animation and component rules) and review-animations (its reviewer). Review and audit: design-is (Dieter Rams scorecard with a NEW/REFINE/REDESIGN verdict), design-review (13 design questions, Nielsen Norman heuristics, before/after report), web-design-guidelines (Vercel's checklist), web-quality-audit and core-web-vitals. Accessibility: accessibility (WCAG 2.1 by POUR), a11y-audit (WCAG 2.2 scanner and contrast checker) and screen-reader-testing. Plus frontend-slides for animation-rich HTML decks. Contains third-party skills under their own licenses — see NOTICE.md.",
+  "author": {
+    "name": "Matt Scott"
+  },
+  "keywords": [
+    "design",
+    "frontend",
+    "ux",
+    "ui",
+    "typography",
+    "motion",
+    "animation",
+    "accessibility",
+    "wcag",
+    "design-system",
+    "design-tokens",
+    "design-review",
+    "core-web-vitals",
+    "slides"
+  ]
+}
