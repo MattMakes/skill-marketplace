@@ -1,6 +1,7 @@
-// Halstead parity across TypeScript, Python and Rust (design 5.9).
+// Halstead parity across TypeScript, Python, Rust and GDScript (design 5.9
+// and 9.5).
 //
-// Each case has the same logic in the 3 languages. Each language is asserted
+// Each case has the same logic in the 4 languages. Each language is asserted
 // against its own hand count. Where the counts differ, the comment states the
 // reason from the 5.9 table. TypeScript is the reference scheme: semantic
 // operators, and braces, parentheses, commas, colons and semicolons are
@@ -11,6 +12,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { halsteadVolumeDefinition } from "../../metrics/halstead";
 import { pythonHalsteadVolume } from "../../languages/python/operations";
 import { rustHalsteadVolume } from "../../languages/rust/operations";
+import { gdscriptHalsteadVolume } from "../../languages/gdscript/operations";
 import { createHarness } from "../metrics/testUtils";
 import { initSyntaxParsers, syntaxCtx } from "./syntaxTestUtils";
 
@@ -42,6 +44,10 @@ function pyDetail(source: string): HalsteadDetail {
 
 function rsDetail(source: string): HalsteadDetail {
   return detailOf(rustHalsteadVolume(syntaxCtx("rust", source)));
+}
+
+function gdDetail(source: string): HalsteadDetail {
+  return detailOf(gdscriptHalsteadVolume(syntaxCtx("gdscript", source)));
 }
 
 describe("Halstead parity: a loop with a sum", () => {
@@ -86,6 +92,20 @@ describe("Halstead parity: a loop with a sum", () => {
     // The tail expression `total` has no `return` operator.
     // Operands: xs total 0 x xs total x total -> n2 = 4, N2 = 8.
     expect(rsDetail(src)).toEqual({ n1: 5, n2: 4, N1: 5, N2: 8 });
+  });
+
+  it("GDScript", () => {
+    const src = `func sum_all(xs: Array) -> int:
+    var total := 0
+    for x in xs:
+        total += x
+    return total
+`;
+    // Operators: var = for in += return -> n1 = 6, N1 = 6.
+    // `var` is a declaration keyword like TypeScript `let`, and `:=` gives `=` (9.5).
+    // The loop gives `for` and `in`, where TypeScript gives `for`, `of` and `const`.
+    // Operands: xs total 0 x xs total x total -> n2 = 4, N2 = 8.
+    expect(gdDetail(src)).toEqual({ n1: 6, n2: 4, N1: 6, N2: 8 });
   });
 });
 
@@ -135,6 +155,21 @@ describe("Halstead parity: an if/else chain", () => {
     // Operands: n n 0 1 n 0 1 0 -> n2 = 3, N2 = 8.
     expect(rsDetail(src)).toEqual({ n1: 5, n2: 3, N1: 7, N2: 8 });
   });
+
+  it("GDScript", () => {
+    const src = `func sign(n: int) -> int:
+    if n > 0:
+        return 1
+    elif n < 0:
+        return -1
+    else:
+        return 0
+`;
+    // Operators: if; elif gives else and if; else; >, <, return x3, unary-
+    // -> n1 = 6, N1 = 10. Same as TypeScript.
+    // Operands: n n 0 1 n 0 1 0 -> n2 = 3, N2 = 8.
+    expect(gdDetail(src)).toEqual({ n1: 6, n2: 3, N1: 10, N2: 8 });
+  });
 });
 
 describe("Halstead parity: a call chain with member access", () => {
@@ -164,6 +199,16 @@ describe("Halstead parity: a call chain with member access", () => {
     // The chain is the tail expression, so there is no `return` operator.
     // Operands: users users filter is_active map get_name join ", " -> n2 = 7, N2 = 8.
     expect(rsDetail(src)).toEqual({ n1: 2, n2: 7, N1: 6, N2: 8 });
+  });
+
+  it("GDScript", () => {
+    const src = `func names(users: Array) -> String:
+    return users.filter(is_active).map(get_name).join(", ")
+`;
+    // Operators: return, . x3, () x3 -> n1 = 3, N1 = 7. Same as TypeScript.
+    // The chain is 1 flat `attribute` with 3 members: `.` x3 (9.5, child count minus 1).
+    // Operands: users users filter is_active map get_name join ", " -> n2 = 7, N2 = 8.
+    expect(gdDetail(src)).toEqual({ n1: 3, n2: 7, N1: 7, N2: 8 });
   });
 });
 
@@ -202,6 +247,18 @@ describe("Halstead parity: an index read and write", () => {
     // Operands: a i j t a i a i a j a j t -> n2 = 4, N2 = 13.
     expect(rsDetail(src)).toEqual({ n1: 3, n2: 4, N1: 8, N2: 13 });
   });
+
+  it("GDScript", () => {
+    const src = `func swap(a: Array, i: int, j: int) -> void:
+    var t = a[i]
+    a[i] = a[j]
+    a[j] = t
+`;
+    // Operators: var, = x3, [] x4 -> n1 = 3, N1 = 8.
+    // `var` is a declaration keyword like TypeScript `const`. Same counts as TypeScript.
+    // Operands: a i j t a i a i a j a j t -> n2 = 4, N2 = 13.
+    expect(gdDetail(src)).toEqual({ n1: 3, n2: 4, N1: 8, N2: 13 });
+  });
 });
 
 describe("Halstead parity: a boolean condition", () => {
@@ -231,6 +288,16 @@ describe("Halstead parity: a boolean condition", () => {
     // The condition is the tail expression, so there is no `return` operator.
     // Operands: user doc user is_admin user id doc owner_id doc locked -> n2 = 6, N2 = 10.
     expect(rsDetail(src)).toEqual({ n1: 5, n2: 6, N1: 8, N2: 10 });
+  });
+
+  it("GDScript", () => {
+    const src = `func can_edit(user: User, doc: Doc) -> bool:
+    return user.is_admin || (user.id == doc.owner_id && !doc.locked)
+`;
+    // Operators: return or and == not and . x4 -> n1 = 6, N1 = 9. Same as TypeScript.
+    // D8: `||`, `&&` and `!` count as `or`, `and` and `not`.
+    // Operands: user doc user is_admin user id doc owner_id doc locked -> n2 = 6, N2 = 10.
+    expect(gdDetail(src)).toEqual({ n1: 6, n2: 6, N1: 9, N2: 10 });
   });
 });
 
@@ -269,5 +336,17 @@ describe("Halstead parity: an early return", () => {
     // The last value is a tail expression, so it has no `return` operator.
     // Operands: a b b 0 0 a b -> n2 = 3, N2 = 7.
     expect(rsDetail(src)).toEqual({ n1: 4, n2: 3, N1: 4, N2: 7 });
+  });
+
+  it("GDScript", () => {
+    const src = `func safe_div(a: float, b: float) -> float:
+    if b == 0:
+        return 0
+    return a / b
+`;
+    // Operators: if == return x2 / -> n1 = 4, N1 = 5. Same as TypeScript.
+    // GDScript has an explicit `return`, like TypeScript.
+    // Operands: a b b 0 0 a b -> n2 = 3, N2 = 7.
+    expect(gdDetail(src)).toEqual({ n1: 4, n2: 3, N1: 5, N2: 7 });
   });
 });
