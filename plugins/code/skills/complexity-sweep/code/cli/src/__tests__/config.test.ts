@@ -20,9 +20,9 @@ describe("resolveConfig", () => {
     expect(config.thresholds.essentialComplexity?.warn).toBe(4);
   });
 
-  it("includes TypeScript, JavaScript, Python and Rust by default", () => {
+  it("includes TypeScript, JavaScript, Python, Rust and GDScript by default", () => {
     const config = resolveConfig({});
-    expect(config.include).toEqual(["**/*.ts", "**/*.js", "**/*.py", "**/*.rs"]);
+    expect(config.include).toEqual(["**/*.ts", "**/*.js", "**/*.py", "**/*.rs", "**/*.gd"]);
   });
 
   it("excludes tests, dependencies and build output by default", () => {
@@ -39,6 +39,12 @@ describe("resolveConfig", () => {
       "**/__pycache__/**",
       "**/site-packages/**",
       "**/target/**",
+      "**/test_*.gd",
+      "**/*_test.gd",
+      "**/*Test.gd",
+      "**/addons/**",
+      "**/.godot/**",
+      "**/.import/**",
     ]);
   });
 

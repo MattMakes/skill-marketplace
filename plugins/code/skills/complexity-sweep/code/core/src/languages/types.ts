@@ -1,4 +1,4 @@
-// Contract shared by the tree-sitter language backends (Python, Rust).
+// Contract shared by the tree-sitter language backends (Python, Rust, GDScript).
 //
 // TypeScript/JavaScript keep the ts-morph path (`MetricDefinition.compute`).
 // Every other language is parsed with web-tree-sitter and analyzed through a
@@ -17,7 +17,7 @@ import type { AnalysisOptions, MetricKey, MetricResult } from "../registry";
 export type { SyntaxNode, Tree };
 
 /** Languages parsed with tree-sitter. */
-export type SyntaxLanguageId = "python" | "rust";
+export type SyntaxLanguageId = "python" | "rust" | "gdscript";
 
 /** Every language the analyzer reads. "typescript" covers TS and JS files. */
 export type LanguageId = "typescript" | SyntaxLanguageId;

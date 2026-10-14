@@ -1,9 +1,10 @@
-// Test helpers for the Python and Rust backends. Contract file.
+// Test helpers for the Python, Rust and GDScript backends. Contract file.
 //
 // Call `await initSyntaxParsers()` in `beforeAll` before any helper here.
 // Trees are not deleted: a test process is short-lived.
 
 import type { AnalysisOptions } from "../../registry";
+import { isGdscriptFunction } from "../../languages/gdscript/nodeTypes";
 import { walkDescendants } from "../../languages/syntaxHelpers";
 import { parseSyntaxSource } from "../../languages/treeSitter";
 import type {
@@ -15,15 +16,23 @@ import type {
 
 export { initSyntaxParsers } from "../../languages/treeSitter";
 
-const FUNCTION_TYPE: Record<SyntaxLanguageId, string> = {
-  python: "function_definition",
-  rust: "function_item",
+// A GDScript unit is 1 of 4 node types (see languages/gdscript/nodeTypes.ts).
+const IS_FUNCTION: Record<SyntaxLanguageId, (node: SyntaxNode) => boolean> = {
+  python: (node) => node.type === "function_definition",
+  rust: (node) => node.type === "function_item",
+  gdscript: isGdscriptFunction,
+};
+
+const FIXTURE_PATH: Record<SyntaxLanguageId, string> = {
+  python: "test.py",
+  rust: "test.rs",
+  gdscript: "test.gd",
 };
 
 export function parseFixture(
   language: SyntaxLanguageId,
   text: string,
-  filePath = language === "python" ? "test.py" : "test.rs",
+  filePath = FIXTURE_PATH[language],
 ): SyntaxSourceFile {
   return parseSyntaxSource({ language, filePath, text });
 }
@@ -32,7 +41,7 @@ export function parseFixture(
 export function functionNodes(file: SyntaxSourceFile): SyntaxNode[] {
   const found: SyntaxNode[] = [];
   walkDescendants(file.tree.rootNode, (node) => {
-    if (node.type === FUNCTION_TYPE[file.language]) found.push(node);
+    if (IS_FUNCTION[file.language](node)) found.push(node);
   });
   return found;
 }

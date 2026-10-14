@@ -17,6 +17,7 @@ const GRAMMAR_DIR = join(__dirname, "..", "..", "grammars");
 const GRAMMAR_FILES: Record<SyntaxLanguageId, string> = {
   python: "tree-sitter-python.wasm",
   rust: "tree-sitter-rust.wasm",
+  gdscript: "tree-sitter-gdscript.wasm",
 };
 
 const parsers = new Map<SyntaxLanguageId, Parser>();

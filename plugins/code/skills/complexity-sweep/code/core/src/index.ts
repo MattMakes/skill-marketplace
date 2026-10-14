@@ -5,7 +5,7 @@ export { analyzeFile, analyzeSyntaxFile } from "./analyzeFile";
 export { analyzeProject, isSyntaxSourceInput } from "./analyzeProject";
 export type { ProjectSource } from "./analyzeProject";
 
-// Languages (Python and Rust through web-tree-sitter)
+// Languages (Python, Rust and GDScript through web-tree-sitter)
 export {
   getSyntaxBackend,
   languageForPath,
@@ -15,6 +15,7 @@ export {
 export { initSyntaxParsers, parseSyntaxSource } from "./languages/treeSitter";
 export { pythonBackend } from "./languages/python";
 export { rustBackend } from "./languages/rust";
+export { gdscriptBackend } from "./languages/gdscript";
 export {
   walkDescendants,
   sameNode,
