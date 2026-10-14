@@ -6,6 +6,8 @@ Use this template to generate one structured refactoring prompt per flagged func
 
 ## Refactoring Task: `{functionName}` in `{filePath}:{line}`
 
+**Language:** {language} (`typescript`, `python` or `rust`, from the `language` field of the file in the analysis output)
+
 ### Metric Violations
 
 | Metric | Value | Threshold | Severity |
@@ -30,4 +32,5 @@ Use this template to generate one structured refactoring prompt per flagged func
 - Preserve the function's external behavior and return type.
 - Maintain all existing error handling semantics.
 - Keep changes scoped to this function and any new helpers extracted from it.
-- After refactoring, re-run empowerment-sa to verify all metrics fall within thresholds.
+- Use the idioms of the file's language. For Python: guard clauses, comprehensions, `dataclass`, small helpers. For Rust: `?`, let-else, iterator chains, `match` arms moved to helper functions, newtypes. For TypeScript/JavaScript: the strategies in metric-guidance.md. See `Language notes` in metric-guidance.md.
+- After refactoring, re-run the complexity-sweep CLI to verify all metrics fall within thresholds.

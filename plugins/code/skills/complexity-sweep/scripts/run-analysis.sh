@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-# Run empowerment-sa analysis on target files and output JSON
+# Run static-analysis (complexity-sweep) analysis on target files and output JSON
 # Usage: run-analysis.sh <cli-path> [glob-patterns...] [-- extra-cli-flags]
 #
 # Examples:
 #   run-analysis.sh /path/to/index.js "src/**/*.ts"
 #   run-analysis.sh /path/to/index.js "src/api/*.ts" "src/utils/*.ts"
-#   run-analysis.sh /path/to/index.js "src/**/*.ts" -- --config .empowerment-sarc.json
+#   run-analysis.sh /path/to/index.js "src/**/*.ts" -- --config .static-analysisrc.json
+#   run-analysis.sh /path/to/index.js "app/**/*.py"      # Python
+#   run-analysis.sh /path/to/index.js "crates/**/*.rs"   # Rust
 #   run-analysis.sh /path/to/index.js  # uses repo config include globs
 
 set -euo pipefail

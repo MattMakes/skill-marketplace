@@ -240,3 +240,92 @@ Use this reference to understand what each metric measures, why a high value is 
   - **Reduce cyclomatic complexity** — Fewer decision points.
   - **Reduce LOC** — Shorter functions.
 - Start by checking which input metric is the primary driver (compare the function's V, CC, and LOC against their individual thresholds) and target that one first.
+
+---
+
+# Language notes
+
+All 14 metrics apply to TypeScript/JavaScript, Python and Rust. The sections above describe the TypeScript/JavaScript constructs. This section lists what counts in Python and in Rust, and the refactoring hints that fit each language.
+
+**Units.** A Python `def` or `async def` (including methods and nested functions) is one unit. A Rust `fn` item with a body is one unit (free functions, `impl` methods, trait default methods, nested functions, functions in inline `mod` blocks). A Python `lambda` and a Rust closure are not units: they stay part of the enclosing function. Rust `#[test]` functions and `#[cfg(test)]` modules are not analyzed.
+
+## Counts per metric
+
+### 1. Cyclomatic Complexity — v(G)
+- **Python:** `if`, `elif`, `for` (also `async for`), `while`, `case` (except a guard-free `case _:`), `except` (also `except*`), `and`, `or`, `x if c else y`, comprehension `for` and `if` clauses, and `case` guards.
+- **Rust:** `if` (also `if let`), `else if`, `for`, `while` (also `while let`), `match` arms (except a guard-free `_` arm), `match` guards, let-else, `&&`, `||` and the `?` operator (weight key `tryOperator`).
+
+### 2. Essential Complexity — ev(G)
+- **Python:** `continue`, and `raise` inside an `if` or `match`. Early `return` statements count as in TypeScript. Python has no labels, so no labeled `break` exists.
+- **Rust:** `continue`, labeled `break 'outer`, and `panic!`, `unreachable!`, `todo!` or `unimplemented!` inside an `if` or `match`. When the body ends in a tail expression, every `return` is early.
+
+### 3. Module Design Complexity — iv(G)
+- **Python:** `if`, `for`, `while`, `match`, conditional expressions and comprehensions or generator expressions whose subtree holds a `call`.
+- **Rust:** `if`, `for`, `while`, `loop` and `match` whose subtree holds a call, a method call or a macro invocation.
+
+### 4. Global Data Complexity — gdv(G)
+- **Python:** A module-level name that holds a `list`, `dict`, `set` or comprehension, or a call to `list`, `dict`, `set`, `defaultdict`, `deque`, `OrderedDict`, `Counter` or `bytearray`; a name that a `global` statement names; or a name that 2 or more top-level statements bind. A name that the function assigns without `global` is local.
+- **Rust:** A `static mut`, or a `static` whose type holds `Mutex`, `RwLock`, `RefCell`, `Cell`, `Atomic`, `OnceCell`, `OnceLock`, `LazyLock` or `Lazy`. A `const` never counts. `thread_local!` is not analyzed.
+
+### 5. Specified Data Complexity — sdv(G)
+- **Python:** Parameters that appear in an `if`/`elif`/`while` condition, a conditional expression, a `match` subject, a `case` guard or a comprehension `if`. `self` and `cls` do not count.
+- **Rust:** Parameter pattern leaves that appear in an `if` condition (for `if let`, the value), a `while` condition, a `match` value or a `match` guard. `self` does not count.
+
+### 6. Peak Live Variables — PLV
+- **Python:** One entry per name per function (function scope). Parameters, assignment, `for`, `with`, `except` and walrus targets, comprehension variables, imports and lambda parameters. `global` and `nonlocal` names are not entries.
+- **Rust:** One entry per declaration (block scope with shadowing). `let` patterns, parameters, `for` patterns, closure parameters and `match`, `if let` and `while let` bindings. `let x = x + 1;` makes a second entry.
+
+### 7. Variable Span — VSpan
+- **Python:** Same entries as PLV. A use in a nested `def` or `lambda` extends the span. The attribute part of `obj.name` and keyword-argument names are not uses.
+- **Rust:** Same entries as PLV. A use in a closure or macro token tree extends the span.
+
+### 8. ABC Score — ABC
+- **Python:** A = assignment targets, augmented assignments, walrus, `del` targets and mutating method calls (`append`, `extend`, `insert`, `pop`, `remove`, `clear`, `sort`, `update`, and similar). B = each `call`. C = `and`/`or`, each comparison operator in a chain, `if`, `elif`, `for`, `while`, comprehension clauses, `case` and conditional expressions. `except` adds nothing.
+- **Rust:** A = `let` with a value (one per pattern leaf), assignments, compound assignments and mutating method calls (`push`, `insert`, `remove`, `extend`, `sort`, `drain`, and similar). B = calls, macro invocations and struct expressions. C = `&&`, `||`, comparisons, `if`, loops, `match` arms and guards, let-else and `?`.
+
+### 9. Scope-Depth Weighted LOC — SDWL
+- **Python:** The body of `if`/`elif`/`else`, `for`/`while`, `try`/`except`/`finally`, `with`, `match`/`case` and a class body inside the function adds 1 level. A lambda body adds 1 level.
+- **Rust:** The block of `if`/`else`, `while`, `for`, `loop`, `unsafe`, `async`, a bare nested block and each `match` arm body adds 1 level. A closure body adds 1 level.
+
+### 10. Scope-Depth Ratio — SDR
+- **Python:** Same depth rules as SDWL. LOC excludes blank lines, comment lines and the docstring.
+- **Rust:** Same depth rules as SDWL. LOC excludes blank lines, comment lines (`//`, `/* */`) and brace-only lines.
+
+### 11. Halstead Volume — HVol
+- **Python:** Identifiers and literals are operands. A whole string (including an f-string) is 1 operand. Keywords, operators and punctuation are operators. Parameter annotations, return annotations and the type of an annotated assignment are skipped. The docstring is skipped.
+- **Rust:** Same classification. Type nodes (parameter and return types, `let` annotations, generics, `where` clauses), lifetimes and attributes are skipped. Tokens inside macro token trees are classified with the same rules.
+
+### 12. Halstead Difficulty — HDiff
+- **Python:** `n1`, `n2`, `N1` and `N2` come from the same classification as HVol.
+- **Rust:** Same classification. The unit header tokens (`fn`, the name, the visibility modifier) are not counted, as in Python (`def`, `async`, the name).
+
+### 13. Halstead Effort — HEff
+- **Python:** `D * V` from the values above.
+- **Rust:** `D * V` from the values above.
+
+### 14. Maintainability Index — MI
+- **Python:** The formula is unchanged. LOC excludes blank lines, comment lines, the docstring and nested units.
+- **Rust:** The formula is unchanged. LOC excludes blank lines, `line_comment` and `block_comment` lines, brace-only lines and nested units.
+
+## Refactoring hints
+
+**Python**
+- Use **guard clauses** (early `return` or `continue`) to flatten nested `if` blocks. This lowers v(G) and SDWL.
+- Replace an accumulator loop with a **comprehension** or a generator expression. A comprehension counts for v(G), so keep it to 1 `for` and 1 `if`.
+- Group a long parameter list into a **`dataclass`**. This lowers sdv(G) and PLV.
+- Move a block into a **small helper** function. This lowers PLV, VSpan, HVol and ABC together.
+- Replace a long `if`/`elif` chain with a dict lookup or `match`.
+
+**Rust**
+- Use **`?`** in place of nested `match` on `Result` or `Option`. It counts 1 in v(G) through `tryOperator`, against 1 or more arms for a `match`.
+- Use **let-else** (`let Some(x) = opt else { return ... };`) to flatten nesting.
+- Replace `for` loops that push into a `Vec` with **iterator chains** (`map`, `filter`, `collect`).
+- Move large `match` arms into **helper functions**, so the `match` holds 1 call per arm.
+- Wrap a bare `String` or `u64` parameter in a **newtype** to remove validation branches from callers.
+
+## Known limits
+
+- Rust macro arguments are token trees. Decision points and calls inside a macro are not seen. Identifiers count for def-use (PLV, VSpan) and tokens count for Halstead.
+- Python dynamic features (`eval`, `exec`, `setattr`, `globals()`) are not modeled.
+- Comprehension scope is approximated: comprehension variables are entries of the enclosing function.
+- Thresholds are the same for every language in this release.
