@@ -20,6 +20,10 @@
 //   an annotation or a class argument) belongs to the enclosing unit. The nested
 //   body is the only part that the binding scan skips.
 // - The unit's own name is not an occurrence (it binds in the enclosing scope).
+// - When the body starts with a docstring, a parameter entry has `defLine` =
+//   the last line of the docstring (design 5.6, "Docstring"). Otherwise the
+//   docstring lines would count in every parameter span. Other entries and
+//   comment lines in the body do not change.
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.parameterNameNodes = parameterNameNodes;
 exports.unitParameterNodes = unitParameterNodes;
@@ -29,6 +33,7 @@ exports.forEachResolvedName = forEachResolvedName;
 exports.buildPythonDefUse = buildPythonDefUse;
 const syntaxHelpers_1 = require("../syntaxHelpers");
 const nodeTypes_1 = require("./nodeTypes");
+const operations_scopeDepth_1 = require("./operations.scopeDepth");
 const METHOD_RECEIVERS = new Set(["self", "cls"]);
 /** Target node types whose named children are target leaves or nested patterns. */
 const TARGET_CONTAINER_TYPES = new Set([
@@ -153,11 +158,18 @@ function pythonScope(fn) {
     for (const param of params)
         scope.localNames.add(param.text);
     const bound = new Set();
+    const paramLine = parameterDefLine(fn);
     for (const param of unitParameterNodes(fn))
-        bind(scope, bound, param);
+        bind(scope, bound, param, paramLine);
     collectBindings(fn, scope, bound);
     scopeCache.set(fn, scope);
     return scope;
+}
+/** The `defLine` of a parameter entry: the end of a leading docstring, else the line of the name. */
+function parameterDefLine(fn) {
+    const body = fn.childForFieldName("body");
+    const docstring = body === null ? null : (0, operations_scopeDepth_1.pythonDocstring)(body);
+    return docstring === null ? null : (0, syntaxHelpers_1.endLineOf)(docstring);
 }
 /** Records `global` and `nonlocal` names of the unit (nested units skipped). */
 function collectDeclarations(fn, scope) {
@@ -276,14 +288,17 @@ function isCaseIdentifierCapture(id) {
 function isDeclaredOutside(scope, name) {
     return scope.declaredGlobal.has(name) || scope.declaredNonlocal.has(name);
 }
-/** Records the first binding of a name. `bound` holds the names that have an entry. */
-function bind(scope, bound, nameNode) {
+/**
+ * Records the first binding of a name. `bound` holds the names that have an
+ * entry. `line` replaces the line of the name node when it is not null.
+ */
+function bind(scope, bound, nameNode, line = null) {
     const name = nameNode.text;
     if (isDeclaredOutside(scope, name) || bound.has(name))
         return;
     bound.add(name);
     scope.localNames.add(name);
-    scope.bindings.push({ name, line: (0, syntaxHelpers_1.lineOf)(nameNode) });
+    scope.bindings.push({ name, line: line ?? (0, syntaxHelpers_1.lineOf)(nameNode) });
 }
 function nonNull(nodes) {
     return nodes.filter((node) => node !== null);

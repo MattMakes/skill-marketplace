@@ -1,7 +1,7 @@
 "use strict";
 // Language registry: maps a file path to a `LanguageId`, and a tree-sitter
 // language to its backend. TypeScript/JavaScript files go to ts-morph
-// (`analyzeFile`); Python and Rust files go to `analyzeSyntaxFile`.
+// (`analyzeFile`); Python, Rust and GDScript files go to `analyzeSyntaxFile`.
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TYPESCRIPT_EXTENSIONS = exports.SYNTAX_BACKENDS = void 0;
 exports.getSyntaxBackend = getSyntaxBackend;
@@ -9,9 +9,11 @@ exports.languageForPath = languageForPath;
 const node_path_1 = require("node:path");
 const python_1 = require("./python");
 const rust_1 = require("./rust");
+const gdscript_1 = require("./gdscript");
 exports.SYNTAX_BACKENDS = {
     python: python_1.pythonBackend,
     rust: rust_1.rustBackend,
+    gdscript: gdscript_1.gdscriptBackend,
 };
 /** Lower-case extensions (with the leading dot) that ts-morph analyzes. */
 exports.TYPESCRIPT_EXTENSIONS = [

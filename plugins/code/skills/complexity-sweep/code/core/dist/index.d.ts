@@ -5,6 +5,7 @@ export { getSyntaxBackend, languageForPath, SYNTAX_BACKENDS, TYPESCRIPT_EXTENSIO
 export { initSyntaxParsers, parseSyntaxSource } from "./languages/treeSitter";
 export { pythonBackend } from "./languages/python";
 export { rustBackend } from "./languages/rust";
+export { gdscriptBackend } from "./languages/gdscript";
 export { walkDescendants, sameNode, lineOf, endLineOf, createNodeCache, } from "./languages/syntaxHelpers";
 export type { LanguageId, SyntaxLanguageId, SyntaxSourceInput, SyntaxSourceFile, SyntaxFunction, SyntaxMetricContext, SyntaxMetricCompute, LanguageBackend, SyntaxNode, } from "./languages/types";
 export { MetricRegistry, MetricKeys } from "./registry";

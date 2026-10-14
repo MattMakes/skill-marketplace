@@ -38,6 +38,24 @@ const BRANCH_TYPES = new Set([
     "match_expression",
 ]);
 const CALL_TYPES = new Set(["call_expression", "macro_invocation"]);
+const BLOCK_LIKE_TAIL_TYPES = new Set([
+    "if_expression",
+    "match_expression",
+    "loop_expression",
+    "while_expression",
+    "for_expression",
+    "block",
+    "unsafe_block",
+]);
+// Statement-like children that can end a block but are never a tail (F9).
+const NON_TAIL_TYPES = new Set([
+    "empty_statement",
+    "let_declaration",
+    "macro_definition",
+    "use_declaration",
+    "extern_crate_declaration",
+    "inner_attribute_item",
+]);
 function computeRustCyclomaticComplexity(node, weights) {
     const resolvedWeights = { ...DEFAULT_WEIGHTS, ...weights };
     let complexity = 1;
@@ -104,10 +122,25 @@ function computeRustEssentialComplexity(node) {
             complexity += 1;
         }
     });
-    complexity += hasNonReturnTailExpression(node)
-        ? returns.length
-        : countReturnsBeforeTextuallyLast(returns);
+    complexity += countEarlyReturns(node, returns);
     return complexity;
+}
+/**
+ * Early returns (design 5.2). A value tail makes every return early. A
+ * block-like tail makes every return before it early and applies the
+ * TypeScript textual-last rule to the returns inside it (F7). Without a tail
+ * the textual-last rule applies to all returns.
+ */
+function countEarlyReturns(node, returns) {
+    const { kind, tail } = classifyTail(node);
+    if (kind === "value")
+        return returns.length;
+    if (kind === "none" || tail === null) {
+        return countReturnsBeforeTextuallyLast(returns);
+    }
+    const inside = returns.filter((candidate) => candidate.startIndex >= tail.startIndex &&
+        candidate.endIndex <= tail.endIndex);
+    return (returns.length - inside.length + countReturnsBeforeTextuallyLast(inside));
 }
 function isConditionalPanic(node, boundary) {
     if (node.type !== "macro_invocation")
@@ -135,13 +168,15 @@ function countReturnsBeforeTextuallyLast(returns) {
  * expression node, or an `expression_statement` whose last child is not the
  * `;` token. tree-sitter-rust wraps a final block-like expression (`if`,
  * `match`, `loop`, a block) in an `expression_statement` with no `;`.
+ * `tail` is the tail expression node when `kind` is not `none`.
  */
-function hasNonReturnTailExpression(node) {
+function classifyTail(node) {
+    const none = { kind: "none", tail: null };
     if (node.childForFieldName("return_type") === null)
-        return false;
+        return none;
     const body = node.childForFieldName("body");
     if (body === null)
-        return false;
+        return none;
     let last;
     for (let index = body.namedChildren.length - 1; index >= 0; index -= 1) {
         const child = body.namedChildren[index];
@@ -153,18 +188,26 @@ function hasNonReturnTailExpression(node) {
         }
     }
     if (last === undefined || last.type === "return_expression")
-        return false;
+        return none;
+    let tail = last;
     if (last.type === "expression_statement") {
         const final = last.child(last.childCount - 1);
         if (final === null || final.type === ";")
-            return false;
+            return none;
         // A final `return x` without `;` is wrapped the same way. It is no tail.
-        return last.namedChildren.at(-1)?.type !== "return_expression";
+        const inner = last.namedChildren.at(-1);
+        if (inner === undefined || inner.type === "return_expression")
+            return none;
+        tail = inner;
     }
-    if (last.type === "let_declaration")
-        return false;
     // Item declarations can omit semicolons, but they are not tail expressions.
-    return !last.type.endsWith("_item") && last.type !== "empty_statement";
+    if (NON_TAIL_TYPES.has(tail.type) || tail.type.endsWith("_item")) {
+        return none;
+    }
+    return {
+        kind: BLOCK_LIKE_TAIL_TYPES.has(tail.type) ? "blockLike" : "value",
+        tail,
+    };
 }
 const rustEssentialComplexity = (ctx) => {
     return computeRustEssentialComplexity(ctx.node);

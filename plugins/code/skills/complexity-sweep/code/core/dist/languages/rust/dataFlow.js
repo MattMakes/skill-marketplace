@@ -115,16 +115,33 @@ function collectLetCondition(condition, root, infos, patternSyntax) {
 }
 function addPatternBindings(pattern, scopeBoundary, initializer, excludedScope, infos, patternSyntax) {
     const bindings = bindingLeaves(pattern, patternSyntax);
+    const patternEnd = patternPartEnd(pattern);
     for (const binding of bindings) {
         infos.push({
             name: binding.name,
             defLine: (0, syntaxHelpers_1.lineOf)(binding.node),
             pattern,
+            patternEnd,
             scopeBoundary,
             initializer,
             excludedScope,
         });
     }
+}
+/** End offset of a pattern without the `condition` field of a `match_pattern`. */
+function patternPartEnd(pattern) {
+    if (pattern.type !== "match_pattern")
+        return pattern.endIndex;
+    const guard = pattern.childForFieldName("condition");
+    if (guard === null)
+        return pattern.endIndex;
+    let end = pattern.startIndex;
+    for (const child of pattern.namedChildren) {
+        if ((0, syntaxHelpers_1.sameNode)(child, guard))
+            continue;
+        end = Math.max(end, child.endIndex);
+    }
+    return end;
 }
 function bindingLeaves(pattern, patternSyntax) {
     const bindings = [];
@@ -150,11 +167,24 @@ function visitPatternNode(node, pattern, bindings, names, patternSyntax) {
     // equivalent to TypeScript destructured binding leaves.
     if (node.type === "identifier" && isInsidePatternType(node, pattern))
         return;
+    if (node.type === "identifier" && !isBindingIdentifier(node, pattern))
+        return;
     const name = node.text.replace(/^(?:ref|mut)\s+/, "");
     if (name.length === 0 || names.has(name))
         return;
     names.add(name);
     bindings.push({ name, node });
+}
+// An identifier in a `scoped_identifier` is a path (`Ordering::Less`). In a
+// refutable pattern (`match` arm, `if let`, `while let`) a bare upper-case
+// identifier is a variant or a constant (`None`, `MAX_LEN`). An irrefutable
+// pattern (`let`, parameter, `for`, closure) binds any name, so `let STATE = 1`
+// still shadows a global.
+function isBindingIdentifier(node, pattern) {
+    if (node.parent?.type === "scoped_identifier")
+        return false;
+    const refutable = pattern.type === "match_pattern" || pattern.parent?.type === "let_condition";
+    return !refutable || /^[a-z_]/.test(node.text);
 }
 function isInsidePatternType(node, pattern) {
     let current = node;
@@ -172,18 +202,12 @@ function isInsidePatternType(node, pattern) {
     return false;
 }
 function scanIdentifierUses(root, infos, patternSyntax, lastUseLines) {
-    (0, syntaxHelpers_1.walkDescendants)(root, (node) => {
-        if ((0, nodeTypes_1.isRustFunction)(node))
-            return false;
-        if (node.type !== "identifier" || patternSyntax.has(node.id))
-            return;
-        if (isMacroName(node))
-            return;
+    const recordUse = (name, node, useLine) => {
         for (let index = infos.length - 1; index >= 0; index--) {
             const info = infos[index];
-            if (info === undefined || info.name !== node.text)
+            if (info === undefined || info.name !== name)
                 continue;
-            if (node.startIndex <= info.pattern.endIndex)
+            if (node.startIndex <= info.patternEnd)
                 continue;
             if (!containsNode(info.scopeBoundary, node))
                 continue;
@@ -193,13 +217,95 @@ function scanIdentifierUses(root, infos, patternSyntax, lastUseLines) {
             if (info.excludedScope !== null && containsNode(info.excludedScope, node)) {
                 continue;
             }
-            const useLine = (0, syntaxHelpers_1.lineOf)(node);
             const previous = lastUseLines[index] ?? info.defLine;
             if (useLine > previous)
                 lastUseLines[index] = useLine;
             break;
         }
+    };
+    (0, syntaxHelpers_1.walkDescendants)(root, (node) => {
+        if ((0, nodeTypes_1.isRustFunction)(node))
+            return false;
+        // A `use` declaration names items, not locals.
+        if (node.type === "use_declaration")
+            return false;
+        if (node.type === "string_content" && isInsideMacroCall(node)) {
+            for (const argument of inlineFormatArguments(node.text)) {
+                recordUse(argument.name, node, (0, syntaxHelpers_1.lineOf)(node) + argument.lineOffset);
+            }
+            return;
+        }
+        if (node.type !== "identifier" || patternSyntax.has(node.id))
+            return;
+        if (isMacroName(node) || isNonVariableName(node))
+            return;
+        recordUse(node.text, node, (0, syntaxHelpers_1.lineOf)(node));
     });
+}
+// A path segment (`std::cmp::max`), a label (`'a: loop`, `break 'a`) and a
+// lifetime hold an `identifier` node, but none of them names a local variable.
+function isNonVariableName(node) {
+    const parentType = node.parent?.type;
+    if (parentType === "scoped_identifier")
+        return true;
+    if (parentType === "label" || parentType === "lifetime")
+        return true;
+    return isTokenPathSegment(node);
+}
+// Inside a macro token tree a path is a flat run `std :: cmp :: max`.
+function isTokenPathSegment(node) {
+    if (node.parent?.type !== "token_tree")
+        return false;
+    return (node.previousSibling?.type === "::" || node.nextSibling?.type === "::");
+}
+function isInsideMacroCall(node) {
+    let current = node.parent;
+    while (current !== null) {
+        if (current.type === "macro_invocation")
+            return true;
+        if ((0, nodeTypes_1.isRustFunction)(current))
+            return false;
+        current = current.parent;
+    }
+    return false;
+}
+const FORMAT_PLACEHOLDER = /\{\{|\{([^{}]*)\}?/g;
+const FORMAT_ARGUMENT = /^\s*([A-Za-z_][A-Za-z0-9_]*)/;
+const FORMAT_WIDTH_ARGUMENT = /([A-Za-z_][A-Za-z0-9_]*)\$/g;
+/**
+ * Names that a format string reads inline: `{name}`, `{name:?}` and the
+ * `width$` or `.precision$` parameters in `{:>width$}`. `{{` is an escape.
+ */
+function inlineFormatArguments(text) {
+    const found = [];
+    const lineOffsetAt = (offset) => {
+        let count = 0;
+        for (let index = text.indexOf("\n"); index !== -1 && index < offset;) {
+            count++;
+            index = text.indexOf("\n", index + 1);
+        }
+        return count;
+    };
+    for (const match of text.matchAll(FORMAT_PLACEHOLDER)) {
+        const inner = match[1];
+        if (inner === undefined)
+            continue;
+        const lineOffset = lineOffsetAt(match.index);
+        const colon = inner.indexOf(":");
+        const argument = colon === -1 ? inner : inner.slice(0, colon);
+        const name = FORMAT_ARGUMENT.exec(argument)?.[1];
+        if (name !== undefined && argument.trim() === name) {
+            found.push({ name, lineOffset });
+        }
+        if (colon === -1)
+            continue;
+        for (const width of inner.slice(colon + 1).matchAll(FORMAT_WIDTH_ARGUMENT)) {
+            const widthName = width[1];
+            if (widthName !== undefined)
+                found.push({ name: widthName, lineOffset });
+        }
+    }
+    return found;
 }
 function isMacroName(node) {
     // The design calls out identifiers inside token trees. The macro path is

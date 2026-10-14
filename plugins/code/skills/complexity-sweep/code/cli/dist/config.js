@@ -20,7 +20,7 @@ const DEFAULT_THRESHOLDS = {
 const DEFAULT_CONFIG = {
     thresholds: DEFAULT_THRESHOLDS,
     weights: { cyclomaticComplexity: {} },
-    include: ["**/*.ts", "**/*.js", "**/*.py", "**/*.rs"],
+    include: ["**/*.ts", "**/*.js", "**/*.py", "**/*.rs", "**/*.gd"],
     exclude: [
         "**/*.test.ts",
         "**/*.spec.ts",
@@ -35,6 +35,13 @@ const DEFAULT_CONFIG = {
         "**/site-packages/**",
         // Rust build output.
         "**/target/**",
+        // GDScript tests (GUT, GdUnit4), third-party plugins and Godot caches.
+        "**/test_*.gd",
+        "**/*_test.gd",
+        "**/*Test.gd",
+        "**/addons/**",
+        "**/.godot/**",
+        "**/.import/**",
     ],
     format: "table",
     thresholdAction: "error",

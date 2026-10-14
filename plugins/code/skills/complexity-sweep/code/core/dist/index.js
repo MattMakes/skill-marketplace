@@ -1,7 +1,7 @@
 "use strict";
 // Public API for static-analysis-core.
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.maintainabilityIndexDefinition = exports.halsteadEffortDefinition = exports.halsteadDifficultyDefinition = exports.halsteadVolumeDefinition = exports.scopeDepthRatioDefinition = exports.scopeDepthWeightedLocDefinition = exports.abcScoreDefinition = exports.variableSpanDefinition = exports.peakLiveVariablesDefinition = exports.specifiedDataComplexityDefinition = exports.globalDataComplexityDefinition = exports.moduleDesignComplexityDefinition = exports.essentialComplexityDefinition = exports.cyclomaticComplexityDefinition = exports.createDefaultRegistry = exports.registerBuiltinMetrics = exports.MetricKeys = exports.MetricRegistry = exports.createNodeCache = exports.endLineOf = exports.lineOf = exports.sameNode = exports.walkDescendants = exports.rustBackend = exports.pythonBackend = exports.parseSyntaxSource = exports.initSyntaxParsers = exports.TYPESCRIPT_EXTENSIONS = exports.SYNTAX_BACKENDS = exports.languageForPath = exports.getSyntaxBackend = exports.isSyntaxSourceInput = exports.analyzeProject = exports.analyzeSyntaxFile = exports.analyzeFile = void 0;
+exports.maintainabilityIndexDefinition = exports.halsteadEffortDefinition = exports.halsteadDifficultyDefinition = exports.halsteadVolumeDefinition = exports.scopeDepthRatioDefinition = exports.scopeDepthWeightedLocDefinition = exports.abcScoreDefinition = exports.variableSpanDefinition = exports.peakLiveVariablesDefinition = exports.specifiedDataComplexityDefinition = exports.globalDataComplexityDefinition = exports.moduleDesignComplexityDefinition = exports.essentialComplexityDefinition = exports.cyclomaticComplexityDefinition = exports.createDefaultRegistry = exports.registerBuiltinMetrics = exports.MetricKeys = exports.MetricRegistry = exports.createNodeCache = exports.endLineOf = exports.lineOf = exports.sameNode = exports.walkDescendants = exports.gdscriptBackend = exports.rustBackend = exports.pythonBackend = exports.parseSyntaxSource = exports.initSyntaxParsers = exports.TYPESCRIPT_EXTENSIONS = exports.SYNTAX_BACKENDS = exports.languageForPath = exports.getSyntaxBackend = exports.isSyntaxSourceInput = exports.analyzeProject = exports.analyzeSyntaxFile = exports.analyzeFile = void 0;
 // Orchestration
 var analyzeFile_1 = require("./analyzeFile");
 Object.defineProperty(exports, "analyzeFile", { enumerable: true, get: function () { return analyzeFile_1.analyzeFile; } });
@@ -9,7 +9,7 @@ Object.defineProperty(exports, "analyzeSyntaxFile", { enumerable: true, get: fun
 var analyzeProject_1 = require("./analyzeProject");
 Object.defineProperty(exports, "analyzeProject", { enumerable: true, get: function () { return analyzeProject_1.analyzeProject; } });
 Object.defineProperty(exports, "isSyntaxSourceInput", { enumerable: true, get: function () { return analyzeProject_1.isSyntaxSourceInput; } });
-// Languages (Python and Rust through web-tree-sitter)
+// Languages (Python, Rust and GDScript through web-tree-sitter)
 var languages_1 = require("./languages");
 Object.defineProperty(exports, "getSyntaxBackend", { enumerable: true, get: function () { return languages_1.getSyntaxBackend; } });
 Object.defineProperty(exports, "languageForPath", { enumerable: true, get: function () { return languages_1.languageForPath; } });
@@ -22,6 +22,8 @@ var python_1 = require("./languages/python");
 Object.defineProperty(exports, "pythonBackend", { enumerable: true, get: function () { return python_1.pythonBackend; } });
 var rust_1 = require("./languages/rust");
 Object.defineProperty(exports, "rustBackend", { enumerable: true, get: function () { return rust_1.rustBackend; } });
+var gdscript_1 = require("./languages/gdscript");
+Object.defineProperty(exports, "gdscriptBackend", { enumerable: true, get: function () { return gdscript_1.gdscriptBackend; } });
 var syntaxHelpers_1 = require("./languages/syntaxHelpers");
 Object.defineProperty(exports, "walkDescendants", { enumerable: true, get: function () { return syntaxHelpers_1.walkDescendants; } });
 Object.defineProperty(exports, "sameNode", { enumerable: true, get: function () { return syntaxHelpers_1.sameNode; } });

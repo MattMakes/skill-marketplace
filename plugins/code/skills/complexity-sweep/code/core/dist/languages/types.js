@@ -1,5 +1,5 @@
 "use strict";
-// Contract shared by the tree-sitter language backends (Python, Rust).
+// Contract shared by the tree-sitter language backends (Python, Rust, GDScript).
 //
 // TypeScript/JavaScript keep the ts-morph path (`MetricDefinition.compute`).
 // Every other language is parsed with web-tree-sitter and analyzed through a

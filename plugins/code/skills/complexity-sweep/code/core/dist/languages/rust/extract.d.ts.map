@@ -1,1 +1,1 @@
-{"version":3,"file":"extract.d.ts","sourceRoot":"","sources":["../../../src/languages/rust/extract.ts"],"names":[],"mappings":"AAIA,OAAO,KAAK,EAAE,cAAc,EAAE,gBAAgB,EAAE,MAAM,UAAU,CAAC;AAKjE,wBAAgB,oBAAoB,CAAC,IAAI,EAAE,gBAAgB,GAAG,cAAc,EAAE,CAgB7E"}
+{"version":3,"file":"extract.d.ts","sourceRoot":"","sources":["../../../src/languages/rust/extract.ts"],"names":[],"mappings":"AAIA,OAAO,KAAK,EAAE,cAAc,EAAE,gBAAgB,EAAE,MAAM,UAAU,CAAC;AAOjE,wBAAgB,oBAAoB,CAAC,IAAI,EAAE,gBAAgB,GAAG,cAAc,EAAE,CAgB7E"}

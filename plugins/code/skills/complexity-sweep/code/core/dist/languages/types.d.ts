@@ -2,7 +2,7 @@ import type { Node as SyntaxNode, Tree } from "web-tree-sitter";
 import type { AnalysisOptions, MetricKey, MetricResult } from "../registry";
 export type { SyntaxNode, Tree };
 /** Languages parsed with tree-sitter. */
-export type SyntaxLanguageId = "python" | "rust";
+export type SyntaxLanguageId = "python" | "rust" | "gdscript";
 /** Every language the analyzer reads. "typescript" covers TS and JS files. */
 export type LanguageId = "typescript" | SyntaxLanguageId;
 /** Unparsed input for one Python or Rust file. */
