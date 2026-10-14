@@ -6,14 +6,16 @@ import type { SyntaxFunction, SyntaxSourceFile } from "../types";
 import { isRustFunction } from "./nodeTypes";
 
 const COMMENT_TYPES = new Set(["line_comment", "block_comment"]);
+// Last path segments of an attribute that mark test-only code (decision 7).
+const TEST_ATTRIBUTE_NAMES = new Set(["test", "rstest", "test_case", "bench"]);
 
 export function extractRustFunctions(file: SyntaxSourceFile): SyntaxFunction[] {
   const functions: SyntaxFunction[] = [];
 
   walkDescendants(file.tree.rootNode, (node) => {
-    if (node.type === "mod_item" && isCfgTestItem(node)) return false;
+    if (node.type === "mod_item" && isTestOnlyItem(node)) return false;
     if (!isRustFunction(node)) return;
-    if (hasTestAttribute(node)) return false;
+    if (isTestOnlyItem(node)) return false;
 
     functions.push({
       name: qualifiedName(node),
@@ -50,7 +52,7 @@ function enclosingName(node: SyntaxNode): string | undefined {
     const implementedType = node.childForFieldName("type")?.text;
     return implementedType === undefined
       ? undefined
-      : removeGenericArguments(implementedType);
+      : removeReferencePrefix(removeGenericArguments(implementedType));
   }
   return undefined;
 }
@@ -70,18 +72,68 @@ function removeGenericArguments(text: string): string {
   return result.trim();
 }
 
-function hasTestAttribute(node: SyntaxNode): boolean {
+/**
+ * Decision 7: skip an item with a test attribute (`#[test]`,
+ * `#[tokio::test]`, `#[rstest]`, `#[test_case(..)]`, `#[bench]`) or a
+ * `#[cfg(P)]` whose predicate P requires `test`.
+ */
+function isTestOnlyItem(node: SyntaxNode): boolean {
   return precedingAttributes(node).some((attribute) => {
     const path = attributePath(attribute);
-    return path.split("::").at(-1) === "test";
+    if (TEST_ATTRIBUTE_NAMES.has(path.split("::").at(-1) ?? "")) return true;
+    return path === "cfg" && cfgRequiresTest(attributeText(attribute));
   });
 }
 
-function isCfgTestItem(node: SyntaxNode): boolean {
-  return precedingAttributes(node).some((attribute) => {
-    const compact = attribute.text.replace(/\s+/g, "");
-    return compact === "#[cfg(test)]";
-  });
+/** Leading `&`, `&mut`, lifetimes, `dyn` and `mut` are not part of a name (F11). */
+function removeReferencePrefix(text: string): string {
+  return text.replace(/^(?:(?:&|'[A-Za-z_]\w*|mut\b|dyn\b)\s*)+/, "").trim();
+}
+
+function attributeText(attribute: SyntaxNode): string {
+  return attribute.namedChild(0)?.text ?? "";
+}
+
+const CFG_TOKEN = /\s+|"(?:\\.|[^"\\])*"|[A-Za-z_][A-Za-z0-9_]*|./gs;
+
+function cfgTokens(text: string): string[] {
+  return (text.match(CFG_TOKEN) ?? []).filter((token) => token.trim() !== "");
+}
+
+/**
+ * True when the `cfg(P)` predicate requires `test`: P is the bare token
+ * `test`, or `all(...)` with a member that requires `test`. `not(...)` and
+ * `any(...)` never require it. `text` is the attribute body, `cfg(P)`.
+ */
+function cfgRequiresTest(text: string): boolean {
+  const tokens = cfgTokens(text);
+  // tokens[0] is `cfg` and tokens[1] is `(`.
+  if (tokens[0] !== "cfg" || tokens[1] !== "(") return false;
+  let position = 2;
+
+  // Returns whether the predicate at `position` requires `test`.
+  const predicate = (): boolean => {
+    const name = tokens[position];
+    position += 1;
+    const next = tokens[position];
+    if (next === "(") {
+      position += 1;
+      const members: boolean[] = [];
+      while (position < tokens.length && tokens[position] !== ")") {
+        members.push(predicate());
+        if (tokens[position] === ",") position += 1;
+      }
+      position += 1;
+      return name === "all" && members.some(Boolean);
+    }
+    if (next === "=") {
+      position += 2;
+      return false;
+    }
+    return name === "test";
+  };
+
+  return predicate();
 }
 
 /** Rust permits comments between an outer attribute and its item. */

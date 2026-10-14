@@ -222,6 +222,61 @@ describe("computeRustEssentialComplexity", () => {
     expect(ev("fn f() -> Result<i32, E> { one()? }")) .toBe(1);
   });
 
+  it("applies the textual-last rule to returns inside a block-like tail (F7)", () => {
+    const source = `fn e2(x: i32) -> i32 {
+      if x > 0 { return 1; } else { return 2; }
+    }`;
+    // 1 baseline + 1 early return. 2 returns sit inside the if tail and the
+    // textually last one is the exit, like the TypeScript form.
+    expect(ev(source)).toBe(2);
+  });
+
+  it("does not count the only exit of a loop tail as early (F7)", () => {
+    const source = `fn e10() -> i32 {
+      let mut i = 0;
+      loop {
+        i += 1;
+        if i > 3 { return i; }
+      }
+    }`;
+    // 1 baseline + 0. The 1 return is the only exit.
+    expect(ev(source)).toBe(1);
+  });
+
+  it("counts a return before a block-like tail and applies the rule inside it (F7)", () => {
+    const source = `fn f(x: i32) -> i32 {
+      if x < 0 { return 0; }
+      if x > 5 { return 1; } else { return 2; }
+    }`;
+    // 1 baseline + 1 return before the tail + 1 early return inside the tail.
+    expect(ev(source)).toBe(3);
+  });
+
+  it("keeps one return in a block-like tail with a value branch at one (F7)", () => {
+    // Known limit of design 5.2: 1 baseline + 0.
+    expect(ev("fn f(a: bool) -> i32 { if a { return 1; } else { 2 } }")).toBe(1);
+  });
+
+  it("does not treat a trailing macro_rules as a tail expression (F9)", () => {
+    const source = `fn e11(x: i32) -> i32 {
+      if x > 0 { return 1; }
+      return 2;
+      macro_rules! m { () => {} }
+    }`;
+    // 1 baseline + 1 return before the textually last return.
+    expect(ev(source)).toBe(2);
+  });
+
+  it("does not treat a trailing use or extern crate as a tail expression (F9)", () => {
+    // 1 baseline + 1 return before the textually last return.
+    expect(
+      ev("fn f(x: i32) -> i32 { if x > 0 { return 1; } return 2; use std::fmt; }"),
+    ).toBe(2);
+    expect(
+      ev("fn f(x: i32) -> i32 { if x > 0 { return 1; } return 2; extern crate core; }"),
+    ).toBe(2);
+  });
+
   it("skips nested units and includes closures", () => {
     const source = `fn outer() {
       fn inner() { continue; }

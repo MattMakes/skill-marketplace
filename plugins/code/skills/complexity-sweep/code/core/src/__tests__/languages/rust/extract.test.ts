@@ -117,6 +117,105 @@ fn production() {}
     ]);
   });
 
+  it("removes reference prefixes and lifetimes from impl type names (F11)", () => {
+    const file = parseFixture(
+      "rust",
+      `
+impl<'a> IntoIterator for &'a Utf8Sequence {
+    fn into_iter(self) {}
+}
+impl<'a, I: Iterator> PeekingNext for &'a mut I {
+    fn peeking_next(&mut self) {}
+}
+impl Foo for &Bar {
+    fn one(&self) {}
+}
+impl Foo for dyn Baz {
+    fn two(&self) {}
+}
+impl<A, B> Parser for (A, B) {
+    fn parse(&self) {}
+}
+impl<A> Parser for &(A, A) {
+    fn choice(&self) {}
+}
+`,
+    );
+
+    // The trait name is not added. A tuple type keeps its text.
+    expect(extractRustFunctions(file).map(({ name }) => name)).toEqual([
+      "Utf8Sequence::into_iter",
+      "I::peeking_next",
+      "Bar::one",
+      "Baz::two",
+      "(A, B)::parse",
+      "(A, A)::choice",
+    ]);
+  });
+
+  it("excludes test code that the attribute rule misses (F14)", () => {
+    const file = parseFixture(
+      "rust",
+      `
+#[cfg(all(test, feature = "x"))]
+mod tests2 { fn helper2() {} }
+#[cfg(test)]
+fn cfg_test_fn() {}
+#[rstest]
+fn rs() {}
+#[test_case(1)]
+fn tc() {}
+`,
+    );
+
+    // 4 test-only items give 0 units.
+    expect(extractRustFunctions(file)).toEqual([]);
+  });
+
+  it("keeps cfg(not(test)) and cfg(any(test, ...)) code (F14)", () => {
+    const file = parseFixture(
+      "rust",
+      `
+#[cfg(not(test))]
+fn a() {}
+#[cfg(any(test, feature = "x"))]
+fn b() {}
+#[cfg(feature = "test")]
+fn c() {}
+`,
+    );
+
+    expect(extractRustFunctions(file).map(({ name }) => name)).toEqual([
+      "a",
+      "b",
+      "c",
+    ]);
+  });
+
+  it("skips a mod with cfg(all(..., test)) and a fn with a path ending in test (F14)", () => {
+    const file = parseFixture(
+      "rust",
+      `
+#[cfg(all(feature = "x", test))]
+mod m {
+    fn inside() {}
+}
+#[async_std::test]
+async fn c() {}
+#[bench]
+fn d(b: &mut Bencher) {}
+#[cfg(all(not(test), unix))]
+fn e() {}
+fn kept() {}
+`,
+    );
+
+    expect(extractRustFunctions(file).map(({ name }) => name)).toEqual([
+      "e",
+      "kept",
+    ]);
+  });
+
   it("returns an empty list for a file without function bodies", () => {
     const file = parseFixture("rust", "trait Empty { fn required(&self); }");
     expect(extractRustFunctions(file)).toEqual([]);
