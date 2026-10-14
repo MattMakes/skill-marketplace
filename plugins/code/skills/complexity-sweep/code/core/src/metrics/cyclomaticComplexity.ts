@@ -22,6 +22,7 @@ const DEFAULT_WEIGHTS: RequiredWeights = {
   logicalOr: 1,
   nullishCoalescing: 1,
   ternary: 1,
+  tryOperator: 1, // Rust only; no TypeScript construct reads it.
 };
 
 const FUNCTION_KINDS = new Set<SyntaxKind>([

@@ -1,5 +1,7 @@
 import type { Node, SourceFile } from "ts-morph";
 
+import type { SyntaxLanguageId, SyntaxMetricCompute } from "./languages/types";
+
 export interface CyclomaticWeights {
   if?: number;
   elseIf?: number;
@@ -14,6 +16,8 @@ export interface CyclomaticWeights {
   logicalOr?: number;
   nullishCoalescing?: number;
   ternary?: number;
+  /** Rust `?` operator (an early-return path). No TypeScript construct uses it. */
+  tryOperator?: number;
 }
 
 export interface AnalysisOptions {
@@ -43,6 +47,13 @@ export interface MetricDefinition<TDetail = unknown> {
   direction: MetricDirection;
   dependencies: string[];
   compute: (ctx: MetricComputeContext) => number | MetricResult<TDetail>;
+  /**
+   * Compute for files parsed with tree-sitter (Python, Rust). `compute` stays
+   * the TypeScript/JavaScript path. For a built-in metric, the language
+   * backend supplies the compute when this field is absent. A metric with no
+   * compute for a language is left out of that language's results.
+   */
+  syntaxCompute?: Partial<Record<SyntaxLanguageId, SyntaxMetricCompute<TDetail>>>;
   detailKeys?: string[];
 }
 
