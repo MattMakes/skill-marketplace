@@ -15,6 +15,9 @@
 //   TypeScript util does not record function declarations either).
 // - Bindings inside a class body in the unit are class-scoped: they are not
 //   entries. Occurrences in the class body still resolve to the unit.
+// - A binding in the header of a nested `def` or `class` (a walrus in a default,
+//   an annotation or a class argument) belongs to the enclosing unit. The nested
+//   body is the only part that the binding scan skips.
 // - The unit's own name is not an occurrence (it binds in the enclosing scope).
 
 import type { DefUseEntry } from "../../utils/defUseAnalysis";
@@ -202,14 +205,33 @@ function collectDeclarations(fn: SyntaxNode, scope: PythonScope): void {
 function collectBindings(fn: SyntaxNode, scope: PythonScope, bound: Set<string>): void {
   const body = fn.childForFieldName("body");
   if (body === null) return;
-  walkDescendants(body, (node) => {
+  const visit = (node: SyntaxNode): boolean | void => {
     if (isPythonFunction(node) || node.type === "class_definition") {
       const name = node.childForFieldName("name");
       if (name !== null && !isDeclaredOutside(scope, name.text)) scope.localNames.add(name.text);
+      collectHeaderBindings(node, visit);
       return false;
     }
     for (const target of bindingTargets(node)) bind(scope, bound, target);
-  });
+  };
+  walkDescendants(body, visit);
+}
+
+/**
+ * Everything of a nested `def` or `class` except its body runs in the outer
+ * scope: defaults, annotations and class arguments. Bindings there (a walrus)
+ * belong to the outer unit, so the nested body is the only part skipped.
+ */
+function collectHeaderBindings(
+  nested: SyntaxNode,
+  visit: (node: SyntaxNode) => boolean | void,
+): void {
+  const body = nested.childForFieldName("body");
+  for (const child of nested.namedChildren) {
+    if (sameNode(child, body)) continue;
+    visit(child);
+    walkDescendants(child, visit);
+  }
 }
 
 /** The name nodes that `node` binds in the current function scope. */

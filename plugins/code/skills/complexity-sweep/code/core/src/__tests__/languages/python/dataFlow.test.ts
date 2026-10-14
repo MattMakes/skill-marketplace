@@ -418,10 +418,16 @@ describe("pythonGlobalDataComplexity", () => {
     expect(run(pythonGlobalDataComplexity, text)).toBe(4);
   });
 
-  it("ignores bindings that are not top-level statements", () => {
-    const text = src("if True:", "    Z = []", "def f():", "    return Z");
-    // Hand count: Z is bound inside an if, not by a top-level statement = 0.
-    expect(run(pythonGlobalDataComplexity, text)).toBe(0);
+  it("ignores a binding in a function that a module-level if holds", () => {
+    const text = src(
+      "if True:",
+      "    def g():",
+      "        Z = []",
+      "def f():",
+      "    return Z",
+    );
+    // Hand count: Z is local to g, so it is not a module-scope name = 0.
+    expect(run(pythonGlobalDataComplexity, text, 1)).toBe(0);
   });
 
   it("does not count attribute parts or keyword-argument names", () => {
@@ -458,5 +464,116 @@ describe("pythonGlobalDataComplexity", () => {
     expect(run(pythonGlobalDataComplexity, text, 0)).toBe(0);
     // Hand count, g: the parameter makes CACHE local = 0.
     expect(run(pythonGlobalDataComplexity, text, 1)).toBe(0);
+  });
+
+  it("counts a name bound in a module-level if (review F1)", () => {
+    const text = src(
+      "if enabled:",
+      "    CACHE = []",
+      "def f():",
+      "    return CACHE",
+    );
+    // Hand count: CACHE is bound to a list inside a module-level `if` = 1.
+    expect(run(pythonGlobalDataComplexity, text)).toBe(1);
+  });
+
+  it("counts a name bound in a module-level try and except", () => {
+    const text = src(
+      "try:",
+      "    import ujson as json",
+      "except ImportError:",
+      "    CACHE = {}",
+      "def f():",
+      "    return CACHE",
+    );
+    // Hand count: CACHE is bound to a dict in the `except` block = 1.
+    expect(run(pythonGlobalDataComplexity, text)).toBe(1);
+  });
+
+  it("counts the binding statements of a module-level if toward the 2-statement rule", () => {
+    const text = src(
+      "if enabled:",
+      "    MODE = 'a'",
+      "else:",
+      "    MODE = 'b'",
+      "def f():",
+      "    return MODE",
+    );
+    // Hand count: MODE has 2 binding statements and a constant value = 1.
+    expect(run(pythonGlobalDataComplexity, text)).toBe(1);
+  });
+
+  it("does not count a binding in a class body as a module-scope name", () => {
+    const text = src(
+      "class C:",
+      "    CACHE = []",
+      "    if flag:",
+      "        TABLE = {}",
+      "def f():",
+      "    return CACHE, TABLE",
+    );
+    // Hand count: both names are class-scoped, so no module-scope name = 0.
+    expect(run(pythonGlobalDataComplexity, text)).toBe(0);
+  });
+
+  it("does not count a binding in a function body as a module-scope name", () => {
+    const text = src(
+      "def setup():",
+      "    if flag:",
+      "        CACHE = []",
+      "def f():",
+      "    return CACHE",
+    );
+    // Hand count: CACHE is local to setup = 0.
+    expect(run(pythonGlobalDataComplexity, text, 1)).toBe(0);
+  });
+});
+
+describe("buildPythonDefUse: nested function defaults (review F2)", () => {
+  it("records a walrus in a nested function default as an outer binding", () => {
+    const text = src(
+      "def outer():",
+      "    def inner(x=(cache := [])):",
+      "        return x",
+      "    return cache",
+    );
+    // Hand count: cache binds on line 2 (the default runs in outer) and is read on line 4.
+    expect(defUse(text, 0)).toEqual([{ name: "cache", defLine: 2, lastUseLine: 4 }]);
+    expect(run(pythonPeakLiveVariables, text, 0)).toBe(1);
+    expect(run(pythonVariableSpan, text, 0)).toBe(2);
+  });
+
+  it("records a walrus in a decorator of a nested function as an outer binding", () => {
+    const text = src(
+      "def outer():",
+      "    @(deco := make())",
+      "    def inner():",
+      "        pass",
+      "    return deco",
+    );
+    // Hand count: deco binds on line 2 and is read on line 5.
+    expect(defUse(text, 0)).toEqual([{ name: "deco", defLine: 2, lastUseLine: 5 }]);
+  });
+
+  it("records a walrus in a nested class argument as an outer binding", () => {
+    const text = src(
+      "def outer():",
+      "    class C(base := Base):",
+      "        pass",
+      "    return base",
+    );
+    // Hand count: base binds on line 2 and is read on line 4.
+    expect(defUse(text, 0)).toEqual([{ name: "base", defLine: 2, lastUseLine: 4 }]);
+  });
+
+  it("does not record a walrus in a nested body as an outer binding", () => {
+    const text = src(
+      "def outer():",
+      "    def inner():",
+      "        return (t := 1)",
+      "    return inner",
+    );
+    // Hand count: t is local to inner; outer has no entry.
+    expect(defUse(text, 0)).toEqual([]);
   });
 });

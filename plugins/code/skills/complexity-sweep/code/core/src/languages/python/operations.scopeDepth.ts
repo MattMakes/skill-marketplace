@@ -59,19 +59,25 @@ function addRange(lines: Set<number>, start: number, end: number): void {
   for (let line = start; line <= end; line++) lines.add(line);
 }
 
-/** Blank or brace-only text. A multi-line string can span a blank line. */
-function isBlankOrBraceOnlyLine(lineText: string | undefined): boolean {
+/** Blank text. A multi-line string can span a blank line. */
+function isBlankLine(lineText: string | undefined): boolean {
+  return (lineText?.trim() ?? "") === "";
+}
+
+/** Brace-only text: a syntax line such as the `}` that closes a dict literal. */
+function isBraceOnlyLine(lineText: string | undefined): boolean {
   const trimmed = lineText?.trim() ?? "";
-  return trimmed === "" || trimmed === "{" || trimmed === "}";
+  return trimmed === "{" || trimmed === "}";
 }
 
 /**
  * 1-based code lines of a Python function body, in ascending order.
  *
  * Port note: the TypeScript rule drops lines whose trimmed text is `{` or
- * `}`. This port keeps that text rule unchanged, so a line with only `}`
- * that closes a dict literal does not count. A line with only `)` or `]`
- * counts, as in TypeScript.
+ * `}`. This port keeps that text rule for syntax lines, so a line with only
+ * `}` that closes a dict literal does not count. A line with only `)` or `]`
+ * counts, as in TypeScript. A line inside a string node is string content,
+ * not syntax, so a `}` line there counts. A blank line there does not count.
  */
 export function pythonCodeLines(fn: SyntaxNode, sourceText: string): number[] {
   const body = fn.childForFieldName("body");
@@ -80,6 +86,7 @@ export function pythonCodeLines(fn: SyntaxNode, sourceText: string): number[] {
   const docstring = pythonDocstring(body);
   const codeLines = new Set<number>();
   const nestedLines = new Set<number>();
+  const stringLines = new Set<number>();
 
   walkDescendants(body, (node) => {
     if (isPythonFunction(node)) {
@@ -91,6 +98,7 @@ export function pythonCodeLines(fn: SyntaxNode, sourceText: string): number[] {
     if (node.childCount === 0 || STRING_TYPES.has(node.type)) {
       if (node.startIndex !== node.endIndex) {
         addRange(codeLines, lineOf(node), endLineOf(node));
+        if (STRING_TYPES.has(node.type)) addRange(stringLines, lineOf(node), endLineOf(node));
       }
       return false;
     }
@@ -100,7 +108,8 @@ export function pythonCodeLines(fn: SyntaxNode, sourceText: string): number[] {
   const sourceLines = sourceText.split("\n");
   return [...codeLines]
     .filter((line) => !nestedLines.has(line))
-    .filter((line) => !isBlankOrBraceOnlyLine(sourceLines[line - 1]))
+    .filter((line) => !isBlankLine(sourceLines[line - 1]))
+    .filter((line) => stringLines.has(line) || !isBraceOnlyLine(sourceLines[line - 1]))
     .sort((a, b) => a - b);
 }
 
@@ -152,12 +161,12 @@ function computeLineDepths(fn: SyntaxNode): Map<number, number> {
     }
   };
 
-  // Port note: as for a TypeScript arrow with an expression body, the lambda
-  // body is painted at depth + 1 and is not scanned again. A lambda inside a
-  // lambda body adds no second level.
+  // As for a TypeScript arrow with an expression body, the lambda body is
+  // painted at depth + 1. The body is then walked at that depth, so a lambda
+  // inside it adds 1 more level.
   const walkLambda = (node: SyntaxNode, depth: number): void => {
     const body = node.childForFieldName("body");
-    if (body !== null) paint(body, depth + 1);
+    if (body !== null) walkStatement(body, depth + 1);
   };
 
   const scanForNestedStructures = (node: SyntaxNode, depth: number): void => {

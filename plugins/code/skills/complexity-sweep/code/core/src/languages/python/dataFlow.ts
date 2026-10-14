@@ -5,6 +5,10 @@
 // `dataFlow.defUse.ts`. PLV and VSpan use the TypeScript formulas without change.
 //
 // Choices where the design is silent:
+// - globalDataComplexity: an assignment inside a module-level compound
+//   statement (`if`, `try`, `with`, `for`, `while`, `match`) binds a module-scope
+//   name, at any depth. A function or class body does not. Each such statement
+//   counts toward the "2 or more top-level statements" rule.
 // - globalDataComplexity: an annotation without a value (`X: int`) does not
 //   bind, so it does not count toward the "2 or more top-level statements" rule.
 // - globalDataComplexity: `a, b = [], 1` pairs targets with values by position;
@@ -83,13 +87,17 @@ function mutableModuleNames(module: SyntaxNode): Set<string> {
 
   const statementCounts = new Map<string, number>();
   const mutableByValue = new Set<string>();
-  for (const statement of module.namedChildren) {
-    if (statement.type !== "expression_statement") continue;
-    for (const expr of statement.namedChildren) {
+  // Module scope includes the statements inside a module-level `if`, `try`,
+  // `with`, `for`, `while` or `match` at any depth, but not a function or class body.
+  walkDescendants(module, (node) => {
+    if (isPythonFunction(node) || node.type === "class_definition") return false;
+    if (node.type !== "expression_statement") return;
+    for (const expr of node.namedChildren) {
       const names = topLevelBinding(expr, mutableByValue);
       for (const name of names) statementCounts.set(name, (statementCounts.get(name) ?? 0) + 1);
     }
-  }
+    return false;
+  });
 
   const declaredGlobal = globalStatementNames(module);
   const result = new Set<string>();
