@@ -51,7 +51,7 @@ For each analyzer, include in the prompt:
 
 ### The UX lens
 
-Give @ux-analyzer this focus question: "Can every user complete every flow in this design, by mouse, keyboard and screen reader, on a phone and a desktop, in light and dark, including the empty, loading and error paths?" And this checklist, distilled from the `design` plugin's doctrine:
+Give @ux-analyzer this focus question: "Can every user complete every flow in this design, by mouse, keyboard and screen reader, on a phone and a desktop, in light and dark, including the empty, loading and error paths?" And this checklist, distilled from the `design-system` plugin's doctrine:
 
 - Every flow has its error, empty, loading and success states written down, and every error message says how to fix it
 - Every interactive element is specified in all eight states: default, hover, focus, active, disabled, loading, error, selected
@@ -61,7 +61,7 @@ Give @ux-analyzer this focus question: "Can every user complete every flow in th
 - Values come from the project's design tokens and shared theme, never one-off colours or sizes
 - The design works at 320px wide before it earns a desktop layout
 
-If the `design` plugin is installed, name `design:grill-me` (closing open questions in the brief), `design:design-screen` (building screens) and `design:a11y-audit` as the follow-ups in the analyzer's Recommendation.
+If the `design-system` plugin is installed, name `design-system:grill-me` (closing open questions in the brief), `design-system:design-screen` (building screens) and `design-system:a11y-audit` as the follow-ups in the analyzer's Recommendation.
 
 ## Output
 

@@ -78,13 +78,13 @@ Create an agent team and dispatch each selected reviewer as a teammate. Each tea
 
 **Spawn all selected reviewers as teammates simultaneously.** Each reviewer is a `general-purpose` agent type. Provide each their complete reviewer prompt from the `reviewers/` directory — do NOT make them read the file themselves, paste the full prompt content into their task description.
 
-**The interface auditor measures, when it can.** Before dispatching `u`, look for the `design` plugin's kit and pass it in the reviewer's task as `KIT=<path>`:
+**The interface auditor measures, when it can.** Before dispatching `u`, look for the `design-system` plugin's kit and pass it in the reviewer's task as `KIT=<path>`:
 
 ```bash
-KIT=$(ls -d "${CLAUDE_PLUGIN_ROOT}"/../design/shared "${CLAUDE_PLUGIN_ROOT}"/../../design/*/shared 2>/dev/null | sort -V | tail -1)
+KIT=$(ls -d "${CLAUDE_PLUGIN_ROOT}"/../design-system/shared "${CLAUDE_PLUGIN_ROOT}"/../../design-system/*/shared 2>/dev/null | sort -V | tail -1)
 ```
 
-With the kit it runs the design gates on the changed UI files and cites their output; without it (the `design` plugin is not installed) it reviews by reading and says nothing was measured.
+With the kit it runs the design gates on the changed UI files and cites their output; without it (the `design-system` plugin is not installed) it reviews by reading and says nothing was measured.
 
 Assign one task per reviewer via the shared task list. Each reviewer marks their task complete when done and sends findings back.
 

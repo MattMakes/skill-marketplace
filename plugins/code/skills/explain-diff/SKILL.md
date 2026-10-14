@@ -36,15 +36,15 @@ Before delivery:
 
 Check the page:
 
-- If the `design` plugin is installed, measure the final file (after narration, which adds the player) rather than eyeballing it, and fix every failure in the page you wrote before reporting the explainer done. A failure inside the narration player comes from `scripts/player.mjs`: report it, do not hand-edit the generated player.
+- If the `design-system` plugin is installed, measure the final file (after narration, which adds the player) rather than eyeballing it, and fix every failure in the page you wrote before reporting the explainer done. A failure inside the narration player comes from `scripts/player.mjs`: report it, do not hand-edit the generated player.
 
   ```bash
-  KIT=$(ls -d "${CLAUDE_PLUGIN_ROOT}"/../design/shared "${CLAUDE_PLUGIN_ROOT}"/../../design/*/shared 2>/dev/null | sort -V | tail -1)
+  KIT=$(ls -d "${CLAUDE_PLUGIN_ROOT}"/../design-system/shared "${CLAUDE_PLUGIN_ROOT}"/../../design-system/*/shared 2>/dev/null | sort -V | tail -1)
   for m in "" --dark; do DS_REQUIRE_BROWSER=1 node "$KIT/scripts/measure_render.mjs" $m <file.html>; DS_REQUIRE_BROWSER=1 node "$KIT/scripts/axe_audit.mjs" <file.html> $m; done
   DS_REQUIRE_BROWSER=1 node "$KIT/scripts/verify_keyboard.mjs" <file.html>
   ```
 
-  A gate that cannot find a browser fails here instead of printing SKIPPED; say the page is unmeasured rather than calling it accessible. Without the `design` plugin, skip this step and say so.
+  A gate that cannot find a browser fails here instead of printing SKIPPED; say the page is unmeasured rather than calling it accessible. Without the `design-system` plugin, skip this step and say so.
 
 Narration:
 

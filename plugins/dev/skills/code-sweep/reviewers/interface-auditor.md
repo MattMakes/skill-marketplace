@@ -8,7 +8,7 @@ Review the provided diff and changed files that render UI: `.html`, `.css`, `.sc
 
 ## Measure first, when the kit is available
 
-If the orchestrator passed `KIT=<path>` (the `design` plugin's `shared/` directory), run the browser-free gates on the changed UI files before reading for anything else, and cite their real output as evidence:
+If the orchestrator passed `KIT=<path>` (the `design-system` plugin's `shared/` directory), run the browser-free gates on the changed UI files before reading for anything else, and cite their real output as evidence:
 
 ```bash
 python3 $KIT/scripts/lint_hardcodes.py <changed ui files>        # raw hex / px / ms / Tailwind palette / font
@@ -103,4 +103,4 @@ End with a count by category and severity, which gates ran and their real result
 - Flag only interface issues. Skip server logic, security, performance.
 - Every finding must reference a specific file and line.
 - Read CLAUDE.md first to learn the project's tokens and component conventions.
-- Taste is out of scope: a passing gate is not evidence a screen is good, and an opinion about beauty is not a finding. For a taste verdict, point at `design:critique`.
+- Taste is out of scope: a passing gate is not evidence a screen is good, and an opinion about beauty is not a finding. For a taste verdict, point at `design-system:critique`.

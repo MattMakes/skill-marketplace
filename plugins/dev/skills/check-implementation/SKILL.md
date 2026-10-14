@@ -20,14 +20,14 @@ description: Verify implementation matches the plan by checking components, test
    - Note: matches, deviations, missing pieces
 4. **Run the project's test suite** — capture full output, count passes/failures
 5. **Run the project's build command** — capture exit code and any errors
-6. **If the plan built UI, measure it** — when the change adds or alters screens or components and the `design` plugin is installed, run its gate suite against the rendered pages or component harnesses (a preview page, a Storybook static build, or the HTML the plan produced) and report the real `N/N` line:
+6. **If the plan built UI, measure it** — when the change adds or alters screens or components and the `design-system` plugin is installed, run its gate suite against the rendered pages or component harnesses (a preview page, a Storybook static build, or the HTML the plan produced) and report the real `N/N` line:
 
    ```bash
-   KIT=$(ls -d "${CLAUDE_PLUGIN_ROOT}"/../design/shared "${CLAUDE_PLUGIN_ROOT}"/../../design/*/shared 2>/dev/null | sort -V | tail -1)
+   KIT=$(ls -d "${CLAUDE_PLUGIN_ROOT}"/../design-system/shared "${CLAUDE_PLUGIN_ROOT}"/../../design-system/*/shared 2>/dev/null | sort -V | tail -1)
    node "$KIT/scripts/accuracy_report.mjs" <rendered page or dir> [--tokens <design-tokens.json>] [--theme <theme.css>] [--src <ui source dir>]
    ```
 
-   It checks contrast in every state, axe, keyboard, target size, responsive layout and theme consistency, light and dark. Render gates need Playwright once per install (`npm install --prefix "$KIT"`); a gate that cannot run counts as unmeasured, never as a pass. Without the `design` plugin, report the UI as unmeasured.
+   It checks contrast in every state, axe, keyboard, target size, responsive layout and theme consistency, light and dark. Render gates need Playwright once per install (`npm install --prefix "$KIT"`); a gate that cannot run counts as unmeasured, never as a pass. Without the `design-system` plugin, report the UI as unmeasured.
 7. **Report findings** using the output format below
 
 ## Verification Standards

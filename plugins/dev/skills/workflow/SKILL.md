@@ -74,18 +74,18 @@ GitLab, a pull request on GitHub. Skills that talk to the hosting platform detec
 
 
 ### 6. UI Flow (Screens and Components)
-`dev:prime` → `design:grill-me` → `dev:brainstorm` → `design:design-screen` → `design:gate` → `design:critique` → `dev:code-sweep`
+`dev:prime` → `design-system:grill-me` → `dev:brainstorm` → `design-system:design-screen` → `design-system:gate` → `design-system:critique` → `dev:code-sweep`
 
-Needs the `design` plugin from this marketplace. Use it when the feature is something a person looks at and clicks.
+Needs the `design-system` plugin from this marketplace. Use it when the feature is something a person looks at and clicks.
 
 | Step | Command | Purpose |
 |------|---------|---------|
 | 1 | `dev:prime` | Load project context, including its tokens, theme and components |
-| 2 | `/design:grill-me` | Close the open questions in the brief; every unasked decision becomes a stated assumption |
+| 2 | `/design-system:grill-me` | Close the open questions in the brief; every unasked decision becomes a stated assumption |
 | 3 | `dev:brainstorm <idea>` | Shape the behaviour; the design doc names screens, flows and their error, empty and loading states |
-| 4 | `design:design-screen` | Build it against the house doctrine, tokens and a committed visual direction (`design:design-component` for a single component, `design:redesign` for existing UI) |
-| 5 | `/design:gate <page or harness>` | Measure contrast, states, axe, keyboard, target size and responsive layout in light and dark; report the real `N/N` |
-| 6 | `/design:critique <page>` | An adversarial critic renders it and argues for rejection, the half no gate can score |
+| 4 | `design-system:design-screen` | Build it against the house doctrine, tokens and a committed visual direction (`design-system:design-component` for a single component, `design-system:redesign` for existing UI) |
+| 5 | `/design-system:gate <page or harness>` | Measure contrast, states, axe, keyboard, target size and responsive layout in light and dark; report the real `N/N` |
+| 6 | `/design-system:critique <page>` | An adversarial critic renders it and argues for rejection, the half no gate can score |
 | 7 | `dev:code-sweep` | Review the change; the interface auditor (`u`) runs the design gates on the changed UI files |
 
 For larger UI features, run steps 3 to 4 through the Development Flow (`dev:create-plan` → `dev:execute-plan`) and let `dev:check-implementation` run the design gates as part of verification.
@@ -123,6 +123,6 @@ These agents are available for Claude to use automatically, or you can ask Claud
 - **Reviewing a change before it merges?** Use `dev:code-sweep`
 - **Joining an unfamiliar codebase?** Start with Research Flow
 - **Need architecture docs?** Use PRD Creation Flow
-- **Building screens or components?** Use UI Flow (needs the `design` plugin)
+- **Building screens or components?** Use UI Flow (needs the `design-system` plugin)
 - **Debugging a bug?** Use `dev:debug` for systematic debugging
 - **All output documents** are written to `./ai_docs/<subfolder>/` (designs, plans, reviews, reports, etc.)

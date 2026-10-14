@@ -2,7 +2,7 @@
 
 A Claude Code plugin marketplace for engineering work. The plugins are grouped by the job they do:
 carry a change from idea to review (`dev`), design, diagram, understand
-and verify systems (`code`), design and measure user interfaces (`design`), review game work
+and verify systems (`code`), design and measure user interfaces (`design-system`), review game work
 (`game`), design games (`game-design`), run a fleet of agents (`herdr`), think and finish well
 (`tools`), and make more skills (`meta`).
 
@@ -13,7 +13,7 @@ claude plugin marketplace add MattMakes/skill-marketplace
 
 claude plugin install dev@skill-marketplace
 claude plugin install code@skill-marketplace
-claude plugin install design@skill-marketplace
+claude plugin install design-system@skill-marketplace
 claude plugin install game@skill-marketplace
 claude plugin install game-design@skill-marketplace
 claude plugin install herdr@skill-marketplace
@@ -85,7 +85,7 @@ The former `ddd` plugin is now part of `code`. Update/install `code@skill-market
 and remove the old `ddd` plugin to avoid duplicate skills. Replace `ddd:ddd-workflow`
 with `code:ddd`; existing project `ddd/` workspaces need no conversion.
 
-## `design` — UX/UI Design System
+## `design-system` — UX/UI Design System
 
 A senior design architect: DTCG tokens, component specs with all eight interactive states, WCAG 2.2
 AA to AAA, a taste layer, 138 design-system specs, code for any framework, and render gates that
@@ -107,9 +107,9 @@ command.
 | `ux-writing` | Interface copy: buttons, errors, empty states, confirmations. |
 | `design-qa`, `performance`, `token-build`, `figma-integration` | CI gates, Core Web Vitals, token pipelines, Figma sync. |
 
-User-started commands: `/design:grill-me`, `/design:gate`, `/design:critique`, `/design:brandkit`,
-`/design:redesign`, `/design:image-to-code`, `/design:prototype`, `/design:migrate-design-system`,
-`/design:governance`, `/design:scaffold-project`. Agent: `design-critic`.
+User-started commands: `/design-system:grill-me`, `/design-system:gate`, `/design-system:critique`, `/design-system:brandkit`,
+`/design-system:redesign`, `/design-system:image-to-code`, `/design-system:prototype`, `/design-system:migrate-design-system`,
+`/design-system:governance`, `/design-system:scaffold-project`. Agent: `design-critic`.
 
 The kit is wired into the other plugins: `dev:code-sweep` has an interface auditor that runs its
 gates, `dev:analyze-design` and `dev:brainstorm` add a UX lens when there is a UI,
@@ -252,7 +252,7 @@ Some skills write outside their own install directory, on purpose, when you run 
 into `~/.claude/skills` (`CLAUDE_SKILLS_DIR` overrides); `core`'s prime installs `graphify` plus
 git and Claude Code hooks into the repo you point it at (`graph.sh --no-hooks` skips the hooks);
 and `meta`'s `harvest` clones the GitHub repository you name and copies its skills into
-`~/.claude/skills`; `design`'s render gates install Playwright into the plugin's own `shared/`
+`~/.claude/skills`; `design-system`'s render gates install Playwright into the plugin's own `shared/`
 when you run the install command its skills print, keep gate receipts in the plugin data directory
 or the OS temp directory, and its `scaffold-project` writes a new project where you point it. [SECURITY.md](SECURITY.md) spells them all out. The `dev` and `code:ddd` pipelines
 write their working documents inside the repository you run them in (`ai_docs/` and `ddd/`), which
