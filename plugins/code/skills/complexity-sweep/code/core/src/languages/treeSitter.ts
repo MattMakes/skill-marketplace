@@ -53,9 +53,26 @@ export function parseSyntaxSource(input: SyntaxSourceInput): SyntaxSourceFile {
       `No tree-sitter parser for "${input.language}". Await initSyntaxParsers() first.`,
     );
   }
-  const tree = parser.parse(input.text);
+  const text = replaceSurrogatePairs(input.text);
+  const tree = parser.parse(text);
   if (tree === null) {
     throw new Error(`tree-sitter returned no tree for ${input.filePath}.`);
   }
-  return { ...input, tree };
+  return { ...input, text, tree };
+}
+
+const SURROGATE_PAIR = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g;
+const SURROGATE = /[\uD800-\uDFFF]/;
+const REPLACEMENT_CHARACTER = "�";
+
+/**
+ * web-tree-sitter 0.27.1 reports ERROR nodes about every 32 KiB in a large
+ * file that holds UTF-16 surrogate pairs (review finding F8). Replace each
+ * pair with 1 BMP character before parsing. Line numbers stay correct. Columns
+ * on a line with a pair shift by 1 per pair. The caller must read
+ * `SyntaxSourceFile.text` (the replaced text) so node offsets and text agree.
+ */
+function replaceSurrogatePairs(text: string): string {
+  if (!SURROGATE.test(text)) return text;
+  return text.replace(SURROGATE_PAIR, REPLACEMENT_CHARACTER);
 }
