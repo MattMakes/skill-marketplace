@@ -92,7 +92,7 @@ Report any issues found and fix them before writing the file.
 Run a quick analysis against a small sample of the repo to verify the config works end-to-end:
 
 ```bash
-node <skill-directory>/packages/cli/dist/index.js \
+node <skill-directory>/code/cli/dist/index.js \
   --format json \
   --threshold-action none \
   --top 5 \
