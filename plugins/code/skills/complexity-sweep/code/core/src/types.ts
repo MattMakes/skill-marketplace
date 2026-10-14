@@ -5,6 +5,8 @@ import type {
   MethodDeclaration,
 } from "ts-morph";
 
+import type { LanguageId } from "./languages/types";
+
 // Constructors are intentionally excluded: the extraction helper never emits
 // them, so they are not part of the analyzable function universe.
 export type FunctionLike =
@@ -25,6 +27,8 @@ export interface FunctionMetrics {
 
 export interface FileMetrics {
   filePath: string;
+  /** Language the file was analyzed as. Set by `analyzeFile` and `analyzeSyntaxFile`. */
+  language?: LanguageId;
   functions: FunctionMetrics[];
   summary: {
     totalFunctions: number;

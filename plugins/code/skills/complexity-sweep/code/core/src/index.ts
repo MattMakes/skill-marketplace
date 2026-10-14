@@ -1,8 +1,38 @@
 // Public API for static-analysis-core.
 
 // Orchestration
-export { analyzeFile } from "./analyzeFile";
-export { analyzeProject } from "./analyzeProject";
+export { analyzeFile, analyzeSyntaxFile } from "./analyzeFile";
+export { analyzeProject, isSyntaxSourceInput } from "./analyzeProject";
+export type { ProjectSource } from "./analyzeProject";
+
+// Languages (Python and Rust through web-tree-sitter)
+export {
+  getSyntaxBackend,
+  languageForPath,
+  SYNTAX_BACKENDS,
+  TYPESCRIPT_EXTENSIONS,
+} from "./languages";
+export { initSyntaxParsers, parseSyntaxSource } from "./languages/treeSitter";
+export { pythonBackend } from "./languages/python";
+export { rustBackend } from "./languages/rust";
+export {
+  walkDescendants,
+  sameNode,
+  lineOf,
+  endLineOf,
+  createNodeCache,
+} from "./languages/syntaxHelpers";
+export type {
+  LanguageId,
+  SyntaxLanguageId,
+  SyntaxSourceInput,
+  SyntaxSourceFile,
+  SyntaxFunction,
+  SyntaxMetricContext,
+  SyntaxMetricCompute,
+  LanguageBackend,
+  SyntaxNode,
+} from "./languages/types";
 
 // Registry + keys
 export { MetricRegistry, MetricKeys } from "./registry";

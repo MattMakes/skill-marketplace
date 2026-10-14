@@ -38,6 +38,11 @@ describe("analyzeFile", () => {
     expect(byName.complex?.metrics.cyclomaticComplexity).toBe(3);
   });
 
+  it("sets the language to typescript", () => {
+    const sf = createSourceFile(`function foo() {}`, "a.js");
+    expect(analyzeFile(sf, createRegistry()).language).toBe("typescript");
+  });
+
   it("computes max and avg summaries", () => {
     const sf = createSourceFile(`
       function a() {}
