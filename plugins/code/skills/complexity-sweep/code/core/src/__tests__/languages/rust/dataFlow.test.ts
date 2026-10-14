@@ -384,3 +384,246 @@ fn outer() {
     expect(metric(rustGlobalDataComplexity, source)).toBe(0);
   });
 });
+
+/** `name:defLine-lastUseLine`, the short form that the review uses. */
+function shortEntries(source: string, index = 0): string[] {
+  return entries(source, index).map(
+    (entry) => `${entry.name}:${entry.defLine}-${entry.lastUseLine}`,
+  );
+}
+
+describe("Rust review defects (rust-fix-2a)", () => {
+  it("F1: inline format arguments are occurrences", () => {
+    const source = `fn n3(a: i32) {
+    let name = "x";
+    let width = 5;
+    let other = 1;
+    let s = format!("{a:?}");
+    println!("{name:>width$}");
+    write!(f, "{other}")?;
+}`;
+
+    // a: 1..5 (inline {a:?}); name: 2..6; width: 3..6 (width$); other: 4..7;
+    // s: 5..5. Line 5 holds a, name, width, other and s, so the peak is 5.
+    // Spans: a 4, name 4, width 3, other 3, s 0. The maximum is 4.
+    expect(shortEntries(source)).toEqual([
+      "a:1-5",
+      "name:2-6",
+      "width:3-6",
+      "other:4-7",
+      "s:5-5",
+    ]);
+    expect(metric(rustPeakLiveVariables, source)).toBe(5);
+    expect(metric(rustVariableSpan, source)).toBe(4);
+  });
+
+  it("F3: bare variants, paths and constants bind nothing", () => {
+    const orderingSource = `fn d3(o: Ordering) -> i32 {
+    match o {
+        Ordering::Less => -1,
+        Ordering::Equal => 0,
+        Ordering::Greater => 1,
+    }
+}`;
+    const optionSource = `fn d4(o: Option<i32>) -> i32 {
+    match o { None => 0, Some(v) => v }
+}`;
+    const constantSource = `fn d4c(n: usize) -> i32 {
+    match n {
+        MAX_LEN => 1,
+        _ => 0,
+    }
+}`;
+
+    // d3: only o (1..2). The peak is 1 and the span is 1.
+    expect(shortEntries(orderingSource)).toEqual(["o:1-2"]);
+    expect(metric(rustPeakLiveVariables, orderingSource)).toBe(1);
+    expect(metric(rustVariableSpan, orderingSource)).toBe(1);
+    // d4: o 1..2 and v 2..2. None binds nothing.
+    expect(shortEntries(optionSource)).toEqual(["o:1-2", "v:2-2"]);
+    // d4c: only n (1..2). MAX_LEN is a constant pattern.
+    expect(shortEntries(constantSource)).toEqual(["n:1-2"]);
+  });
+
+  it("F4: a match guard resolves to the arm binding", () => {
+    const source = `fn d5(o: Option<i32>) -> i32 {
+    let n = 5;
+    let q = 1;
+    let r = 2;
+    match o {
+        Some(n) if n > 3 => 1,
+        _ => q + r,
+    }
+}`;
+
+    // Outer n: 2..2. The guard n is the arm n: 6..6. o: 1..5, q: 3..7, r: 4..7.
+    // Line 5 holds o, q and r. Line 6 holds q, r and the arm n. The peak is 3.
+    // Spans: o 4, q 4, r 3. The maximum is 4.
+    expect(shortEntries(source)).toEqual([
+      "o:1-5",
+      "n:2-2",
+      "q:3-7",
+      "r:4-7",
+      "n:6-6",
+    ]);
+    expect(metric(rustPeakLiveVariables, source)).toBe(3);
+    expect(metric(rustVariableSpan, source)).toBe(4);
+  });
+
+  it("F5: path segments, labels and lifetimes are not occurrences", () => {
+    const pathSource = `fn d8(a: i32, b: i32) -> i32 {
+    let max = 3;
+    let y = 4;
+    let z = 5;
+    let m = std::cmp::max(a, b);
+    m + y + z
+}`;
+    const labelSource = `fn d9() {
+    let a = 1;
+    let b = 2;
+    let c = 3;
+    'a: loop { break 'a; }
+}`;
+
+    // d8: max 2..2 (the path segment is not a use). Line 5 holds a, b, y, z
+    // and m, so the peak is 5. Spans: a 4, b 4, y 3, z 2, m 1.
+    expect(shortEntries(pathSource)).toEqual([
+      "a:1-5",
+      "b:1-5",
+      "max:2-2",
+      "y:3-6",
+      "z:4-6",
+      "m:5-6",
+    ]);
+    expect(metric(rustPeakLiveVariables, pathSource)).toBe(5);
+    expect(metric(rustVariableSpan, pathSource)).toBe(4);
+    // d9: the label 'a is not a use of a. Every entry is 1 line, so peak 1, span 0.
+    expect(shortEntries(labelSource)).toEqual(["a:2-2", "b:3-3", "c:4-4"]);
+    expect(metric(rustPeakLiveVariables, labelSource)).toBe(1);
+    expect(metric(rustVariableSpan, labelSource)).toBe(0);
+  });
+
+  it("F3: Some(v) and a struct pattern still bind lower-case names", () => {
+    const optionSource = `fn run(p: Point, o: Option<i32>) -> i32 {
+    let Point { x, y } = p;
+    match o {
+        Some(v) => v + x + y,
+        None => 0,
+    }
+}`;
+    const armSource = `fn run(p: Point) -> i32 {
+    match p {
+        Point { x, y } => x + y,
+    }
+}`;
+
+    // p: 1..2; o: 1..3; x and y: 2..4; v: 4..4. None binds nothing.
+    expect(shortEntries(optionSource)).toEqual([
+      "p:1-2",
+      "o:1-3",
+      "x:2-4",
+      "y:2-4",
+      "v:4-4",
+    ]);
+    // p: 1..2; x and y: 3..3. Point is the struct type, not a binding.
+    expect(shortEntries(armSource)).toEqual(["p:1-2", "x:3-3", "y:3-3"]);
+  });
+
+  it("F3: a let pattern still binds an upper-case name", () => {
+    const source = `static mut STATE: i32 = 0;
+fn run() {
+    let STATE = 1;
+    use_it(STATE);
+}`;
+
+    // let is irrefutable, so STATE: 3..4 is a binding that shadows the global.
+    expect(shortEntries(source, 0)).toEqual(["STATE:3-4"]);
+  });
+
+  it("F4: a guard name that no arm binds resolves to the outer variable", () => {
+    const source = `fn run(n: i32, o: Option<i32>) -> i32 {
+    match o {
+        None => 0,
+        Some(v) if n > 3 => v,
+        _ => 1,
+    }
+}`;
+
+    // n: 1..4 because the guard on line 4 reads the parameter. o: 1..2. v: 4..4.
+    expect(shortEntries(source)).toEqual(["n:1-4", "o:1-2", "v:4-4"]);
+  });
+
+  it("F5: a local named like a path segment still counts as a plain use", () => {
+    const source = `fn run(a: i32, b: i32) -> i32 {
+    let max = 3;
+    let m = std::cmp::max(a, b);
+    let k = max + 1;
+    k + m
+}`;
+
+    // max: 2..4 because of max + 1 on line 4. m: 3..5. k: 4..5.
+    expect(shortEntries(source)).toEqual([
+      "a:1-3",
+      "b:1-3",
+      "max:2-4",
+      "m:3-5",
+      "k:4-5",
+    ]);
+  });
+
+  it("F5: use declarations and macro token paths are not occurrences", () => {
+    const useSource = `fn run(a: i32) -> i32 {
+    let max = 3;
+    let z = a;
+    use std::cmp::max;
+    z
+}`;
+    const macroSource = `fn run(a: i32, b: i32) {
+    let max = 3;
+    let z = 1;
+    println!("{}", std::cmp::max(a, b));
+}`;
+
+    // max: 2..2 (the use declaration on line 4 names the item). a: 1..3. z: 3..5.
+    expect(shortEntries(useSource)).toEqual(["a:1-3", "max:2-2", "z:3-5"]);
+    // max: 2..2 (the path segment in the token tree). a and b: 1..4. z: 3..3.
+    expect(shortEntries(macroSource)).toEqual([
+      "a:1-4",
+      "b:1-4",
+      "max:2-2",
+      "z:3-3",
+    ]);
+  });
+
+  it("F1: an escaped brace pair is not an occurrence", () => {
+    const source = `fn run(name: &str) {
+    let other = 1;
+    println!("{{name}}");
+    println!("{{{other}}}");
+}`;
+
+    // name: 1..1 (only {{name}}). other: 2..4 (the inner {other} on line 4).
+    expect(shortEntries(source)).toEqual(["name:1-1", "other:2-4"]);
+  });
+
+  it("F1: a positional placeholder adds nothing, its argument still counts", () => {
+    const source = `fn run(first: i32) {
+    let other = 1;
+    println!("{} {0}", other);
+    use_it(first);
+}`;
+
+    // other: 2..3 through the argument identifier. first: 1..4.
+    expect(shortEntries(source)).toEqual(["first:1-4", "other:2-3"]);
+  });
+
+  it("F1: an inline argument on a later line of a string counts on that line", () => {
+    const source = `fn run(a: i32) {
+    let msg = format!("x
+{a}");
+}`;
+
+    // a: 1..3 because {a} is on line 3. msg: 2..2.
+    expect(shortEntries(source)).toEqual(["a:1-3", "msg:2-2"]);
+  });
+});
