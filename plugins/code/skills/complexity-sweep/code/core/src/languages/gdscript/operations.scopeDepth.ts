@@ -131,9 +131,11 @@ function computeLineDepths(fn: SyntaxNode): Map<number, number> {
 
   // The TypeScript `switch` rule: the match spans the current depth, each
   // `pattern_section` (with its guard) spans depth + 1, and the section body
-  // is at depth + 2.
+  // is at depth + 2. The match value stays at the current depth; a lambda in
+  // it still adds its own level, as in an `if` condition.
   const walkMatch = (node: SyntaxNode, depth: number): void => {
     paint(node, depth);
+    scanForNestedStructures(node.childForFieldName("value"), depth);
     const matchBody = node.childForFieldName("body");
     for (const section of matchBody?.namedChildren ?? []) {
       if (section === null || section.type !== "pattern_section") continue;

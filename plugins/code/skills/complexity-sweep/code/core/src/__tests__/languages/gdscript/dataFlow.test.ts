@@ -18,6 +18,10 @@ function metric(compute: SyntaxMetricCompute, source: string, index = 0): number
   return result;
 }
 
+function expectClean(source: string): void {
+  expect(parseFixture("gdscript", source).tree.rootNode.hasError).toBe(false);
+}
+
 function entries(source: string, index = 0) {
   return buildGdscriptDefUse(syntaxCtx("gdscript", source, index).node);
 }
@@ -316,10 +320,11 @@ describe("gdscriptSpecifiedDataComplexity", () => {
 });
 
 describe("gdscriptGlobalDataComplexity", () => {
-  it("counts static vars of the script and of an inner class", () => {
-    // counter (script static var, written), shared (inner-class static var, read).
-    // GDV = 2.
-    expect(metric(gdscriptGlobalDataComplexity, GLOBALS, 0)).toBe(2);
+  it("counts a script static var and not a bare name of an inner-class static var", () => {
+    // counter (script static var, written) counts. The bare `shared` is
+    // declared only in Inner, so a script-level unit does not see it
+    // (design 9.3, 5.4 "Static scope", GDScript review F2). GDV = 1.
+    expect(metric(gdscriptGlobalDataComplexity, GLOBALS, 0)).toBe(1);
   });
 
   it("does not count a member var, a const or an enum", () => {
@@ -387,6 +392,63 @@ var hp:
 `;
     // counter. GDV = 1.
     expect(metric(gdscriptGlobalDataComplexity, source)).toBe(1);
+  });
+
+  it("does not count a static var of a sibling class that a member var shadows (review F2)", () => {
+    const source = `class A:
+\tstatic var shared := 1
+
+class B:
+\tvar shared := 2
+\tfunc read():
+\t\treturn shared
+`;
+    expectClean(source);
+    // B.shared is an instance field. The static var of A is not visible in B. GDV = 0.
+    expect(metric(gdscriptGlobalDataComplexity, source)).toBe(0);
+  });
+
+  it("counts a script static var read from a method of an inner class", () => {
+    const source = `static var counter := 0
+class Inner:
+\tfunc read():
+\t\treturn counter
+`;
+    expectClean(source);
+    expect(metric(gdscriptGlobalDataComplexity, source)).toBe(1);
+  });
+
+  it("counts a static var of class A read from a method of class A", () => {
+    const source = `class A:
+\tstatic var shared := 1
+\tfunc read():
+\t\treturn shared
+`;
+    expectClean(source);
+    expect(metric(gdscriptGlobalDataComplexity, source)).toBe(1);
+  });
+
+  it("counts a static var of class A read from a method of class A.Inner", () => {
+    const source = `class A:
+\tstatic var shared := 1
+\tclass Inner:
+\t\tfunc read():
+\t\t\treturn shared
+`;
+    expectClean(source);
+    expect(metric(gdscriptGlobalDataComplexity, source)).toBe(1);
+  });
+
+  it("does not count a script static var that an inner-class member var hides", () => {
+    const source = `static var x := 0
+class Inner:
+\tvar x := 1
+\tfunc read():
+\t\treturn x
+`;
+    expectClean(source);
+    // Inner declares x, so Inner owns the name and it is an instance field. GDV = 0.
+    expect(metric(gdscriptGlobalDataComplexity, source)).toBe(0);
   });
 
   it("returns 0 for a file without static vars", () => {

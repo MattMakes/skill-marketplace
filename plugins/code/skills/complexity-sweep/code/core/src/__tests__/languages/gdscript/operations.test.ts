@@ -325,6 +325,33 @@ describe("gdscript scope depth", () => {
     expect(weightedLoc(src)).toBe(11);
   });
 
+  it("adds 1 level for a lambda in a match value (GDScript review F1)", () => {
+    const src = `func f(value):
+    match [value].map(func(x):
+        return x + 1
+    ):
+        _:
+            pass
+`;
+    expectClean(src);
+    // Depths: 0 (match line), 1 (lambda body), 0 (`):`), 1 (section), 2 (pass).
+    // Weighted = 1 + 2 + 1 + 2 + 3 = 9. Raw = 5.
+    expect(weightedLoc(src)).toBe(9);
+    expect(ratio(src)).toBeCloseTo(9 / 5, 10);
+  });
+
+  it("keeps the depths of a match value that holds no lambda", () => {
+    const src = `func f(value):
+    match [value].size():
+        _:
+            pass
+`;
+    expectClean(src);
+    // Depths: 0 1 2. Weighted = 1 + 2 + 3 = 6. Raw = 3.
+    expect(weightedLoc(src)).toBe(6);
+    expect(ratio(src)).toBe(2);
+  });
+
   it("adds 1 level for a multi-line lambda body", () => {
     const src = `func f():
     var l = func(q):
