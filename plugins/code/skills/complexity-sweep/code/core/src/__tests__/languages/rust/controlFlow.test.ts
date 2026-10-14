@@ -176,6 +176,42 @@ describe("computeRustEssentialComplexity", () => {
     expect(ev(source)).toBe(2);
   });
 
+  it("treats a final match without a semicolon as a tail expression", () => {
+    const source = "fn f(x: i32) -> i32 { if x < 0 { return 0; } match x { 1 => 2, _ => 3 } }";
+    // 1 baseline + 1 early return before the block-like match tail.
+    expect(ev(source)).toBe(2);
+  });
+
+  it("treats a final if-else without a semicolon as a tail expression", () => {
+    const source = "fn f(x: i32) -> i32 { if x < 0 { return 0; } if x > 9 { 9 } else { x } }";
+    // 1 baseline + 1 early return before the block-like if tail.
+    expect(ev(source)).toBe(2);
+  });
+
+  it("treats a final loop and a final bare block as tail expressions", () => {
+    // 1 baseline + 1 early return before the loop tail.
+    expect(ev("fn f(x: i32) -> i32 { if x < 0 { return 0; } loop { break 5; } }")).toBe(2);
+    // 1 baseline + 1 early return before the block tail.
+    expect(ev("fn f(x: i32) -> i32 { if x < 0 { return 0; } { x + 1 } }")).toBe(2);
+  });
+
+  it("keeps a plain value tail expression", () => {
+    // 1 baseline + 1 early return before the value tail.
+    expect(ev("fn f(x: i32) -> i32 { if x < 0 { return 0; } x + 1 }")).toBe(2);
+  });
+
+  it("does not use the tail rule without a return type", () => {
+    // 1 baseline; the for loop is a statement in a unit with no return type,
+    // and the sole return is not early under the textual-last rule.
+    expect(ev("fn f() { if a { return; } for x in y { g(x); } }")).toBe(1);
+  });
+
+  it("does not treat a final block-like statement with a semicolon as a tail", () => {
+    // 1 baseline; the final `;` ends the expression statement, so there is no
+    // tail. The sole return is textually last.
+    expect(ev("fn f(x: i32) -> i32 { if x < 0 { return 0; } match x { _ => 3 }; }")).toBe(1);
+  });
+
   it("does not count a sole return when there is no non-return tail", () => {
     // 1 baseline; one return is not early under the textual-last rule.
     expect(ev("fn f() -> i32 { return 1; }")) .toBe(1);

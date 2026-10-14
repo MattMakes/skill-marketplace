@@ -31,7 +31,8 @@ const CONDITION_OPERATORS: ReadonlySet<string> = new Set([
 
 function countPatternLeaves(node: SyntaxNode | null): number {
   if (node === null) return 0;
-  if (node.type === "identifier") return 1;
+  // `Point { x, y }` binds `x` and `y` through shorthand field identifiers.
+  if (node.type === "identifier" || node.type === "shorthand_field_identifier") return 1;
   let count = 0;
   const patternType = node.childForFieldName("type");
   for (const child of node.namedChildren) {
@@ -43,7 +44,9 @@ function countPatternLeaves(node: SyntaxNode | null): number {
 
 function isMutatingMethodCall(node: SyntaxNode): boolean {
   if (node.type !== "call_expression") return false;
-  const fn = node.childForFieldName("function");
+  let fn = node.childForFieldName("function");
+  // `v.push::<T>(x)` wraps the method access in a `generic_function`.
+  if (fn?.type === "generic_function") fn = fn.childForFieldName("function");
   if (fn?.type !== "field_expression") return false;
   const field = fn.childForFieldName("field");
   return field !== null && MUTATING_METHODS.has(field.text);

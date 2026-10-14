@@ -1,6 +1,6 @@
 // Rust Halstead token classification and shared per-function cache.
 
-import { createNodeCache, walkDescendants } from "../syntaxHelpers";
+import { createNodeCache, sameNode, walkDescendants } from "../syntaxHelpers";
 import type { SyntaxNode } from "../types";
 import { isRustFunction } from "./nodeTypes";
 
@@ -56,31 +56,45 @@ function isOperand(node: SyntaxNode): boolean {
     || node.type.endsWith("_literal");
 }
 
+/**
+ * True for the direct children of the unit that form its header: the `fn`
+ * token, the name, a `visibility_modifier` and a `function_modifiers`. The
+ * TypeScript metric skips the `function` keyword and the name, and the Python
+ * metric skips `async`, `def` and the name.
+ */
+function isUnitHeader(node: SyntaxNode, unit: SyntaxNode): boolean {
+  if (!sameNode(node.parent, unit)) return false;
+  if (node.type === "fn" || node.type === "visibility_modifier") return true;
+  if (node.type === "function_modifiers") return true;
+  return sameNode(node, unit.childForFieldName("name"));
+}
+
 function collectCounts(root: SyntaxNode): HalsteadCounts {
   const cached = countsCache.get(root);
   if (cached !== undefined) return cached;
 
   const operators = new Map<string, number>();
   const operands = new Map<string, number>();
-  const rootName = root.childForFieldName("name");
 
   walkDescendants(root, (node) => {
     if (isRustFunction(node) || isTypeOnly(node)) return false;
+    if (isUnitHeader(node, root)) return false;
 
     // Strings are one operand. Their quotes and contents do not become tokens.
     if (LITERAL_TYPES.has(node.type) || node.type.endsWith("_literal")) {
       increment(operands, node.text);
       return false;
     }
-    if (node.namedChildCount > 0) return;
-
-    // Match the TypeScript metric: the function's own name is structural.
-    if (rootName !== null && node.id === rootName.id) return;
+    // Only true leaves are tokens. An inner node with only anonymous children
+    // is structure; its children are counted on their own.
+    if (node.childCount > 0) return;
+    if (node.startIndex === node.endIndex) return;
 
     // Exclude separators that only introduce skipped type syntax.
     if ((node.text === ":" &&
         (node.parent?.type === "parameter" || node.parent?.type === "let_declaration"))
-      || (node.text === "->" && node.parent?.type === "function_item")) {
+      || (node.text === "->" &&
+        (node.parent?.type === "function_item" || node.parent?.type === "closure_expression"))) {
       return;
     }
 

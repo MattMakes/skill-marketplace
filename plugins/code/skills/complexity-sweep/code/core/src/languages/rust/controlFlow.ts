@@ -141,7 +141,15 @@ function countReturnsBeforeTextuallyLast(returns: SyntaxNode[]): number {
   return returns.filter((node) => node.endIndex !== lastEnd).length;
 }
 
+/**
+ * Tail expression rule (design 5.2). The function must have a `return_type`
+ * field. The last non-comment named child of the body block must be either an
+ * expression node, or an `expression_statement` whose last child is not the
+ * `;` token. tree-sitter-rust wraps a final block-like expression (`if`,
+ * `match`, `loop`, a block) in an `expression_statement` with no `;`.
+ */
 function hasNonReturnTailExpression(node: SyntaxNode): boolean {
+  if (node.childForFieldName("return_type") === null) return false;
   const body = node.childForFieldName("body");
   if (body === null) return false;
   let last: SyntaxNode | undefined;
@@ -157,9 +165,13 @@ function hasNonReturnTailExpression(node: SyntaxNode): boolean {
     }
   }
   if (last === undefined || last.type === "return_expression") return false;
-  if (last.type === "expression_statement" || last.type === "let_declaration") {
-    return false;
+  if (last.type === "expression_statement") {
+    const final = last.child(last.childCount - 1);
+    if (final === null || final.type === ";") return false;
+    // A final `return x` without `;` is wrapped the same way. It is no tail.
+    return last.namedChildren.at(-1)?.type !== "return_expression";
   }
+  if (last.type === "let_declaration") return false;
   // Item declarations can omit semicolons, but they are not tail expressions.
   return !last.type.endsWith("_item") && last.type !== "empty_statement";
 }
