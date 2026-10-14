@@ -1,9 +1,14 @@
 # game-design
 
-A design studio for game ideas. Where the `game` plugin reviews work, this plugin produces it: target
-kinds of fun, concepts, core loops, a brief, a one-page design, diagrams, an art-direction style
-sheet and a deep design (systems and economy, progression, levels and UX, a prototype plan). Every skill runs headless: it never asks a question, it infers and states its assumptions, and
-it writes a fixed output format, so a scheduled agent on a local model can run it as well as Claude Code.
+A design studio for game ideas. Where the `game` plugin reviews work, this plugin produces it. The
+collaborative workflow develops a game or focused system with the user. The existing pipeline
+produces target kinds of fun, concepts, core loops, a brief, a one-page design, diagrams, an
+art-direction style sheet, and a deep design.
+
+Every skill in the existing pipeline runs headless. It never asks a question, it infers and states
+its assumptions, and it writes a fixed output format. A scheduled agent on a local model can run it
+as well as Claude Code. The collaborative workflow asks consequential questions and records the
+answers, proposals, and open decisions.
 
 ```bash
 claude plugin install game-design@skill-marketplace
@@ -13,6 +18,7 @@ claude plugin install game-design@skill-marketplace
 
 | Skill | What it does | Output |
 |---|---|---|
+| `one-page-game-design` | Works through design decisions with the user, walks through play and failure paths, and selects a visual mode for the design's complexity. | Light interactive HTML or detailed standalone SVG, a 1-page PDF, and a saved design record |
 | `fun-targeting` | Picks a proven **blend** of 2–3 of LeBlanc's eight kinds of fun from a curated deck (`references/blends.md`), each kind with a one-sentence experience goal, names the kinds it deprioritizes, and derives dynamics and mechanics backwards (MDA). Enforces the fold-in rule: the core loop, not a meta system, produces every target kind. Traces every mechanic to the fun it serves and the loop it lives in; a mechanic that serves none is cut or flagged. | Blend, MDA table, fold-in check and aesthetic trace |
 | `game-ideation` | Generates at least 6 concepts under a constraint card, each through a different frame. Rejects any concept that crosses the caller's content boundaries before scoring, then scores the rest on fun fit, novelty, one-sentence clarity and prototypability. Keeps the runners-up. | Shortlist, pick, and a JSON block |
 | `core-loop` | Librande's "flowchart first": the moment-to-moment, session and long-term loops, each as player action → system response → feedback → next decision, with one feedback node per target kind (at most 3 per loop) and every feedback edge labeled by the fun it serves. The primary kind labels a moment-to-moment edge; every target kind labels a moment-to-moment or session edge. | Three Mermaid flowcharts |
@@ -24,6 +30,20 @@ claude plugin install game-design@skill-marketplace
 | `progression-content` | Decides the game length up front (Librande), plans at most 10 sessions and 12 unlocks, draws a timed whole-game storyboard of 6–10 panels, and counts the content with solo-dev hours. | `## Progression and content` and a JSON block |
 | `level-ux` | The first 10 minutes beat by beat, exactly 3 sample levels with layout sketches, controls for keyboard/mouse, controller and touch, the HUD, and a Mermaid screen flow. | `## Levels and UX` and a JSON block |
 | `prototype-plan` | Three milestones (paper prototype, grey-box, vertical slice) with exit criteria, playtest questions for every target kind, measurable success metrics, a solo-dev engine choice, and the milestone that retires each risk. | `## Prototype and playtest plan` and a JSON block |
+
+## Choose a workflow
+
+Use `game-design:one-page-game-design` when you want to work through decisions with the user. It
+selects light interactive HTML or a detailed standalone SVG according to design complexity. Both
+modes include a 1-page PDF and a saved design record. A3 is the default for light mode. A2 or
+larger is the default for heavy mode. These page sizes are defaults, not restrictions.
+
+Use the existing headless pipeline when the inputs are ready and the work must run without
+questions. Its `game-design:one-page-design` step renders the pipeline's JSON specification to a
+dated SVG. It does not replace the collaborative workflow.
+
+The collaborative workflow's optional exporter requires Node.js, Playwright or `playwright-core`,
+and Chromium or Chrome. The exporter does not install these dependencies.
 
 ## Pipeline
 
@@ -46,7 +66,8 @@ It exits 0 when all four sections have their subsections, table columns and JSON
 and prints the reasons per section on stderr otherwise. Its tests run with
 `python3 -m unittest discover -s scripts/tests`.
 
-Invoke them namespaced: `game-design:fun-targeting`, `game-design:game-brief`, and so on.
+Invoke the existing pipeline namespaced: `game-design:fun-targeting`, `game-design:game-brief`, and
+so on.
 
 ## Blends and the fold-in rule
 
