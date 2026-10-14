@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Order schema",
+    "quality_profile": "showcase",
+    "visual_preset": "blueprint",
+    "animation": "none"
+  },
+  "components": [
+    { "id": "customers", "type": "database", "label": "customers", "sublabel": "PK id", "pos": [60, 60], "size": [210, 76] },
+    { "id": "orders", "type": "database", "label": "orders", "sublabel": "PK id · FK customer_id", "pos": [700, 60], "size": [210, 76] },
+    { "id": "order_items", "type": "database", "label": "order_items", "sublabel": "PK id · two required FKs", "pos": [700, 280], "size": [210, 76] },
+    { "id": "products", "type": "database", "label": "products", "sublabel": "PK id", "pos": [60, 280], "size": [210, 76] }
+  ],
+  "connections": [
+    { "id": "order-customer", "from": "orders", "to": "customers", "label": "customer_id → id" },
+    { "id": "item-order", "from": "order_items", "to": "orders", "label": "order_id → id" },
+    { "id": "item-product", "from": "order_items", "to": "products", "label": "product_id → id" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Customer → orders: 1 to 0..*", "items": ["Example schema: customer_id is a NOT NULL FK", "Each order references exactly one customer"] },
+    { "dot": "violet", "title": "Order / product → items: 1 to 0..*", "items": ["order_id and product_id are NOT NULL FKs", "Neither FK is UNIQUE; each parent may have many items"] },
+    { "dot": "slate", "title": "Read arrows as references", "items": ["Arrows point from the FK to its referenced key", "No runtime traffic or cascade behavior is implied"] }
+  ]
+}

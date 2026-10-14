@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Embedding replaces one slot",
+    "locale": "en",
+    "viewBox": [
+      1240,
+      540
+    ],
+    "column_fit": "spread",
+    "quality_profile": "showcase",
+    "visual_preset": "signal-flow",
+    "animation": "trace",
+    "views": [
+      {
+        "id": "replace",
+        "label": "Follow one replacement",
+        "focus": [
+          "caller",
+          "helper",
+          "files"
+        ],
+        "note": "The agent invokes the helper, which reads inputs and replaces the article after preparing a temporary file."
+      }
+    ]
+  },
+  "participants": [
+    {
+      "id": "caller",
+      "type": "external",
+      "label": "Calling agent"
+    },
+    {
+      "id": "helper",
+      "type": "backend",
+      "label": "embed-blueprint.mjs"
+    },
+    {
+      "id": "files",
+      "type": "external",
+      "label": "Local filesystem"
+    }
+  ],
+  "messages": [
+    {
+      "id": "invoke",
+      "from": "caller",
+      "to": "helper",
+      "y": 160,
+      "label": "page, slot, viewer, title",
+      "variant": "emphasis"
+    },
+    {
+      "id": "read-page",
+      "from": "helper",
+      "to": "files",
+      "y": 200,
+      "label": "read article HTML"
+    },
+    {
+      "id": "return-page",
+      "from": "files",
+      "to": "helper",
+      "y": 240,
+      "label": "original article bytes",
+      "variant": "return"
+    },
+    {
+      "id": "read-viewer",
+      "from": "helper",
+      "to": "files",
+      "y": 280,
+      "label": "read delivered viewer"
+    },
+    {
+      "id": "return-viewer",
+      "from": "files",
+      "to": "helper",
+      "y": 320,
+      "label": "complete viewer bytes",
+      "variant": "return"
+    },
+    {
+      "id": "write-temp",
+      "from": "helper",
+      "to": "files",
+      "y": 360,
+      "label": "write temporary article"
+    },
+    {
+      "id": "rename",
+      "from": "helper",
+      "to": "files",
+      "y": 400,
+      "label": "rename over original",
+      "variant": "emphasis"
+    },
+    {
+      "id": "success",
+      "from": "helper",
+      "to": "caller",
+      "y": 440,
+      "label": "report embedded slot",
+      "variant": "return"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "The successful path",
+      "items": [
+        "One exact marker is replaced after both inputs are read",
+        "The original page is replaced by a same-directory rename"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Earlier failures preserve the page",
+      "items": [
+        "Zero or two matching slots abort before a write",
+        "An unreadable viewer also leaves the article intact"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "name": "code-ddd-toolchain",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  }
+}

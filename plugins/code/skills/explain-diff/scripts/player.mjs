@@ -11,7 +11,15 @@ export const END = "<!-- narration:end -->";
 export function playerBlock({ cues, src, duration, engine }) {
   // `src` lives on the <audio> element's attribute; repeating it here would embed the
   // whole base64 MP3 a second time under --inline.
-  const data = JSON.stringify({ cues, duration, engine });
+  //
+  // JSON.stringify does not escape `</script>`, and these explainers get shared, so any
+  // value that ever reaches a cue id or engine name could otherwise close the script
+  // block and inject markup. Escaping `<` closes that off for good; U+2028/9 are escaped
+  // because they are literal line terminators in JavaScript but legal inside a JSON string.
+  const data = JSON.stringify({ cues, duration, engine })
+    .replace(/</g, "\\u003c")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
   const srcAttr = String(src).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
   return `${BEGIN}
 <style>

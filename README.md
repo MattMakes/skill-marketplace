@@ -1,10 +1,10 @@
 # skill-marketplace
 
 A Claude Code plugin marketplace for engineering work. The plugins are grouped by the job they do:
-carry a change from idea to review (`dev`), design a system before building it (`ddd`), understand
-and verify a codebase you did not write (`code`), design and measure user interfaces (`design`),
-review game work (`game`), run a fleet of agents (`herdr`), think and finish well (`tools`), and
-make more skills (`meta`).
+carry a change from idea to review (`dev`), design, diagram, understand
+and verify systems (`code`), design and measure user interfaces (`design`), review game work
+(`game`), design games (`game-design`), run a fleet of agents (`herdr`), think and finish well
+(`tools`), and make more skills (`meta`).
 
 ## Install
 
@@ -12,10 +12,10 @@ make more skills (`meta`).
 claude plugin marketplace add MattMakes/skill-marketplace
 
 claude plugin install dev@skill-marketplace
-claude plugin install ddd@skill-marketplace
 claude plugin install code@skill-marketplace
 claude plugin install design@skill-marketplace
 claude plugin install game@skill-marketplace
+claude plugin install game-design@skill-marketplace
 claude plugin install herdr@skill-marketplace
 claude plugin install tools@skill-marketplace
 claude plugin install meta@skill-marketplace
@@ -58,40 +58,32 @@ merge request on GitLab or a pull request on GitHub; the skills detect `glab` or
 
 Agents: `codebase-locator`, `codebase-analyzer`, `codebase-pattern-finder`, `code-reviewer`.
 
-## `ddd` — DDD Modelling
-
-The DDD Starter Modelling Process as a chained pipeline over one `ddd/` workspace, each step
-schema-validated before the next runs. Every `ddd mark` rebuilds a self-contained review page with
-diagrams, explorers and decision cards. **Start with `ddd-workflow`.** Node ≥ 18, no other runtime.
-
-| Skill | What it does |
-|---|---|
-| `ddd-workflow` | Runs the whole process, shows status, re-runs a step and marks the rest stale. |
-| `ddd-understand` | Why the system exists and for whom: business model, impact map, capabilities. |
-| `ddd-discover` | EventStorming the domain into events, commands, policies and hotspots. |
-| `ddd-decompose` | Cuts the domain into subdomains and bounded contexts, and draws the context map. |
-| `ddd-strategize` | Core, supporting or generic: where to invest, what to buy, which pattern per subdomain. |
-| `ddd-connect` | How contexts talk: message flows, sequence diagrams, sync versus async, coupling. |
-| `ddd-organise` | Team Topologies and deployable units, checked against the scale you asked for. |
-| `ddd-define` | A Bounded Context Canvas per context, plus the system context diagram and glossary. |
-| `ddd-code` | Tactical DDD: aggregates, invariants, ports and adapters, an implementation plan. |
-| `ddd-contracts` | A JSON Schema payload, an example and an owner for every message that crosses a boundary. |
-| `blueprint` | The bundled renderer: architecture, sequence, data-flow and state diagrams as standalone HTML, with image export. Usable on its own. |
-
-Agent: `ddd-decision-strategist`, for the calls that have to be argued rather than read off an artifact.
-
 ## `code` — Code Intelligence
 
-Understand a codebase, then verify it.
+Design, understand, and verify systems. Choose the entry point for the job:
 
-| Skill | What it does |
+| Start here | What it does |
 |---|---|
-| `core` | Primes a repo once into a zero-token knowledge graph plus a tree of `CLAUDE.md` contracts, so later questions cost a graph query instead of a file sweep. **Start here.** |
-| `deepwiki` | Generates and maintains wiki documentation with line-level source citations and validated Mermaid. |
-| `explain-diff` | Turns a diff, branch or change into a self-contained HTML explainer: background, intuition, code walkthrough and an interactive quiz. |
-| `security-sweep` | A multi-agent security audit with per-stack OWASP, STRIDE, secrets and supply-chain catalogs. |
-| `complexity-sweep` | Flags over-complex TypeScript and JavaScript functions and either refactors them or writes the refactoring prompt. |
-| `e2e-harness` | Discovers a polyglot system from its own docs and generates a runnable end-to-end suite across Node, Python, Go, C#, Rust, Kafka and Playwright. |
+| `ddd` | Starts or resumes domain modelling; routes through nine step skills with shared artifacts, validation gates, and a review page. |
+| `blueprint` | Creates standalone architecture, workflow, sequence, data-flow and state diagrams with animated walkthroughs, offline fonts, and image export. Also supplies diagrams to DDD and explain-diff. |
+| `core` | Primes an existing repo into a knowledge graph and `CLAUDE.md` contracts. |
+| `keys` | Stands up a self-maintaining `AGENTS.md` tree and folds `CLAUDE.md` and other agent-instruction files into it. |
+| `explain-diff` | Explains a diff, branch or PR with background, intuition, a code walkthrough, an interactive quiz, and embedded Blueprint diagrams. |
+| `deepwiki` | Generates and maintains wiki documentation with source citations and validated Mermaid. |
+| `security-sweep` | Audits security across stacks with OWASP, STRIDE, secrets and supply-chain checks. |
+| `complexity-sweep` | Measures TypeScript/JavaScript, Python, Rust and GDScript complexity and suggests or implements refactorings. |
+| `e2e-harness` | Generates runnable end-to-end suites from system documentation. |
+
+For DDD, invoke **`code:ddd`** rather than choosing a step first. It routes through
+`ddd-understand` → `ddd-discover` → `ddd-decompose` → `ddd-strategize` → `ddd-connect` →
+`ddd-organise` → `ddd-define` → `ddd-code` → `ddd-contracts`. The
+`code:ddd-decision-strategist` agent supports difficult design decisions.
+Node ≥ 18 runs the DDD and Blueprint tools. See the [DDD guide](plugins/code/docs/ddd.md)
+and [code plugin guide](plugins/code/README.md).
+
+The former `ddd` plugin is now part of `code`. Update/install `code@skill-marketplace`
+and remove the old `ddd` plugin to avoid duplicate skills. Replace `ddd:ddd-workflow`
+with `code:ddd`; existing project `ddd/` workspaces need no conversion.
 
 ## `design` — UX/UI Design System
 
@@ -137,6 +129,22 @@ game-development books. **Start with `game-studio-cpo`.**
 | `game-code-reviewer` | Game code and architecture: Unity scripts, systems wiring, decoupling. |
 | `game-performance-auditor` | Frame budget: CPU versus GPU bound, allocations, pooling, draw calls. |
 | `game-qa-reviewer` | Test plans, bug triage, severity, regression and ship-readiness. |
+
+## `game-design` — Game Design Studio
+
+Generative game design that runs headless, the counterpart to the `game` review board. Run the
+skills in pipeline order; send the result to `game:game-studio-cpo` for critique.
+**Start with `fun-targeting`.**
+
+| Skill | What it does |
+|---|---|
+| `fun-targeting` | Picks 2–3 of the eight kinds of fun and traces every mechanic back to one (MDA). |
+| `game-ideation` | At least 6 concepts under a constraint card, a boundaries-first gate, a scored shortlist. |
+| `core-loop` | Moment-to-moment, session and long-term loops as Mermaid flowcharts. |
+| `design-diagrams` | Which diagram to draw when: storyboard, time-and-space map, triangle, matrix, module map. |
+| `game-brief` | The reader-facing brief, down to the smallest prototype that tests the fun. |
+| `one-page-design` | Librande's one-page method; renders a JSON spec to a dated SVG. |
+| `art-direction` | A style sheet, a shot list tied to the fun, and placeholder image prompts. |
 
 ## `herdr` — herdr Fleet
 
@@ -188,6 +196,31 @@ Make more skills and tools. **Start with `skill-creator`.**
 
 ---
 
+## `services/` — local companions, not plugins
+
+A skill can ask a local service to do something no skill can do alone. Those services live in
+`services/`, deliberately outside `plugins/` and absent from `marketplace.json`: they are not
+installed by `/plugin`, and they hold state — a Python environment, model weights — that a
+plugin directory managed by the installer is the wrong home for.
+
+**[`services/breeze-tts`](services/breeze-tts/)** narrates. It holds
+[Breeze TTS 2](https://huggingface.co/BreezeBlue/Breeze-TTS-2) in memory on Apple Silicon and turns
+text into an MP3 plus the exact times each paragraph is spoken. `code:explain-diff` uses it to make
+its HTML explainers read themselves aloud with a follow-along player.
+
+```bash
+cd services/breeze-tts
+just install   # once: vendor the port, fetch ~3.5 GB of weights, start it
+just start     # start it again later
+just down      # stop it
+```
+
+Narration is always optional. With the service down, `explain-diff` writes exactly the explainer
+it always did — the narration step exits 3 and changes nothing. The model's weights are under a
+research and non-commercial licence, so they are never committed here; `setup.sh` fetches them
+from Hugging Face, where you accept those terms yourself. See
+[`services/breeze-tts/README.md`](services/breeze-tts/README.md).
+
 ## Layout
 
 ```
@@ -201,6 +234,8 @@ skill-marketplace/
 │       ├── skills/<name>/SKILL.md
 │       ├── agents/<name>.md    # where the plugin ships any
 │       └── shared/             # scripts, schemas and references used by several skills
+├── services/
+│   └── <service>/              # long-running local companions, not plugins
 ├── README.md
 └── SECURITY.md
 ```
@@ -219,16 +254,16 @@ git and Claude Code hooks into the repo you point it at (`graph.sh --no-hooks` s
 and `meta`'s `harvest` clones the GitHub repository you name and copies its skills into
 `~/.claude/skills`; `design`'s render gates install Playwright into the plugin's own `shared/`
 when you run the install command its skills print, keep gate receipts in the plugin data directory
-or the OS temp directory, and its `scaffold-project` writes a new project where you point it. [SECURITY.md](SECURITY.md) spells them all out. The `dev` and `ddd` pipelines
+or the OS temp directory, and its `scaffold-project` writes a new project where you point it. [SECURITY.md](SECURITY.md) spells them all out. The `dev` and `code:ddd` pipelines
 write their working documents inside the repository you run them in (`ai_docs/` and `ddd/`), which
 is the point.
 
 ## Skill names are namespaced
 
 Installed as plugins, skills are addressed as `<plugin>:<skill>` — `dev:workflow`,
-`ddd:ddd-workflow`, `code:core`, `herdr:herdr-orchestrator`, `tools:humanize`. Agents too:
-`ddd:ddd-decision-strategist`, `dev:codebase-locator`. The skills that dispatch their siblings
-(`dev:workflow`, `ddd:ddd-workflow` and every agent-dispatch site) use the namespaced form,
+`code:ddd`, `code:core`, `herdr:herdr-orchestrator`, `tools:humanize`. Agents too:
+`code:ddd-decision-strategist`, `dev:codebase-locator`. The skills that dispatch their siblings
+(`dev:workflow`, `code:ddd` and every agent-dispatch site) use the namespaced form,
 including across plugins: the `dev` pipeline calls `tools:pre-flight` and `tools:post-flight`,
 which stay in `tools` so existing installs keep working. A bare name may still resolve when it is
 unambiguous, but do not rely on it.
@@ -239,13 +274,14 @@ triggering a coin flip.
 
 ## What is not in the repo
 
-Most of a clone is the `ddd` plugin's golden test fixtures. `.gitignore` keeps the rest out:
+Most of a clone is the DDD golden test fixtures under `code/shared`. `.gitignore` keeps the rest out:
 
 | Ignored | Why |
 |---|---|
 | `**/node_modules/` | the Playwright fixture install under `code/skills/e2e-harness/evals/fixtures/`, which dwarfs the fixture itself; also the install for `code/skills/complexity-sweep`'s bundled CLI, which the skill runs `npm install` for on first use; and `design/shared`'s Playwright and axe-core runtime for the render gates |
 | `**/e2e/artifacts/` | regenerated by `e2e run` |
 | `__pycache__/`, `.pytest_cache/` | test caches |
+| `services/*/models/`, `.venv/`, `jobs/` | model weights (gigabytes, and separately licensed), Python environments and generated audio — all rebuilt by the service's own `setup.sh` |
 
 ## Validate after editing
 

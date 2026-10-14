@@ -1,0 +1,120 @@
+{
+  "skill_name": "progression-content",
+  "evals": [
+    {
+      "id": 1,
+      "name": "folded-light-brews",
+      "prompt": "Plan the progression and content.\nIdea: Folded Light Brews.\nBrief (game-brief): You catch sunbeams in paper cups and brew them into personal stories, spending light, your only currency, to unfold a city folded from old letters. Player fantasy: a quiet keeper of a paper city that grows one letter at a time. Setting: a paper city folded from old letters. Twist: light is the only currency. Session length: open-ended and ambient. Scope: weekend prototype, 3 days, the core loop only, one solo developer. Risks: brewing could feel like a menu pick; ambient pacing bores; the light economy is unclear (too plentiful or too scarce); branching letters cause narrative scope creep.\nfun-targeting: blend story-you-shape (Narrative, Expression). Primary kind: Narrative. Target kinds: Narrative (The player feels a pull to know what happens next when spending light unfolds another letter segment), Expression (The player feels their collection says something about them when they name and arrange their brews). Deprioritized: Sensation, Fantasy, Challenge, Fellowship, Discovery, Submission. Core verb: brew. Aesthetic trace: spend light to unfold a letter segment -> Narrative KEEP; reveals persist in the city -> Narrative KEEP; ambient progress unfolds letters while idle -> Narrative KEEP; brew combines a sunbeam with a letter theme into a named brew -> Expression KEEP; naming and arranging brews -> Expression KEEP.\ncore-loop:\nMoment-to-moment: A1 Catch a sunbeam in a paper cup -> S1 Sunbeam is stored and assigned a theme from nearby letters -> F1 The cup glows with the caught color and its hinted letter theme -|Expression|-> D1 Brew it into a story or save the light? -> A1.\nSession: A2 Spend light to unfold a letter segment -> S2 The segment reveals story text and shifts the city's layout -> F2 New paragraphs appear and the folded street changes shape -|Narrative|-> D2 Brew this reveal into your collection or keep unfolding? -> A2.\nLong-term: A3 Return and check on your growing city -> S3 Ambient progress unfolded letters while you were away -> F3 New light has gathered and new letter segments await -|Narrative|-> D3 Which thread do you follow next? -> A3.\nContent boundaries: no sexual content, no violence, no real-money gambling.",
+      "expected_output": "One decided game length, at most 10 sessions each with a target kind, an unlock curve, a 6-10 panel timed storyboard, a content inventory with hours, and a JSON block whose content_hours is the sum.",
+      "files": [],
+      "expectations": [
+        "Every required heading and subsection in order",
+        "One decided length, not a range",
+        "Storyboard has 6-10 timed panels",
+        "JSON parses with the contract keys"
+      ],
+      "checks": [
+        {
+          "type": "in_order",
+          "description": "heading, subsections and json in order",
+          "patterns": [
+            "^## Progression and content\\s*$",
+            "^### Game length\\s*$",
+            "^### Session plan\\s*$",
+            "^### Unlock curve\\s*$",
+            "^### Timed storyboard\\s*$",
+            "^### Content inventory\\s*$",
+            "^```json"
+          ]
+        },
+        {
+          "type": "regex",
+          "description": "exactly one ## heading",
+          "pattern": "^## ",
+          "min": 1,
+          "max": 1
+        },
+        {
+          "type": "regex",
+          "description": "game length is one number of hours",
+          "pattern": "(?s)### Game length\\s*\\n\\s*[-*]?\\s*\\**\\d+(\\.\\d+)?\\** hours?\\b",
+          "min": 1
+        },
+        {
+          "type": "regex",
+          "description": "storyboard has 6-10 time-marked rows",
+          "pattern": "^\\|\\s*\\d+:\\d{2}\\s*\\|",
+          "min": 6,
+          "max": 10
+        },
+        {
+          "type": "json_expr",
+          "description": "json keys and bounds",
+          "expr": "d.get('section') == 'progression-content' and isinstance(d.get('length_hours'), (int, float)) and d['length_hours'] > 0 and isinstance(d.get('sessions'), int) and 1 <= d['sessions'] <= 10 and isinstance(d.get('content_hours'), (int, float)) and d['content_hours'] > 0"
+        },
+        {
+          "type": "regex",
+          "description": "session rows name a target kind",
+          "pattern": "(?s)### Session plan.*?\\|\\s*(Narrative|Expression)\\s*\\|.*?### Unlock curve",
+          "min": 1
+        },
+        {
+          "type": "not_regex",
+          "description": "no question to the user",
+          "pattern": "(would you like me|do you want me|could you (tell|clarify)|let me know which)"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "concept-only",
+      "prompt": "Progression and content for this idea.\nIdea: Dune Junction. Route the day's only train through a single-screen desert junction of one-way gates, setting switches before it arrives. Target fun: Challenge (primary), Discovery, Expression. Core verb: route. Scope: one month, one solo developer. Content boundaries: no violence.",
+      "expected_output": "Infers the length and states it under Assumptions, then writes every subsection in order and the JSON block.",
+      "files": [],
+      "expectations": [
+        "Every required heading and subsection in order",
+        "JSON parses with the contract keys",
+        "Does not ask a question"
+      ],
+      "checks": [
+        {
+          "type": "in_order",
+          "description": "heading, subsections and json in order",
+          "patterns": [
+            "^## Progression and content\\s*$",
+            "^### Game length\\s*$",
+            "^### Session plan\\s*$",
+            "^### Unlock curve\\s*$",
+            "^### Timed storyboard\\s*$",
+            "^### Content inventory\\s*$",
+            "^```json"
+          ]
+        },
+        {
+          "type": "regex",
+          "description": "exactly one ## heading",
+          "pattern": "^## ",
+          "min": 1,
+          "max": 1
+        },
+        {
+          "type": "regex",
+          "description": "storyboard has 6-10 time-marked rows",
+          "pattern": "^\\|\\s*\\d+:\\d{2}\\s*\\|",
+          "min": 6,
+          "max": 10
+        },
+        {
+          "type": "json_expr",
+          "description": "json keys and bounds",
+          "expr": "d.get('section') == 'progression-content' and d.get('length_hours', 0) > 0 and 1 <= d.get('sessions', 0) <= 10 and d.get('content_hours', 0) > 0"
+        },
+        {
+          "type": "not_regex",
+          "description": "no question to the user",
+          "pattern": "(would you like me|do you want me|could you (tell|clarify)|let me know which)"
+        }
+      ]
+    }
+  ]
+}

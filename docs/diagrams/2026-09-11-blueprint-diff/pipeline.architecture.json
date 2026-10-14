@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "How a diagram reaches the article",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "visual_preset": "signal-flow",
+    "animation": "trace",
+    "views": [
+      {
+        "id": "author",
+        "label": "1. Author meaning",
+        "focus": [
+          "author",
+          "spec"
+        ],
+        "note": "The agent writes the facts and layout in typed JSON."
+      },
+      {
+        "id": "render",
+        "label": "2. Check the viewer",
+        "focus": [
+          "spec",
+          "renderer",
+          "viewer"
+        ],
+        "note": "Blueprint renders and validates a standalone artifact."
+      },
+      {
+        "id": "embed",
+        "label": "3. Package the article",
+        "focus": [
+          "viewer",
+          "embed",
+          "article"
+        ],
+        "note": "The helper embeds the viewer after successful delivery."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "author",
+      "type": "backend",
+      "label": "explain-diff",
+      "sublabel": "Agent follows the skill",
+      "pos": [
+        40,
+        70
+      ],
+      "size": [
+        200,
+        66
+      ]
+    },
+    {
+      "id": "spec",
+      "type": "external",
+      "label": "Diagram JSON",
+      "sublabel": "Facts + authored layout",
+      "pos": [
+        350,
+        70
+      ],
+      "size": [
+        200,
+        66
+      ]
+    },
+    {
+      "id": "renderer",
+      "type": "backend",
+      "label": "Blueprint",
+      "sublabel": "Render + artifact checks",
+      "pos": [
+        660,
+        70
+      ],
+      "size": [
+        200,
+        66
+      ]
+    },
+    {
+      "id": "viewer",
+      "type": "external",
+      "label": "Checked HTML",
+      "sublabel": "Complete standalone viewer",
+      "pos": [
+        970,
+        70
+      ],
+      "size": [
+        200,
+        66
+      ]
+    },
+    {
+      "id": "embed",
+      "type": "backend",
+      "label": "Embedding helper",
+      "sublabel": "Replace one article slot",
+      "pos": [
+        970,
+        290
+      ],
+      "size": [
+        200,
+        66
+      ]
+    },
+    {
+      "id": "article",
+      "type": "external",
+      "label": "Explainer HTML",
+      "sublabel": "Prose + isolated viewer",
+      "pos": [
+        660,
+        290
+      ],
+      "size": [
+        200,
+        66
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "author-spec",
+      "from": "author",
+      "to": "spec",
+      "label": "author"
+    },
+    {
+      "id": "spec-render",
+      "from": "spec",
+      "to": "renderer",
+      "label": "deliver"
+    },
+    {
+      "id": "render-viewer",
+      "from": "renderer",
+      "to": "viewer",
+      "label": "9 checks"
+    },
+    {
+      "id": "viewer-embed",
+      "from": "viewer",
+      "to": "embed",
+      "label": "read HTML",
+      "labelDy": 24
+    },
+    {
+      "id": "embed-article",
+      "from": "embed",
+      "to": "article",
+      "label": "srcdoc"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Authoring workflow, not network services",
+      "items": [
+        "Boxes describe skills, local programs and files",
+        "The calling agent coordinates the steps"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Two separate guarantees",
+      "items": [
+        "Blueprint validates diagram structure and composition",
+        "The helper packages the viewer; it does not validate it"
+      ]
+    }
+  ]
+}

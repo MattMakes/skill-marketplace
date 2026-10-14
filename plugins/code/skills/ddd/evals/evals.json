@@ -1,0 +1,35 @@
+{
+  "skill_name": "ddd",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We're about to build a new internal platform for tracking lab samples across three sites (intake, testing, reporting). Probably 3-5 services and two small teams. I want to do this properly with DDD before anyone writes code \u2014 can you run the whole modelling process on this? Ask me questions where you need to.",
+      "expected_output": "Resolves ./ddd as the workspace, runs ddd-understand first (creating manifest with scale_target 3-5 deployables, 2 teams), then each step in order with interactive checkpoints, gating every hop with ddd validate, and ends with a coverage summary listing every artifact, open questions and the review order.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "ddd status \u2014 where did we get to last week and what's next?",
+      "expected_output": "Runs ddd validate --status on the existing ddd/ workspace, prints the step table with statuses/open-question counts, names the next step (first pending/stale/draft) and stops without running anything.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "I changed my mind about the bounded contexts in ddd/03-decompose \u2014 merged billing into subscriptions. Redo everything downstream of that, no questions, just draft it and tell me what to review.",
+      "expected_output": "Re-runs ddd-decompose (or accepts the edited artifact), marks strategize..code stale, runs each downstream step sequentially in auto mode with ddd validate gates, and ends with a coverage summary plus the recommended human review order.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "ddd \u2014 where should I start?",
+      "expected_output": "Uses the code:ddd kickoff. Resolves project context and any existing workspace, explains the next modelling step and needed input, and does not launch the full pipeline merely from this orientation request. If no brief exists, asks one focused question about the system and purpose.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Resume the model in design/domain/ddd, but just tell me the status for now.",
+      "expected_output": "Uses the explicit workspace, runs status there, names the next valid code:ddd-* step and open questions, and stops. Does not create ./ddd, overwrite the model, or run a step.",
+      "files": []
+    }
+  ]
+}

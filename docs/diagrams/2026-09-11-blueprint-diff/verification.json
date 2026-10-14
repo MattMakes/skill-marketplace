@@ -1,0 +1,449 @@
+{
+  "comparison": {
+    "base": "33b64ef3333840e58092ed44e93c2b7c68e3be7b",
+    "head": "4c1564c05907c4e3cec6281458f3631d8d6b0926"
+  },
+  "diagrams": [
+    {
+      "source": "pipeline.architecture.json",
+      "sourceSha256": "cbdaf71f14a3dd11134c204300bfbba2c6ee8804afae8c88fc7d70f01ef01dc1",
+      "viewerSha256": "a3ab8dfe2f3fc338d0ed0f099223a1cf48949102b6326153035e67704cef4eeb",
+      "validation": {
+        "checksPassed": 9,
+        "checkCount": 9,
+        "compositionProfile": "showcase",
+        "compositionStatus": "pass",
+        "errors": 0,
+        "warnings": 0
+      },
+      "browserStatus": "pass",
+      "browserViewports": [
+        {
+          "width": 1440,
+          "height": 900,
+          "passed": true
+        },
+        {
+          "width": 1600,
+          "height": 1000,
+          "passed": true
+        },
+        {
+          "width": 1920,
+          "height": 1080,
+          "passed": true
+        },
+        {
+          "width": 2048,
+          "height": 1320,
+          "passed": true
+        }
+      ],
+      "visualReview": "Inspected rendered light/dark screenshots; readable labels and unobstructed controls."
+    },
+    {
+      "source": "embedding.sequence.json",
+      "sourceSha256": "21197482213ce0ef9538d1ad547b681d2092e152a761d2ff38a5d54678c8010c",
+      "viewerSha256": "e734dd382320952c1e0ad75cbf8e26356fe76ec4a67df957177c6a9422a407cd",
+      "validation": {
+        "checksPassed": 9,
+        "checkCount": 9,
+        "compositionProfile": "showcase",
+        "compositionStatus": "pass",
+        "errors": 0,
+        "warnings": 0
+      },
+      "browserStatus": "pass",
+      "browserViewports": [
+        {
+          "width": 1440,
+          "height": 900,
+          "passed": true
+        },
+        {
+          "width": 1600,
+          "height": 1000,
+          "passed": true
+        },
+        {
+          "width": 1920,
+          "height": 1080,
+          "passed": true
+        },
+        {
+          "width": 2048,
+          "height": 1320,
+          "passed": true
+        }
+      ],
+      "visualReview": "Inspected rendered light/dark screenshots; readable labels and unobstructed controls."
+    },
+    {
+      "source": "schema-example.architecture.json",
+      "sourceSha256": "84ce01cf4f9cdf327ed79cbfcccfad8aff8e9b1778e0a44bd4f9a9a74cf9bb1d",
+      "viewerSha256": "f50e2ec747cd24c9f6f611fcefa24a629d71c073237ba918523f5addadfc0d80",
+      "validation": {
+        "checksPassed": 9,
+        "checkCount": 9,
+        "compositionProfile": "showcase",
+        "compositionStatus": "pass",
+        "errors": 0,
+        "warnings": 0
+      },
+      "browserStatus": "pass",
+      "browserViewports": [
+        {
+          "width": 1440,
+          "height": 900,
+          "passed": true
+        },
+        {
+          "width": 1600,
+          "height": 1000,
+          "passed": true
+        },
+        {
+          "width": 1920,
+          "height": 1080,
+          "passed": true
+        },
+        {
+          "width": 2048,
+          "height": 1320,
+          "passed": true
+        }
+      ],
+      "visualReview": "Inspected rendered light/dark screenshots; readable labels and unobstructed controls."
+    }
+  ],
+  "assembledArticle": {
+    "frames": [
+      {
+        "title": "How a diagram reaches the article Diagram",
+        "loadedFonts": 1,
+        "themeChanged": true,
+        "story": true,
+        "still": true,
+        "svgFonts": true,
+        "svgLicense": true,
+        "exportError": null
+      },
+      {
+        "title": "Embedding replaces one slot Diagram",
+        "loadedFonts": 1,
+        "themeChanged": true,
+        "story": true,
+        "still": true,
+        "svgFonts": true,
+        "svgLicense": true,
+        "exportError": null
+      },
+      {
+        "title": "Order schema Diagram",
+        "loadedFonts": 1,
+        "themeChanged": true,
+        "story": null,
+        "still": true,
+        "svgFonts": true,
+        "svgLicense": true,
+        "exportError": null
+      }
+    ],
+    "exceptions": 0,
+    "articleChecks": {
+      "brokenLinks": [],
+      "questions": 5,
+      "feedback": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "score": "5 of 5 answered \u00b7 5 correct",
+      "reset": "0 of 5 answered \u00b7 0 correct",
+      "codeWhitespace": true,
+      "sections": [
+        "background",
+        "intuition",
+        "code",
+        "quiz"
+      ],
+      "sourceOpens": true,
+      "hash": "#background"
+    },
+    "checks": [
+      "offline fonts",
+      "SVG fonts/license",
+      "three isolated viewers",
+      "theme",
+      "story",
+      "still",
+      "reduced motion",
+      "quiz",
+      "TOC",
+      "desktop/mobile containment"
+    ]
+  },
+  "articleViewports": [
+    {
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "articleVisualReview": "Inspected desktop and mobile opening layouts and diagram, code, and quiz sections.",
+  "limits": [
+    "Checks cover the generated article and these authored diagrams, not every Blueprint diagram type or arbitrary input.",
+    "The sequence supplies a guided view to avoid a trace-without-views runtime issue documented in the article.",
+    "Narration status is recorded separately in the HTML narration sidecar."
+  ],
+  "articleSha256": "81882de22f92d855f8ab5fff541b0316d4cb91359add7d67066f4bad8cf803c6",
+  "narration": {
+    "exitCode": 0,
+    "status": "done",
+    "jobId": "0e13885bcf9a",
+    "completedPassagesAtDelivery": 61,
+    "totalPassages": 61,
+    "inlineAudioEmbedded": true
+  },
+  "spacingChecks": [
+    {
+      "name": "pipeline",
+      "width": 1166,
+      "height": 760,
+      "checks": [
+        {
+          "kind": "H1",
+          "overlap": false,
+          "gap": -54,
+          "ok": true
+        },
+        {
+          "kind": "guided-views no-print",
+          "overlap": false,
+          "gap": 18,
+          "ok": true
+        },
+        {
+          "kind": "diagram-container",
+          "overlap": false,
+          "gap": 78.9375,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "name": "pipeline",
+      "width": 1440,
+      "height": 900,
+      "checks": [
+        {
+          "kind": "H1",
+          "overlap": false,
+          "gap": -54,
+          "ok": true
+        },
+        {
+          "kind": "guided-views no-print",
+          "overlap": false,
+          "gap": 18,
+          "ok": true
+        },
+        {
+          "kind": "diagram-container",
+          "overlap": false,
+          "gap": 78.9375,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "name": "pipeline",
+      "width": 1920,
+      "height": 1080,
+      "checks": [
+        {
+          "kind": "H1",
+          "overlap": false,
+          "gap": -28,
+          "ok": true
+        },
+        {
+          "kind": "guided-views no-print",
+          "overlap": false,
+          "gap": 52,
+          "ok": true
+        },
+        {
+          "kind": "diagram-container",
+          "overlap": false,
+          "gap": 118.9375,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "name": "embedding",
+      "width": 1166,
+      "height": 760,
+      "checks": [
+        {
+          "kind": "H1",
+          "overlap": false,
+          "gap": -54,
+          "ok": true
+        },
+        {
+          "kind": "guided-views no-print",
+          "overlap": false,
+          "gap": 18,
+          "ok": true
+        },
+        {
+          "kind": "diagram-container",
+          "overlap": false,
+          "gap": 78.9375,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "name": "schema",
+      "width": 1166,
+      "height": 760,
+      "checks": [
+        {
+          "kind": "H1",
+          "overlap": false,
+          "gap": -54,
+          "ok": true
+        },
+        {
+          "kind": "diagram-container",
+          "overlap": false,
+          "gap": 18,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "name": "pipeline",
+      "width": 390,
+      "height": 760,
+      "checks": [
+        {
+          "kind": "H1",
+          "overlap": false,
+          "gap": 24,
+          "ok": true
+        },
+        {
+          "kind": "guided-views no-print",
+          "overlap": false,
+          "gap": 129.9375,
+          "ok": true
+        },
+        {
+          "kind": "diagram-container",
+          "overlap": false,
+          "gap": 248.921875,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "name": "article",
+      "width": 1050,
+      "height": 900,
+      "checks": [
+        {
+          "kind": "quiz",
+          "topInset": 25,
+          "leftDelta": 0,
+          "answerGap": 20,
+          "ok": true
+        },
+        {
+          "kind": "quiz",
+          "topInset": 25,
+          "leftDelta": 0,
+          "answerGap": 20,
+          "ok": true
+        },
+        {
+          "kind": "quiz",
+          "topInset": 25,
+          "leftDelta": 0,
+          "answerGap": 20,
+          "ok": true
+        },
+        {
+          "kind": "quiz",
+          "topInset": 25,
+          "leftDelta": 0,
+          "answerGap": 20,
+          "ok": true
+        },
+        {
+          "kind": "quiz",
+          "topInset": 25,
+          "leftDelta": 0,
+          "answerGap": 20,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "name": "article",
+      "width": 390,
+      "height": 844,
+      "checks": [
+        {
+          "kind": "quiz",
+          "topInset": 20,
+          "leftDelta": 0,
+          "answerGap": 20,
+          "ok": true
+        },
+        {
+          "kind": "quiz",
+          "topInset": 20,
+          "leftDelta": 0,
+          "answerGap": 20,
+          "ok": true
+        },
+        {
+          "kind": "quiz",
+          "topInset": 20,
+          "leftDelta": 0,
+          "answerGap": 20,
+          "ok": true
+        },
+        {
+          "kind": "quiz",
+          "topInset": 20,
+          "leftDelta": 0,
+          "answerGap": 20,
+          "ok": true
+        },
+        {
+          "kind": "quiz",
+          "topInset": 20,
+          "leftDelta": 0,
+          "answerGap": 20,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "renderingNote": "Article regenerated with working-tree toolbar spacing fix; explanation still describes the pinned comparison."
+}

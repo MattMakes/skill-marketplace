@@ -1,0 +1,84 @@
+{
+  "skill_name": "core-loop",
+  "evals": [
+    {
+      "id": 1,
+      "name": "three-loops-from-fun-targeting",
+      "prompt": "Concept: Fog Keeper — tend a lighthouse on a foggy island where the fog remembers what you did yesterday. Target fun from fun-targeting: Discovery, Submission, Narrative. Mechanics: trim the wick, wind the lens, log passing ships, leave lamps lit or dark on the shore path, the fog replays last night's choices as shapes. Draw the core loops.",
+      "expected_output": "Exactly 3 Mermaid flowchart blocks (moment-to-moment, session, long-term), each with action, system, feedback and decision nodes, every feedback edge labeled with one kind of fun, plus the nesting, the feedback-to-fun map and gaps.",
+      "files": [],
+      "expectations": [
+        "Outputs exactly 3 Mermaid flowchart blocks",
+        "Every feedback edge carries a kind-of-fun label",
+        "Each loop closes back to a player action"
+      ],
+      "checks": [
+        {"type": "in_order", "description": "sections in order", "patterns": ["^## Assumptions", "^## Moment-to-moment loop", "```mermaid", "^## Session loop", "```mermaid", "^## Long-term loop", "```mermaid", "^## Nesting", "^## Feedback-to-fun map", "^## Gaps"]},
+        {"type": "regex", "description": "exactly 3 mermaid flowchart blocks", "pattern": "^```mermaid\\s*\\n\\s*flowchart LR", "min": 3, "max": 3},
+        {"type": "regex", "description": "labeled feedback edges (>= 3)", "pattern": "\\bF\\d+(\\[\"[^\"]*\"\\])?\\s*-->\\|(Sensation|Fantasy|Narrative|Challenge|Fellowship|Discovery|Expression|Submission)\\|", "min": 3},
+        {"type": "not_regex", "description": "no unlabeled feedback edge", "pattern": "\\bF\\d+(\\[\"[^\"]*\"\\])?\\s*-->\\s*(?!\\|)"},
+        {"type": "regex", "description": "decision nodes are diamonds (>= 3)", "pattern": "\\bD\\d+\\{\"", "min": 3}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "concept-only",
+      "prompt": "Draw the gameplay loops for this: Clackety-Clack — a rhythm game where you slam one-way rail gates open on the clack of the wheels to route the day's only desert train; miss a beat and it takes the wrong branch. Sessions are 10 minutes.",
+      "expected_output": "Infers 2-3 target kinds (likely Challenge and Sensation) and states them under Assumptions, then draws exactly 3 labeled Mermaid loops without asking a question.",
+      "files": [],
+      "expectations": [
+        "States inferred target fun under Assumptions",
+        "Outputs exactly 3 Mermaid flowchart blocks",
+        "Does not ask the user a question"
+      ],
+      "checks": [
+        {"type": "regex", "description": "exactly 3 mermaid flowchart blocks", "pattern": "^```mermaid\\s*\\n\\s*flowchart LR", "min": 3, "max": 3},
+        {"type": "not_regex", "description": "no unlabeled feedback edge", "pattern": "\\bF\\d+(\\[\"[^\"]*\"\\])?\\s*-->\\s*(?!\\|)"},
+        {"type": "regex", "description": "assumptions name inferred fun", "pattern": "(?is)## Assumptions.*?(Challenge|Sensation).*?## Moment-to-moment loop", "min": 1},
+        {"type": "not_regex", "description": "no question to the user", "pattern": "(would you like|do you want|could you (tell|clarify)|let me know which)"}
+      ]
+    },
+    {
+      "id": 3,
+      "name": "primary-on-moment-edge",
+      "prompt": "Concept: Soup Relay — two to four friends run one night-market soup stall; the ladle, the bowls and the till are at opposite ends of a tiny cart. Sessions are 8 minutes.\nfun-targeting result: blend team-under-pressure; primary: Fellowship; target fun: Fellowship, Challenge, Sensation. Mechanics: pass bowls hand to hand, one ladle shared by all, an order clock, a gong and a steam burst on every served bowl, a nightly stall upgrade. Draw the core loops.",
+      "expected_output": "Exactly 3 labeled Mermaid loops. The moment-to-moment loop has at least one feedback edge labeled Fellowship (the primary). Challenge and Sensation each label an edge in the moment-to-moment or session loop. The output ends with the fold-in self-check line saying yes twice.",
+      "files": [],
+      "expectations": [
+        "The primary kind labels a moment-to-moment edge",
+        "Every target kind labels a moment-to-moment or session edge",
+        "Ends with the one-line fold-in self-check"
+      ],
+      "checks": [
+        {"type": "regex", "description": "exactly 3 mermaid flowchart blocks", "pattern": "^```mermaid\\s*\\n\\s*flowchart LR", "min": 3, "max": 3},
+        {"type": "regex", "description": "primary Fellowship on a moment-to-moment edge", "pattern": "(?s)^## Moment-to-moment loop(?:(?!\\n## ).)*-->\\|Fellowship\\|", "min": 1},
+        {"type": "regex", "description": "Challenge on a moment-to-moment or session edge", "pattern": "(?s)^## Moment-to-moment loop(?:(?!\\n## Long-term loop).)*-->\\|Challenge\\|", "min": 1},
+        {"type": "regex", "description": "Sensation on a moment-to-moment or session edge", "pattern": "(?s)^## Moment-to-moment loop(?:(?!\\n## Long-term loop).)*-->\\|Sensation\\|", "min": 1},
+        {"type": "not_regex", "description": "no unlabeled feedback edge", "pattern": "\\bF\\d+(\\[\"[^\"]*\"\\])?\\s*-->\\s*(?!\\|)"},
+        {"type": "in_order", "description": "self-check line after Gaps", "patterns": ["^## Gaps", "^\\*\\*Fold-in check:\\*\\* primary Fellowship on a moment-to-moment edge: yes\\..*session edge: yes"]}
+      ]
+    },
+    {
+      "id": 4,
+      "name": "three-kind-blend-one-feedback-per-kind",
+      "prompt": "Concept: Moonpost Fur Garden — plant tiny mailboxes, letters and blooms in the fur of a sleeping moon-post creature; every piece adapts to its neighbors. No timer, no fail state. Sessions are 2 minutes at a bus stop.\nfun-targeting result: blend cozy-builder; primary: Expression; target fun: Expression, Submission, Sensation. Mechanics: free placement anywhere on the fur, neighbor-aware adaptation, a pop-in animation with a fur ruffle and a per-piece chime, an idle breath-and-settle rhythm, a persistent garden save. Draw the core loops.",
+      "expected_output": "Exactly 3 labeled Mermaid loops. The moment-to-moment and session loops each have one feedback node per kind they produce, at most 3. Expression (the primary) labels a moment-to-moment edge. Submission and Sensation each label a moment-to-moment or session edge, so Sensation does not live only in the long-term loop. The output ends with the fold-in self-check line, which lists each kind with the loop edge that carries it.",
+      "files": [],
+      "expectations": [
+        "The primary Expression labels a moment-to-moment edge",
+        "Submission and Sensation each label a moment-to-moment or session edge",
+        "No loop has more than 3 feedback nodes",
+        "The self-check line lists each target kind with its loop edge"
+      ],
+      "checks": [
+        {"type": "regex", "description": "exactly 3 mermaid flowchart blocks", "pattern": "^```mermaid\\s*\\n\\s*flowchart LR", "min": 3, "max": 3},
+        {"type": "regex", "description": "primary Expression on a moment-to-moment edge", "pattern": "(?s)^## Moment-to-moment loop(?:(?!\\n## ).)*-->\\|Expression\\|", "min": 1},
+        {"type": "regex", "description": "Submission on a moment-to-moment or session edge", "pattern": "(?s)^## Moment-to-moment loop(?:(?!\\n## Long-term loop).)*-->\\|Submission\\|", "min": 1},
+        {"type": "regex", "description": "Sensation on a moment-to-moment or session edge", "pattern": "(?s)^## Moment-to-moment loop(?:(?!\\n## Long-term loop).)*-->\\|Sensation\\|", "min": 1},
+        {"type": "not_regex", "description": "no unlabeled feedback edge", "pattern": "\\bF\\d+(\\[\"[^\"]*\"\\])?\\s*-->\\s*(?!\\|)"},
+        {"type": "not_regex", "description": "at most 3 feedback nodes per loop", "pattern": "\\bF([4-9]|\\d\\d+)\\["},
+        {"type": "in_order", "description": "self-check line after Gaps lists all 3 kinds", "patterns": ["^## Gaps", "^\\*\\*Fold-in check:\\*\\* primary Expression on a moment-to-moment edge: yes\\..*session edge: yes \\((?=[^)]*Expression)(?=[^)]*Submission)(?=[^)]*Sensation)"]}
+      ]
+    }
+  ]
+}

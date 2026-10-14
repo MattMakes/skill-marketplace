@@ -1,0 +1,23 @@
+{
+  "skill_name": "keys",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "set up keys in this repo",
+      "expected_output": "Fresh Node + Python monorepo with no agent docs. Runs keys.py scan and follows the first-run path, runs keys.py install to create the root AGENTS.md, chooses boundaries from boundary_candidates and real areas, writes one child AGENTS.md per real boundary from the child skeleton (empty Work Guidance/Verification where no standard or check exists), fills root Purpose/Work Guidance/Verification from manifests and CI after the end marker, writes every Child KEYS Index with direct children only, replaces the root placeholder, runs keys.py check until it prints 0 errors, creates no CLAUDE.md and no symlinks, and reports the boundaries it documented and the ones it left without a doc.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "/keys — fold all my CLAUDE.md stuff into AGENTS.md",
+      "expected_output": "Repo has a root CLAUDE.md (with a CORE block and an @docs/agent-rules.md import), web/CLAUDE.md, .cursorrules, CLAUDE.local.md, docs/agent-rules.md, and docs/architecture.md linked from README. Runs scan and install, reads references/folding.md, shows a fold plan table (Source | Target AGENTS.md | Sections | After fold | Reason) before any delete, warns if the git tree is dirty, drops the CORE block and lists the drop, folds root CLAUDE.md, .cursorrules and docs/agent-rules.md into the root AGENTS.md and web/CLAUDE.md into web/AGENTS.md, proposes docs/agent-rules.md for delete, keeps docs/architecture.md, leaves CLAUDE.local.md untouched and reports it, deletes only after the user confirms (git rm for tracked files), fixes links to the deleted files, and ends with keys.py check clean with no WARN lines.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "refresh keys after the billing merge",
+      "expected_output": "KEYS is already installed and indexed; a new services/billing/ package with its own package.json was added. Scan shows keys_installed and root_indexed true, so it takes the refresh path: runs keys.py install (block upgrade only, project text untouched), writes a new services/billing/AGENTS.md, adds it to the nearest parent's Child KEYS Index, does not rewrite other docs, runs keys.py check until it prints 0 errors, and reports the one new doc and the index change.",
+      "files": []
+    }
+  ]
+}

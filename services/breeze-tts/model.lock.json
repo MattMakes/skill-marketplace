@@ -1,0 +1,19 @@
+{
+  "weights": {
+    "repo": "rishikksh20/Breeze-TTS-2-mlx",
+    "revision": "92266ef6e15dd4be290be416dd6b0bf9a2bab81b",
+    "quantization": "int8",
+    "size_bytes": 3751770306,
+    "local_dir": "models/breeze-tts-2-mlx-int8"
+  },
+  "port": {
+    "repo": "https://github.com/rishikksh20/breeze-tts-mlx",
+    "commit": "4e045c13c4627b3f1a49ea1172f24efe06d2c16b",
+    "license": "Apache-2.0",
+    "vendor_dir": "vendor/breeze-tts-mlx"
+  },
+  "upstream": {
+    "model": "BreezeBlue/Breeze-TTS-2",
+    "weights_license": "BreezeBlue Research and Non-Commercial License"
+  }
+}

@@ -176,4 +176,4 @@ nothing here requires them.
 | Acting on a critique or review | `tools:receiving-code-review`: verify each finding against the render before you change anything |
 | A redesign must not break behaviour | `tools:post-flight` against the pre-redesign baseline |
 | Long interface prose (onboarding, help, release notes) | `tools:humanize`; short microcopy stays with `design:ux-writing` |
-| Diagrams of the system behind the UI | `ddd:blueprint` |
+| Diagrams of the system behind the UI | `code:blueprint` |
