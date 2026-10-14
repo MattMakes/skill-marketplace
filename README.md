@@ -194,6 +194,22 @@ research and non-commercial licence, so they are never committed here; `setup.sh
 from Hugging Face, where you accept those terms yourself. See
 [`services/breeze-tts/README.md`](services/breeze-tts/README.md).
 
+**[`services/suno-mcp`](services/suno-mcp/)** makes music. It is an MCP server that drives
+[Suno](https://suno.com) with your own login, rebuilt from the PyPI `suno-mcp` package so that
+nothing it runs can reach a host other than Suno's: a permanent audit hook on the Python process,
+an allowlisting HTTP transport, and Chromium resolver and proxy rules that also stop the beacons
+request interception misses. `suno_network_audit` shows what was allowed and blocked.
+
+```bash
+cd services/suno-mcp
+just install   # hash-locked environment plus Playwright's Chromium
+just login     # sign in to Suno once
+claude mcp add suno -- uv run --directory "$PWD" --frozen --offline suno-local serve
+```
+
+See [`services/suno-mcp/README.md`](services/suno-mcp/README.md) for what changed from upstream
+and why.
+
 ## Layout
 
 ```

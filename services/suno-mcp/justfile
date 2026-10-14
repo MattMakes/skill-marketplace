@@ -1,0 +1,44 @@
+# suno-mcp — a local Suno MCP server on your own login, locked to Suno's hosts.
+#
+#   just install   resolve the hash-pinned environment and download Playwright's Chromium
+#   just login     sign in to Suno once in the allowlisted browser
+#   just check     print settings and allowlists
+#
+# Everything runs from this directory.
+
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+# Show the available recipes.
+default:
+    @just --list --unsorted
+
+# Install the locked environment (every package checked by sha256) and the browser.
+install:
+    uv sync --frozen
+    uv run --frozen playwright install chromium
+
+# Open the browser on suno.com/create and wait for you to sign in.
+login:
+    uv run --frozen --offline suno-local login
+
+# Print the effective settings and the browser and process allowlists.
+check:
+    uv run --frozen --offline suno-local check
+
+# Same, and sign in and read your credit balance.
+check-live:
+    uv run --frozen --offline suno-local check --live
+
+# Run the MCP server on stdio (what your MCP client runs).
+serve:
+    uv run --frozen --offline suno-local serve
+
+# Run the test suite. Needs no Suno account and no network.
+test:
+    uv run --frozen pytest -q
+
+# Delete the saved browser profile, which signs you out. Downloads are kept.
+[confirm("This deletes your saved Suno sign-in. Continue?")]
+logout:
+    rm -rf "${SUNO_PROFILE_DIR:-$HOME/.suno-local/profile}"
+    @echo "signed out — run 'just login' to sign in again"
