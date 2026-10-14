@@ -189,8 +189,8 @@ network.
 
 # `complexity-sweep` — complexity you can act on
 
-Runs a bundled static-analysis CLI over TypeScript, JavaScript, Python and Rust,
-measuring 14 metrics in five families (control flow such as McCabe cyclomatic and essential
+Runs a bundled static-analysis CLI over TypeScript, JavaScript, Python, Rust and
+GDScript (Godot 4), measuring 14 metrics in five families (control flow such as McCabe cyclomatic and essential
 complexity, data flow, cognitive load, information density such as Halstead,
 and composites such as the maintainability index), then reviews each function
 that breaks a threshold and either refactors it directly, re-running the
@@ -199,12 +199,15 @@ It can also generate the repo's config file.
 
 ```
 /complexity-sweep src/**/*.ts
+/complexity-sweep app/**/*.py
+/complexity-sweep crates/**/*.rs
+/complexity-sweep scripts/**/*.gd
 /complexity-sweep the files changed on this branch
 ```
 
 The CLI ships as source plus a built `dist/` under `code/`; on first use the
 skill runs `npm install --omit=dev` in `code/core` and `code/cli` (ts-morph,
-web-tree-sitter with vendored Python and Rust grammars, cosmiconfig, picomatch
+web-tree-sitter with vendored Python, Rust and GDScript grammars, cosmiconfig, picomatch
 and tinyglobby). Read-only against the target repo apart from the refactorings you
 ask for.
 

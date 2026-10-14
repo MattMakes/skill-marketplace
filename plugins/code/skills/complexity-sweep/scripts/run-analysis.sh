@@ -8,6 +8,7 @@
 #   run-analysis.sh /path/to/index.js "src/**/*.ts" -- --config .static-analysisrc.json
 #   run-analysis.sh /path/to/index.js "app/**/*.py"      # Python
 #   run-analysis.sh /path/to/index.js "crates/**/*.rs"   # Rust
+#   run-analysis.sh /path/to/index.js "scripts/**/*.gd"  # GDScript (Godot 4)
 #   run-analysis.sh /path/to/index.js  # uses repo config include globs
 
 set -euo pipefail

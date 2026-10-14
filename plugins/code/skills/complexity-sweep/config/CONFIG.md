@@ -42,10 +42,11 @@ Ask the user about:
   | `tsconfig.json`, `package.json`, `*.ts`, `*.js` | TypeScript/JavaScript | `src/**/*.ts`, `src/**/*.js` | `**/*.test.ts`, `**/*.spec.ts`, `**/node_modules/**` |
   | `pyproject.toml`, `setup.py`, `*.py` | Python | `src/**/*.py` (or the package directory) | `**/test_*.py`, `**/*_test.py`, `**/conftest.py`, `**/.venv/**`, `**/venv/**`, `**/__pycache__/**`, `**/site-packages/**` |
   | `Cargo.toml`, `*.rs` | Rust | `src/**/*.rs`, or `crates/*/src/**/*.rs` for a workspace | `**/target/**` |
+| `project.godot`, `*.gd` | GDScript (Godot 4) | `**/*.gd`, or the script directories (`scripts/**/*.gd`) | `**/test_*.gd`, `**/*_test.gd`, `**/*Test.gd`, `**/addons/**`, `**/.godot/**`, `**/.import/**` |
 
-  The built-in `include` and `exclude` defaults already cover all 3 languages. Write `include` and `exclude` only when the repo layout needs different globs.
+  The built-in `include` and `exclude` defaults already cover all 4 languages. Write `include` and `exclude` only when the repo layout needs different globs.
 - **Include/exclude patterns** — Inspect the repo structure to suggest sensible defaults:
-  - Single project: `src/**/*.ts`, `src/**/*.py` or `src/**/*.rs`
+  - Single project: `src/**/*.ts`, `src/**/*.py`, `src/**/*.rs` or `**/*.gd`
   - Monorepo: `packages/*/src/**/*.ts` or `crates/*/src/**/*.rs`
   - Check for existing patterns (e.g., `tsconfig.json` includes, `.eslintrc` overrides, `pyproject.toml` package paths, Cargo workspace `members`) and align.
 - **Threshold action** — `"error"` (fail CI), `"warn"` (report only), or `"none"` (informational).
