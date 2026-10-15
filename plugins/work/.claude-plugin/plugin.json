@@ -1,0 +1,35 @@
+{
+  "name": "work",
+  "displayName": "Knowledge Work",
+  "version": "0.1.0",
+  "description": "Knowledge-work skills. Data: profile a dataset, QA an analysis before it ships, SQL across five warehouse dialects, business statistics, Python charts, an offline HTML dashboard, and stdlib A/B-test significance and sample-size calculators. Product operations: metrics reviews, roadmap updates, audience-specific stakeholder updates, competitive briefs, TAM/SAM/SOM market sizing and startup metrics benchmarks. Legal and finance: clause-by-clause contract review with redlines, NDA triage, and variance decomposition with waterfalls. Support: ticket triage and escalation packaging. Writing: Strunk's rules with AI-pattern avoidance, README authoring, Vercel's docs-review checklist and discovery questionnaires. Plus a source-grounded Markdown wiki with drift checks, editable draw.io diagrams generated from code and infrastructure, ffmpeg video editing and local file conversion. Contains third-party skills under their own licenses — see NOTICE.md.",
+  "author": {
+    "name": "Matt Scott"
+  },
+  "keywords": [
+    "data-analysis",
+    "sql",
+    "statistics",
+    "ab-testing",
+    "visualization",
+    "dashboard",
+    "product-management",
+    "metrics",
+    "roadmap",
+    "competitive-analysis",
+    "market-sizing",
+    "contract-review",
+    "nda",
+    "variance-analysis",
+    "customer-support",
+    "triage",
+    "writing",
+    "readme",
+    "documentation",
+    "drawio",
+    "diagrams",
+    "video",
+    "ffmpeg",
+    "file-conversion"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "security",
+  "displayName": "Security Practice",
+  "version": "0.1.0",
+  "description": "Security practice for application and agent code. security-and-hardening threat-models first (trust boundaries, STRIDE, abuse cases) and then applies specific controls: SSRF and DNS rebinding, destructive-path checks, shared-store rate limiting, install-script policy and audit triage, privacy and retention, and OWASP LLM handling, backed by a patterns reference and a checklist. security-threat-model writes a repository-grounded, evidence-anchored threat model with abuse paths, priorities and focus paths to a Markdown file. security-best-practices carries per-framework MUST/SHOULD security rules with detection and fix guidance for Express, Next.js, React, Vue, jQuery, Django, Flask, FastAPI and Go. agent-security-hardening hardens agent runtimes at the action boundary with identifier, URL and path containment code and a verification gate that demands real-entrypoint evidence. mcp-dependency-review statically classifies mutable package selectors in MCP configs (npm, uvx, pipx, docker) without running a server. skill-security-auditor scans a skill directory or repo for code-execution, exfiltration, credential and prompt-injection patterns and gives a PASS/WARN/FAIL verdict before you install it. git-guardrails-claude-code and block-no-verify-hook install PreToolUse hooks that block destructive git commands and --no-verify. Contains third-party skills under their own licenses — see NOTICE.md.",
+  "author": {
+    "name": "Matt Scott"
+  },
+  "keywords": [
+    "security",
+    "threat-modeling",
+    "stride",
+    "owasp",
+    "hardening",
+    "supply-chain",
+    "mcp",
+    "agent-security",
+    "skill-audit",
+    "prompt-injection",
+    "privacy",
+    "git",
+    "hooks"
+  ]
+}

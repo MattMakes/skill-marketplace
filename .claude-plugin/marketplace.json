@@ -4,8 +4,8 @@
   "owner": {
     "name": "Matt Scott"
   },
-  "description": "Claude Code plugin marketplace for engineering work: a development-workflow pipeline from brainstorm to shipped change, domain modelling and Blueprint diagrams alongside code intelligence in the code plugin, codebase priming, rich diff and PR explainers, wiki generation, security sweeps and generated end-to-end suites, a game-development review board backed by cited rules and a generative game-design studio, multi-agent fleet orchestration, skill and MCP-server authoring, and a toolkit of thinking, discipline and verification skills.",
-  "version": "2.4.0",
+  "description": "Claude Code plugin marketplace for engineering work: a development-workflow pipeline from brainstorm to shipped change, domain modelling and Blueprint diagrams alongside code intelligence in the code plugin, codebase priming, rich diff and PR explainers, wiki generation, security sweeps and generated end-to-end suites, a game-development review board backed by cited rules and a generative game-design studio, multi-agent fleet orchestration, skill and MCP-server authoring, and a toolkit of thinking, discipline and verification skills. Eleven further plugins vendor two hundred notable skills harvested from the open skill ecosystem: engineering craft, verification and testing, pstack principles, product thinking and specs, design craft, stack references, production operations, security practice, agent engineering, LLM training, and knowledge work. Each is a supply-chain-controlled copy credited in its plugin's NOTICE.md.",
+  "version": "2.5.0",
   "plugins": [
     {
       "name": "code",
@@ -170,6 +170,322 @@
         "mcp",
         "mcp-server",
         "harvest"
+      ]
+    },
+    {
+      "name": "craft",
+      "displayName": "Engineering Craft",
+      "source": "./plugins/craft",
+      "description": "Engineering practice and discipline, vendored from eleven upstream skill collections. Designing code: a deep-module vocabulary (module, interface, depth, seam, adapter) with a design-it-twice pattern, domain modelling that keeps a GLOSSARY.md and ADRs current, architecture decision record templates, contract-first API and event coordination, throwaway prototypes that answer one design question, and an architecture review that finds shallow modules and reports them as HTML. Discipline while coding: the smallest complete change (ponytail), Karpathy's four principles backed by Python checkers and a pre-commit gate, backend decision criteria with fail-fast fallback rules, implementing from fetched official docs with citations, a written CONSTRAINTS.md quality bar guarded against being quietly lowered, fresh-context adversarial review of non-trivial decisions, and no completion claims without fresh command output. Debugging and performance: a feedback-loop-first diagnosis loop and a measure/identify/fix/verify/guard optimization loop with keep-or-revert rules. Improving a codebase: a read-only senior-advisor audit that writes self-contained handoff plans, deprecation and expand/contract schema migration, clustering an issue backlog into plan-master issues, session retrospectives on the agent's environment, and CodeTour walkthroughs. Finishing: a test-gated branch-finishing menu and PR history cleanup with a tree-hash identity check. Contains third-party skills under their own licenses \u2014 see NOTICE.md.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Matt Scott"
+      },
+      "category": "development",
+      "keywords": [
+        "engineering",
+        "design",
+        "domain-modeling",
+        "adr",
+        "contract-first",
+        "prototype",
+        "yagni",
+        "simplicity",
+        "constraints",
+        "verification",
+        "debugging",
+        "performance",
+        "migration",
+        "deprecation",
+        "issues",
+        "retrospective",
+        "code-tour",
+        "git",
+        "pull-request"
+      ]
+    },
+    {
+      "name": "verify",
+      "displayName": "Verification and Testing",
+      "source": "./plugins/verify",
+      "description": "Prove a change works. verify-feature drives a change through its real surface (CLI, API, UI, library, agent) and captures runtime evidence instead of trusting green tests; verify-this turns \"does it work\" into a falsifiable claim with baseline and treatment and one of VERIFIED, NOT VERIFIED or INCONCLUSIVE; santa-method gates output behind two independent reviewers who must both pass; control-cli and control-ui build local harnesses for interactive CLIs and for browser or Electron UIs; full-page-screenshot captures a whole page over the Chrome DevTools Protocol with one dependency-free Node script. For QA: dogfood explores a web app and writes a repro-backed issue report, adversarial-ux-test roleplays a hostile user and filters the rant into real tickets, webapp-testing scripts Playwright against local servers it starts for you, ui-demo records polished demo videos, ios-simulator drives the iOS Simulator with 21 accessibility-driven scripts, and windows-desktop-e2e tests WPF, WinForms, Win32 and Qt apps with pywinauto. For test suites: playwright-pro (init, generate from 55 templates, review, fix flaky), react-testing, integration-e2e-testing (lanes, budgets, ROI), bats-testing-patterns, test-audit (retire low-value tests in approved batches) and k6-load-testing. Review lenses: click-path-audit for buttons whose handlers undo each other, api-design-reviewer with an OpenAPI linter, breaking-change detector and scorecard, python-anti-patterns and ai-debt-detector. Contains third-party skills under their own licenses \u2014 see NOTICE.md.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Matt Scott"
+      },
+      "category": "testing",
+      "keywords": [
+        "verification",
+        "testing",
+        "qa",
+        "e2e",
+        "playwright",
+        "browser-automation",
+        "load-testing",
+        "k6",
+        "ios-simulator",
+        "windows-desktop",
+        "screenshots",
+        "api-review",
+        "test-audit",
+        "dogfood",
+        "code-review"
+      ]
+    },
+    {
+      "name": "pstack",
+      "displayName": "pstack Principles",
+      "source": "./plugins/pstack",
+      "description": "Lauren Tan's pstack engineering principles and the procedures built on them. Sixteen one-page principles (type-system discipline, model the domain, minimize reader load, boundary discipline, separate before serializing shared state, make operations idempotent, build the lever, encode lessons in structure, test behavior not implementation, attack the premise, laziness protocol, sequence verifiable units, explain the number, foundational thinking, migrate callers then delete legacy APIs, subtract before you add) plus: architect sketches types and module shape before code and designs twice through arena, which runs N parallel candidates with a cross-model judge and grafts the best parts; why reconstructs design rationale from git, PRs and whatever MCPs are connected with five confidence tiers; blast-radius finds what a change breaks beyond the diff and proves the one safety fact by running code; benchmark-checklist vets any perf number; correct makes recurring agent mistakes impossible at the strongest level that works; technical-writing layers Diataxis, Google style, STE and Global English; show-me-your-work keeps an append-only TSV decision trail with a cross-model audit; typescript-best-practices grounds the type principle in syntax; create- and maintain-verification-skill generate and upkeep a project-local app-driving skill with a feature map. Contains third-party skills under their own licenses \u2014 see NOTICE.md.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Matt Scott"
+      },
+      "category": "development",
+      "keywords": [
+        "principles",
+        "architecture",
+        "type-system",
+        "design",
+        "arena",
+        "multi-model",
+        "design-rationale",
+        "blast-radius",
+        "benchmark",
+        "technical-writing",
+        "decision-log",
+        "typescript",
+        "verification"
+      ]
+    },
+    {
+      "name": "product",
+      "displayName": "Product Thinking and Specs",
+      "source": "./plugins/product",
+      "description": "From idea to buildable spec. Interview skills that extract what the user actually wants before any plan exists: interview-me (one question at a time until 95% confidence), grilling (design-tree rounds with a recommended answer each), grill-with-docs (the same against CONTEXT.md and ADRs, with stdlib linters), requirement-convergence (outcome vs proposed requirements, user-authored non-goals, cost bands), intent-driven-development (AC-NNN acceptance criteria) and advanced-elicitation (a 71-method critique catalog served by a picker). Product critique: office-hours (YC-partner diagnostic with six forcing questions that ends in a design doc), product-brainstorming (HMW, JTBD, opportunity trees, SCAMPER, OODA), roast (five-angle adversarial panel and a GO/RESHAPE/KILL judge), prfaq (Amazon Working Backwards), devil (finds what a spec is silent about and rules Approve/Conditional/Reject), plan-ceo-review (founder-mode scope review plus an 11-section deep review), plan-design-review (seven UI/UX passes on a plan) and scientific-problem-selection (Fischbach and Walsh problem choice). Specs and PRDs: write-spec (PRD with INVEST stories, P0/P1/P2, metrics and acceptance criteria), spec (principal-engineer interrogation filed as a GitHub issue), spec-driven-workflow (RFC 2119 specs with a generator, validator and test extractor), code-to-prd (reverse-engineers a codebase into a PRD) and documentation-criteria (which of PRD, ADR, UI spec, design doc and work plan a change needs). Research: synthesize-research (thematic analysis of interviews and surveys), deep-research (triangulated multi-source investigation), deepread (claim-vs-evidence close reading) and litreview (PubMed and OpenAlex literature orientation). Contains third-party skills under their own licenses \u2014 see NOTICE.md.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Matt Scott"
+      },
+      "category": "productivity",
+      "keywords": [
+        "product",
+        "prd",
+        "spec",
+        "requirements",
+        "acceptance-criteria",
+        "interview",
+        "brainstorming",
+        "office-hours",
+        "prfaq",
+        "plan-review",
+        "research",
+        "literature-review",
+        "user-research"
+      ]
+    },
+    {
+      "name": "design",
+      "displayName": "Design Craft",
+      "source": "./plugins/design",
+      "description": "Frontend design and UX craft. Design direction and anti-slop methods: frontend-design (Anthropic's calibrated guidance against templated defaults), impeccable (a design director with 25 playbook commands from critique to overdrive), hallmark (macrostructures, component archetypes and a 66-gate slop test for greenfield pages, audits, redesigns and URL studies), ui-ux-pro-max (a local search over curated styles, palettes, font pairings, UX guidelines and 22 stack guides), make-interfaces-feel-better (concentric radii, optical alignment, tabular numbers, interruptible motion), design-system-patterns (tokens, theming, component architecture) and design-md (a DESIGN.md token spec for a codebase). Motion: emil-design-eng (Emil Kowalski's animation and component rules) and review-animations (its reviewer). Review and audit: design-is (Dieter Rams scorecard with a NEW/REFINE/REDESIGN verdict), design-review (13 design questions, Nielsen Norman heuristics, before/after report), web-design-guidelines (Vercel's checklist), web-quality-audit and core-web-vitals. Accessibility: accessibility (WCAG 2.1 by POUR), a11y-audit (WCAG 2.2 scanner and contrast checker) and screen-reader-testing. Plus frontend-slides for animation-rich HTML decks. Contains third-party skills under their own licenses \u2014 see NOTICE.md.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Matt Scott"
+      },
+      "category": "design",
+      "keywords": [
+        "design",
+        "frontend",
+        "ux",
+        "ui",
+        "typography",
+        "motion",
+        "animation",
+        "accessibility",
+        "wcag",
+        "design-system",
+        "design-tokens",
+        "design-review",
+        "core-web-vitals",
+        "slides"
+      ]
+    },
+    {
+      "name": "stack",
+      "displayName": "Stack References",
+      "source": "./plugins/stack",
+      "description": "Library and framework references with the gotchas a model gets wrong. GreenSock's official GSAP set (core, timeline, ScrollTrigger, plugins, utils, React, Vue/Svelte); a motion/react token-and-pattern system in three layers; Remotion's rules for programmatic video; Vercel's React and Next.js performance rules and the React docs' discipline for when not to use an Effect; shadcn/ui's official skill with project context from its CLI; Supabase's Postgres performance and RLS rules, opinionated PostgreSQL table design, Prisma traps, and zero-downtime migrations; the C++ Core Guidelines by section, Boost.Asio with version floors, and Swift 6.2 strict concurrency; .NET backend patterns and saga orchestration. Contains third-party skills under their own licenses \u2014 see NOTICE.md.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Matt Scott"
+      },
+      "category": "development",
+      "keywords": [
+        "gsap",
+        "animation",
+        "motion",
+        "remotion",
+        "react",
+        "nextjs",
+        "shadcn",
+        "postgres",
+        "prisma",
+        "migrations",
+        "cpp",
+        "asio",
+        "swift",
+        "dotnet",
+        "saga",
+        "reference"
+      ]
+    },
+    {
+      "name": "ops",
+      "displayName": "Production Operations",
+      "source": "./plugins/ops",
+      "description": "Running software in production. Instrument code so it can be operated (structured logs, RED metrics, OpenTelemetry, symptom-based alerts with runbooks); define SLOs with an error-budget calculator that emits multi-window burn-rate alerts; run feature flags as a lifecycle with a flag-debt scanner, rollout planner and kill-switch audit; design chaos experiments with blast-radius math; plan zero-downtime migrations with compatibility and rollback generators; gate releases with a pre-production scanner across eight categories and a pre-launch checklist with staged-rollout thresholds; design CI/CD pipelines with promotion gates and canary or blue-green strategies and generate GitHub Actions workflows; analyze Dockerfiles and compose files, Terraform modules and state, and production Kubernetes manifests; cut Conventional-Commits changelogs and semver bumps; update dependencies and triage Dependabot PRs; generate human-in-the-loop bash wizards for manual setup steps; and write blameless postmortems. Contains third-party skills under their own licenses \u2014 see NOTICE.md.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Matt Scott"
+      },
+      "category": "devops",
+      "keywords": [
+        "observability",
+        "slo",
+        "sre",
+        "feature-flags",
+        "chaos-engineering",
+        "migrations",
+        "release",
+        "ci-cd",
+        "github-actions",
+        "docker",
+        "kubernetes",
+        "terraform",
+        "changelog",
+        "dependencies",
+        "dependabot",
+        "postmortem",
+        "devops"
+      ]
+    },
+    {
+      "name": "security",
+      "displayName": "Security Practice",
+      "source": "./plugins/security",
+      "description": "Security practice for application and agent code. security-and-hardening threat-models first (trust boundaries, STRIDE, abuse cases) and then applies specific controls: SSRF and DNS rebinding, destructive-path checks, shared-store rate limiting, install-script policy and audit triage, privacy and retention, and OWASP LLM handling, backed by a patterns reference and a checklist. security-threat-model writes a repository-grounded, evidence-anchored threat model with abuse paths, priorities and focus paths to a Markdown file. security-best-practices carries per-framework MUST/SHOULD security rules with detection and fix guidance for Express, Next.js, React, Vue, jQuery, Django, Flask, FastAPI and Go. agent-security-hardening hardens agent runtimes at the action boundary with identifier, URL and path containment code and a verification gate that demands real-entrypoint evidence. mcp-dependency-review statically classifies mutable package selectors in MCP configs (npm, uvx, pipx, docker) without running a server. skill-security-auditor scans a skill directory or repo for code-execution, exfiltration, credential and prompt-injection patterns and gives a PASS/WARN/FAIL verdict before you install it. git-guardrails-claude-code and block-no-verify-hook install PreToolUse hooks that block destructive git commands and --no-verify. Contains third-party skills under their own licenses \u2014 see NOTICE.md.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Matt Scott"
+      },
+      "category": "security",
+      "keywords": [
+        "security",
+        "threat-modeling",
+        "stride",
+        "owasp",
+        "hardening",
+        "supply-chain",
+        "mcp",
+        "agent-security",
+        "skill-audit",
+        "prompt-injection",
+        "privacy",
+        "git",
+        "hooks"
+      ]
+    },
+    {
+      "name": "agentic",
+      "displayName": "Agent Engineering",
+      "source": "./plugins/agentic",
+      "description": "Building and running agents. loop-design-check gates whether a task deserves a loop, makes the goal machine-decidable and reviews a loop against five failure modes; agent-architecture-audit diagnoses a misbehaving agent stack across twelve layers with severity-ranked, code-first findings; human-gate runs the human sign-off lane of a loop with a single-file review page, a parseable feedback batch and a gate that refuses to close on open blockers; autoresearch-agent runs a Karpathy-style optimize loop that edits one file, evaluates, commits improvements and resets failures; agent-memory is a four-tier CLAUDE.md memory where promotion is earned by recurrence and adopted by a human; stow sweeps a session for durable knowledge and files it into existing CLAUDE.md, AGENTS.md or TODO conventions with tiered decay; writing-for-agents is the craft of documents agents consume; llm-friendly-context rewrites vague prompt wording into executable instructions; cli-for-agents is the checklist for CLIs agents can run reliably; book-to-skill compiles books and doc folders into progressive-disclosure skills with a validator and token budgets. Contains third-party skills under their own licenses \u2014 see NOTICE.md.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Matt Scott"
+      },
+      "category": "ai",
+      "keywords": [
+        "agents",
+        "agent-loops",
+        "autonomous",
+        "memory",
+        "claude-md",
+        "human-in-the-loop",
+        "review-gate",
+        "autoresearch",
+        "optimization",
+        "writing-for-agents",
+        "prompts",
+        "cli",
+        "skills",
+        "knowledge-base"
+      ]
+    },
+    {
+      "name": "ml",
+      "displayName": "LLM Training and ML Pipelines",
+      "source": "./plugins/ml",
+      "description": "Post-train a model end to end, eval-gated. finetuning-method-selection decides whether to fine-tune at all (RAG and prompting off-ramps first) and routes by data shape to SFT, DPO/ORPO/KTO, GRPO/RLVR or continued pretraining, with a memory-math worksheet and a dated base-model catalog. eval-harness-first builds the golden set, one binary grader per failure bucket, judge calibration and the base-model baseline before any training config is written. dataset-curation formats, templates, packs and documents the training data with a synthetic-data collapse guard and a dataset card. lora-qlora-recipes gives the all-linear, alpha-equals-2r LoRA/QLoRA recipe with Unsloth defaults, the TRL mapping and failure signatures. preference-optimization picks and configures DPO, ORPO, KTO or SimPO and constructs the pairs. grpo-rlvr-training sets up GRPO with verifiable rewards, the mandatory reward-inspection gate and variant selection by failure mode. checkpoint-promotion gates a trained checkpoint on data hygiene, a drift budget, a paired arena and a canary before it ships. Alongside: rag-architect designs and evaluates RAG pipelines with a corpus-driven chunking optimizer, a requirements-to-design planner and a precision/recall/NDCG retrieval evaluator; recsys-pipeline-architect designs Source-Hydrator-Filter-Scorer-Selector-SideEffect ranking pipelines for any top-K problem. Contains third-party skills under their own licenses \u2014 see NOTICE.md.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Matt Scott"
+      },
+      "category": "ai",
+      "keywords": [
+        "fine-tuning",
+        "llm",
+        "lora",
+        "qlora",
+        "dpo",
+        "grpo",
+        "rlvr",
+        "evaluation",
+        "dataset",
+        "checkpoint",
+        "rag",
+        "retrieval",
+        "recommender",
+        "ranking",
+        "machine-learning"
+      ]
+    },
+    {
+      "name": "work",
+      "displayName": "Knowledge Work",
+      "source": "./plugins/work",
+      "description": "Knowledge-work skills. Data: profile a dataset, QA an analysis before it ships, SQL across five warehouse dialects, business statistics, Python charts, an offline HTML dashboard, and stdlib A/B-test significance and sample-size calculators. Product operations: metrics reviews, roadmap updates, audience-specific stakeholder updates, competitive briefs, TAM/SAM/SOM market sizing and startup metrics benchmarks. Legal and finance: clause-by-clause contract review with redlines, NDA triage, and variance decomposition with waterfalls. Support: ticket triage and escalation packaging. Writing: Strunk's rules with AI-pattern avoidance, README authoring, Vercel's docs-review checklist and discovery questionnaires. Plus a source-grounded Markdown wiki with drift checks, editable draw.io diagrams generated from code and infrastructure, ffmpeg video editing and local file conversion. Contains third-party skills under their own licenses \u2014 see NOTICE.md.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Matt Scott"
+      },
+      "category": "productivity",
+      "keywords": [
+        "data-analysis",
+        "sql",
+        "statistics",
+        "ab-testing",
+        "visualization",
+        "dashboard",
+        "product-management",
+        "metrics",
+        "roadmap",
+        "competitive-analysis",
+        "market-sizing",
+        "contract-review",
+        "nda",
+        "variance-analysis",
+        "customer-support",
+        "triage",
+        "writing",
+        "readme",
+        "documentation",
+        "drawio",
+        "diagrams",
+        "video",
+        "ffmpeg",
+        "file-conversion"
       ]
     }
   ]

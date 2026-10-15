@@ -1,0 +1,49 @@
+# Third-party notices
+
+Every skill in this plugin is a copy of an upstream skill, taken at the commit below and kept
+under its upstream license. Where the upstream repository is itself a mirror of another
+project's skill, the original project is named as the author.
+
+| Skill | Upstream | Commit | License | Author |
+|---|---|---|---|---|
+| `gsap-core` | [greensock/gsap-skills · skills/gsap-core](https://github.com/greensock/gsap-skills/tree/aed9cfd/skills/gsap-core) | `aed9cfd` (2026-04-21) | MIT (repo LICENSE) | GreenSock |
+| `gsap-timeline` | [greensock/gsap-skills · skills/gsap-timeline](https://github.com/greensock/gsap-skills/tree/aed9cfd/skills/gsap-timeline) | `aed9cfd` (2026-04-21) | MIT (repo LICENSE) | GreenSock |
+| `gsap-scrolltrigger` | [greensock/gsap-skills · skills/gsap-scrolltrigger](https://github.com/greensock/gsap-skills/tree/aed9cfd/skills/gsap-scrolltrigger) | `aed9cfd` (2026-04-21) | MIT (repo LICENSE) | GreenSock |
+| `gsap-plugins` | [greensock/gsap-skills · skills/gsap-plugins](https://github.com/greensock/gsap-skills/tree/aed9cfd/skills/gsap-plugins) | `aed9cfd` (2026-04-21) | MIT (repo LICENSE) | GreenSock |
+| `gsap-utils` | [greensock/gsap-skills · skills/gsap-utils](https://github.com/greensock/gsap-skills/tree/aed9cfd/skills/gsap-utils) | `aed9cfd` (2026-04-21) | MIT (repo LICENSE) | GreenSock |
+| `gsap-react` | [greensock/gsap-skills · skills/gsap-react](https://github.com/greensock/gsap-skills/tree/aed9cfd/skills/gsap-react) | `aed9cfd` (2026-04-21) | MIT (repo LICENSE) | GreenSock |
+| `gsap-frameworks` | [greensock/gsap-skills · skills/gsap-frameworks](https://github.com/greensock/gsap-skills/tree/aed9cfd/skills/gsap-frameworks) (examples from `examples/vue` and `examples/nuxt` at the same commit) | `aed9cfd` (2026-04-21) | MIT (repo LICENSE) | GreenSock |
+| `react-best-practices` | [davila7/claude-code-templates · cli-tool/components/skills/development/react-best-practices](https://github.com/davila7/claude-code-templates/tree/45b9b21/cli-tool/components/skills/development/react-best-practices) | `45b9b21` (2026-10-10) | MIT (davila7 repo LICENSE); upstream license not verified in the mirror | Vercel Engineering, mirrored from vercel-labs/agent-skills |
+| `react-useeffect` | [davila7/claude-code-templates · cli-tool/components/skills/development/react-useeffect](https://github.com/davila7/claude-code-templates/tree/45b9b21/cli-tool/components/skills/development/react-useeffect) | `45b9b21` (2026-10-10) | MIT (repo LICENSE) | davila7/claude-code-templates, distilled from the React docs' "You Might Not Need an Effect" |
+| `shadcn` | [davila7/claude-code-templates · cli-tool/components/skills/web-development/shadcn](https://github.com/davila7/claude-code-templates/tree/45b9b21/cli-tool/components/skills/web-development/shadcn) | `45b9b21` (2026-10-10) | MIT (davila7 repo LICENSE); upstream license not verified in the mirror | shadcn, mirrored from shadcn-ui/ui `skills/shadcn` |
+| `postgres-best-practices` | [davila7/claude-code-templates · cli-tool/components/skills/development/postgres-best-practices](https://github.com/davila7/claude-code-templates/tree/45b9b21/cli-tool/components/skills/development/postgres-best-practices) | `45b9b21` (2026-10-10) | MIT (per-skill `license: MIT` and `author: supabase` in its frontmatter) | Supabase, mirrored from supabase/agent-skills |
+| `swift-concurrency-expert` | [davila7/claude-code-templates · cli-tool/components/skills/development/swift-concurrency-expert](https://github.com/davila7/claude-code-templates/tree/45b9b21/cli-tool/components/skills/development/swift-concurrency-expert) | `45b9b21` (2026-10-10) | MIT (stated as "Dimillian/Skills (MIT)" in the mirror's frontmatter) | Thomas Ricouard (Dimillian/Skills) |
+| `prisma-patterns` | [affaan-m/ECC · skills/prisma-patterns](https://github.com/affaan-m/ECC/tree/2d515e4/skills/prisma-patterns) | `2d515e4` (2026-10-10) | MIT (repo LICENSE) | Affaan Mustafa |
+| `database-migrations` | [affaan-m/ECC · skills/database-migrations](https://github.com/affaan-m/ECC/tree/2d515e4/skills/database-migrations) | `2d515e4` (2026-10-10) | MIT (repo LICENSE) | Affaan Mustafa |
+| `cpp-coding-standards` | [affaan-m/ECC · skills/cpp-coding-standards](https://github.com/affaan-m/ECC/tree/2d515e4/skills/cpp-coding-standards) | `2d515e4` (2026-10-10) | MIT (repo LICENSE) | Affaan Mustafa |
+| `motion-foundations` | [affaan-m/ECC · skills/motion-foundations](https://github.com/affaan-m/ECC/tree/2d515e4/skills/motion-foundations) | `2d515e4` (2026-10-10) | MIT (repo LICENSE) | "jeff" (upstream `author` field), in Affaan Mustafa's repo |
+| `motion-patterns` | [affaan-m/ECC · skills/motion-patterns](https://github.com/affaan-m/ECC/tree/2d515e4/skills/motion-patterns) | `2d515e4` (2026-10-10) | MIT (repo LICENSE) | "jeff" (upstream `author` field), in Affaan Mustafa's repo |
+| `motion-advanced` | [affaan-m/ECC · skills/motion-advanced](https://github.com/affaan-m/ECC/tree/2d515e4/skills/motion-advanced) | `2d515e4` (2026-10-10) | MIT (repo LICENSE) | "jeff" (upstream `author` field), in Affaan Mustafa's repo |
+| `boost-asio-pro` | [alirezarezvani/claude-skills · engineering/boost-asio-pro](https://github.com/alirezarezvani/claude-skills/tree/19392f7/engineering/boost-asio-pro) | `19392f7` (2026-08-26) | MIT (repo LICENSE) | Alireza Rezvani; its worked examples link to alexprivalov/boost-asio-skill |
+| `remotion-best-practices` | [exiao/skills · design/remotion](https://github.com/exiao/skills/tree/7d2be64/design/remotion) | `7d2be64` (2026-07-27) | MIT (exiao README); upstream license not verified in the mirror | Remotion, mirrored from remotion-dev/skills |
+| `postgresql-table-design` | [wshobson/agents · plugins/database-design/skills/postgresql-table-design](https://github.com/wshobson/agents/tree/46891e7/plugins/database-design/skills/postgresql-table-design) | `46891e7` (2026-10-04) | MIT (repo LICENSE) | Seth Hobson |
+| `saga-orchestration` | [wshobson/agents · plugins/backend-development/skills/saga-orchestration](https://github.com/wshobson/agents/tree/46891e7/plugins/backend-development/skills/saga-orchestration) | `46891e7` (2026-10-04) | MIT (repo LICENSE) | Seth Hobson |
+| `dotnet-backend-patterns` | [wshobson/agents · plugins/dotnet-contribution/skills/dotnet-backend-patterns](https://github.com/wshobson/agents/tree/46891e7/plugins/dotnet-contribution/skills/dotnet-backend-patterns) | `46891e7` (2026-10-04) | MIT (repo LICENSE) | Seth Hobson |
+
+## Changes made here
+
+Every skill keeps its upstream `name` and had non-standard frontmatter keys removed. Beyond that:
+
+- `gsap-core`, `gsap-timeline`, `gsap-scrolltrigger`, `gsap-plugins`, `gsap-utils`, `gsap-react`, `gsap-frameworks`: sibling references rewritten from `gsap-x` to `stack:gsap-x`. `gsap-core` dropped its pointer to `gsap-performance`, which is not vendored here.
+- `gsap-scrolltrigger`: typo `Max.max` corrected to `Math.max` in the horizontal-scroll (`containerAnimation`) example.
+- `gsap-frameworks`: the repo-root `examples/vue/` and `examples/nuxt/` projects it points at were copied into `references/examples/` and the pointers repointed. In the Nuxt example's `app/pages/index.vue`, the cleanup that called `ctx.revert()` inside a second `onMounted` was moved to `onUnmounted` (which the file already imported), matching the skill's own rule.
+- `react-best-practices`: dropped the upstream contributor `README.md` (build instructions for a `src/` that is not here) and `rules/_template.md`. `AGENTS.md`, `metadata.json`, `rules/_sections.md` and all 45 rule files kept.
+- `react-useeffect`: dropped `README.md`, which restated `SKILL.md` and the two reference files.
+- `shadcn`: dropped `agents/openai.yml`, its two icon PNGs, `evals/evals.json` and `mcp.md` (not referenced by `SKILL.md`). Frontmatter keys `risk`, `source`, `date_added` and `user-invocable: false` removed (the source URL moved into `metadata`, and the skill can now be invoked as `stack:shadcn`); description rewritten to add "Use when" triggers from the skill's own "When to Use" list. The dynamic `` !`npx shadcn@latest info --json` `` load-time include was turned into an explicit first step, so loading the skill runs nothing; the model runs the command itself when it starts the work.
+- `postgres-best-practices`: dropped the upstream contributor `README.md`, `rules/_template.md` and `rules/_contributing.md`. `AGENTS.md`, `metadata.json`, `rules/_sections.md` and all rule files kept.
+- `swift-concurrency-expert`: dropped `agents/openai.yaml`; frontmatter keys `risk`, `source`, `date_added` removed (source kept in `metadata`); description extended with "Use when" triggers from the skill's own "When to Use" list.
+- `prisma-patterns`, `database-migrations`, `cpp-coding-standards`: `metadata.origin` removed (attribution lives here). `prisma-patterns`' Related Skills now point at `stack:postgres-best-practices` and `stack:database-migrations`; `nestjs-patterns` and `backend-patterns` are not vendored and were dropped.
+- `motion-foundations`, `motion-patterns`, `motion-advanced`: `tags`, `category` and `author` frontmatter keys removed (author kept under `metadata`); sibling references rewritten from `motion-x` to `stack:motion-x`.
+- `boost-asio-pro`: the Cross-References section naming three unvendored upstream skills was removed. Links to the worked examples on GitHub stay.
+- `saga-orchestration`: the Related Skills section (three unvendored upstream skills) was removed; "see Template 3 above" now says "in `references/details.md`", where upstream had already moved the templates. The same two unvendored skill names were dropped from the "See Also" list at the end of `references/advanced-patterns.md`.
+- `remotion-best-practices`, `postgresql-table-design`, `dotnet-backend-patterns`, `motion-*` content, `cpp-coding-standards`, `database-migrations`: content unchanged.
