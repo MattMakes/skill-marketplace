@@ -1,0 +1,19 @@
+{
+  "name": "godot-incremental",
+  "displayName": "Godot Incremental Build",
+  "version": "0.1.0",
+  "description": "Build a Godot game step by step with scripted bots, headless tests, a scripted balance model and a worker fleet. Thirteen skills mined from the agent sessions of one long Godot build: bot balance loops and measure tables, the balance model as the source of game data, upgrade-tree design with bot policies and human playtests, feature seams and save migrations, headless Godot runs without side effects, the headless test loop and finish gate, safe refactors and review waves, real-window visual verification, frame-cost measurement, a palette-locked pixel-art pipeline, procedural audio and mix loudness, exports and store assets, and the fleet habits that keep many agent sessions from stepping on each other.",
+  "author": {
+    "name": "Matt Scott"
+  },
+  "license": "MIT",
+  "keywords": [
+    "godot",
+    "game-balance",
+    "bots",
+    "headless",
+    "playtest",
+    "pixel-art",
+    "multi-agent"
+  ]
+}

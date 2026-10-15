@@ -2,7 +2,8 @@
 
 A Claude Code plugin marketplace for engineering work. The plugins are grouped by the job they do:
 carry a change from idea to review (`dev`), design, diagram, understand
-and verify systems (`code`), review game work (`game`), design games (`game-design`), run a fleet of agents
+and verify systems (`code`), review game work (`game`), design games (`game-design`), build a Godot game with bots and a balance model
+(`godot-incremental`), run a fleet of agents
 (`herdr`), think and finish well (`tools`), and make more skills (`meta`).
 
 Eleven further plugins hold **two hundred and five skills harvested from the open skill ecosystem**
@@ -23,6 +24,7 @@ claude plugin install dev@skill-marketplace
 claude plugin install code@skill-marketplace
 claude plugin install game@skill-marketplace
 claude plugin install game-design@skill-marketplace
+claude plugin install godot-incremental@skill-marketplace
 claude plugin install herdr@skill-marketplace
 claude plugin install tools@skill-marketplace
 claude plugin install meta@skill-marketplace
@@ -140,6 +142,29 @@ with `fun-targeting`; use `game-design:one-page-design` for its headless JSON-sp
 A3 is the default page size for light mode. A2 or larger is the default for heavy mode; these are
 defaults, not restrictions. The optional exporter requires Node.js, Playwright or `playwright-core`,
 and Chromium or Chrome. It does not install these dependencies.
+
+## `godot-incremental` — Godot Incremental Build
+
+Build a Godot game step by step with scripted bots, headless tests, a scripted balance model and a
+worker fleet. The 13 skills come from 527 agent sessions of one long build. **Start with
+`balance-model-data`, `feature-seams-and-saves`, `headless-godot-runs` and `godot-testing`.**
+Needs Godot 4 and Python 3; `ffmpeg` serves two skills.
+
+| Skill | What it does |
+|---|---|
+| `balance-model-data` | A scripted balance model as the source of the game's data, with parity to the game. |
+| `feature-seams-and-saves` | Adds content and modes behind data seams and flags; keeps saves safe across versions. |
+| `headless-godot-runs` | Runs Godot tools, probes and bots headless without side effects. |
+| `godot-testing` | The headless test loop, test quality and the finish gate of a unit. |
+| `bot-balance-loop` | Bot fights, measure tables and wall diagnosis against target bands. |
+| `upgrade-tree-design` | Upgrade trees, buy policies, fun bands and the human playtest that judges them. |
+| `safe-refactor-and-review` | Proves that a change keeps behaviour; finds every site; reviews and fixes in waves. |
+| `visual-verification` | Real window captures, visual gates and UI checks that a headless run cannot give. |
+| `godot-perf` | Measures and fixes frame cost: A/B pairs, hitch maps, stress, warm-up, batching. |
+| `pixel-art-pipeline` | Palette-locked pixel art and models from an image model or from scripts. |
+| `game-audio` | Deterministic sound, measured mix loudness and music sets. |
+| `release-and-store` | Exports, demo cuts, gamepad support, trailers and the store page. |
+| `fleet-game-dev` | Habits for a game built by many agent sessions: locks, worktrees, landing, verification. |
 
 ## `herdr` — herdr Fleet
 
