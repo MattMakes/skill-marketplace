@@ -1,11 +1,11 @@
-# Empowerment SA Configuration Reference
+# Static Analysis Configuration Reference
 
-The CLI uses cosmiconfig with the module name `empowerment-sa`, which automatically searches for config in these locations (in order of priority):
+The CLI uses cosmiconfig with the module name `static-analysis`, which automatically searches for config in these locations (in order of priority):
 
-1. `package.json` → `"empowerment-sa"` field
-2. `.empowerment-sarc` (JSON or YAML)
-3. `.empowerment-sarc.json`, `.empowerment-sarc.js`, `.empowerment-sarc.cjs`
-4. `empowerment-sa.config.js`, `empowerment-sa.config.cjs`
+1. `package.json` → `"static-analysis"` field
+2. `.static-analysisrc` (JSON or YAML)
+3. `.static-analysisrc.json`, `.static-analysisrc.js`, `.static-analysisrc.cjs`
+4. `static-analysis.config.js`, `static-analysis.config.cjs`
 
 An explicit path can be passed via `--config <path>`.
 
@@ -45,11 +45,19 @@ Note: The CLI's built-in default for cyclomaticComplexity is `{ "warn": 10, "err
       "logicalAnd": 1,
       "logicalOr": 1,
       "nullishCoalescing": 1,
-      "ternary": 1
+      "ternary": 1,
+      "tryOperator": 1
     }
   },
-  "include": ["**/*.ts", "**/*.js"],
-  "exclude": ["**/*.test.ts", "**/*.spec.ts", "**/node_modules/**"],
+  "include": ["**/*.ts", "**/*.js", "**/*.py", "**/*.rs", "**/*.gd"],
+  "exclude": [
+    "**/*.test.ts", "**/*.spec.ts", "**/node_modules/**",
+    "**/test_*.py", "**/*_test.py", "**/conftest.py",
+    "**/.venv/**", "**/venv/**", "**/__pycache__/**", "**/site-packages/**",
+    "**/target/**",
+    "**/test_*.gd", "**/*_test.gd", "**/*Test.gd",
+    "**/addons/**", "**/.godot/**", "**/.import/**"
+  ],
   "format": "table",
   "thresholdAction": "error",
   "sort": "cyclomaticComplexity",
@@ -58,6 +66,46 @@ Note: The CLI's built-in default for cyclomaticComplexity is `{ "warn": 10, "err
   "plugins": []
 }
 ```
+
+### Languages and file routing
+
+The CLI routes each file by extension:
+
+| Extensions | Backend | `language` in JSON output |
+|------------|---------|---------------------------|
+| `.ts .tsx .mts .cts .js .jsx .mjs .cjs` | ts-morph | `typescript` |
+| `.py` | Python (web-tree-sitter) | `python` |
+| `.rs` | Rust (web-tree-sitter) | `rust` |
+| `.gd` | GDScript, Godot 4 (web-tree-sitter) | `gdscript` |
+
+The CLI ignores every other file. The 14 metrics, thresholds and directions are the same for all languages in this release. The shared thresholds were checked on 19,096 functions in Python, Rust and TypeScript corpora, with 0 crashes and 0 NaN values. No threshold value changed.
+
+Two default `exclude` entries can leave out real source. `**/*Test.gd` also excludes a non-test file such as `HitTest.gd`, and `**/addons/**` also excludes a project's own plugin code. Set `exclude` without these globs to keep them.
+
+### Glob matching and excludes
+
+`include` and `exclude` globs use picomatch with `dot: true`, so `**` also matches dot-directories such as `.venv`. A glob matches either the absolute path or the path relative to the current directory.
+
+**Behavior change:** Before this release the glob matcher was broken and the default `exclude` globs matched almost nothing. A default TypeScript run now leaves out `*.test.ts` and `*.spec.ts` files. On `core/src/**/*.ts` the run analyzed 56 files before and analyzes 37 files now. To analyze test files, set `exclude` without the test globs.
+
+### Cyclomatic weight keys per language
+
+Each weight key applies to the constructs below. A key with `none` has no construct in that language. Weight keys `forIn`, `forOf`, `doWhile` and `nullishCoalescing` apply to TypeScript/JavaScript only.
+
+| Weight key | TypeScript/JavaScript | Python | Rust | GDScript |
+|------------|-----------------------|--------|------|----------|
+| `if` | `if` | `if_statement`; comprehension `if` clause; `case` guard | `if` (also `if let`) outside an `else`; `match` arm guard; let-else | `if`; `when` guard |
+| `elseIf` | `else if` | `elif` | `if` that is the direct child of an `else` | `elif` |
+| `for` | `for(;;)` | `for` (also `async for`); comprehension `for` clause | `for` | `for` |
+| `while` | `while` | `while` | `while` (also `while let`) | `while` |
+| `case` | `case` (not `default`) | `case`, except a guard-free `case _:` | `match` arm, except a guard-free `_` arm | `match` section, except a guard-free `_` section |
+| `catch` | `catch` | `except` (also `except*`) | none | none |
+| `logicalAnd` | `&&` | `and` | `&&` (each `&&` in a let chain) | `and`, `&&` |
+| `logicalOr` | `\|\|` | `or` | `\|\|` | `or`, `\|\|` |
+| `ternary` | `?:` | `x if c else y` | none | `x if c else y` |
+| `tryOperator` | none | none | `expr?` | none |
+
+Not counted in Python, Rust and GDScript: `else`, `finally`, `with`, `assert`, `try`, `loop` (no condition), `return`, `break`, `continue`, `raise` and macro invocations.
 
 ### Threshold Direction
 
@@ -75,7 +123,7 @@ The `plugins` array specifies paths to custom metric plugins:
 {
   "plugins": [
     "./my-custom-metric.js",
-    "empowerment-sa-plugin-security"
+    "static-analysis-plugin-security"
   ]
 }
 ```
@@ -137,6 +185,42 @@ The config is a partial — only override what needs to change. Merging works as
     "maintainabilityIndex": { "warn": 65, "error": 45, "lowerIsBad": true }
   },
   "thresholdAction": "error"
+}
+```
+
+### Python repository
+
+```json
+{
+  "include": ["src/**/*.py"],
+  "exclude": ["**/test_*.py", "**/*_test.py", "**/conftest.py", "**/.venv/**", "**/__pycache__/**", "**/migrations/**"],
+  "thresholds": {
+    "cyclomaticComplexity": { "warn": 5, "error": 7 }
+  }
+}
+```
+
+### Rust workspace
+
+```json
+{
+  "include": ["crates/*/src/**/*.rs"],
+  "exclude": ["**/target/**", "**/tests/**", "**/benches/**"],
+  "thresholds": {
+    "cyclomaticComplexity": { "warn": 5, "error": 7 }
+  }
+}
+```
+
+### Godot 4 project
+
+```json
+{
+  "include": ["scripts/**/*.gd"],
+  "exclude": ["**/test_*.gd", "**/*_test.gd", "**/addons/**", "**/.godot/**"],
+  "thresholds": {
+    "cyclomaticComplexity": { "warn": 5, "error": 7 }
+  }
 }
 ```
 

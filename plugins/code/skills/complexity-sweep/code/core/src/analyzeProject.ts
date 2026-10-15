@@ -1,6 +1,11 @@
 import type { SourceFile } from "ts-morph";
 
 import type {
+  LanguageBackend,
+  SyntaxLanguageId,
+  SyntaxSourceInput,
+} from "./languages/types";
+import type {
   AnalysisOptions,
   MetricDefinition,
   MetricRegistry,
@@ -10,28 +15,52 @@ import type {
   MetricsSummary,
   ProjectMetrics,
 } from "./types";
-import { analyzeFile } from "./analyzeFile";
+import { analyzeFile, analyzeSyntaxFile } from "./analyzeFile";
+
+/** One file to analyze: a ts-morph SourceFile or a Python/Rust input. */
+export type ProjectSource = SourceFile | SyntaxSourceInput;
 
 /**
- * Run `analyzeFile` across each source file and produce a flat aggregation
- * over every function in every file.
+ * True for a Python or Rust input. Structural on purpose: the CLI and core
+ * can load different copies of ts-morph, so `instanceof SourceFile` is not
+ * reliable.
+ */
+export function isSyntaxSourceInput(item: ProjectSource): item is SyntaxSourceInput {
+  return "language" in item && "text" in item && typeof item.text === "string";
+}
+
+/**
+ * Run `analyzeFile` (TypeScript/JavaScript) or `analyzeSyntaxFile` (Python,
+ * Rust) across each source and produce a flat aggregation over every
+ * function in every file.
  *
  * Aggregation is over raw per-function values (not per-file summaries), so
  * `avg` is the flat mean across all functions; `max` is the true extreme.
- * Caller owns the ts-morph Project — this function performs no I/O.
+ * A metric that is absent for a language (no compute) is not counted: its
+ * `avg` divides by the functions that have the key, and a key that no file
+ * reports is left out. For TypeScript-only input this is the flat mean over
+ * all functions, as before.
+ * Caller owns the ts-morph Project and reads the Python/Rust text — this
+ * function performs no I/O. `initSyntaxParsers()` must have resolved when
+ * the input holds a Python or Rust file. `backends` replaces the built-in
+ * backend for a language (tests use it).
  */
 export function analyzeProject(
-  sourceFiles: SourceFile[],
+  sources: ReadonlyArray<ProjectSource>,
   registry: MetricRegistry,
   options?: AnalysisOptions,
+  backends: Partial<Record<SyntaxLanguageId, LanguageBackend>> = {},
 ): ProjectMetrics {
-  const files: FileMetrics[] = sourceFiles.map((sf) =>
-    analyzeFile(sf, registry, options),
+  const files: FileMetrics[] = sources.map((source) =>
+    isSyntaxSourceInput(source)
+      ? analyzeSyntaxFile(source, registry, options, backends[source.language])
+      : analyzeFile(source, registry, options),
   );
 
-  const executionOrder = registry.getExecutionOrder();
+  const executionOrder = reportedMetrics(files, registry.getExecutionOrder());
   const max: MetricsSummary = {};
   const avg: MetricsSummary = {};
+  const counts = new Map<string, number>();
 
   for (const def of executionOrder) {
     max[def.key] = def.direction === "lower-is-worse"
@@ -44,14 +73,13 @@ export function analyzeProject(
   for (const file of files) {
     totalFunctions += file.summary.totalFunctions;
     for (const fn of file.functions) {
-      accumulate(fn.metrics, executionOrder, max, avg);
+      accumulate(fn.metrics, executionOrder, max, avg, counts);
     }
   }
 
-  if (totalFunctions > 0) {
-    for (const def of executionOrder) {
-      avg[def.key] = (avg[def.key] ?? 0) / totalFunctions;
-    }
+  for (const def of executionOrder) {
+    const count = counts.get(def.key) ?? 0;
+    if (count > 0) avg[def.key] = (avg[def.key] ?? 0) / count;
   }
 
   for (const def of executionOrder) {
@@ -70,15 +98,36 @@ export function analyzeProject(
   };
 }
 
+/**
+ * The metrics that 1 or more files report, in execution order. Every file
+ * summary lists each metric that ran for its language, so the union covers
+ * files with 0 functions too. An empty project reports every metric.
+ */
+function reportedMetrics(
+  files: readonly FileMetrics[],
+  executionOrder: readonly MetricDefinition[],
+): MetricDefinition[] {
+  if (files.length === 0) return [...executionOrder];
+  const reported = new Set<string>();
+  for (const file of files) {
+    for (const key of Object.keys(file.summary.max)) reported.add(key);
+  }
+  return executionOrder.filter((def) => reported.has(def.key));
+}
+
 function accumulate(
   metrics: Record<string, number>,
   executionOrder: readonly MetricDefinition[],
   max: MetricsSummary,
   avg: MetricsSummary,
+  counts: Map<string, number>,
 ): void {
   for (const def of executionOrder) {
     const val = metrics[def.key];
-    if (val === undefined || Number.isNaN(val)) continue;
+    if (val === undefined) continue;
+    // NaN counts in the denominator (TypeScript parity), not the numerator.
+    counts.set(def.key, (counts.get(def.key) ?? 0) + 1);
+    if (Number.isNaN(val)) continue;
     const current = max[def.key] ?? 0;
     max[def.key] = def.direction === "lower-is-worse"
       ? Math.min(current, val)

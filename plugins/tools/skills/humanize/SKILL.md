@@ -15,6 +15,8 @@ allowed-tools:
 
 Two phases, every time, in order: compose then scrub. Then audit.
 
+**Interface copy goes elsewhere first.** Button labels, form errors, empty states, toasts, tooltips and other microcopy have rules prose does not: frontload the verb, say what happened, why, and how to fix it, and keep to the product's voice and tone. When the `design-system` plugin is installed, write that copy with `design-system:ux-writing`, which owns those rules, then run Phase 2 below over the result. Longer prose that happens to live in a UI (onboarding text, help articles, release notes) stays here.
+
 
 ## Phase 1 — Compose for clarity
 

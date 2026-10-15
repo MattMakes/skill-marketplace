@@ -240,3 +240,122 @@ Use this reference to understand what each metric measures, why a high value is 
   - **Reduce cyclomatic complexity** — Fewer decision points.
   - **Reduce LOC** — Shorter functions.
 - Start by checking which input metric is the primary driver (compare the function's V, CC, and LOC against their individual thresholds) and target that one first.
+
+---
+
+# Language notes
+
+All 14 metrics apply to TypeScript/JavaScript, Python, Rust and GDScript (Godot 4). The sections above describe the TypeScript/JavaScript constructs. This section lists what counts in Python, Rust and GDScript, and the refactoring hints that fit each language.
+
+**Units.** A Python `def` or `async def` (including methods and nested functions) is one unit. A Rust `fn` item with a body is one unit (free functions, `impl` methods, trait default methods, nested functions, functions in inline `mod` blocks). A Python `lambda` and a Rust closure are not units: they stay part of the enclosing function. A GDScript `func` with a body, the script-level `_init`, and a property `set(value):` or `get:` body are units. A GDScript `lambda` is not a unit. Rust test code is not analyzed: a `fn` or `mod` with `#[test]`, `#[tokio::test]` (any path that ends in `test`), `#[rstest]`, `#[test_case]`, `#[bench]`, or a `#[cfg(...)]` whose predicate requires `test` (`cfg(test)`, `cfg(all(test, ...))`). `#[cfg(not(test))]` and `#[cfg(any(test, ...))]` code stays. GDScript test files are left out by the default `exclude` globs.
+
+## Counts per metric
+
+### 1. Cyclomatic Complexity — v(G)
+- **Python:** `if`, `elif`, `for` (also `async for`), `while`, `case` (except a guard-free `case _:`), `except` (also `except*`), `and`, `or`, `x if c else y`, comprehension `for` and `if` clauses, and `case` guards.
+- **Rust:** `if` (also `if let`), `else if`, `for`, `while` (also `while let`), `match` arms (except a guard-free `_` arm), `match` guards, let-else, `&&`, `||` and the `?` operator (weight key `tryOperator`).
+- **GDScript:** `if`, `elif`, `for`, `while`, `match` sections (`pattern_section`, except a guard-free `_` section; a section with 2 patterns counts 1), `when` guards, `and`/`&&`, `or`/`||` and `x if c else y`. A guard-free section that binds a name (`var x:`) counts. GDScript has no `catch` and no `?`.
+
+### 2. Essential Complexity — ev(G)
+- **Python:** `continue`, and `raise` inside an `if` or `match`. Early `return` statements count as in TypeScript. Python has no labels, so no labeled `break` exists.
+- **Rust:** `continue`, labeled `break 'outer`, and `panic!`, `unreachable!`, `todo!` or `unimplemented!` inside an `if` or `match`. When the body ends in a tail expression, every `return` outside a block-like tail (`if`, `match`, loop, block) is early, and the TypeScript rule applies to the returns inside that tail.
+- **GDScript:** `continue`, and early `return` statements (with 2 or more returns, every return except the one that ends last). A `return` inside a `lambda` is not an exit of the function. GDScript has no labeled `break`, no `throw` and no tail expression.
+
+### 3. Module Design Complexity — iv(G)
+- **Python:** `if`, `for`, `while`, `match`, conditional expressions and comprehensions or generator expressions whose subtree holds a `call`.
+- **Rust:** `if`, `for`, `while`, `loop` and `match` whose subtree holds a call, a method call or a macro invocation.
+- **GDScript:** `if`, `for`, `while`, `match` and conditional expressions whose subtree holds a call (`call`, `attribute_call`, `base_call`, or `$Node`/`%Name`).
+
+### 4. Global Data Complexity — gdv(G)
+- **Python:** A module-level name (also a name bound inside a module-level `if`, `try`, `with`, `for`, `while` or `match`, but never inside a function or class body) that holds a `list`, `dict`, `set` or comprehension, or a call to `list`, `dict`, `set`, `defaultdict`, `deque`, `OrderedDict`, `Counter` or `bytearray`; a name that a `global` statement names; or a name that 2 or more top-level statements bind. A name that the function assigns without `global` is local.
+- **Rust:** A `static mut`, or a `static` whose type holds `Mutex`, `RwLock`, `RefCell`, `Cell`, `Atomic`, `OnceCell`, `OnceLock`, `LazyLock` or `Lazy`. A `const` never counts. `thread_local!` is not analyzed.
+- **GDScript:** A `static var` in the script or in an inner `class`, read or written by the function. A member `var` is an instance field and does not count. `const` and `enum` never count. Autoload singletons are not modeled. A local `var`, parameter, `for` variable, `match` binding or lambda parameter with the same name hides the `static var`.
+
+### 5. Specified Data Complexity — sdv(G)
+- **Python:** Parameters that appear in an `if`/`elif`/`while` condition, a conditional expression, a `match` subject, a `case` guard or a comprehension `if`. `self` and `cls` do not count.
+- **Rust:** Parameter pattern leaves that appear in an `if` condition (for `if let`, the value), a `while` condition, a `match` value or a `match` guard. `self` does not count.
+- **GDScript:** Parameters that appear in an `if`/`elif`/`while` condition, a conditional expression, a `match` subject or a `when` guard. A property `set(value):` body has 1 parameter, and a `get:` body has none.
+
+### 6. Peak Live Variables — PLV
+- **Python:** One entry per name per function (function scope). Parameters, assignment, `for`, `with`, `except` and walrus targets, comprehension variables, imports and lambda parameters. `global` and `nonlocal` names are not entries.
+- **Rust:** One entry per declaration (block scope with shadowing). `let` patterns, parameters, `for` patterns, closure parameters and `match`, `if let` and `while let` bindings. `let x = x + 1;` makes a second entry. Inline format arguments such as `{name}` and `{name:?}` in a macro string are uses.
+- **GDScript:** One entry per declaration (block scope, as in Rust). Parameters, lambda parameters, local `var` and `const`, `for` variables and `match` pattern bindings. A declaration is visible after its own name, so the initializer of `var x = x + 1` resolves to the outer name. `self`, `super`, member names after `.`, type names and text inside strings, `$Node` and `%Name` are not uses.
+
+### 7. Variable Span — VSpan
+- **Python:** Same entries as PLV. A use in a nested `def` or `lambda` extends the span. A parameter starts after the docstring, when the body starts with one. Variable span is the maximum span in the function. The attribute part of `obj.name` and keyword-argument names are not uses.
+- **Rust:** Same entries as PLV. A use in a closure, a macro token tree or an inline format argument extends the span.
+- **GDScript:** Same entries as PLV. A use in a `lambda` extends the span. Variable span is the maximum span in the function.
+
+### 8. ABC Score — ABC
+- **Python:** A = assignment targets, augmented assignments, walrus, `del` targets and mutating method calls (`append`, `extend`, `insert`, `pop`, `remove`, `clear`, `sort`, `update`, and similar). B = each `call`. C = `and`/`or`, each comparison operator in a chain, `if`, `elif`, `for`, `while`, comprehension clauses, `case` and conditional expressions. `except` adds nothing.
+- **Rust:** A = `let` with a value (one per pattern leaf), assignments, compound assignments and mutating method calls (`push`, `insert`, `remove`, `extend`, `sort`, `drain`, and similar). B = calls, macro invocations and struct expressions. C = `&&`, `||`, comparisons, `if`, loops, `match` arms and guards, let-else and `?`.
+- **GDScript:** A = assignments, augmented assignments, a local `var` or `const` with a value, and mutating method calls (`append`, `append_array`, `erase`, `clear`, `push_back`, `pop_front`, `sort`, `resize`, and similar). B = `call`, `attribute_call` (also `X.new()`), `base_call`, and `$Node`/`%Name`. C = `and`/`or`, comparisons (also `is`, `in`), `if`, `elif`, `for`, `while`, conditional expressions, `match` sections and `when` guards.
+
+### 9. Scope-Depth Weighted LOC — SDWL
+- **Python:** The body of `if`/`elif`/`else`, `for`/`while`, `try`/`except`/`finally`, `with`, `match`/`case` and a class body inside the function adds 1 level. A lambda body adds 1 level.
+- **Rust:** The block of `if`/`else`, `while`, `for`, `loop`, `unsafe`, `async`, a bare nested block and each `match` arm body adds 1 level. A closure body adds 1 level.
+- **GDScript:** The body of `if`/`elif`/`else`, `for`, `while` and each `match` section adds 1 level. A `lambda` body adds 1 level. A line takes the depth of the deepest scope that holds it.
+
+### 10. Scope-Depth Ratio — SDR
+- **Python:** Same depth rules as SDWL. LOC excludes blank lines, comment lines and the docstring.
+- **Rust:** Same depth rules as SDWL. LOC excludes blank lines, comment lines (`//`, `/* */`) and brace-only lines.
+- **GDScript:** Same depth rules as SDWL. LOC excludes blank lines, `#` and `##` comment lines, `#region` and `#endregion` lines, brace-only lines and lines of nested units. A line inside a multi-line string is code.
+
+### 11. Halstead Volume — HVol
+- **Python:** Identifiers and literals are operands. A whole string (including an f-string) is 1 operand. Operators are semantic: a call is 1 `()` operator, a member access is 1 `.`, an index is 1 `[]`, and operators are counted by text (`+`, `==`, `and`, `in`). Parentheses, brackets, braces, commas and colons are structural and are not counted. `def`, `pass`, `break`, `continue` and decorators are structural. Parameter annotations, return annotations and the type of an annotated assignment are skipped. The docstring is skipped.
+- **Rust:** Same semantic scheme: `()` per call, `!()` per macro invocation, `.` per field access, `::` per scoped path, `[]` per index, `let` (plus `=` with a value), `match` and `=>`, `?`, `&&`, `||`, `!`. Parentheses, brackets, braces, commas, semicolons, colons and `->` are structural. Type nodes (parameter and return types, `let` annotations, generics, `where` clauses), lifetimes and attributes are skipped. Tokens inside macro token trees are classified by text: an operator token is an operator, identifiers and literals are operands, and punctuation is structural.
+- **GDScript:** Same semantic scheme: `()` per call, `$` per `$Node` or `%Name`, `.` per member access, `[]` per index, `var` or `const` (plus `=` with a value), `if`/`else`/`elif`, `for` and `in`, `while`, `match`, `case` per section, `when` per guard and `lambda`. `&&`, `||` and `!` count as `and`, `or` and `not`. Parentheses, commas, colons, `->`, `func`, `static` and annotations are structural. Type hints are skipped, so they cost nothing.
+
+### 12. Halstead Difficulty — HDiff
+- **Python:** `n1`, `n2`, `N1` and `N2` come from the same classification as HVol.
+- **Rust:** Same classification. The unit header tokens (`fn`, the name, the visibility modifier) are not counted, as in Python (`def`, `async`, the name).
+- **GDScript:** Same classification. `func`, the name and annotations are not counted.
+
+### 13. Halstead Effort — HEff
+- **Python:** `D * V` from the values above.
+- **Rust:** `D * V` from the values above.
+- **GDScript:** `D * V` from the values above.
+
+### 14. Maintainability Index — MI
+- **Python:** The formula is unchanged. LOC excludes blank lines, comment lines, the docstring and nested units.
+- **Rust:** The formula is unchanged. LOC excludes blank lines, `line_comment` and `block_comment` lines, brace-only lines and nested units.
+- **GDScript:** The formula is unchanged. LOC excludes blank lines, comment lines, `#region` lines, brace-only lines and nested units. GDScript has no docstrings.
+
+## Refactoring hints
+
+**Python**
+- Use **guard clauses** (early `return` or `continue`) to flatten nested `if` blocks. This lowers v(G) and SDWL.
+- Replace an accumulator loop with a **comprehension** or a generator expression. A comprehension counts for v(G), so keep it to 1 `for` and 1 `if`.
+- Group a long parameter list into a **`dataclass`**. This lowers sdv(G) and PLV.
+- Move a block into a **small helper** function. This lowers PLV, VSpan, HVol and ABC together.
+- Replace a long `if`/`elif` chain with a dict lookup or `match`.
+
+**Rust**
+- Use **`?`** in place of nested `match` on `Result` or `Option`. It counts 1 in v(G) through `tryOperator`, against 1 or more arms for a `match`.
+- Use **let-else** (`let Some(x) = opt else { return ... };`) to flatten nesting.
+- Replace `for` loops that push into a `Vec` with **iterator chains** (`map`, `filter`, `collect`).
+- Move large `match` arms into **helper functions**, so the `match` holds 1 call per arm.
+- Wrap a bare `String` or `u64` parameter in a **newtype** to remove validation branches from callers.
+
+**GDScript**
+- Use **guard clauses** (early `return`) to flatten nested `if` blocks. This lowers v(G) and SDWL.
+- Use **`match`** in place of a long `if`/`elif` chain.
+- Cache `$Node` lookups in an **`@onready var`**. Each `$Node` counts as a call in ABC and iv(G).
+- Move signal handler bodies into **small functions**, so the handler holds 1 call.
+- Use **typed `var` and typed parameters**. Type hints are not counted, so they cost nothing.
+
+## Known limits
+
+- Rust macro arguments are token trees. Decision points and calls inside a macro are not seen. Identifiers count for def-use (PLV, VSpan) and tokens count for Halstead.
+- Python dynamic features (`eval`, `exec`, `setattr`, `globals()`) are not modeled.
+- Comprehension scope is approximated: comprehension variables are entries of the enclosing function.
+- The Rust grammar gives an `ERROR` node for `~` inside a macro token tree. Other functions in the file stay correct.
+- web-tree-sitter gives `ERROR` nodes in files over about 32 KiB that hold characters outside the Basic Multilingual Plane (emoji, historic scripts). The parser input replaces each surrogate pair with 1 BMP character. Line numbers stay correct.
+- scopeDepthWeightedLoc counts comment lines inside the body in TypeScript, but Python, Rust and GDScript drop them. A TypeScript function with many comment lines has a higher value.
+- Rust `static` names are collected per file, not per `mod`, so a `static mut X` in 1 module and a `const X` in another can give a false global-data count.
+- Rust `impl` names drop `&`, `&mut`, lifetimes, `dyn` and `mut`, and the trait name is not added. Two trait impls can give the same name (`Value::fmt`). The line number tells them apart.
+- Rust `if a { return 1; } else { 2 }` gives essential complexity 1, where the TypeScript form with 2 `return`s gives 2.
+- GDScript supports Godot 4 only. A Godot 3 file with `export`, `onready`, `setget` or `remote` gives parse errors.
+- GDScript autoload singletons and script-level member `var`s are not global data. Scripts inside `.tscn`/`.tres` scenes are not analyzed. Godot C# (`.cs`) is a separate language.
+- `**/*Test.gd` also excludes a non-test file whose name ends in `Test.gd` (for example `HitTest.gd`), and `**/addons/**` also excludes a project's own plugin code. Override `exclude` to keep them.
+- Thresholds are the same for every language in this release. They were checked on 19,096 functions in Python, Rust and TypeScript corpora with 0 crashes and 0 NaN values.

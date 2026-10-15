@@ -1,7 +1,7 @@
 {
   "name": "static-analysis-core",
   "version": "1.0.0",
-  "description": "Static analysis engine — AST in, McCabe metrics out",
+  "description": "Static analysis engine \u2014 AST in, McCabe metrics out",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -10,7 +10,8 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "ts-morph": "^24.0.0"
+    "ts-morph": "^24.0.0",
+    "web-tree-sitter": "0.27.1"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
@@ -18,6 +19,7 @@
     "vitest": "^2.1.0"
   },
   "files": [
-    "dist"
+    "dist",
+    "grammars"
   ]
 }

@@ -1,0 +1,1 @@
+{"version":3,"file":"treeSitter.d.ts","sourceRoot":"","sources":["../../src/languages/treeSitter.ts"],"names":[],"mappings":"AAQA,OAAO,KAAK,EAEV,gBAAgB,EAChB,iBAAiB,EAClB,MAAM,SAAS,CAAC;AAajB;;;;GAIG;AACH,wBAAgB,iBAAiB,IAAI,OAAO,CAAC,IAAI,CAAC,CAGjD;AAYD;;;GAGG;AACH,wBAAgB,iBAAiB,CAAC,KAAK,EAAE,iBAAiB,GAAG,gBAAgB,CAa5E"}

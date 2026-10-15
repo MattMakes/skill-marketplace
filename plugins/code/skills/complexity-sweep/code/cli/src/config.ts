@@ -59,8 +59,29 @@ const DEFAULT_THRESHOLDS: ThresholdsConfig = {
 const DEFAULT_CONFIG: CliConfig = {
   thresholds: DEFAULT_THRESHOLDS,
   weights: { cyclomaticComplexity: {} },
-  include: ["**/*.ts", "**/*.js"],
-  exclude: ["**/*.test.ts", "**/*.spec.ts", "**/node_modules/**"],
+  include: ["**/*.ts", "**/*.js", "**/*.py", "**/*.rs", "**/*.gd"],
+  exclude: [
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/node_modules/**",
+    // Python tests and environments (design decision 8).
+    "**/test_*.py",
+    "**/*_test.py",
+    "**/conftest.py",
+    "**/.venv/**",
+    "**/venv/**",
+    "**/__pycache__/**",
+    "**/site-packages/**",
+    // Rust build output.
+    "**/target/**",
+    // GDScript tests (GUT, GdUnit4), third-party plugins and Godot caches.
+    "**/test_*.gd",
+    "**/*_test.gd",
+    "**/*Test.gd",
+    "**/addons/**",
+    "**/.godot/**",
+    "**/.import/**",
+  ],
   format: "table",
   thresholdAction: "error",
   sort: "cyclomaticComplexity",

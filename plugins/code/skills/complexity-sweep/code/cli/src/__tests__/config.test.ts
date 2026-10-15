@@ -20,6 +20,34 @@ describe("resolveConfig", () => {
     expect(config.thresholds.essentialComplexity?.warn).toBe(4);
   });
 
+  it("includes TypeScript, JavaScript, Python, Rust and GDScript by default", () => {
+    const config = resolveConfig({});
+    expect(config.include).toEqual(["**/*.ts", "**/*.js", "**/*.py", "**/*.rs", "**/*.gd"]);
+  });
+
+  it("excludes tests, dependencies and build output by default", () => {
+    const config = resolveConfig({});
+    expect(config.exclude).toEqual([
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      "**/node_modules/**",
+      "**/test_*.py",
+      "**/*_test.py",
+      "**/conftest.py",
+      "**/.venv/**",
+      "**/venv/**",
+      "**/__pycache__/**",
+      "**/site-packages/**",
+      "**/target/**",
+      "**/test_*.gd",
+      "**/*_test.gd",
+      "**/*Test.gd",
+      "**/addons/**",
+      "**/.godot/**",
+      "**/.import/**",
+    ]);
+  });
+
   it("respects CLI overrides", () => {
     const config = resolveConfig({}, { format: "json", thresholdAction: "warn" });
     expect(config.format).toBe("json");

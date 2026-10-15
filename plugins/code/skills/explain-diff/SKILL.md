@@ -26,12 +26,25 @@ Format:
     `white-space: pre` or `pre-wrap`.
 - Use callouts for key concepts or definitions, important edge cases, etc.
 - Keep quiz headings inside padded cards, aligned with the answer column. Use a labeled group and a normal heading, or explicitly style fieldset legends so they do not straddle the card border; wrapped question text should align beneath itself.
+- Make the page readable by everyone: text at 4.5:1 contrast or better against its background in light and dark (honour `prefers-color-scheme`), a visible focus ring on every quiz option, quiz options as real `<button>` elements so the keyboard reaches them, feedback announced with `aria-live="polite"`, no emoji as icons, and no horizontal scroll at 320px wide outside `<pre>` blocks.
 
 Before delivery:
 
 - Validate and visually inspect Blueprint diagrams, then inspect the assembled article. Check that each embedded viewer loads, its theme/trace/story controls work where enabled, diagram labels remain readable, and the quiz and table of contents still work. Inspect desktop and narrow layouts; the article should scroll vertically without horizontal overflow. Do not apply Blueprint's standalone first-screen height limit to this long page.
 - Check the actual iframe dimensions: the top toolbar must clear the title, guided-view row, and diagram canvas. A standalone containment check can pass while these elements overlap inside a shorter article embed.
 - Preserve the diagram JSON sources for later revision. State validation and browser-review limits honestly; a valid diagram does not prove the surrounding code explanation.
+
+Check the page:
+
+- If the `design-system` plugin is installed, measure the final file (after narration, which adds the player) rather than eyeballing it, and fix every failure in the page you wrote before reporting the explainer done. A failure inside the narration player comes from `scripts/player.mjs`: report it, do not hand-edit the generated player.
+
+  ```bash
+  KIT=$(ls -d "${CLAUDE_PLUGIN_ROOT}"/../design-system/shared "${CLAUDE_PLUGIN_ROOT}"/../../design-system/*/shared 2>/dev/null | sort -V | tail -1)
+  for m in "" --dark; do DS_REQUIRE_BROWSER=1 node "$KIT/scripts/measure_render.mjs" $m <file.html>; DS_REQUIRE_BROWSER=1 node "$KIT/scripts/axe_audit.mjs" <file.html> $m; done
+  DS_REQUIRE_BROWSER=1 node "$KIT/scripts/verify_keyboard.mjs" <file.html>
+  ```
+
+  A gate that cannot find a browser fails here instead of printing SKIPPED; say the page is unmeasured rather than calling it accessible. Without the `design-system` plugin, skip this step and say so.
 
 Narration:
 

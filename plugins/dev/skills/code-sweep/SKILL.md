@@ -1,11 +1,11 @@
 ---
 name: code-sweep
-description: Multi-perspective code review using an agent team. Dispatches 11 specialized reviewers in parallel, each focused on a single concern, then synthesizes findings into a unified report with severity-based verdicts.
+description: Multi-perspective code review using an agent team. Dispatches 12 specialized reviewers in parallel, each focused on a single concern, then synthesizes findings into a unified report with severity-based verdicts.
 ---
 
 # Code Sweep
 
-Orchestrate a team of specialized reviewers to analyze code from 11 independent perspectives simultaneously, then synthesize findings into a single prioritized report.
+Orchestrate a team of specialized reviewers to analyze code from 12 independent perspectives simultaneously, then synthesize findings into a single prioritized report.
 
 ## Arguments
 
@@ -16,7 +16,7 @@ Orchestrate a team of specialized reviewers to analyze code from 11 independent 
 - `--commit <sha>` — Review a specific commit
 - `--change <number>` — Review a change by number (a merge request via `glab`, a pull request via `gh`, whichever is installed)
 - `--branch <name>` — Review branch diff against main
-- `--all` — Force all 11 reviewers (skip auto-triage)
+- `--all` — Force all 12 reviewers (skip auto-triage)
 - `--only <codes>` — Run specific reviewers by code (e.g., `--only bvs` for bug-hunter, vulnerability-scanner, structure-inspector)
 
 ## Reviewers
@@ -34,6 +34,7 @@ Orchestrate a team of specialized reviewers to analyze code from 11 independent 
 | `r` | reliability-auditor | Reliability — resource leaks, concurrency, safety |
 | `d` | dependency-examiner | Dependencies — idiomatic usage, deprecated APIs |
 | `j` | power-of-ten-reviewer | JPL Power of Ten — complexity, type safety, scope, language-specific pitfalls |
+| `u` | interface-auditor | UI — WCAG 2.2, the eight states, token and theme consistency, responsive layout |
 
 ## Task
 
@@ -65,6 +66,7 @@ If `--all` or `--only` specified, use that selection. Otherwise, auto-triage:
 - Resource handling, concurrency, error boundaries → `r` (reliability-auditor)
 - Package/dependency changes, framework imports → `d` (dependency-examiner)
 - Complex functions, type casts, broad scoping, linter suppressions → `j` (power-of-ten-reviewer)
+- UI files (`.html`, `.css`, `.scss`, `.tsx`, `.jsx`, `.vue`, `.svelte`), templates, design tokens or theme files → `u` (interface-auditor)
 
 ### Phase 3: Create Agent Team and Dispatch
 
@@ -75,6 +77,14 @@ Create an agent team and dispatch each selected reviewer as a teammate. Each tea
 4. Instruction to read surrounding code context for each changed file
 
 **Spawn all selected reviewers as teammates simultaneously.** Each reviewer is a `general-purpose` agent type. Provide each their complete reviewer prompt from the `reviewers/` directory — do NOT make them read the file themselves, paste the full prompt content into their task description.
+
+**The interface auditor measures, when it can.** Before dispatching `u`, look for the `design-system` plugin's kit and pass it in the reviewer's task as `KIT=<path>`:
+
+```bash
+KIT=$(ls -d "${CLAUDE_PLUGIN_ROOT}"/../design-system/shared "${CLAUDE_PLUGIN_ROOT}"/../../design-system/*/shared 2>/dev/null | sort -V | tail -1)
+```
+
+With the kit it runs the design gates on the changed UI files and cites their output; without it (the `design-system` plugin is not installed) it reviews by reading and says nothing was measured.
 
 Assign one task per reviewer via the shared task list. Each reviewer marks their task complete when done and sends findings back.
 

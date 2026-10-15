@@ -1,0 +1,22 @@
+{
+  "name": "design-system",
+  "displayName": "UX/UI Design System",
+  "version": "1.0.0",
+  "description": "A senior design architect as a skill set: DTCG design tokens in three tiers, component specs with the eight interactive states, WCAG 2.2 AA to AAA and i18n/RTL accessibility, a taste layer against generated-looking UI, 138 design-system specs, any-framework code generation, and render gates that measure contrast, states, axe, keyboard, target size, overflow, reduced motion and responsive behaviour in light and dark, instead of claiming them. Bundles the design-critic agent. Adapted from plugin87/ux-ui-agent-skills (MIT); see README.",
+  "author": {
+    "name": "Matt Scott"
+  },
+  "license": "MIT",
+  "keywords": [
+    "design-system",
+    "design-tokens",
+    "dtcg",
+    "ui",
+    "ux",
+    "accessibility",
+    "wcag",
+    "frontend",
+    "figma",
+    "playwright"
+  ]
+}

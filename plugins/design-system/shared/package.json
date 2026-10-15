@@ -1,0 +1,13 @@
+{
+  "name": "design-kit-gates",
+  "private": true,
+  "description": "Runtime for the design plugin's render gates. Install once with: npm install --prefix \"${CLAUDE_PLUGIN_ROOT}/shared\"",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "axe-core": "4.10.2",
+    "playwright": "^1.40.0"
+  }
+}

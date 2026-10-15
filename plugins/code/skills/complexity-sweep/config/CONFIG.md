@@ -1,10 +1,10 @@
 # Config Sub-Skill
 
-Generate or update an `.empowerment-sarc.json` configuration file for a target repository.
+Generate or update a `.static-analysisrc.json` configuration file for a target repository.
 
 ## When to Use
 
-- A target repo has no empowerment-sa config and one is needed before analysis.
+- A target repo has no static-analysis config and one is needed before analysis.
 - The user explicitly asks to create, update, or tune thresholds/weights/globs.
 - After an initial analysis reveals the defaults are too strict or too lenient for the codebase.
 
@@ -15,15 +15,15 @@ Generate or update an `.empowerment-sarc.json` configuration file for a target r
 Look for any cosmiconfig-compatible file in the target repo root:
 
 ```
-.empowerment-sarc
-.empowerment-sarc.json
-.empowerment-sarc.js
-.empowerment-sarc.cjs
-empowerment-sa.config.js
-empowerment-sa.config.cjs
+.static-analysisrc
+.static-analysisrc.json
+.static-analysisrc.js
+.static-analysisrc.cjs
+static-analysis.config.js
+static-analysis.config.cjs
 ```
 
-Also check `package.json` for an `"empowerment-sa"` key.
+Also check `package.json` for an `"static-analysis"` key.
 
 If a config exists, read it and proceed to Step 3 (update flow).
 
@@ -35,10 +35,20 @@ Ask the user about:
   - `default` — Use built-in thresholds as-is.
   - `strict` — For critical services; tighter thresholds (see `config-reference.md` examples).
   - `relaxed` — For legacy codebases being incrementally improved; wider thresholds.
+- **Languages** — Detect the languages of the target repo from these markers, and propose `include` and `exclude` globs for each language found:
+
+  | Marker | Language | Suggested `include` | Suggested `exclude` |
+  |--------|----------|---------------------|---------------------|
+  | `tsconfig.json`, `package.json`, `*.ts`, `*.js` | TypeScript/JavaScript | `src/**/*.ts`, `src/**/*.js` | `**/*.test.ts`, `**/*.spec.ts`, `**/node_modules/**` |
+  | `pyproject.toml`, `setup.py`, `*.py` | Python | `src/**/*.py` (or the package directory) | `**/test_*.py`, `**/*_test.py`, `**/conftest.py`, `**/.venv/**`, `**/venv/**`, `**/__pycache__/**`, `**/site-packages/**` |
+  | `Cargo.toml`, `*.rs` | Rust | `src/**/*.rs`, or `crates/*/src/**/*.rs` for a workspace | `**/target/**` |
+| `project.godot`, `*.gd` | GDScript (Godot 4) | `**/*.gd`, or the script directories (`scripts/**/*.gd`) | `**/test_*.gd`, `**/*_test.gd`, `**/*Test.gd`, `**/addons/**`, `**/.godot/**`, `**/.import/**` |
+
+  The built-in `include` and `exclude` defaults already cover all 4 languages. Write `include` and `exclude` only when the repo layout needs different globs.
 - **Include/exclude patterns** — Inspect the repo structure to suggest sensible defaults:
-  - Single project: `src/**/*.ts`
-  - Monorepo: `packages/*/src/**/*.ts`
-  - Check for existing patterns (e.g., `tsconfig.json` includes, `.eslintrc` overrides) and align.
+  - Single project: `src/**/*.ts`, `src/**/*.py`, `src/**/*.rs` or `**/*.gd`
+  - Monorepo: `packages/*/src/**/*.ts` or `crates/*/src/**/*.rs`
+  - Check for existing patterns (e.g., `tsconfig.json` includes, `.eslintrc` overrides, `pyproject.toml` package paths, Cargo workspace `members`) and align.
 - **Threshold action** — `"error"` (fail CI), `"warn"` (report only), or `"none"` (informational).
 - **Weight adjustments** — Any constructs to weight differently (e.g., lower weight for `nullishCoalescing` or `ternary`).
 
@@ -53,7 +63,7 @@ Load `config-reference.md` for the full config shape, defaults, and merging beha
 - **New config** — Build from preferences gathered in Step 2. Always include the cyclomatic complexity threshold override.
 - **Update** — Read the existing config, apply the user's requested changes, and preserve existing customizations.
 
-Write the result as `.empowerment-sarc.json` in the target repo root.
+Write the result as `.static-analysisrc.json` in the target repo root.
 
 ### Step 4: Validate Config
 
@@ -67,7 +77,7 @@ Check the generated config for:
 | **Known keys only** | Top-level keys must be one of: `thresholds`, `weights`, `include`, `exclude`, `format`, `thresholdAction`, `sort`, `top`, `showSummary`, `plugins` |
 | **Threshold structure** | Each threshold must have `warn` (number) and `error` (number). For most metrics: `warn < error`. For `maintainabilityIndex` (and any metric with `lowerIsBad: true`): `warn > error`. |
 | **Threshold metric names** | Must be one of: `cyclomaticComplexity`, `essentialComplexity`, `moduleDesignComplexity`, `globalDataComplexity`, `specifiedDataComplexity`, `peakLiveVariables`, `variableSpan`, `abcScore`, `scopeDepthWeightedLoc`, `scopeDepthRatio`, `halsteadVolume`, `halsteadDifficulty`, `halsteadEffort`, `maintainabilityIndex` |
-| **Weight keys** | `weights.cyclomaticComplexity` keys must be one of: `if`, `elseIf`, `for`, `forIn`, `forOf`, `while`, `doWhile`, `case`, `catch`, `logicalAnd`, `logicalOr`, `nullishCoalescing`, `ternary` |
+| **Weight keys** | `weights.cyclomaticComplexity` keys must be one of: `if`, `elseIf`, `for`, `forIn`, `forOf`, `while`, `doWhile`, `case`, `catch`, `logicalAnd`, `logicalOr`, `nullishCoalescing`, `ternary`, `tryOperator` |
 | **Weight values** | Must be non-negative numbers |
 | **Format** | Must be `"table"`, `"json"`, or `"pretty"` |
 | **Threshold action** | Must be `"warn"`, `"error"`, or `"none"` |
@@ -82,7 +92,7 @@ Report any issues found and fix them before writing the file.
 Run a quick analysis against a small sample of the repo to verify the config works end-to-end:
 
 ```bash
-node <skill-directory>/packages/cli/dist/index.js \
+node <skill-directory>/code/cli/dist/index.js \
   --format json \
   --threshold-action none \
   --top 5 \

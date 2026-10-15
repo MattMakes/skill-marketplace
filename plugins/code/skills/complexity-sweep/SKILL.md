@@ -1,11 +1,11 @@
 ---
 name: complexity-sweep
-description: Sweep TypeScript/JavaScript files for over-complex functions: run the bundled static-analysis CLI, flag functions that exceed complexity thresholds (14 metrics across control flow, data flow, cognitive load, information density and composite), review the flagged code, and either refactor them directly or generate a structured refactoring prompt per function. Also generates and manages static-analysis config files for target repos. This skill should be used when validating code quality after writing code, reviewing recently changed files for complexity, when the user asks to check code metrics or complexity, or when setting up static-analysis configuration for a project.
+description: Sweep TypeScript/JavaScript, Python, Rust and GDScript (Godot 4) files for over-complex functions: run the bundled static-analysis CLI, flag functions that exceed complexity thresholds (14 metrics across control flow, data flow, cognitive load, information density and composite), review the flagged code, and either refactor them directly or generate a structured refactoring prompt per function. Also generates and manages static-analysis config files for target repos. This skill should be used when validating code quality after writing code, reviewing recently changed files for complexity, when the user asks to check code metrics or complexity, or when setting up static-analysis configuration for a project.
 ---
 
 # Complexity Sweep
 
-Analyze TypeScript/JavaScript code using the static-analysis CLI to measure 14 complexity metrics across 5 categories (control flow, data flow, cognitive load, information density, and composite), identify functions that exceed thresholds, then either generate structured refactoring prompts or act directly on the results.
+Analyze TypeScript/JavaScript, Python, Rust and GDScript (Godot 4) code using the static-analysis CLI to measure 14 complexity metrics across 5 categories (control flow, data flow, cognitive load, information density, and composite), identify functions that exceed thresholds, then either generate structured refactoring prompts or act directly on the results.
 
 ## Prerequisites
 
@@ -29,7 +29,7 @@ The CLI executable path is: `${CLAUDE_PLUGIN_ROOT}/skills/complexity-sweep/code/
 Determine which files to analyze based on the invocation context:
 
 - **Explicit glob/path provided** — Use the user-supplied pattern directly.
-- **Recently changed files** — Run `git diff --name-only HEAD~N -- '*.ts' '*.tsx' '*.js' '*.jsx'` (or `git diff --name-only --staged`, or `git diff --name-only main...HEAD`) to get changed files relevant to the review scope.
+- **Recently changed files** — Run `git diff --name-only HEAD~N -- '*.ts' '*.tsx' '*.js' '*.jsx' '*.py' '*.rs' '*.gd'` (or `git diff --name-only --staged`, or `git diff --name-only main...HEAD`) to get changed files relevant to the review scope.
 - **Validation after code generation** — Analyze only the files that were created or modified during the current session.
 
 If no files match or the user hasn't specified a target, ask which files or directories to analyze.
@@ -54,6 +54,15 @@ node ${CLAUDE_PLUGIN_ROOT}/skills/complexity-sweep/code/cli/dist/index.js \
   "src/api/handler.ts" "src/utils/parser.ts"
 ```
 
+To analyze a mixed-language repo, pass one glob per language. The CLI routes each file by extension:
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/skills/complexity-sweep/code/cli/dist/index.js \
+  --format json \
+  --threshold-action none \
+  "src/**/*.ts" "app/**/*.py" "crates/**/*.rs" "game/**/*.gd"
+```
+
 If the target repo has a cosmiconfig file (`.static-analysisrc.json`, `static-analysis.config.js`, etc.), the CLI picks it up automatically. To use an explicit config: add `--config <path>`.
 
 ### Step 3: Parse Results
@@ -64,6 +73,7 @@ The JSON output structure is:
 {
   "files": [{
     "filePath": "src/orders/process.ts",
+    "language": "typescript",
     "functions": [{
       "name": "processOrder",
       "filePath": "src/orders/process.ts",
@@ -95,6 +105,8 @@ The JSON output structure is:
 ```
 
 **Key format details:**
+- Each file has a `language` field: `typescript`, `python`, `rust` or `gdscript`.
+- Function names depend on the language: `Class.method` and `outer.inner` in Python, `Type::method`, `Trait::method`, `module::function` and `outer::inner` in Rust, `Inner.method`, `_init`, `health.set` and `Inner.hp.get` in GDScript, and the plain function or method name in TypeScript/JavaScript.
 - Function metrics are in `fn.metrics["metricName"]` (a `Record<string, number>`), not as top-level fields.
 - Multi-valued metrics (ABC, Halstead) include a `details` object with sub-components (e.g., the `(A, B, C)` vector for ABC).
 - Maintainability Index uses **inverted semantics**: lower values are worse. Its thresholds have `lowerIsBad: true` — violations fire when value is *below* the threshold.
@@ -136,6 +148,17 @@ node ${CLAUDE_PLUGIN_ROOT}/skills/complexity-sweep/code/cli/dist/index.js \
 
 Compare before/after metrics. If any function still exceeds thresholds, iterate on the refactoring. Report the final metric values to confirm all functions are now within acceptable bounds.
 
+## Languages
+
+- **Routing** — `.ts .tsx .mts .cts .js .jsx .mjs .cjs` files go to ts-morph. `.py` files go to the Python backend, `.rs` files go to the Rust backend and `.gd` files go to the GDScript backend. The CLI ignores every other file.
+- **Names** — Python functions are named `Class.method` and `outer.inner`. Rust functions are named `Type::method`, `Trait::method`, `module::function` and `outer::inner`. GDScript units are named `Inner.method`, `_init` (the script-level constructor), `health.set` and `Inner.hp.get` (property accessor bodies).
+- **Lambdas and closures** — A Python `lambda`, a Rust closure and a GDScript `lambda` are part of the enclosing function, not their own unit. TypeScript arrow functions are still their own units.
+- **Rust tests** — `#[test]` functions and `#[cfg(test)]` modules are not analyzed. The default `exclude` globs leave out Python test files and GDScript test files (`**/test_*.gd`, `**/*_test.gd`, `**/*Test.gd`), and also `**/addons/**`, `**/.godot/**` and `**/.import/**`.
+- **GDScript** — Godot 4 only. Units are `func` with a body, the script-level `_init`, and property `set(value):` and `get:` bodies. Global data is `static var` only. `$Node` and `%Name` count as calls. The grammar is built from source (`code/core/grammars/NOTICE.md`).
+- **Known limits** — Rust macro arguments are token trees, so decision points and calls inside a macro are not seen (identifiers count for def-use and tokens count for Halstead). Python dynamic features (`eval`, `exec`, `setattr`, `globals()`) are not modeled. Comprehension variables are approximated as variables of the enclosing function. Godot 3 syntax (`export`, `onready`, `setget`, `remote`) is not supported, and autoload singletons, member `var`s and scripts inside `.tscn`/`.tres` files are not global data or not analyzed.
+
+For what each metric counts in Python, Rust and GDScript, read the `Language notes` section of `references/metric-guidance.md`.
+
 ## Sub-Skills
 
 ### Config Generation (`config/`)
@@ -146,13 +169,15 @@ To create or update an static-analysis config file for a target repo, follow the
 
 For detailed metric definitions, interpretation guidance, and refactoring strategies, read `references/metric-guidance.md`.
 
+All 14 metrics apply to TypeScript/JavaScript, Python, Rust and GDScript. The table shows the TypeScript/JavaScript view; `references/metric-guidance.md` lists the Python, Rust and GDScript counterparts in `Language notes`.
+
 Quick summary of all 14 metrics:
 
 ### Control Flow Metrics (McCabe)
 | Metric | Symbol | Measures |
 |--------|--------|----------|
 | Cyclomatic Complexity | v(G) | Independent execution paths (decision points) |
-| Essential Complexity | ev(G) | Unstructured control flow (early returns, continue, labeled break, conditional throw) |
+| Essential Complexity | ev(G) | Unstructured control flow (early returns, continue, labeled break, conditional throw or panic) |
 | Module Design Complexity | iv(G) | Branches containing function calls (coupling under conditions) |
 | Global Data Complexity | gdv(G) | Mutable module-scoped variables referenced by the function |
 | Specified Data Complexity | sdv(G) | Function parameters that influence branching decisions |

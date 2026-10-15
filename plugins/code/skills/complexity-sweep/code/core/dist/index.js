@@ -1,12 +1,35 @@
 "use strict";
 // Public API for static-analysis-core.
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.maintainabilityIndexDefinition = exports.halsteadEffortDefinition = exports.halsteadDifficultyDefinition = exports.halsteadVolumeDefinition = exports.scopeDepthRatioDefinition = exports.scopeDepthWeightedLocDefinition = exports.abcScoreDefinition = exports.variableSpanDefinition = exports.peakLiveVariablesDefinition = exports.specifiedDataComplexityDefinition = exports.globalDataComplexityDefinition = exports.moduleDesignComplexityDefinition = exports.essentialComplexityDefinition = exports.cyclomaticComplexityDefinition = exports.createDefaultRegistry = exports.registerBuiltinMetrics = exports.MetricKeys = exports.MetricRegistry = exports.analyzeProject = exports.analyzeFile = void 0;
+exports.maintainabilityIndexDefinition = exports.halsteadEffortDefinition = exports.halsteadDifficultyDefinition = exports.halsteadVolumeDefinition = exports.scopeDepthRatioDefinition = exports.scopeDepthWeightedLocDefinition = exports.abcScoreDefinition = exports.variableSpanDefinition = exports.peakLiveVariablesDefinition = exports.specifiedDataComplexityDefinition = exports.globalDataComplexityDefinition = exports.moduleDesignComplexityDefinition = exports.essentialComplexityDefinition = exports.cyclomaticComplexityDefinition = exports.createDefaultRegistry = exports.registerBuiltinMetrics = exports.MetricKeys = exports.MetricRegistry = exports.createNodeCache = exports.endLineOf = exports.lineOf = exports.sameNode = exports.walkDescendants = exports.gdscriptBackend = exports.rustBackend = exports.pythonBackend = exports.parseSyntaxSource = exports.initSyntaxParsers = exports.TYPESCRIPT_EXTENSIONS = exports.SYNTAX_BACKENDS = exports.languageForPath = exports.getSyntaxBackend = exports.isSyntaxSourceInput = exports.analyzeProject = exports.analyzeSyntaxFile = exports.analyzeFile = void 0;
 // Orchestration
 var analyzeFile_1 = require("./analyzeFile");
 Object.defineProperty(exports, "analyzeFile", { enumerable: true, get: function () { return analyzeFile_1.analyzeFile; } });
+Object.defineProperty(exports, "analyzeSyntaxFile", { enumerable: true, get: function () { return analyzeFile_1.analyzeSyntaxFile; } });
 var analyzeProject_1 = require("./analyzeProject");
 Object.defineProperty(exports, "analyzeProject", { enumerable: true, get: function () { return analyzeProject_1.analyzeProject; } });
+Object.defineProperty(exports, "isSyntaxSourceInput", { enumerable: true, get: function () { return analyzeProject_1.isSyntaxSourceInput; } });
+// Languages (Python, Rust and GDScript through web-tree-sitter)
+var languages_1 = require("./languages");
+Object.defineProperty(exports, "getSyntaxBackend", { enumerable: true, get: function () { return languages_1.getSyntaxBackend; } });
+Object.defineProperty(exports, "languageForPath", { enumerable: true, get: function () { return languages_1.languageForPath; } });
+Object.defineProperty(exports, "SYNTAX_BACKENDS", { enumerable: true, get: function () { return languages_1.SYNTAX_BACKENDS; } });
+Object.defineProperty(exports, "TYPESCRIPT_EXTENSIONS", { enumerable: true, get: function () { return languages_1.TYPESCRIPT_EXTENSIONS; } });
+var treeSitter_1 = require("./languages/treeSitter");
+Object.defineProperty(exports, "initSyntaxParsers", { enumerable: true, get: function () { return treeSitter_1.initSyntaxParsers; } });
+Object.defineProperty(exports, "parseSyntaxSource", { enumerable: true, get: function () { return treeSitter_1.parseSyntaxSource; } });
+var python_1 = require("./languages/python");
+Object.defineProperty(exports, "pythonBackend", { enumerable: true, get: function () { return python_1.pythonBackend; } });
+var rust_1 = require("./languages/rust");
+Object.defineProperty(exports, "rustBackend", { enumerable: true, get: function () { return rust_1.rustBackend; } });
+var gdscript_1 = require("./languages/gdscript");
+Object.defineProperty(exports, "gdscriptBackend", { enumerable: true, get: function () { return gdscript_1.gdscriptBackend; } });
+var syntaxHelpers_1 = require("./languages/syntaxHelpers");
+Object.defineProperty(exports, "walkDescendants", { enumerable: true, get: function () { return syntaxHelpers_1.walkDescendants; } });
+Object.defineProperty(exports, "sameNode", { enumerable: true, get: function () { return syntaxHelpers_1.sameNode; } });
+Object.defineProperty(exports, "lineOf", { enumerable: true, get: function () { return syntaxHelpers_1.lineOf; } });
+Object.defineProperty(exports, "endLineOf", { enumerable: true, get: function () { return syntaxHelpers_1.endLineOf; } });
+Object.defineProperty(exports, "createNodeCache", { enumerable: true, get: function () { return syntaxHelpers_1.createNodeCache; } });
 // Registry + keys
 var registry_1 = require("./registry");
 Object.defineProperty(exports, "MetricRegistry", { enumerable: true, get: function () { return registry_1.MetricRegistry; } });

@@ -77,6 +77,13 @@ Evaluate the user's request and current project state. **Select EXACTLY ONE path
 - Be ready to go back and clarify if something doesn't make sense
 - If `[Path A]`: you MUST include a **Runtime Wiring Map** and a **Credential Source Inventory** alongside the standard Preservation Analysis
 
+**Presenting the design — Part 1b: Interface (when the idea has a user interface):**
+- Add a **Screen Inventory**: every screen or component the idea touches, what the user is there to do, and what the eye lands on first
+- For each flow, write the **empty, loading, error and success** paths, and what each error tells the user to do next
+- Name every custom control (listbox, combobox, dialog, tabs) and its keyboard behaviour, and every destructive action and how it is confirmed
+- Say where the values come from: the project's existing tokens and theme, or new ones the design introduces
+- If the `design-system` plugin is installed, `/design-system:grill-me` closes the brief's open visual questions, and `design-system:design-screen` or `design-system:design-component` builds from this design afterwards
+
 **Presenting the design — Part 2: Preservation Analysis (for rewrites/migrations):**
 - If modifying or replacing existing code (`[Path A]` or `[Path B]`), this section is MANDATORY
 - Present a "Preservation Analysis" covering:

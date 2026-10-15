@@ -2,19 +2,21 @@
 // CLI entry for `static-analysis-cli`.
 //
 // Flow: parse argv → load cosmiconfig → build registry + load plugins →
-// merge defaults/file/CLI → discover source files via ts-morph → analyze →
-// evaluate thresholds → format → stdout → exit.
+// merge defaults/file/CLI → discover source files (TypeScript/JavaScript via
+// ts-morph, Python/Rust via tree-sitter) → analyze → evaluate thresholds →
+// format → stdout → exit.
 
 import { dirname } from "node:path";
 
 import {
   MetricRegistry,
   analyzeProject,
+  initSyntaxParsers,
   registerBuiltinMetrics,
 } from "static-analysis-core";
-import type { MetricDefinition } from "static-analysis-core";
+import type { MetricDefinition, ProjectSource } from "static-analysis-core";
 import { cosmiconfig } from "cosmiconfig";
-import { Project, type SourceFile } from "ts-morph";
+import { Project } from "ts-morph";
 
 import {
   buildDefaultThresholds,
@@ -23,6 +25,7 @@ import {
   type CliOverrides,
   type FormatName,
 } from "./config";
+import { discoverSources } from "./discover";
 import { formatJson } from "./formatJson";
 import { formatPretty, type PrettyMetricMeta } from "./formatPretty";
 import { formatTable, type TableMetricMeta } from "./formatTable";
@@ -60,7 +63,8 @@ async function main(): Promise<void> {
 
   if (cliOverrides.format === HELP_SENTINEL) {
     printHelp(registry);
-    process.exit(0);
+    process.exitCode = 0;
+    return;
   }
 
   // TTY override — config-declared `format` is overridden when stdout is piped.
@@ -76,13 +80,14 @@ async function main(): Promise<void> {
     }
   }
 
-  const sourceFiles = discoverSources(globs, config);
-  if (sourceFiles.length === 0) {
+  const sources = await loadSources(globs, config);
+  if (sources.length === 0) {
     console.error("No source files found matching the provided patterns.");
-    process.exit(2);
+    process.exitCode = 2;
+    return;
   }
 
-  const metrics = analyzeProject(sourceFiles, registry, {
+  const metrics = analyzeProject(sources, registry, {
     weights: { cyclomaticComplexity: config.weights.cyclomaticComplexity },
   });
 
@@ -92,7 +97,10 @@ async function main(): Promise<void> {
   const output = renderOutput(config.format, metrics, violations, config, cliOverrides, registry.getAll());
   console.log(output);
 
-  process.exit(computeExitCode(config.thresholdAction, violations));
+  // Set the exit code and return instead of calling `process.exit`: when stdout
+  // is a pipe, Node writes asynchronously and `process.exit` would cut the
+  // output at the pipe buffer size (64 KiB).
+  process.exitCode = computeExitCode(config.thresholdAction, violations);
 }
 
 // ---------- argv parsing ----------
@@ -179,30 +187,36 @@ async function loadFileConfig(configPath: string | undefined): Promise<LoadedCon
 
 // ---------- source discovery ----------
 
-function discoverSources(globs: readonly string[], config: CliConfig): SourceFile[] {
+/**
+ * Expand the patterns, route each file by extension, and load it: ts-morph
+ * SourceFiles for TypeScript/JavaScript, UTF-8 text for Python and Rust.
+ * The tree-sitter parsers load only when a Python or Rust file matches.
+ * The result is sorted by path.
+ */
+async function loadSources(
+  globs: readonly string[],
+  config: CliConfig,
+): Promise<ProjectSource[]> {
+  const patterns = globs.length > 0 ? globs : config.include;
+  const discovered = discoverSources(patterns, config.exclude);
+
   const project = new Project({
     skipAddingFilesFromTsConfig: true,
     compilerOptions: { allowJs: true },
   });
-  const patterns = globs.length > 0 ? globs : config.include;
-  for (const pattern of patterns) {
-    project.addSourceFilesAtPaths(pattern);
+  const sources = new Map<string, ProjectSource>();
+  for (const filePath of discovered.typescriptPaths) {
+    sources.set(filePath, project.addSourceFileAtPath(filePath));
   }
-  return project.getSourceFiles().filter((sf) => {
-    const path = sf.getFilePath();
-    if (path.includes("/node_modules/")) return false;
-    return !config.exclude.some((ex) => globToRegex(ex).test(path));
-  });
-}
+  for (const input of discovered.syntaxInputs) {
+    sources.set(input.filePath, input);
+  }
+  if (discovered.syntaxInputs.length > 0) await initSyntaxParsers();
 
-/** Replicates the shipped glob→regex transform verbatim (order-sensitive). */
-function globToRegex(glob: string): RegExp {
-  return new RegExp(
-    glob
-      .replace(/\*\*/g, ".*")
-      .replace(/\*/g, "[^/]*")
-      .replace(/\./g, "\\."),
-  );
+  return discovered.routed.flatMap(({ filePath }) => {
+    const source = sources.get(filePath);
+    return source === undefined ? [] : [source];
+  });
 }
 
 // ---------- validation + help ----------

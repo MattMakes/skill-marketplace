@@ -1,5 +1,14 @@
 import type { SourceFile } from "ts-morph";
 
+import { getSyntaxBackend } from "./languages";
+import { parseSyntaxSource } from "./languages/treeSitter";
+import type {
+  LanguageBackend,
+  SyntaxFunction,
+  SyntaxMetricCompute,
+  SyntaxSourceFile,
+  SyntaxSourceInput,
+} from "./languages/types";
 import type {
   AnalysisOptions,
   MetricDefinition,
@@ -11,7 +20,7 @@ import type {
   FunctionMetrics,
   MetricsSummary,
 } from "./types";
-import { extractFunctions } from "./utils/astHelpers";
+import { extractFunctions, type ExtractedFunction } from "./utils/astHelpers";
 
 /**
  * Run every registered metric against every function-like in `sourceFile`.
@@ -40,30 +49,152 @@ export function analyzeFile(
 ): FileMetrics {
   const extracted = extractFunctions(sourceFile);
   const filePath = sourceFile.getFilePath();
-  const executionOrder = registry.getExecutionOrder();
   const effectiveOptions: AnalysisOptions = options ?? {};
 
-  const functions: FunctionMetrics[] = extracted.map((fn) =>
-    computeFunctionMetrics(fn, sourceFile, filePath, executionOrder, effectiveOptions),
+  const active = resolveActiveMetrics<ExtractedFunction>(
+    registry.getExecutionOrder(),
+    (def) => (fn, dependencyValues) =>
+      def.compute({
+        node: fn.node,
+        sourceFile,
+        options: effectiveOptions,
+        dependencyValues,
+      }),
   );
 
-  const summary = buildFileSummary(functions, executionOrder);
+  const functions = extracted.map((fn) => runMetrics(fn, filePath, active));
+  const summary = buildFileSummary(functions, active);
 
-  return { filePath, functions, summary };
+  return { filePath, language: "typescript", functions, summary };
 }
 
-function computeFunctionMetrics(
-  fn: { name: string; node: import("./types").FunctionLike; line: number },
-  sourceFile: SourceFile,
-  filePath: string,
+/**
+ * Run every registered metric against every function in a Python or Rust
+ * file parsed with tree-sitter.
+ *
+ * Same preconditions, circuit breaker and summary rules as `analyzeFile`,
+ * plus:
+ *  - The compute for a metric is `def.syntaxCompute[language]` when set,
+ *    else `backend.metrics[def.key]`.
+ *  - A metric with no compute is absent from `metrics` (not NaN), and every
+ *    metric that depends on it is absent too. The file summary leaves out
+ *    the absent keys.
+ *  - A file with syntax errors gets 1 warning and is analyzed anyway (ts-morph
+ *    also analyzes files with syntax errors).
+ *  - When parsing or extraction throws, the file gets 1 warning and 0
+ *    functions. One bad file does not stop a run.
+ *  - `initSyntaxParsers()` must have resolved before the call.
+ */
+export function analyzeSyntaxFile(
+  input: SyntaxSourceInput,
+  registry: MetricRegistry,
+  options?: AnalysisOptions,
+  backend: LanguageBackend = getSyntaxBackend(input.language),
+): FileMetrics {
+  const { filePath, language } = input;
+  const effectiveOptions: AnalysisOptions = options ?? {};
+  const backendComputes: Partial<Record<string, SyntaxMetricCompute>> =
+    backend.metrics;
+
+  let file: SyntaxSourceFile | undefined;
+  const active = resolveActiveMetrics<SyntaxFunction>(
+    registry.getExecutionOrder(),
+    (def) => {
+      const compute = def.syntaxCompute?.[language] ?? backendComputes[def.key];
+      if (compute === undefined) return undefined;
+      return (fn, dependencyValues) => {
+        if (file === undefined) throw new Error("File is not parsed.");
+        return compute({
+          language,
+          node: fn.node,
+          file,
+          options: effectiveOptions,
+          dependencyValues,
+        });
+      };
+    },
+  );
+
+  let extracted: SyntaxFunction[] = [];
+  try {
+    file = parseSyntaxSource(input);
+    if (file.tree.rootNode.hasError) {
+      console.warn(
+        `Warning: Syntax errors in ${filePath}; the results can be incomplete.`,
+      );
+    }
+    extracted = backend.extractFunctions(file);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.warn(`Warning: Could not analyze ${filePath}: ${message}`);
+    file?.tree.delete();
+    return {
+      filePath,
+      language,
+      functions: [],
+      summary: buildFileSummary([], active),
+    };
+  }
+
+  try {
+    const functions = extracted.map((fn) => runMetrics(fn, filePath, active));
+    const summary = buildFileSummary(functions, active);
+    return { filePath, language, functions, summary };
+  } finally {
+    file.tree.delete();
+  }
+}
+
+/** One function unit as the metric runner sees it. */
+interface MetricUnit {
+  name: string;
+  line: number;
+}
+
+type UnitCompute<TUnit> = (
+  unit: TUnit,
+  dependencyValues: Record<string, number>,
+) => number | MetricResult<unknown>;
+
+interface ActiveMetric<TUnit> {
+  def: MetricDefinition;
+  compute: UnitCompute<TUnit>;
+}
+
+/**
+ * The metrics that run for one language, in execution order. A metric with
+ * no compute (`resolveCompute` returns undefined) is left out, and so is
+ * every metric that depends on a left-out metric.
+ */
+function resolveActiveMetrics<TUnit>(
   executionOrder: readonly MetricDefinition[],
-  options: AnalysisOptions,
+  resolveCompute: (def: MetricDefinition) => UnitCompute<TUnit> | undefined,
+): ActiveMetric<TUnit>[] {
+  const active: ActiveMetric<TUnit>[] = [];
+  const absent = new Set<string>();
+  for (const def of executionOrder) {
+    const compute = def.dependencies.some((dep) => absent.has(dep))
+      ? undefined
+      : resolveCompute(def);
+    if (compute === undefined) {
+      absent.add(def.key);
+      continue;
+    }
+    active.push({ def, compute });
+  }
+  return active;
+}
+
+function runMetrics<TUnit extends MetricUnit>(
+  fn: TUnit,
+  filePath: string,
+  active: readonly ActiveMetric<TUnit>[],
 ): FunctionMetrics {
   const metrics: Record<string, number> = {};
   const details: Record<string, unknown> = {};
   const failed = new Set<string>();
 
-  for (const def of executionOrder) {
+  for (const { def, compute } of active) {
     if (def.dependencies.some((dep) => failed.has(dep))) {
       metrics[def.key] = Number.NaN;
       failed.add(def.key);
@@ -71,12 +202,7 @@ function computeFunctionMetrics(
     }
 
     try {
-      const result = def.compute({
-        node: fn.node,
-        sourceFile,
-        options,
-        dependencyValues: metrics,
-      });
+      const result = compute(fn, metrics);
       applyResult(def, result, fn.name, filePath, metrics, details, failed);
     } catch (err) {
       metrics[def.key] = Number.NaN;
@@ -144,10 +270,11 @@ function warnInvalid(
   );
 }
 
-function buildFileSummary(
+function buildFileSummary<TUnit>(
   functions: FunctionMetrics[],
-  executionOrder: readonly MetricDefinition[],
+  active: readonly ActiveMetric<TUnit>[],
 ): { totalFunctions: number; max: MetricsSummary; avg: MetricsSummary } {
+  const executionOrder = active.map((m) => m.def);
   const max: MetricsSummary = {};
   const avg: MetricsSummary = {};
 
