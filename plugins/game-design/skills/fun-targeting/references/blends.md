@@ -200,7 +200,7 @@ bullet keys below in this order, one line each.
 - kinds: Challenge, Narrative
 - signature dynamic: The player works out an unknown language or record from fragments, so each correct guess both cracks a hard puzzle and reveals part of the story.
 - loop pattern: The player finds a fragment in context → they form a guess about what it means → the next use of the fragment confirms or breaks the guess → the confirmed meaning opens the next part of the story.
-- reference games: Chants of Sennaar, Heaven's Vault
+- reference games: Chants of Sennaar, Heaven's Vault, Sethian
 - source: Nicole Lazzaro, "Why We Play Games: Four Keys to More Emotion Without Story" (2004): hard fun (mastery of a difficult goal); genre analysis of deciphering games
 - pitfall: Narrative lives in a codex the player reads after solving, while the puzzle itself is abstract symbol matching that tells no story.
 - boundary-safe verbs: decode, deduce, translate, catalog, map

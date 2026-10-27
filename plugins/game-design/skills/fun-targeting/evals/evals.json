@@ -90,7 +90,7 @@
         "Assumptions explain the blend choice"
       ],
       "checks": [
-        {"type": "json_expr", "description": "blend id comes from the deck", "expr": "d['blend'] in ['team-under-pressure', 'party-performance', 'flow-mastery', 'clever-solve', 'curious-expedition', 'object-story', 'life-in-a-role', 'job-fantasy', 'embodied-rider', 'sensory-drift', 'cozy-builder', 'shared-sandbox', 'silent-companions', 'soothing-restore', 'daily-garden', 'network-puzzle']"},
+        {"type": "json_expr", "description": "blend id comes from the deck", "expr": "d['blend'] in ['team-under-pressure', 'party-performance', 'flow-mastery', 'clever-solve', 'curious-expedition', 'object-story', 'life-in-a-role', 'job-fantasy', 'embodied-rider', 'sensory-drift', 'cozy-builder', 'shared-sandbox', 'silent-companions', 'soothing-restore', 'daily-garden', 'network-puzzle', 'bluff-and-read', 'physics-comedy', 'engine-builder', 'mischief-sandbox', 'decipher', 'rival-sport']"},
         {"type": "json_expr", "description": "primary is the first target", "expr": "d['primary'] == d['aesthetics'][0]['kind'] and 2 <= len(d['aesthetics']) <= 3"},
         {"type": "regex", "description": "blend line present", "pattern": "^\\*\\*Blend:\\*\\* [a-z0-9-]+ \\([^)]+\\) [—–-] primary: (Sensation|Fantasy|Narrative|Challenge|Fellowship|Discovery|Expression|Submission)\\s*$", "min": 1, "max": 1},
         {"type": "regex", "description": "assumptions explain the blend", "pattern": "(?is)## Assumptions.*?blend.*?## Target aesthetics", "min": 1},
