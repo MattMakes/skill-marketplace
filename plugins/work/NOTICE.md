@@ -97,3 +97,37 @@ these copies differ from upstream as follows:
   (2026-11-05), unchanged apart from cross-references. The credits above were carried from the
   `tools` README.
 - `humanize`: `LICENSE-humanizer`, which the skill and its `refs/` cite, was missing in this repository; the MIT text was fetched from blader/humanizer (`LICENSE` at commit `0ef9fe5`) on 2026-11-05.
+
+## From the former `product` plugin
+
+The nine skills below came from the former `product` plugin. Each is copied from an upstream
+repository at the commit recorded below and adapted to run standalone inside Claude Code. Each
+skill keeps its upstream license; a `LICENSE.txt` already inside a skill directory stays there.
+The rest of that plugin's skills, and their rows, are in `plugins/software/NOTICE.md`.
+
+| Skill | Upstream | Commit | License | Author |
+|---|---|---|---|---|
+| `synthesize-research` | [anthropics/knowledge-work-plugins — product-management/skills/synthesize-research](https://github.com/anthropics/knowledge-work-plugins/tree/95bdacc/product-management/skills/synthesize-research) | `95bdacc` (2026-10-09) | Apache-2.0 (repo LICENSE) | Anthropic |
+| `scientific-problem-selection` | [anthropics/knowledge-work-plugins — bio-research/skills/scientific-problem-selection](https://github.com/anthropics/knowledge-work-plugins/tree/95bdacc/bio-research/skills/scientific-problem-selection) | `95bdacc` (2026-10-09) | Apache-2.0 (per-skill LICENSE.txt) | Anthropic; method from Fischbach & Walsh, Cell 2024 |
+| `roast` | [alirezarezvani/claude-skills — productivity/roast/skills/roast](https://github.com/alirezarezvani/claude-skills/tree/19392f7/productivity/roast/skills/roast) | `19392f7` (2026-08-26) | MIT (repo LICENSE) | Alireza Rezvani |
+| `deep-research` | [alirezarezvani/claude-skills — research/deep-research/skills/deep-research](https://github.com/alirezarezvani/claude-skills/tree/19392f7/research/deep-research/skills/deep-research) | `19392f7` (2026-08-26) | MIT (repo LICENSE) | Alireza Rezvani; methodology from Socialpranker/claude-deep-research (its license not verified in the mirror) |
+| `deepread` | [alirezarezvani/claude-skills — research/deepread](https://github.com/alirezarezvani/claude-skills/tree/19392f7/research/deepread) | `19392f7` (2026-08-26) | MIT (repo LICENSE and the skill's own manifest) | xiehuan123, via alirezarezvani/claude-skills |
+| `litreview` | [alirezarezvani/claude-skills — research/litreview/skills/litreview](https://github.com/alirezarezvani/claude-skills/tree/19392f7/research/litreview/skills/litreview) | `19392f7` (2026-08-26) | MIT (repo LICENSE) | Alireza Rezvani |
+| `prfaq` | [bmad-code-org/BMAD-METHOD — skills/bmad-prfaq](https://github.com/bmad-code-org/BMAD-METHOD/tree/bda3c59/skills/bmad-prfaq) | `bda3c59` (2026-10-06) | MIT (repo LICENSE) | BMad Code, LLC |
+| `office-hours` | [garrytan/gstack — office-hours](https://github.com/garrytan/gstack/tree/8584d6f/office-hours) | `8584d6f` (2026-10-11) | MIT (repo LICENSE) | Garry Tan |
+| `plan-ceo-review` | [garrytan/gstack — plan-ceo-review](https://github.com/garrytan/gstack/tree/8584d6f/plan-ceo-review) | `8584d6f` (2026-10-11) | MIT (repo LICENSE) | Garry Tan |
+
+### Changes made here
+
+Every skill had its `name:` set to its directory name and its frontmatter trimmed to the keys
+Claude Code uses. Beyond that:
+
+- `write-spec` (now `spec` PRD mode), `synthesize-research`: removed the `CONNECTORS.md` link; `~~connector` placeholders became "if an MCP connector for X is available".
+- `scientific-problem-selection`: the PubMed note now says to use a PubMed MCP connector or web search when available.
+- `roast`: script calls use `${CLAUDE_PLUGIN_ROOT}` paths; removed the duplicate `README.md`; the "Distinct From" section now names `software:grilling` and `work:office-hours` instead of `andreessen`, `c-level-advisor` and `grill-me`.
+- `deep-research`: `litreview` → `work:litreview`; dropped `research router`, `competitive-teardown`, `dossier` and `patent` references; sub-agents name the Task/Agent tool.
+- `deepread`: removed the nested `.claude-plugin/plugin.json`; `deep-research` → `work:deep-research`; dropped `research-summarizer` and `notebooklm` references.
+- `litreview`: script calls use `${CLAUDE_PLUGIN_ROOT}` paths; description condensed under 1024 characters; the docx skill is referenced as optional with a Markdown fallback; trimmed build-history metadata and footer.
+- `prfaq`: stripped the BMad "On Activation" block (uv, `resolve_customization.py`, `resolve_config.py`, initiative config) and `bmod.toml`, `customize.toml`, `bmad-manifest.json`; `{doc_workspace}` is now `docs/prfaq/prfaq-{slug}/`; the `on_complete` hook in `references/verdict.md` was dropped; `bmad-brainstorming` → `software:product-brainstorming`, `bmad-forge-idea` → `work:office-hours`; sub-agents name the Task/Agent tool.
+- `office-hours`: rebuilt from `SKILL.md.tmpl` with `sections/*.md` inlined and every `{{MACRO}}` dropped (preamble, telemetry, gbrain, learnings, Aside browser, codex second opinion, spec-review loop). Design docs are written to `docs/designs/` instead of the gstack state root; the builder-profile tiers, YC application plea, gstack-config opt-out and analytics logging were removed from the closing (signal reflection and the founder-resources pool stay); landscape search uses WebSearch; `/plan-eng-review` dropped, next steps point at `work:plan-ceo-review`, `design:plan-design-review` and `software:create-plan`.
+- `plan-ceo-review`: rebuilt from `SKILL.md.tmpl` with `sections/review-sections.md` inlined and macros dropped; removed `bin/mode-handoff-hook`, `sections/checklist.md` (runner-only), gstack-slug/paths, the gstack state root, question tuning, the ceo-mode-handoff and review/decision-log binaries, codex outside voice, the review dashboard, Lake Score and brain write-back; the 0D decision procedure is kept but its question transport is a plain AskUserQuestion; the CEO summary is written to `docs/designs/`; `review/TODOS-format.md` was copied into `references/`; `/office-hours` → `work:office-hours`, `/plan-design-review` → `design:plan-design-review`, `/plan-eng-review` replaced by `software:create-plan` + `software:pre-flight`, `/design-review` dropped.

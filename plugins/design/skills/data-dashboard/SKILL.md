@@ -16,7 +16,7 @@ gate in both themes.
 
 ## 1. Decide the brief before drawing anything
 
-Answer these in one line each, or `/product:grilling` (design-brief mode) them out of the user:
+Answer these in one line each, or `/software:grilling` (design-brief mode) them out of the user:
 
 - **Who reads this, and what decision do they make from it?** A revenue console
   for an operator and a trading desk for a dealer look nothing alike.

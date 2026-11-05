@@ -429,4 +429,4 @@ startTransition(() => setExpensiveState(newValue));
 - [web.dev LCP](https://web.dev/articles/lcp)
 - [web.dev INP](https://web.dev/articles/inp)
 - [web.dev CLS](https://web.dev/articles/cls)
-- Broader audit: `verify:web-quality-audit`
+- Broader audit: `software:web-quality-audit`

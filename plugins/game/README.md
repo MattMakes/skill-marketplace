@@ -1,10 +1,12 @@
-# game — Game Design and Review
+# game — Game Design and Build
 
-What game, and is it good? Two halves, any engine. The design studio produces the work: target
-kinds of fun, concepts, core loops, a brief, a one-page design, diagrams, an art-direction style
-sheet and a deep design. The review board judges it: each auditor scores what you bring against a
-rubric and proposes concrete fixes, citing rules distilled from 38 game-development books rather
-than improvising taste.
+How do I make a game, and is it good? Three parts, from idea to release. The design studio
+produces the work: target kinds of fun, concepts, core loops, a brief, a one-page design, diagrams,
+an art-direction style sheet and a deep design. The review board judges it: each auditor scores
+what you bring against a rubric and proposes concrete fixes, citing rules distilled from 38
+game-development books rather than improvising taste. The studio and the board work for any
+engine. The Godot build kit builds the game in Godot and measures it against the board's rules.
+Thirty skills.
 
 ```bash
 claude plugin install game@skill-marketplace
@@ -12,7 +14,8 @@ claude plugin install game@skill-marketplace
 
 **Where to start.** To work through a design with someone, start at `one-page-game-design`. To
 run the design pipeline without questions, start at `fun-targeting`. To judge existing work, start
-at `game-studio-cpo`; it points you at the right auditor.
+at `game-studio-cpo`; it points you at the right auditor. To build in Godot, start with the four
+foundation skills of the build kit.
 
 ## Skills
 
@@ -50,6 +53,36 @@ consequential questions and records the answers, proposals and open decisions.
 
 The board is engine-agnostic, with Unity-leaning specifics where it matters (the performance and
 code skills assume C#/Unity idioms most readily).
+
+### Build it in Godot
+
+Thirteen skills from 527 agent sessions of one long Godot build, an incremental game with bosses,
+upgrade trees, saves, art, audio and a store release; most apply to any Godot game. Each skill
+gives the Godot method to measure something; the "Rules in" column names the review-board skill
+that says whether the measurement is good. Take the tables these skills produce to that auditor,
+and to `game-studio-cpo` when unsure. The detailed area document, with the suggested order and
+every script, is [docs/areas/godot.md](docs/areas/godot.md).
+
+| Skill | What it does | Rules in |
+|---|---|---|
+| `balance-model-data` | Keeps the game's numbers in a scripted model that checks design targets and exports the JSON Godot loads, with parity fixtures and FAIL-key baselines. | `game-balance-auditor` |
+| `feature-seams-and-saves` | Adds variants, content and modes behind data seams and off-by-default flags, and keeps saves and settings safe across versions. | `game-systems-reviewer` (save/load, data-driven systems) |
+| `headless-godot-runs` | Runs `godot -s` tools, probes and bots headless so they compile, end by themselves, report errors and never touch the player's save. | — (the method other skills run on) |
+| `godot-testing` | A headless GDScript test loop: baseline, red-first test, focused filters, full suite, parse check and the finish gate of a unit. | `game-qa-reviewer` |
+| `bot-balance-loop` | Tunes bosses and rules with scripted bots on fixed seeds, then compares measured tables against written target bands. | `game-balance-auditor` |
+| `upgrade-tree-design` | Designs and prices an upgrade tree from bot policies, a diagnostic hub-and-spoke tree and human playtests; writes `balance.json`. | `game-balance-auditor` |
+| `safe-refactor-and-review` | Proves a change keeps behaviour, finds every site of a rule, runs review waves and isolates render or feel bugs. | `game-code-reviewer` |
+| `visual-verification` | Proves the game looks right with real window captures, pixel measures against a noise floor and layout tests. | `game-qa-reviewer` |
+| `godot-perf` | Measures frame cost with interleaved A/B pairs, hitch maps and stress scenarios, and fixes it with batching and warm-up lists. | `game-performance-auditor` |
+| `pixel-art-pipeline` | Makes palette-locked pixel art from image-model source art or from scripts, and checks size, palette, grid and outline. | `art-direction` (the style sheet the art is checked against) |
+| `game-audio` | Makes seeded procedural sound, measures mix loudness from recordings and builds music sets that loop and hit targets. | `game-studio-cpo` (no specialist auditor) |
+| `release-and-store` | Exports release and demo builds, adds gamepad support, records trailers and screenshots, and researches store rules. | `game-qa-reviewer` |
+| `fleet-game-dev` | Habits for many agent sessions on one repo: worktrees, a slot runner, locks, handoffs, a steward who lands branches. The fleet protocol itself is in `agents:herdr-orchestrator` and `agents:herdr-worker`. | — (see "How it works with the other plugins") |
+
+Upstream of the build, the design studio (`fun-targeting` through `prototype-plan`) decides what
+the game is. The build kit needs Godot 4 (`godot-testing`'s runner needs 4.5 or newer for the
+`Logger` class), Python 3 with the standard library only, and `ffmpeg` for `game-audio`'s
+long-file loudness checks and `release-and-store`'s trailer contact sheets.
 
 ## Choose a workflow
 
@@ -114,14 +147,16 @@ contain no violent, sexual or real-money-gambling entries.
 
 ## Critique
 
-For an honest critique of a finished design, hand it to `game:game-studio-cpo`. The link goes one
-way: the studio calls the review board, and the review board knows nothing about the studio, so
-either half works on work made elsewhere.
+For an honest critique of a finished design, hand it to `game:game-studio-cpo`. The links go one
+way: the studio and the Godot build kit call the review board, and the review board knows nothing
+about either, so it works on designs and games made elsewhere and in any engine.
 
 ## What these write and where they reach
 
 Installing this plugin wires no hooks, MCP servers or background processes. The review board and
-the pipeline skills are markdown and write only the output named in their row, where you ask.
+the pipeline skills are markdown and write only the output named in their row, where you ask. The
+Godot build kit writes nothing to the plugin folder; its scripts write only the paths you pass
+them, in your Godot project.
 
 - **`one-page-game-design`** — collaborative mode keeps the HTML or SVG, the PDF, a preview PNG
   and the living design record together in a project output directory. Its optional exporter,
@@ -131,26 +166,45 @@ the pipeline skills are markdown and write only the output named in their row, w
 - **`scripts/check_deep_sections.py`** reads a `Design.md` and prints findings; it writes nothing.
 - **`scripts/run_evals.py`** runs `claude -p` once per eval, so it uses your Claude account, and
   writes transcripts to the output directory (default `eval-out`).
+- **`headless-godot-runs`, `godot-testing`** run Godot headless with the tools and tests you give
+  them; the method keeps every run away from the player's save. `godot-testing` has you copy
+  `run_tests.gd` and `test_case.gd` into `res://tests/`.
+- **`upgrade-tree-design`**'s `report.py` creates the `--out` directory and writes its report
+  there.
+- **`fleet-game-dev`**'s `slot-run.sh` keeps its slot pool in `/tmp/godot-slots` (set `SLOT_DIR`
+  to move it); `with-lock.sh` takes `mkdir` locks in the lock directories you name.
+- **`release-and-store`** downloads Godot export templates and their checksum file for your engine
+  version and unzips them into the user template folder; it researches store rules on the web.
+- **`pixel-art-pipeline`** uses an image model for source art when you have one in the loop; its
+  scripts only read images.
+- **`game-audio`** and **`release-and-store`** run `ffmpeg` where the skill says so.
 
 ## How it works with the other plugins
 
-- `godot` builds the game in Godot. Its skills measure; the rules they measure against live here:
-  `godot:godot-perf` against `game:game-performance-auditor`, `godot:bot-balance-loop` and
-  `godot:upgrade-tree-design` against `game:game-balance-auditor`. See the godot README for the
-  full map.
-- The godot skills are the engine side only. The board itself names no engine skill, so it works
-  for any engine.
+The marketplace has five plugins: `software`, `design`, `game`, `agents` and `work`. This one is
+self-contained for design, review and the Godot build; it reaches out in one place.
+
+- **`agents`** — `game:fleet-game-dev` is the Godot and game side of a worker fleet. The fleet CLI
+  and the generic loops are `agents:herdr-orchestrator` and `agents:herdr-worker`, and
+  `agents:herdr-setup` when the fleet tool fails to install or start.
+- **`software`, `design`, `work`** — no skill here hands off to them, and none of theirs hands off
+  here. For general code review, debugging or a game's web front end, those plugins apply as they
+  would to any project.
 
 ## Moved in v3
 
-The `game-design` plugin was merged into this one on 2026-11-05. Its plugin-level scripts are now
-`plugins/game/scripts/`.
+The `game-design` and `godot-incremental` plugins were merged into this one on 2026-11-05. Every
+skill kept its name except `one-page-design`, which became a mode. The plugin-level scripts of
+`game-design` are now `plugins/game/scripts/`.
 
 | Before | Now |
 |---|---|
 | `game-design:<skill>` (fun-targeting, game-ideation, core-loop, design-diagrams, game-brief, art-direction, systems-economy, progression-content, level-ux, prototype-plan, one-page-game-design) | `game:<skill>` |
 | `game-design:one-page-design` | `game:one-page-game-design` (headless pipeline mode) |
+| `godot-incremental:<skill>` (all thirteen build-kit skills) | `game:<skill>` |
 | `plugins/game-design/scripts/` (`check_deep_sections.py`, `run_evals.py`, `tests/`) | `plugins/game/scripts/` |
+
+The root [README](../../README.md#migrating-from-2x) has the full move table.
 
 ## Running evals
 
@@ -170,7 +224,8 @@ Exit code is 0 when every eval passes.
 
 ## Credits
 
-The skills are first-party. [NOTICE.md](NOTICE.md) records where the headless mode of
+The skills are first-party. The Godot build kit was mined from the marketplace owner's own agent
+sessions; nothing in it is vendored. [NOTICE.md](NOTICE.md) records where the headless mode of
 `one-page-game-design` came from. The review board's rules are distilled from 38
 game-development books; each auditor's `refs/` traces a rule to its source book (`BOOK_CODES.md`
 in the specialist auditors). The design studio draws on these
@@ -187,5 +242,5 @@ sources, cited, not copied:
 ## Invoking
 
 Namespaced under the plugin: `game:game-studio-cpo`, `game:fun-targeting`, `game:game-brief`,
-`game:one-page-game-design`, and so on. When you are not sure which auditor you want, start at
+`game:one-page-game-design`, `game:godot-testing`, `game:bot-balance-loop`, and so on. When you are not sure which auditor you want, start at
 `game-studio-cpo`.

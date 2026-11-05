@@ -149,7 +149,7 @@ inaccessible is broken; consistent but confusing is the wrong pattern.
 Then pick the runnable skill for the job: `design:design-tokens`, `design:design-component`,
 `design:design-code`, `design:design-review`, `design:a11y-audit`, `design:apply-aesthetic`,
 `design:brandkit`, `design:image-to-code`, `design:redesign`, and the rest. Interrogate the brief first with
-`/product:grilling` (design-brief mode); prove the result with `/design:gate`; judge it with `/design:critique`.
+`/software:grilling` (design-brief mode); prove the result with `/design:gate`; judge it with `/design:critique`.
 
 ## Where the kit lives
 
@@ -169,11 +169,11 @@ nothing here requires them.
 
 | When | Reach for |
 |---|---|
-| Starting in an unfamiliar codebase, before touching its UI | `code:core` (its quick mode for a one-off look, the full graph for a repo you will work in for a while) |
-| The feature has behaviour as well as screens | `dev:brainstorm` for the design doc, then `dev:analyze-design`, which adds a UX and accessibility lens when the design has a UI |
-| Many screens or components in one request (output completeness) | `dev:unlazy` writes the acceptance gates, one per screen, before the build starts |
-| Reviewing a UI change | `verify:code-sweep`; its interface auditor (`u`) runs these gates on the changed files |
-| Acting on a critique or review | `verify:receiving-code-review`: verify each finding against the render before you change anything |
-| A redesign must not break behaviour | `dev:check-implementation` (full post-flight mode) against the pre-redesign baseline |
+| Starting in an unfamiliar codebase, before touching its UI | `software:core` (its quick mode for a one-off look, the full graph for a repo you will work in for a while) |
+| The feature has behaviour as well as screens | `software:brainstorm` for the design doc, then `software:analyze-design`, which adds a UX and accessibility lens when the design has a UI |
+| Many screens or components in one request (output completeness) | `software:unlazy` writes the acceptance gates, one per screen, before the build starts |
+| Reviewing a UI change | `software:code-sweep`; its interface auditor (`u`) runs these gates on the changed files |
+| Acting on a critique or review | `software:receiving-code-review`: verify each finding against the render before you change anything |
+| A redesign must not break behaviour | `software:check-implementation` (full post-flight mode) against the pre-redesign baseline |
 | Long interface prose (onboarding, help, release notes) | `work:humanize`; short microcopy stays with `design:ux-writing` |
-| Diagrams of the system behind the UI | `architecture:blueprint` |
+| Diagrams of the system behind the UI | `software:blueprint` |

@@ -1,0 +1,32 @@
+{
+  "name": "agents",
+  "displayName": "AI Agents and Models",
+  "version": "1.0.0",
+  "description": "Build AI systems. Agents: loop-design-check, agent-architecture-audit, autoresearch-agent, cli-for-agents, writing-for-agents and llm-friendly-context, model-router. Skills and servers: skill-creator, mcp-builder, harvest and book-to-skill. Fleets: herdr-orchestrator, herdr-worker, herdr-atomic and herdr-setup run a multi-agent worker fleet through the horch CLI. Models: decide whether to fine-tune, build the eval harness first, curate datasets, LoRA/QLoRA, preference optimisation, GRPO/RLVR, checkpoint promotion, and RAG and recommender pipeline design. skill-creator and mcp-builder are owned copies of Apache-2.0 skills from anthropics/skills; vendored skills are credited in NOTICE.md.",
+  "author": {
+    "name": "Matt Scott"
+  },
+  "license": "MIT",
+  "keywords": [
+    "agents",
+    "agent-loops",
+    "autonomous",
+    "skills",
+    "skill-authoring",
+    "mcp",
+    "mcp-server",
+    "harvest",
+    "multi-agent",
+    "orchestration",
+    "fleet",
+    "herdr",
+    "fine-tuning",
+    "llm",
+    "lora",
+    "dpo",
+    "grpo",
+    "evaluation",
+    "rag",
+    "recommender"
+  ]
+}

@@ -4,313 +4,49 @@
   "owner": {
     "name": "Matt Scott"
   },
-  "description": "Claude Code plugin marketplace for engineering work, organised by the life of a change. product decides what to build; architecture shapes the system with DDD, module design, ADRs, contracts and Blueprint diagrams; dev builds the change through a planned pipeline; verify reviews it by reading and proves it by running; security audits it; ops ships and runs it. Foundations used at every stage: code for understanding an existing codebase, craft for engineering principles, stack for library references, agentic for agents, skills and AGENTS.md instruction files, and herdr for multi-agent fleets. Domains: design for UX/UI with measured gates, game for game design and a cited review board, godot for building in Godot, ml for model training, and work for knowledge work and prose. Vendored skills are supply-chain-controlled copies, each credited in its plugin's NOTICE.md.",
+  "description": "Claude Code plugin marketplace in five plugins, one per kind of work. software takes a change from idea to production: specs, architecture and DDD with Blueprint diagrams, codebase priming and AGENTS.md, a planned build pipeline, review and verification, security and shipping, with principles and stack references as router skills. design builds UX/UI with measured accessibility and quality gates. game designs, reviews and builds games, with a Godot kit. agents builds AI agents, skills, MCP servers, multi-agent fleets and trained models. work covers research, decisions, data, writing and other knowledge work. Vendored skills are supply-chain-controlled copies, each credited in its plugin's NOTICE.md.",
   "version": "3.0.0",
   "plugins": [
     {
-      "name": "product",
-      "displayName": "Product Thinking and Specs",
-      "source": "./plugins/product",
-      "description": "What should we build, and why? From idea to buildable spec. Discover: product-brainstorming, adhd (parallel divergent ideation), office-hours, prfaq, scientific-problem-selection. Research: deep-research, litreview, deepread, synthesize-research. Challenge: interview-me, grilling (with docs-anchored and design-brief modes), devil, roast, plan-ceo-review, advanced-elicitation. Specify: spec (with a quick PRD mode), requirement-convergence, documentation-criteria, code-to-prd. Hands off to dev:brainstorm for a technical design or architecture:ddd for a new system. Vendored skills are credited in NOTICE.md.",
-      "version": "1.0.0",
-      "author": {
-        "name": "Matt Scott"
-      },
-      "category": "productivity",
-      "keywords": [
-        "product",
-        "prd",
-        "spec",
-        "requirements",
-        "acceptance-criteria",
-        "interview",
-        "grilling",
-        "brainstorming",
-        "ideation",
-        "office-hours",
-        "prfaq",
-        "plan-review",
-        "research",
-        "literature-review",
-        "user-research"
-      ]
-    },
-    {
-      "name": "architecture",
-      "displayName": "Architecture",
-      "source": "./plugins/architecture",
-      "description": "How should the system be shaped? ddd runs the nine-step DDD Starter Modelling Process (understand, discover, decompose, strategize, connect, organise, define, code, contracts) over one ddd/ workspace with validators, a review page and recorded decisions, advised by the ddd-decision-strategist agent; domain-modeling is the light mode for an existing codebase. Module design: codebase-design, improve-codebase-architecture, improve, architect. Decisions: architecture-decision-records. Contracts: contract-first, api-design-principles, saga-orchestration. Diagrams: Blueprint renders validated architecture, workflow, sequence, data-flow and lifecycle diagrams as explorable HTML; drawio writes editable .drawio files. The DDD and Blueprint tools require Node.js 18 or newer. Vendored skills are credited in NOTICE.md.",
+      "name": "software",
+      "displayName": "Software Engineering",
+      "source": "./plugins/software",
+      "description": "Take a change from idea to production, in one plugin. Decide: interview-me, grilling, spec, requirement-convergence. Shape: ddd runs the nine-step DDD Starter Modelling Process with validators, a review page, diagrams and recorded decisions; Blueprint renders architecture, sequence, workflow, data-flow and lifecycle diagrams; ADRs, contracts, module design. Understand: core primes a repo with a knowledge graph and keys keeps one AGENTS.md tree; trace, research-codebase, deepwiki, explain-diff. Build: a planned pipeline from brainstorm to change-description, with tdd, debug, swarm and unlazy. Verify: code-sweep review, complexity, blast radius, verify-feature, harnesses and test suites. Secure: security-sweep. Ship: ship-gate, SLOs, flags, CI/CD, migrations. Principles and stack references are router skills that load one guide at a time. The DDD and Blueprint tools require Node.js 18 or newer. Vendored skills are credited in NOTICE.md.",
       "version": "1.0.0",
       "author": {
         "name": "Matt Scott"
       },
       "license": "MIT",
-      "category": "development",
-      "keywords": [
-        "architecture",
-        "ddd",
-        "domain-driven-design",
-        "eventstorming",
-        "bounded-context",
-        "domain-modeling",
-        "adr",
-        "api-design",
-        "contract-first",
-        "saga",
-        "blueprint",
-        "diagrams",
-        "drawio",
-        "modules"
-      ]
-    },
-    {
-      "name": "dev",
-      "displayName": "Development Workflow",
-      "source": "./plugins/dev",
-      "description": "Build the change. A chained pipeline over one ai_docs/ workspace: brainstorm a design, analyze it from eight perspectives, break it into SLC phases, write a zero-context plan, pre-flight it, execute it in batches with reviewer subagents, a swarm or an arena of parallel candidates, check the implementation against the plan, and hand off. Discipline along the way: tdd, debug (with a hard-bug and performance-regression mode), verification-before-completion, doubt-driven-development, unlazy (with a lite mode), show-me-your-work. Finish the change: git worktrees, advanced git, finishing-a-development-branch, make-pr-easy-to-review, change-description, spec-driven-workflow. Adapted in part from obra/superpowers, HumanLayer, wshobson/agents, BMAD-METHOD and pstack; see NOTICE.md.",
-      "version": "2.0.0",
-      "author": {
-        "name": "Matt Scott"
-      },
-      "license": "MIT",
-      "category": "development",
-      "keywords": [
-        "workflow",
-        "planning",
-        "brainstorming",
-        "tdd",
-        "debugging",
-        "subagents",
-        "swarm",
-        "arena",
-        "git",
-        "worktrees",
-        "pull-request",
-        "handoff",
-        "completion"
-      ]
-    },
-    {
-      "name": "verify",
-      "displayName": "Review and Verification",
-      "source": "./plugins/verify",
-      "description": "Is it right, and does it work? Review by reading: code-sweep runs twelve parallel reviewers (or a light six-aspect pass) with the code-reviewer agent; lenses for AI debt, complexity (14 metrics on TypeScript, JavaScript, Python, Rust and GDScript), blast radius, API design and Python anti-patterns; code-review-excellence and receiving-code-review for both sides of a review. Prove by running: verify-feature, verify-this, santa-method, human-gate and benchmark-checklist; a project-local verification skill; harnesses for CLI, browser, iOS Simulator and Windows desktop; test suites with e2e-harness, Playwright, React Testing Library, Bats and k6, and test-audit to prune them; exploratory dogfood, adversarial UX, click-path and web-quality audits. Vendored skills are credited in NOTICE.md.",
-      "version": "1.0.0",
-      "author": {
-        "name": "Matt Scott"
-      },
-      "category": "testing",
-      "keywords": [
-        "verification",
-        "code-review",
-        "review",
-        "testing",
-        "qa",
-        "e2e",
-        "playwright",
-        "browser-automation",
-        "load-testing",
-        "k6",
-        "ios-simulator",
-        "windows-desktop",
-        "complexity",
-        "static-analysis",
-        "blast-radius",
-        "test-audit",
-        "dogfood"
-      ]
-    },
-    {
-      "name": "security",
-      "displayName": "Security Practice",
-      "source": "./plugins/security",
-      "description": "Is it safe? security-sweep is the entry point: a multi-agent OWASP, STRIDE, secrets, supply-chain and LLM-security audit of the repository with a verifier fan-out and a CSO report. To go deeper on one area, use security-threat-model, security-and-hardening or security-best-practices. For agent code: agent-security-hardening, mcp-dependency-review and skill-security-auditor. Guardrails for Claude Code: block-no-verify-hook and git-guardrails-claude-code, which install hooks only when invoked. Vendored skills are credited in NOTICE.md.",
-      "version": "1.0.0",
-      "author": {
-        "name": "Matt Scott"
-      },
-      "category": "security",
-      "keywords": [
-        "security",
-        "threat-modeling",
-        "stride",
-        "owasp",
-        "hardening",
-        "secrets",
-        "supply-chain",
-        "mcp",
-        "agent-security",
-        "skill-audit",
-        "prompt-injection",
-        "privacy",
-        "git",
-        "hooks"
-      ]
-    },
-    {
-      "name": "ops",
-      "displayName": "Production Operations",
-      "source": "./plugins/ops",
-      "description": "Ship it and run it. ship-gate audits a codebase before production against a pre-launch checklist and calls security:security-sweep for its security section. Instrument code (structured logs, RED metrics, OpenTelemetry, alerts with runbooks); define SLOs with burn-rate alerts; run feature flags as a lifecycle; design chaos experiments; plan zero-downtime migrations; design CI/CD and GitHub Actions; Docker, Kubernetes and Terraform patterns; dependency and Dependabot triage; changelogs from Conventional Commits; blameless postmortems; and wizards for steps only a human can do. Vendored skills are credited in NOTICE.md.",
-      "version": "1.0.0",
-      "author": {
-        "name": "Matt Scott"
-      },
-      "category": "devops",
-      "keywords": [
-        "observability",
-        "slo",
-        "sre",
-        "feature-flags",
-        "chaos-engineering",
-        "migrations",
-        "release",
-        "ship-gate",
-        "ci-cd",
-        "github-actions",
-        "docker",
-        "kubernetes",
-        "terraform",
-        "changelog",
-        "dependencies",
-        "dependabot",
-        "postmortem",
-        "devops"
-      ]
-    },
-    {
-      "name": "code",
-      "displayName": "Code Intelligence",
-      "source": "./plugins/code",
-      "description": "What does this existing code do? core primes a repository once with a deterministic zero-token knowledge graph via graphify (or a quick read-only mode) and hands instruction files to agentic:keys. research-codebase and trace document code as it is, with the codebase-locator, codebase-analyzer and codebase-pattern-finder agents; why answers design-rationale questions from every source it can reach. deepwiki generates and maintains wiki docs with line-level citations and validated Mermaid diagrams, including brownfield documentation for agents. code-tour writes CodeTour walkthroughs. explain-diff turns a diff, branch or PR into a self-contained HTML explainer with a quiz and architecture:blueprint diagrams, and narrates itself when a local text-to-speech service is available. explain-diff is adapted from Geoffrey Litt's explain-diff gist; see NOTICE.md.",
-      "version": "2.0.0",
-      "author": {
-        "name": "Matt Scott"
-      },
-      "license": "MIT",
-      "category": "development",
-      "keywords": [
-        "codebase",
-        "context",
-        "knowledge-graph",
-        "onboarding",
-        "research",
-        "trace",
-        "design-rationale",
-        "diff",
-        "pull-request",
-        "code-explanation",
-        "text-to-speech",
-        "narration",
-        "docs",
-        "wiki",
-        "documentation",
-        "code-tour"
-      ]
-    },
-    {
-      "name": "craft",
-      "displayName": "Engineering Craft",
-      "source": "./plugins/craft",
-      "description": "What does good code look like? Sixteen one-page engineering principles from Lauren Tan's pstack (type-system discipline, model the domain, minimize reader load, boundary discipline, idempotent operations, build the lever, test behavior not implementation, subtract before you add and more), plus code-level practice: karpathy-coder and ponytail for the smallest correct change, error-handling-patterns, performance-optimization, deprecation-and-migration, source-driven-development, constraint-driven-development, ai-development-guide, prototype for a throwaway answer to one design question, and oh-my-issues for clustering an issue backlog by root cause. Vendored skills are credited in NOTICE.md.",
-      "version": "1.0.0",
-      "author": {
-        "name": "Matt Scott"
-      },
       "category": "development",
       "keywords": [
         "engineering",
+        "workflow",
+        "spec",
+        "requirements",
+        "architecture",
+        "ddd",
+        "domain-driven-design",
+        "blueprint",
+        "diagrams",
+        "codebase",
+        "knowledge-graph",
+        "agents-md",
+        "planning",
+        "tdd",
+        "debugging",
+        "code-review",
+        "verification",
+        "testing",
+        "playwright",
+        "security",
+        "owasp",
+        "devops",
+        "observability",
         "principles",
-        "pstack",
-        "type-system",
-        "simplicity",
-        "yagni",
-        "error-handling",
-        "performance",
-        "migration",
-        "deprecation",
-        "prototype",
-        "constraints",
-        "issues"
-      ]
-    },
-    {
-      "name": "stack",
-      "displayName": "Stack References",
-      "source": "./plugins/stack",
-      "description": "What does this library get wrong? Library and framework references with the gotchas a model gets wrong: GreenSock's official GSAP set; a motion/react system in three layers; Remotion; Vercel's React and Next.js performance rules, Next.js Server Components and Server Actions, and the React docs' discipline for useEffect; shadcn/ui; TypeScript best practices; Postgres and Prisma; database migrations per tool; C++ Core Guidelines and Boost.Asio; .NET backend patterns; Swift concurrency. Vendored skills are credited in NOTICE.md.",
-      "version": "1.0.0",
-      "author": {
-        "name": "Matt Scott"
-      },
-      "category": "development",
-      "keywords": [
-        "gsap",
-        "animation",
-        "motion",
-        "remotion",
         "react",
-        "nextjs",
-        "server-components",
-        "shadcn",
         "typescript",
         "postgres",
-        "prisma",
-        "migrations",
-        "cpp",
-        "asio",
-        "swift",
-        "dotnet",
-        "reference"
-      ]
-    },
-    {
-      "name": "agentic",
-      "displayName": "Agent Engineering",
-      "source": "./plugins/agentic",
-      "description": "Make agents, skills and the agent harness. Instruction files: keys installs a self-maintaining AGENTS.md hierarchy and folds CLAUDE.md and other agent-instruction files into it; writing-for-agents, llm-friendly-context, rules-from-code and engineering-rules. Learn from sessions: agent-memory, stow, retro, correct. Route and behave: model-router, persona. Build agents: loop-design-check, agent-architecture-audit, autoresearch-agent, cli-for-agents. Make skills and servers: skill-creator, mcp-builder, harvest and book-to-skill. agent-memory can install hooks, only when invoked. skill-creator and mcp-builder are owned copies of Apache-2.0 skills from anthropics/skills; vendored skills are credited in NOTICE.md.",
-      "version": "1.0.0",
-      "author": {
-        "name": "Matt Scott"
-      },
-      "category": "ai",
-      "keywords": [
-        "agents",
-        "agents-md",
-        "instructions",
-        "agent-loops",
-        "autonomous",
-        "memory",
-        "human-in-the-loop",
-        "autoresearch",
-        "writing-for-agents",
-        "routing",
-        "skills",
-        "skill-authoring",
-        "mcp",
-        "mcp-server",
-        "harvest",
-        "knowledge-base"
-      ]
-    },
-    {
-      "name": "herdr",
-      "displayName": "herdr Fleet",
-      "source": "./plugins/herdr",
-      "description": "Run a herdr multi-agent worker fleet. herdr-orchestrator decomposes the work, spawns and assigns workers by tier, answers blocked workers and integrates results through the horch CLI. herdr-worker is the other side of that protocol. herdr-atomic wraps the herdr terminal workspace manager in deterministic scripts. herdr-setup checks the machine (herdr CLI, horch on PATH, agent integrations) and fills only the gaps. Requires the herdr CLI (herdr.dev), which is not bundled.",
-      "version": "1.1.0",
-      "author": {
-        "name": "Matt Scott"
-      },
-      "license": "MIT",
-      "category": "orchestration",
-      "keywords": [
-        "multi-agent",
-        "orchestration",
-        "fleet",
-        "herdr",
-        "horch",
-        "parallel"
+        "animation"
       ]
     },
     {
@@ -345,9 +81,9 @@
     },
     {
       "name": "game",
-      "displayName": "Game Design and Review",
+      "displayName": "Game Design and Build",
       "source": "./plugins/game",
-      "description": "What game, and is it good? Any engine. A design studio: game-ideation, fun-targeting, core-loop, systems-economy, progression-content, level-ux, art-direction, game-brief, prototype-plan, design-diagrams, and one-page-game-design for a one-page visual design as interactive HTML or standalone SVG with a printable PDF, collaborative or headless. A review board backed by cited rules distilled from 38 game-development books: game-studio-cpo as the entry point, and auditors for systems, balance and economy, code architecture, performance, and QA and ship-readiness.",
+      "description": "Make a game, from idea to release. A design studio: ideation, fun targeting, core loop, systems and economy, progression, levels and UX, art direction, a game brief, a prototype plan, design diagrams and a one-page design as HTML, SVG and PDF. A review board backed by cited rules from 38 game-development books: game-studio-cpo and auditors for systems, balance, code, performance and QA. A Godot build kit: scripted bots and balance models, upgrade trees, feature seams and save migrations, headless runs and tests, frame-cost measurement, rendered-frame checks, pixel art, audio, release builds and store pages, and habits for a worker fleet.",
       "version": "2.0.0",
       "author": {
         "name": "Matt Scott"
@@ -357,81 +93,71 @@
       "keywords": [
         "game-design",
         "ideation",
-        "mda",
         "core-loop",
         "one-page-design",
-        "art-direction",
         "game-balance",
         "economy",
-        "unity",
-        "performance",
         "code-review",
-        "qa"
+        "performance",
+        "qa",
+        "godot",
+        "gdscript",
+        "bots",
+        "headless",
+        "pixel-art",
+        "release"
       ]
     },
     {
-      "name": "godot",
-      "displayName": "Godot Build",
-      "source": "./plugins/godot",
-      "description": "Build it in Godot. Thirteen skills mined from the agent sessions of one long Godot build: bot balance loops and measure tables, a scripted balance model as the source of game data, upgrade-tree design with bot policies and human playtests, feature seams and save migrations, headless Godot runs without side effects, a headless GDScript test loop, frame-cost measurement, rendered-frame visual verification, palette-locked pixel art, procedural audio, release builds and store pages, safe refactors, and habits for a worker fleet on one game. The rules each skill measures against live in the game plugin's auditors.",
+      "name": "agents",
+      "displayName": "AI Agents and Models",
+      "source": "./plugins/agents",
+      "description": "Build AI systems. Agents: loop-design-check, agent-architecture-audit, autoresearch-agent, cli-for-agents, writing-for-agents and llm-friendly-context, model-router. Skills and servers: skill-creator, mcp-builder, harvest and book-to-skill. Fleets: herdr-orchestrator, herdr-worker, herdr-atomic and herdr-setup run a multi-agent worker fleet through the horch CLI. Models: decide whether to fine-tune, build the eval harness first, curate datasets, LoRA/QLoRA, preference optimisation, GRPO/RLVR, checkpoint promotion, and RAG and recommender pipeline design. skill-creator and mcp-builder are owned copies of Apache-2.0 skills from anthropics/skills; vendored skills are credited in NOTICE.md.",
       "version": "1.0.0",
       "author": {
         "name": "Matt Scott"
       },
       "license": "MIT",
-      "category": "development",
-      "keywords": [
-        "godot",
-        "gdscript",
-        "game-balance",
-        "bots",
-        "headless",
-        "playtest",
-        "pixel-art",
-        "audio",
-        "release",
-        "multi-agent"
-      ]
-    },
-    {
-      "name": "ml",
-      "displayName": "LLM Training and ML Pipelines",
-      "source": "./plugins/ml",
-      "description": "Post-train a model end to end, eval-gated. finetuning-method-selection decides whether to fine-tune at all (RAG and prompting off-ramps first) and routes by data shape to SFT, DPO/ORPO/KTO, GRPO/RLVR or continued pretraining, with a memory-math worksheet and a dated base-model catalog. eval-harness-first builds the golden set, one binary grader per failure bucket, judge calibration and the base-model baseline before any training config is written. dataset-curation formats, templates, packs and documents the training data with a synthetic-data collapse guard and a dataset card. lora-qlora-recipes gives the all-linear, alpha-equals-2r LoRA/QLoRA recipe with Unsloth defaults, the TRL mapping and failure signatures. preference-optimization picks and configures DPO, ORPO, KTO or SimPO and constructs the pairs. grpo-rlvr-training sets up GRPO with verifiable rewards, the mandatory reward-inspection gate and variant selection by failure mode. checkpoint-promotion gates a trained checkpoint on data hygiene, a drift budget, a paired arena and a canary before it ships. Alongside: rag-architect designs and evaluates RAG pipelines with a corpus-driven chunking optimizer, a requirements-to-design planner and a precision/recall/NDCG retrieval evaluator; recsys-pipeline-architect designs Source-Hydrator-Filter-Scorer-Selector-SideEffect ranking pipelines for any top-K problem. Contains third-party skills under their own licenses — see NOTICE.md.",
-      "version": "0.1.0",
-      "author": {
-        "name": "Matt Scott"
-      },
       "category": "ai",
       "keywords": [
+        "agents",
+        "agent-loops",
+        "autonomous",
+        "skills",
+        "skill-authoring",
+        "mcp",
+        "mcp-server",
+        "harvest",
+        "multi-agent",
+        "orchestration",
+        "fleet",
+        "herdr",
         "fine-tuning",
         "llm",
         "lora",
-        "qlora",
         "dpo",
         "grpo",
-        "rlvr",
         "evaluation",
-        "dataset",
-        "checkpoint",
         "rag",
-        "retrieval",
-        "recommender",
-        "ranking",
-        "machine-learning"
+        "recommender"
       ]
     },
     {
       "name": "work",
       "displayName": "Knowledge Work",
       "source": "./plugins/work",
-      "description": "Knowledge work and prose. Data: profile a dataset, QA an analysis before it ships, SQL across warehouse dialects, statistics and A/B tests with stdlib calculators, Python charts and an offline HTML dashboard. Product operations: metrics reviews, roadmap and stakeholder updates, competitive briefs, market sizing, startup metrics, variance analysis. Support and legal: ticket triage, customer escalations, contract review and NDA triage. Writing: technical-writing as the entry, with clear-prose and writing-guideline checks, humanize, READMEs and questionnaires. Media and files: HTML slide decks, ffmpeg video editing, file conversion, spaced-repetition Mochi decks and a grounded Markdown knowledge vault. Vendored skills are credited in NOTICE.md.",
+      "description": "Knowledge work, research and decisions, for work that is not code. Decide and research: office-hours, prfaq, plan-ceo-review, roast, deep-research, litreview, deepread, synthesize-research, scientific-problem-selection. Data: profile a dataset, QA an analysis, SQL across warehouse dialects, statistics and A/B tests, Python charts, an offline HTML dashboard. Product operations: metrics reviews, roadmap and stakeholder updates, competitive briefs, market sizing, startup metrics, variance analysis. Support and legal: ticket triage, escalations, contract review, NDA triage. Writing: technical-writing as the entry, with clear-prose and writing-guideline checks, humanize, READMEs and questionnaires. Media and files: HTML slide decks, ffmpeg video editing, file conversion, Mochi flashcard decks and a grounded knowledge vault. Vendored skills are credited in NOTICE.md.",
       "version": "1.0.0",
       "author": {
         "name": "Matt Scott"
       },
       "category": "productivity",
       "keywords": [
+        "research",
+        "literature-review",
+        "strategy",
+        "prfaq",
+        "office-hours",
         "data-analysis",
         "sql",
         "statistics",
@@ -441,17 +167,12 @@
         "product-management",
         "metrics",
         "roadmap",
-        "competitive-analysis",
         "market-sizing",
         "contract-review",
-        "nda",
-        "customer-support",
         "writing",
         "technical-writing",
-        "readme",
         "slides",
         "video",
-        "ffmpeg",
         "file-conversion",
         "flashcards"
       ]

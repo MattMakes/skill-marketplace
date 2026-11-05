@@ -1,8 +1,77 @@
 # Plugin taxonomy proposal, 2026-11-05
 
-Status: implemented on 2026-11-05 on branch `feat/plugin-taxonomy-v3` (marketplace 3.0.0). The owner
-decided the four open questions (see "Decisions"). The skill homes below match the branch, except where
-a note says otherwise.
+Status: revised and implemented on 2026-11-05 on branch `feat/plugin-taxonomy-v3` (marketplace
+3.0.0). The branch ships five plugins, as the revision below describes. The 16-plugin tree in
+"Proposed tree" was implemented first and is now superseded; it stays below as the record of how
+each skill's home was decided, because the five plugins are unions of its groups. The owner's four
+decisions (see "Decisions") still hold.
+
+## Revision: five plugins (2026-11-05)
+
+### The request
+
+After the 16-plugin tree was built, the owner asked for three to five plugins, each a complete
+surface area: one install covers one kind of work from start to finish, without a second plugin
+for the next step.
+
+### The five plugins
+
+| Plugin | The question it answers | Holds (names from the 16-plugin tree) |
+|---|---|---|
+| `software` | How do I take a change from idea to production? | `product` (the spec and challenge skills), `architecture`, `dev`, `verify`, `code`, `craft`, `stack`, `security`, `ops`, and from `agentic`: `keys`, `rules-from-code`, `engineering-rules`, `retro`, `correct`, `agent-memory`, `stow`, `persona` |
+| `design` | How should it look and feel? | `design`, unchanged |
+| `game` | How do I make a game, and is it good? | `game` and `godot` |
+| `agents` | How do I build an AI system? | the rest of `agentic` (agents, skills and MCP servers), `herdr`, `ml` |
+| `work` | How do I research, decide, analyse and write when the work is not code? | `work`, plus from `product`: office-hours, prfaq, plan-ceo-review, roast, deep-research, litreview, deepread, synthesize-research, scientific-problem-selection |
+
+`product` splits by audience. The skills that end in a spec or an acceptance criterion
+(interview-me, grilling, devil, spec, requirement-convergence, product-brainstorming, adhd,
+advanced-elicitation, documentation-criteria, code-to-prd) feed the build and go to `software`.
+The skills that decide whether an idea is worth pursuing, or research a question from sources, are
+useful without any code and go to `work`.
+
+### Router skills
+
+`software` would hold 176 skills. Thirty-nine of them were reference skills that each cover
+one library or one principle. Five router skills in `software` replace them. Each router has one
+description for its whole area and keeps each former skill as a topic,
+`skills/<router>/topics/<topic>/GUIDE.md`, which it reads only when the topic applies.
+
+| Router | Topics |
+|---|---|
+| `principles` | the sixteen former `craft:principle-*` skills |
+| `animation` | GSAP (seven guides), motion (three), Remotion |
+| `react-typescript` | react-best-practices, react-useeffect, server-component-rules, shadcn, typescript-best-practices |
+| `data` | postgres-best-practices, postgresql-table-design, prisma-patterns, database-migrations |
+| `systems` | cpp-coding-standards, boost-asio-pro, swift-concurrency-expert |
+
+Other skills cite a topic as `software:<router>` (topic `<topic>`). `dotnet-backend-patterns`
+stays a normal skill: it is one skill, so a router would save nothing.
+
+### Why these five
+
+The clusters come from measured dependencies: the count of `<plugin>:<skill>` references from one
+plugin of the 16 to another.
+
+| Cluster | Cross-plugin references | Result |
+|---|---|---|
+| `dev` as a hub | `dev`–`design` 34, `dev`–`architecture` 27, `dev`–`verify` 22, `dev`–`code` 20 | `architecture`, `verify` and `code` join `dev` in `software`. |
+| `agentic`–`code` | 24, through `core` and `keys` | The instruction-file and session-learning skills join `core` in `software`; the agent-building skills form `agents` with `herdr` and `ml`. |
+| `ops`–`security` | 11 | Both join `software`; `ship-gate` calls `security-sweep`. |
+| `game`–`godot` | 10 | `godot` merges into `game`. |
+
+`design` has the largest single link to the hub and still stays its own plugin. Its links are
+handoffs at the edges of UI work (a brief in, a plan or a review out), each degrades to a note when
+`software` is not installed, and a designer needs the whole design surface without the
+engineering one. Folding it in would make `software` larger without making `design` more complete.
+
+### The context cost that made routers necessary
+
+Every installed skill puts its description into every session's context. Before routers, the
+skill descriptions of the `software` group came to about 70,000 characters. The five routers
+replace thirty-nine descriptions with five; after the change the 142 skills of `software` carry
+about 60,000 characters of description, measured on 2026-11-05, and a session reads a topic's
+guide only when the work needs it.
 
 ## Problem
 
@@ -29,7 +98,12 @@ plugins by source, not by job. The result is overlap:
    secure, ship.
 5. **Provenance moves with the skill.** Each move carries its `NOTICE.md` entry to the new plugin.
 
-## Proposed tree
+## Proposed tree (superseded)
+
+Superseded on 2026-11-05 by "Revision: five plugins" above. The groups below are kept as the record
+of where each skill was placed; the five plugins are unions of them. Names such as `dev:debug` or
+`craft:principle-*` in the rest of this document are the 16-plugin names; the root `README.md`
+maps every 2.x name to its 3.0.0 name.
 
 16 plugins (from 20). Five plugins dissolve: `tools`, `pstack`, `meta`, `design-system` and
 `game-design`. One plugin is new: `architecture`.

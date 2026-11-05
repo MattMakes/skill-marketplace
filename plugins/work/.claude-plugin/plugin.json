@@ -2,11 +2,16 @@
   "name": "work",
   "displayName": "Knowledge Work",
   "version": "1.0.0",
-  "description": "Knowledge work and prose. Data: profile a dataset, QA an analysis before it ships, SQL across warehouse dialects, statistics and A/B tests with stdlib calculators, Python charts and an offline HTML dashboard. Product operations: metrics reviews, roadmap and stakeholder updates, competitive briefs, market sizing, startup metrics, variance analysis. Support and legal: ticket triage, customer escalations, contract review and NDA triage. Writing: technical-writing as the entry, with clear-prose and writing-guideline checks, humanize, READMEs and questionnaires. Media and files: HTML slide decks, ffmpeg video editing, file conversion, spaced-repetition Mochi decks and a grounded Markdown knowledge vault. Vendored skills are credited in NOTICE.md.",
+  "description": "Knowledge work, research and decisions, for work that is not code. Decide and research: office-hours, prfaq, plan-ceo-review, roast, deep-research, litreview, deepread, synthesize-research, scientific-problem-selection. Data: profile a dataset, QA an analysis, SQL across warehouse dialects, statistics and A/B tests, Python charts, an offline HTML dashboard. Product operations: metrics reviews, roadmap and stakeholder updates, competitive briefs, market sizing, startup metrics, variance analysis. Support and legal: ticket triage, escalations, contract review, NDA triage. Writing: technical-writing as the entry, with clear-prose and writing-guideline checks, humanize, READMEs and questionnaires. Media and files: HTML slide decks, ffmpeg video editing, file conversion, Mochi flashcard decks and a grounded knowledge vault. Vendored skills are credited in NOTICE.md.",
   "author": {
     "name": "Matt Scott"
   },
   "keywords": [
+    "research",
+    "literature-review",
+    "strategy",
+    "prfaq",
+    "office-hours",
     "data-analysis",
     "sql",
     "statistics",
@@ -16,17 +21,12 @@
     "product-management",
     "metrics",
     "roadmap",
-    "competitive-analysis",
     "market-sizing",
     "contract-review",
-    "nda",
-    "customer-support",
     "writing",
     "technical-writing",
-    "readme",
     "slides",
     "video",
-    "ffmpeg",
     "file-conversion",
     "flashcards"
   ]

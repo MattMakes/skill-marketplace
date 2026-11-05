@@ -207,7 +207,7 @@ Reports AA and AAA results for normal text, large text and UI components in one 
 
 ## Related Skills
 
-`design:screen-reader-testing` covers manual VoiceOver/NVDA/JAWS passes and their commands, `design:design-review` scores accessibility as one of its review dimensions, and `dev:tdd` fits when a11y checks become automated tests.
+`design:screen-reader-testing` covers manual VoiceOver/NVDA/JAWS passes and their commands, `design:design-review` scores accessibility as one of its review dimensions, and `software:tdd` fits when a11y checks become automated tests.
 
 ## Reference Documentation
 

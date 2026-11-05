@@ -7,7 +7,7 @@ description: Review implementation plans and specs for design quality before cod
 
 Interactive design review for plans and specs, before any code is written. Rates each design dimension 0-10, explains what a 10 looks like, then edits the plan to close the gap.
 
-Use when: a plan or spec exists and you want to catch missing UI states, vague layouts, AI slop risk, and unresolved design decisions before implementation. Works on any plan file, not just design docs from `product:office-hours`.
+Use when: a plan or spec exists and you want to catch missing UI states, vague layouts, AI slop risk, and unresolved design decisions before implementation. Works on any plan file, not just design docs from `work:office-hours`.
 
 ## How It Works
 

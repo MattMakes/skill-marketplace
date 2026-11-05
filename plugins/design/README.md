@@ -84,7 +84,7 @@ Rows marked *user-invoked* run only when you type the command; the model never s
 |---|---|
 | `gate` | Runs the whole gate suite against your pages or harnesses and reports the real `N/N`. *User-invoked:* `/design:gate <path>`. |
 | `design-qa` | CI quality gates and visual regression for a design system: token and hardcode lint, axe, contrast, variants, states, themes and RTL, plus the manual a11y checklist. |
-| `a11y-audit` | One accessibility audit with three modes. Codebase (default): the vendored `a11y_scanner.py` and `contrast_checker.py` scan React, Vue, Angular, Svelte or HTML for WCAG 2.2 A/AA violations and fix them per framework. Design audit, from the former `design-system:a11y-audit`: WCAG 2.2 and ARIA patterns with measured contrast through the render gates and `axe_audit.mjs`. Live page: Lighthouse and axe on a URL. Also absorbs the former `accessibility` skill's pitfalls and checklist items. |
+| `a11y-audit` | One accessibility audit with three modes. Codebase (default): the vendored `a11y_scanner.py` and `contrast_checker.py` scan React, Vue, Angular, Svelte or HTML for WCAG 2.2 A/AA violations and fix them per framework. Design audit, from the former `design-system` plugin's `a11y-audit`: WCAG 2.2 and ARIA patterns with measured contrast through the render gates and `axe_audit.mjs`. Live page: Lighthouse and axe on a URL. Also absorbs the former `accessibility` skill's pitfalls and checklist items. |
 | `screen-reader-testing` | Hands-on VoiceOver, NVDA and JAWS testing: key commands, expected announcements, browse vs focus mode, dynamic content. |
 | `performance` | Core Web Vitals (LCP, INP, CLS) with p75 and "poor" thresholds, find-the-culprit steps, layout shift and animation performance. The former `core-web-vitals` is its `references/core-web-vitals.md`, with `references/LCP.md` beside it. |
 
@@ -92,8 +92,8 @@ Rows marked *user-invoked* run only when you type the command; the model never s
 
 | Skill | What it does |
 |---|---|
-| `critique` | An adversarial critic in a forked context renders the work and argues for rejection. `rams` as the first argument switches to the Dieter Rams lens from the former `design-is`: each of Rams' ten principles scored 0–3 with cited evidence, a mechanical NEW / REFINE / REDESIGN verdict and a self-contained `dev:create-plan` handoff. *User-invoked:* `/design:critique <path>` or `/design:critique rams <path>`. |
-| `design-review` | A product design review. The full review (default) walks the product as a first-time user, answers 13 design questions, runs Nielsen's heuristics and rebuilds the top three issues as before/after HTML inside the real page chrome. The scored review, from the former `design-system:design-review`, rates six weighted dimensions and returns prioritized findings with token-referenced fixes. |
+| `critique` | An adversarial critic in a forked context renders the work and argues for rejection. `rams` as the first argument switches to the Dieter Rams lens from the former `design-is`: each of Rams' ten principles scored 0–3 with cited evidence, a mechanical NEW / REFINE / REDESIGN verdict and a self-contained `software:create-plan` handoff. *User-invoked:* `/design:critique <path>` or `/design:critique rams <path>`. |
+| `design-review` | A product design review. The full review (default) walks the product as a first-time user, answers 13 design questions, runs Nielsen's heuristics and rebuilds the top three issues as before/after HTML inside the real page chrome. The scored review, from the former `design-system` plugin's `design-review`, rates six weighted dimensions and returns prioritized findings with token-referenced fixes. |
 | `plan-design-review` | Critiques a plan or spec for UI/UX before coding: seven passes (information architecture, interaction states, user journey, AI-slop risk, design system, responsive and accessibility, unresolved decisions), each rated 0–10 and fixed in the plan. |
 
 ### A behaviour change: the Rams audit no longer starts on its own
@@ -189,34 +189,36 @@ directory, or the OS temp directory, never into the project.
 
 ## How it works with the other plugins
 
-The kit is wired into the rest of the marketplace, and each link degrades to a note when the
-other plugin is not installed:
+The marketplace has five plugins: `software`, `design`, `game`, `agents` and `work`. The kit is
+wired into `software` (the build pipeline, review and verification) and `work` (plans, research
+and prose that reach a UI); `game` and `agents` have no handoffs with it. Each link degrades to a
+note when the other plugin is not installed:
 
-- `product:grilling` in design-brief mode (the former `design-system:grill-me`) interrogates the
+- `software:grilling` in design-brief mode (the former `design-system` plugin's `grill-me`) interrogates the
   brief before anything is built, writes every unasked decision down as an assumption and hands
   `BRIEF.md` to `design-screen` or `design-component`.
-- `product:office-hours`, `product:plan-ceo-review` and `product:spec` hand a plan with a UI to
+- `work:office-hours`, `work:plan-ceo-review` and `software:spec` hand a plan with a UI to
   `design:plan-design-review`.
-- `dev:workflow` lists a UI flow: `code:core` → `product:grilling` (design-brief mode) →
-  `dev:brainstorm` → `design:design-screen` → `design:gate` → `design:critique` →
-  `verify:code-sweep`.
-- `dev:brainstorm` asks for a screen inventory and the empty, loading and error paths when the
+- `software:workflow` lists a UI flow: `software:core` → `software:grilling` (design-brief mode) →
+  `software:brainstorm` → `design:design-screen` → `design:gate` → `design:critique` →
+  `software:code-sweep`.
+- `software:brainstorm` asks for a screen inventory and the empty, loading and error paths when the
   idea has a UI, and names `design-screen` or `design-component` as the next step.
-- `dev:analyze-design` adds a UX and accessibility perspective when the design has a UI and names
+- `software:analyze-design` adds a UX and accessibility perspective when the design has a UI and names
   `design:a11y-audit` as a follow-up.
-- `dev:check-implementation` runs the gate suite when the plan built UI.
-- `verify:code-sweep` has a twelfth reviewer, `interface-auditor` (`u`), triaged in for UI diffs.
+- `software:check-implementation` runs the gate suite when the plan built UI.
+- `software:code-sweep` has a twelfth reviewer, `interface-auditor` (`u`), triaged in for UI diffs.
   It runs this plugin's static gates on the changed files, and the render gates on any changed
   HTML.
-- `verify:web-quality-audit` (moved there from this plugin) is the Lighthouse-style entry point and
+- `software:web-quality-audit` (moved there from this plugin) is the Lighthouse-style entry point and
   hands accessibility to `design:a11y-audit` and speed to `design:performance`.
-- `code:explain-diff` measures its own HTML explainer for contrast, axe and keyboard access.
+- `software:explain-diff` measures its own HTML explainer for contrast, axe and keyboard access.
 - `work:humanize` hands microcopy to `design:ux-writing`, and `ux-writing` borrows `humanize`'s
   scrub catalog.
 - `work:frontend-slides` (moved there from this plugin) points at `design:frontend-design` and
   `design:impeccable` for a deck's visual direction.
-- `design:redesign` proves it broke nothing with `dev:check-implementation` and
-  `verify:code-sweep`; `design:critique` in Rams mode hands its plan to `dev:create-plan`.
+- `design:redesign` proves it broke nothing with `software:check-implementation` and
+  `software:code-sweep`; `design:critique` in Rams mode hands its plan to `software:create-plan`.
 
 Skills in other plugins find this kit next to their own install with
 `ls -d "${CLAUDE_PLUGIN_ROOT}"/../design/shared "${CLAUDE_PLUGIN_ROOT}"/../../design/*/shared`,
@@ -236,9 +238,9 @@ under the `design:` namespace.
 | `design-system:performance` and `design:core-web-vitals` | `design:performance` |
 | `design-system:design-review` and `design:design-review` | `design:design-review` (scored review is a mode) |
 | `design:design-is` | `design:critique` (Rams lens, `/design:critique rams`; user-invoked only) |
-| `design-system:grill-me` | `product:grilling` (design-brief mode) |
+| `design-system:grill-me` | `software:grilling` (design-brief mode) |
 | `product:plan-design-review` | `design:plan-design-review` |
-| `design:web-quality-audit` | `verify:web-quality-audit` |
+| `design:web-quality-audit` | `software:web-quality-audit` |
 | `design:frontend-slides` | `work:frontend-slides` |
 
 ## Credits

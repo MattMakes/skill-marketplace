@@ -1,8 +1,8 @@
 {
   "name": "game",
-  "displayName": "Game Design and Review",
+  "displayName": "Game Design and Build",
   "version": "2.0.0",
-  "description": "What game, and is it good? Any engine. A design studio: game-ideation, fun-targeting, core-loop, systems-economy, progression-content, level-ux, art-direction, game-brief, prototype-plan, design-diagrams, and one-page-game-design for a one-page visual design as interactive HTML or standalone SVG with a printable PDF, collaborative or headless. A review board backed by cited rules distilled from 38 game-development books: game-studio-cpo as the entry point, and auditors for systems, balance and economy, code architecture, performance, and QA and ship-readiness.",
+  "description": "Make a game, from idea to release. A design studio: ideation, fun targeting, core loop, systems and economy, progression, levels and UX, art direction, a game brief, a prototype plan, design diagrams and a one-page design as HTML, SVG and PDF. A review board backed by cited rules from 38 game-development books: game-studio-cpo and auditors for systems, balance, code, performance and QA. A Godot build kit: scripted bots and balance models, upgrade trees, feature seams and save migrations, headless runs and tests, frame-cost measurement, rendered-frame checks, pixel art, audio, release builds and store pages, and habits for a worker fleet.",
   "author": {
     "name": "Matt Scott"
   },
@@ -10,15 +10,18 @@
   "keywords": [
     "game-design",
     "ideation",
-    "mda",
     "core-loop",
     "one-page-design",
-    "art-direction",
     "game-balance",
     "economy",
-    "unity",
-    "performance",
     "code-review",
-    "qa"
+    "performance",
+    "qa",
+    "godot",
+    "gdscript",
+    "bots",
+    "headless",
+    "pixel-art",
+    "release"
   ]
 }

@@ -1,12 +1,14 @@
 # work — Knowledge Work
 
-Knowledge work and prose: the parts of a working day that are not writing code. Analyse data, run
+Knowledge work, research and decisions: the parts of a working day that are not writing code.
+Decide whether an idea is worth pursuing, research a question from sources, analyse data, run
 product operations, review contracts and budgets, triage support, write clearly, and produce
-slides, video, flashcards and other files. For prose, start at `technical-writing`; for a new
-dataset, start at `explore-data`.
+slides, video, flashcards and other files. For a raw idea, start at `office-hours`; for a question
+that needs sources, `deep-research`; for prose, `technical-writing`; for a new dataset,
+`explore-data`.
 
-Twenty-eight skills. Twenty-six are vendored copies (fourteen from Anthropic's knowledge-work
-plugins, the rest from seven other repositories), `humanize` is adapted from upstream work, and
+Thirty-seven skills. Thirty-five are vendored copies (sixteen from Anthropic's knowledge-work
+plugins, the rest from nine other repositories), `humanize` is adapted from upstream work, and
 `mochi-deck` is first-party. All are maintained here.
 
 ```bash
@@ -14,6 +16,24 @@ claude plugin install work@skill-marketplace
 ```
 
 ## Skills
+
+### Decide and research
+
+Is this idea worth pursuing, and what do the sources say? These came from the 2.x `product`
+plugin. When the answer is "build it", the spec and the technical design are in `software` (see
+"How it works with the other plugins").
+
+| Skill | Use it when |
+|---|---|
+| `office-hours` | "Is this worth building?", "I have an idea", "help me think through this". Startup mode runs six YC forcing questions (demand reality, status quo, desperate specificity, narrowest wedge, observation, future-fit) with anti-sycophancy rules; builder mode is an enthusiastic design partner. Both challenge premises, force 2-3 alternatives, and save a design doc to `docs/designs/`. |
+| `prfaq` | "Create a PRFAQ", "work backwards". Amazon's Working Backwards coached in five stages: press release, customer FAQ, internal FAQ, verdict, plus a distillate for PRD creation. Writes to `docs/prfaq/`. |
+| `plan-ceo-review` | "Think bigger", "expand scope", "is this ambitious enough". Founder-mode review in four modes (scope expansion, selective expansion, hold scope, scope reduction) with premise, leverage and dream-state challenges, then eleven review sections: architecture, error and rescue map, threat model, data-flow edge cases, code quality, tests, performance, observability, rollout, trajectory, design. Long and thorough by design. |
+| `roast` | "Roast this idea", "convene the panel", a brutal second opinion before building. Five parallel reviewers (Critic, Champion, Analyst, Investigator, Customer) and a Judge that returns GO / RESHAPE / KILL with the cheapest 48-hour test; three stdlib scripts build the brief, weight the verdict and design the test. |
+| `scientific-problem-selection` | A scientist is pitching a project, stuck on one, or asking a strategic question. Fischbach and Walsh's problem-choice framework (Cell, 2024) as nine skills with reference files: intuition pumps, risk matrix, optimization function, parameter strategy, decision trees, adversity, inversion, synthesis, meta-framework. |
+| `deep-research` | A low-quality answer would be expensive: strategy, comparisons, hypothesis validation. Falsifiable hypotheses, parallel sub-agent fan-out, at least three differently-typed sources per thesis, per-source files with verbatim quotes, an adversarial pass and refresh targets. |
+| `litreview` | Starting a literature review. Keyless PubMed E-utilities and OpenAlex searches, a PICO/SPIDER/Decomposition framework recommender, budgeted depth (5/10/20 queries) with a forcing checkpoint before spend, cross-search aggregation, and an eight-section research guide. |
+| `deepread` | Deeply reading a book, article or document set. Five modes (quick, deep, map, feynman, book), claim/reason/evidence decomposition with four confidence labels, an evidence ledger, knowledge maps and Feynman teach-back. Treats source text as untrusted data. |
+| `synthesize-research` | A pile of interview notes, survey responses or support tickets needs turning into findings. Six-step thematic analysis, affinity mapping, triangulation, behaviour-vs-stated-preference extraction, survey-analysis pitfalls, evidence-based personas and opportunity sizing. |
 
 ### Data
 
@@ -78,11 +98,36 @@ passes it and you run over a draft.
 
 ## What these write and where they reach
 
-Apart from the files named below, the fourteen Anthropic knowledge-work skills,
+Apart from the files named below, the sixteen Anthropic knowledge-work skills,
 `market-sizing-analysis`, `startup-metrics-framework`, `technical-writing` and
 `writing-clearly-and-concisely` carry no scripts and write nothing of their own; where a step says "if an MCP connector for X is available"
 it uses one only if you have it configured. `competitive-brief` uses web search as part of its
 method.
+
+The decide-and-research skills, carried over from the 2.x `product` plugin:
+
+- **`litreview`** runs four Python 3 standard-library scripts from
+  `${CLAUDE_PLUGIN_ROOT}/skills/litreview/scripts/`. `free_search.py` calls the PubMed
+  E-utilities and OpenAlex APIs over HTTPS (no key; `--mailto` opts into OpenAlex's polite pool).
+  It also uses the Consensus MCP only if one is connected. `citation_tracker.py` keeps session
+  counts in `~/.litreview_sessions/`. The final `.docx` guide needs Node.js with the `docx`
+  package; without it the skill writes Markdown.
+- **Web search.** `office-hours`, `plan-ceo-review`, `roast` (the Investigator), `prfaq` (the web
+  researcher) and `deep-research` use the WebSearch tool when it is available; `office-hours` asks
+  before searching and sends only generalized category terms. `scientific-problem-selection` uses
+  a PubMed MCP connector or web search when one is available.
+- **Subagents.** `roast`, `prfaq` and `deep-research` fan out sub-agents through the Task tool.
+- **`roast`** runs three standard-library scripts (brief builder, verdict synthesizer, test
+  designer) from `${CLAUDE_PLUGIN_ROOT}/skills/roast/scripts/`.
+- **Files written in the project**, as each method prescribes: `office-hours` saves design docs to
+  `docs/designs/`; `plan-ceo-review` writes the review into the plan file under review (or
+  `docs/plans/`), a CEO summary to `docs/designs/` in expansion modes, and approved deferrals to
+  `TODOS.md`; `prfaq` writes to `docs/prfaq/`; `deep-research` persists its sources folder.
+- **Size.** `plan-ceo-review` (62 KB) and `office-hours` (47 KB) are large single files: each is
+  the complete upstream method with its sections inlined, so a run reads nothing outside its own
+  file.
+
+The rest of the plugin:
 
 - **`build-dashboard`** writes one HTML file where you ask. That page loads Chart.js 4.5.1 and
   chartjs-adapter-date-fns 3.0.0 from `cdn.jsdelivr.net` with SRI hashes; your browser fetches
@@ -114,16 +159,32 @@ Installing this plugin wires no hooks, no MCP servers and no background processe
 
 ## How it works with the other plugins
 
-- `humanize` is the marketplace's owner of AI-tell scrubbing. `work:technical-writing`,
-  `dev:show-me-your-work`, `verify:blast-radius`, `verify:human-gate` and
-  `design:design-doctrine` send prose through it.
-- `humanize` hands interface microcopy to `design:ux-writing`, and `design:ux-writing` borrows
-  `humanize`'s scrub catalog.
-- `frontend-slides` points at `design:frontend-design` and `design:impeccable` when a deck needs a
-  stronger visual direction.
-- `build-dashboard` is a BI page from query results. For a product screen built from design
-  tokens, use `design:data-dashboard`.
-- For an editable `.drawio` architecture diagram, use `architecture:drawio` (it moved there).
+The marketplace has five plugins: `software`, `design`, `game`, `agents` and `work`. This one is
+for work that is not code; it hands a decision to build to `software` and a UI to `design`.
+
+- **`software`.** `prfaq`'s verdict hands the PRFAQ to `software:spec --prd` for the PRD, and
+  `prfaq` sends open-ended ideation to `software:product-brainstorming`. `office-hours` and
+  `plan-ceo-review` point at `software:create-plan` for the implementation plan, and
+  `plan-ceo-review` at `software:pre-flight` as the engineering gate. `roast` names
+  `software:grilling` as the one-question-at-a-time alternative. Back the other way,
+  `software:spec` routes an idea that is not yet a spec to `work:office-hours` and a plan that
+  needs a scope review to `work:plan-ceo-review`. `software:show-me-your-work`,
+  `software:blast-radius` and `software:human-gate` send prose through `work:humanize`. For an
+  editable `.drawio` architecture diagram, use `software:drawio` (it moved there).
+- **`design`.** `office-hours` and `plan-ceo-review` hand a plan with a UI to
+  `design:plan-design-review`, which also reads the design docs `office-hours` writes.
+  `humanize` is the marketplace's owner of AI-tell scrubbing: `design:design-doctrine` sends
+  prose through it, `humanize` hands interface microcopy to `design:ux-writing`, and
+  `design:ux-writing` borrows `humanize`'s scrub catalog.
+  `frontend-slides` points at `design:frontend-design` and `design:impeccable` when a deck needs a
+  stronger visual direction. `build-dashboard` is a BI page from query results; for a product
+  screen built from design tokens, use `design:data-dashboard`.
+- **`agents`** and **`game`.** No handoffs either way.
+- **Inside.** `work:technical-writing` sends its AI-tell scrub to `work:humanize` and uses
+  `work:writing-clearly-and-concisely` and `work:writing-guidelines` as its checks.
+  `work:deep-research` points at `work:litreview` for academic sources, and `work:deepread` at
+  `work:deep-research`. `prfaq` and `roast` name `work:office-hours` for an idea that is still
+  raw.
 
 ## Moved in v3
 
@@ -133,20 +194,27 @@ Installing this plugin wires no hooks, no MCP servers and no background processe
 | `tools:mochi-deck` | `work:mochi-deck` |
 | `pstack:technical-writing` | `work:technical-writing` |
 | `design:frontend-slides` | `work:frontend-slides` |
-| `work:drawio` | `architecture:drawio` |
+| `work:drawio` | `software:drawio` |
 | `work:statistical-analysis` | merged into `work:statistical-analyst` (Mode 4 and `references/descriptive-trend-and-outliers.md`) |
+| `product:<skill>` (office-hours, prfaq, plan-ceo-review, roast, deep-research, litreview, deepread, synthesize-research, scientific-problem-selection) | `work:<skill>` |
+
+The root [README](../../README.md#migrating-from-2x) has the full move table.
 
 ## Credits
 
 Vendored skills are supply-chain-controlled copies: reviewed when they were pulled in, credited
 with their upstream repository, path, commit, date, license and author in [NOTICE.md](NOTICE.md),
-and re-pulled deliberately rather than tracked live. Fourteen, plus the statistics reference
+and re-pulled deliberately rather than tracked live. Sixteen, plus the statistics reference
 folded into `statistical-analyst`, are from
 [anthropics/knowledge-work-plugins](https://github.com/anthropics/knowledge-work-plugins)
-(Apache-2.0); the rest are from alirezarezvani, davila7, exiao, mattpocock, nexu-io (a pinned
-copy of Vercel's writing guidelines) and wshobson under MIT, and `technical-writing` from
-Lauren Tan's `pstack` in [cursor/plugins](https://github.com/cursor/plugins) under MIT (license
-in `LICENSE-pstack.txt`). NOTICE.md also lists what was changed in each copy. Diff against
+(Apache-2.0; `scientific-problem-selection` carries its own `LICENSE.txt` and its method is
+Fischbach and Walsh's, Cell 2024); the rest are from alirezarezvani (including `roast`,
+`deep-research`, `litreview`, and `deepread` by xiehuan123), davila7, exiao, mattpocock, nexu-io
+(a pinned copy of Vercel's writing guidelines) and wshobson under MIT, `office-hours` and
+`plan-ceo-review` from Garry Tan's [gstack](https://github.com/garrytan/gstack) (MIT), `prfaq`
+from BMad Code's [BMAD-METHOD](https://github.com/bmad-code-org/BMAD-METHOD) (MIT), and
+`technical-writing` from Lauren Tan's `pstack` in
+[cursor/plugins](https://github.com/cursor/plugins) under MIT (license in `LICENSE-pstack.txt`). NOTICE.md also lists what was changed in each copy. Diff against
 upstream before pulling changes in.
 
 `humanize`'s AI-pattern catalog and voice guidance are adapted from
@@ -158,7 +226,8 @@ Elements of Style* (1918, public domain).
 
 ## Invoking
 
-Namespaced under the plugin: `work:validate-data`, `work:review-contract`,
-`work:technical-writing`, `work:humanize`, and so on. `to-questionnaire` must be invoked by you
+Namespaced under the plugin: `work:office-hours`, `work:deep-research`, `work:roast`,
+`work:validate-data`, `work:review-contract`, `work:technical-writing`, `work:humanize`, and so
+on. `to-questionnaire` must be invoked by you
 (`/work:to-questionnaire`); `sql-queries` and `data-visualization` are references the model loads
 on its own and are not invocable.

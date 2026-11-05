@@ -8,13 +8,13 @@ You are in a forked context and cannot ask the user anything. Where the phases b
 
 ## Do not use for
 
-- Routine UI code reviews → use an ordinary code review (for example `verify:code-sweep`)
+- Routine UI code reviews → use an ordinary code review (for example `software:code-sweep`)
 - Pure copy edits → use a separate copy pass
-- Pre-design ideation with no artifact yet → start with `dev:create-plan` directly
+- Pre-design ideation with no artifact yet → start with `software:create-plan` directly
 
-You are an ORCHESTRATOR. Audit a design against Dieter Rams' ten principles, score each principle with evidence, decide the outcome verdict (NEW / REFINE / REDESIGN), and hand off to `dev:create-plan` with a ready-to-run prompt.
+You are an ORCHESTRATOR. Audit a design against Dieter Rams' ten principles, score each principle with evidence, decide the outcome verdict (NEW / REFINE / REDESIGN), and hand off to `software:create-plan` with a ready-to-run prompt.
 
-You do not write implementation code. You produce: evidence-cited scores, a verdict, and a `dev:create-plan` handoff prompt.
+You do not write implementation code. You produce: evidence-cited scores, a verdict, and a `software:create-plan` handoff prompt.
 
 ## The Ten Principles (Dieter Rams)
 
@@ -51,7 +51,7 @@ All artifacts go in `DESIGN-IS-<YYYY-MM-DD>/` at repo root (or the project the u
 - `01-evidence.md` — per-principle evidence collected by subagents
 - `02-scorecard.md` — per-principle 0–3 score with one-line justification + total
 - `03-verdict.md` — NEW / REFINE / REDESIGN with reasoning
-- `04-handoff-prompt.md` — copy-pasteable `dev:create-plan` prompt for the chosen outcome
+- `04-handoff-prompt.md` — copy-pasteable `software:create-plan` prompt for the chosen outcome
 
 ## Phases
 
@@ -63,7 +63,7 @@ Infer from the arguments and the files (the fork cannot ask) and write `00-scope
 - Constraints (brand, stack, deadline)
 - Reference designs or competitors, if any
 
-If the target is only a stub or wireframe with no real decisions to preserve, keep Phases 1–2 short and expect verdict = **NEW**. If nothing exists yet, the critique has already stopped at Step 2; that request belongs to `dev:create-plan` directly.
+If the target is only a stub or wireframe with no real decisions to preserve, keep Phases 1–2 short and expect verdict = **NEW**. If nothing exists yet, the critique has already stopped at Step 2; that request belongs to `software:create-plan` directly.
 
 ### Phase 1: Evidence Gathering (FAN OUT)
 
@@ -172,9 +172,9 @@ State the verdict in one sentence. Then list the 3–5 highest-leverage moves �
 - Recommending REDESIGN because a single screen is ugly (scope it)
 - Recommending NEW when an honest REDESIGN is warranted (don't dodge the critique)
 
-### Phase 4: dev:create-plan Handoff
+### Phase 4: software:create-plan Handoff
 
-Write `04-handoff-prompt.md` containing exactly ONE fenced `dev:create-plan` prompt matching the verdict. The prompt must be self-contained — the next session won't see this audit unless it's quoted in.
+Write `04-handoff-prompt.md` containing exactly ONE fenced `software:create-plan` prompt matching the verdict. The prompt must be self-contained — the next session won't see this audit unless it's quoted in.
 
 Use the matching template below. Fill every `<bracket>`. Include the top 3–5 moves from Phase 3 verbatim, each with its evidence anchor.
 
@@ -183,7 +183,7 @@ Use the matching template below. Fill every `<bracket>`. Include the top 3–5 m
 #### Template: NEW DESIGN
 
 ````
-/dev:create-plan Design <product/screen/component name> from scratch.
+/software:create-plan Design <product/screen/component name> from scratch.
 
 Primary user: <who>
 Primary task: <one sentence>
@@ -216,7 +216,7 @@ Anti-patterns to guard against (specific to NEW):
 #### Template: REFINE DESIGN
 
 ````
-/dev:create-plan Refine <product/screen/component name> based on a Dieter Rams audit (total <X>/30).
+/software:create-plan Refine <product/screen/component name> based on a Dieter Rams audit (total <X>/30).
 
 Verdict paragraph (quoted from 03-verdict.md):
 > <paste the one-sentence verdict here>
@@ -249,7 +249,7 @@ Anti-patterns to guard against (specific to REFINE):
 #### Template: REDESIGN
 
 ````
-/dev:create-plan Redesign <product/screen/component name>. Current design failed audit at <X>/30 with critical gaps in principles <comma-separated list of 0-scored or 1-scored load-bearing principles>.
+/software:create-plan Redesign <product/screen/component name>. Current design failed audit at <X>/30 with critical gaps in principles <comma-separated list of 0-scored or 1-scored load-bearing principles>.
 
 Verdict paragraph (quoted from 03-verdict.md):
 > <paste the one-sentence verdict here>
@@ -295,7 +295,7 @@ Anti-patterns to guard against (specific to REDESIGN):
 - **Score what is, not what was intended** — design is what ships, not what was drawn
 - **Honesty applies to the audit too** — if total is 28/30, say REFINE even if the user wanted a redesign; if it's 12/30, say REDESIGN even if the user wanted a refine
 - **One verdict, not three** — pick NEW or REFINE or REDESIGN; do not hedge
-- **Handoff, don't implement** — the Rams lens ends at the `dev:create-plan` prompt; `dev:create-plan` and `dev:execute-plan` take it from there
+- **Handoff, don't implement** — the Rams lens ends at the `software:create-plan` prompt; `software:create-plan` and `software:execute-plan` take it from there
 - **Verdict commitment** — Once `02-scorecard.md` is written, the verdict follows the Phase 3 rule mechanically. Never re-score to back into a preferred verdict; if the scorecard says REDESIGN, the handoff is REDESIGN.
 
 ## Failure Modes to Prevent
