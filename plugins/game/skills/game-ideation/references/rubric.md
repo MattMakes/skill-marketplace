@@ -26,8 +26,7 @@ Score each criterion as an integer from 1 to 5.
 | 2 | Produces a different blend's dynamic better than the target blend's. | Close to one history entry or a well-known game. | Needs a paragraph. | A test needs custom tech or lots of content. |
 | 1 | Does not produce the signature dynamic. | Nearly the same as a history entry. | Cannot be said simply. | Cannot be tested without building most of the game. |
 
-Fun fit: when the card has no blend, read "signature dynamic" as "the target fun" and "blend" as
-"kinds of fun".
+Fun fit: when the card has no blend, read "signature dynamic" as "the target fun" and "blend" as "kinds of fun".
 
 ## Total
 
@@ -37,9 +36,7 @@ Round the total to 2 decimals. The range is 1.00–5.00.
 
 ## Novelty against history
 
-- The caller may supply a history list of past concept titles or one-liners. Compare each concept
-  against every entry. A concept that shares both the core verb and the setting with a history
-  entry scores novelty 1 or 2.
+- The caller may supply a history list of past concept titles or one-liners. Compare each concept against every entry. A concept that shares both the core verb and the setting with a history entry scores novelty 1 or 2.
 - If the caller supplies novelty scores (for example from embedding distance), use them as given.
 - If there is no history list, score novelty against well-known games and record the assumption.
 

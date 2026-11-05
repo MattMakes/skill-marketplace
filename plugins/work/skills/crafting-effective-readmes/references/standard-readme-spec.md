@@ -99,15 +99,9 @@ _Note: This is only a navigation guide for the specification, and does not defin
 **Suggestions:**
 - If too long, consider moving to the [Background](#background) section.
 - Cover the main reasons for building the repository.
-- "This should describe your module in broad terms,
-generally in just a few paragraphs; more detail of the module's
-routines or methods, lengthy code examples, or other in-depth
-material should be given in subsequent sections.
+- "This should describe your module in broad terms, generally in just a few paragraphs; more detail of the module's routines or methods, lengthy code examples, or other in-depth material should be given in subsequent sections.
 
-  Ideally, someone who's slightly familiar with your module should be
-able to refresh their memory without hitting "page down". As your
-reader continues through the document, they should receive a
-progressively greater amount of knowledge."
+  Ideally, someone who's slightly familiar with your module should be able to refresh their memory without hitting "page down". As your reader continues through the document, they should receive a progressively greater amount of knowledge."
 
   ~ [Kirrily "Skud" Robert, perlmodstyle](http://perldoc.perl.org/perlmodstyle.html)
 

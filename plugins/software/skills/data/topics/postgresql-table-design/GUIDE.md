@@ -12,9 +12,7 @@ description: Use this skill when designing or reviewing a PostgreSQL-specific sc
 - Deciding whether and how to partition a large table, or how to store semi-structured data.
 - Planning a schema change on a live database without downtime.
 
-The rules and decision points for a PostgreSQL schema. The full data-type catalog, workload
-patterns (update-heavy, insert-heavy, upsert, schema evolution), extensions, JSONB indexing,
-and worked DDL examples are in `references/details.md`; open it when a section below points there.
+The rules and decision points for a PostgreSQL schema. The full data-type catalog, workload patterns (update-heavy, insert-heavy, upsert, schema evolution), extensions, JSONB indexing, and worked DDL examples are in `references/details.md`; open it when a section below points there.
 
 ## Core Rules
 

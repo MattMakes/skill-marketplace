@@ -517,14 +517,9 @@ def pytest_runtest_makereport(item, call):
 
 ### Tier 2 — Windows Job Object (optional: process-lifetime containment)
 
-Attach the process to a Job Object so it is **automatically terminated** when
-the test fixture's job handle is GC'd. Also prevents the app from spawning
-child processes that escape fixture cleanup.
+Attach the process to a Job Object so it is **automatically terminated** when the test fixture's job handle is GC'd. Also prevents the app from spawning child processes that escape fixture cleanup.
 
-> **Scope of isolation:** Job Objects do NOT virtualize filesystem access or
-> block network traffic. File-write and network isolation require AppContainer,
-> Windows Firewall rules, or Tier 3 (Windows Sandbox). Use Tier 2 only for
-> process-lifetime and child-process containment.
+> **Scope of isolation:** Job Objects do NOT virtualize filesystem access or block network traffic. File-write and network isolation require AppContainer, Windows Firewall rules, or Tier 3 (Windows Sandbox). Use Tier 2 only for process-lifetime and child-process containment.
 
 Requires no extra dependencies.
 
@@ -573,9 +568,7 @@ def restrict_process(pid: int):
 
 ### Tier 3 — Windows Sandbox (CI full-OS isolation)
 
-When you need a clean Windows image per run (no leftover registry keys, no
-shared GPU state, true isolation), run the **entire test suite** inside
-[Windows Sandbox](https://learn.microsoft.com/windows/security/application-security/application-isolation/windows-sandbox/windows-sandbox-overview).
+When you need a clean Windows image per run (no leftover registry keys, no shared GPU state, true isolation), run the **entire test suite** inside [Windows Sandbox](https://learn.microsoft.com/windows/security/application-security/application-isolation/windows-sandbox/windows-sandbox-overview).
 
 **Requirement:** Windows 10/11 Pro or Enterprise, Virtualization enabled.
 
@@ -616,8 +609,7 @@ Create `e2e-sandbox.wsb` in your project root:
 
 Launch: `WindowsSandbox.exe e2e-sandbox.wsb`
 
-> pywinauto and the app both run **inside** the sandbox (same session required).
-> Artifacts are written back to the host via the mapped folder.
+> pywinauto and the app both run **inside** the sandbox (same session required). Artifacts are written back to the host via the mapped folder.
 
 ### Tier comparison
 
@@ -819,8 +811,7 @@ def debug_match(template_path, out="artifacts/match_debug.png", confidence=0.85)
     return mv
 ```
 
-**Use sparingly** — image matching breaks on DPI changes, theme switches, and partial occlusion.
-Always try UIA first; fall back to screenshots only for genuinely unreachable controls.
+**Use sparingly** — image matching breaks on DPI changes, theme switches, and partial occlusion. Always try UIA first; fall back to screenshots only for genuinely unreachable controls.
 
 ## Anti-Patterns
 

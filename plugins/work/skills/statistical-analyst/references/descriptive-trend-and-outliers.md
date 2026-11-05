@@ -1,9 +1,6 @@
 # Descriptive Statistics, Trends and Outliers
 
-Methods for Mode 4 (describe a metric) in `SKILL.md`: descriptive statistics, trend analysis and
-simple forecasting, outlier and anomaly detection, and the claims to be cautious about. Hypothesis
-tests, effect sizes, multiple comparisons and Simpson's Paradox are in `SKILL.md` and
-`statistical-testing-concepts.md`.
+Methods for Mode 4 (describe a metric) in `SKILL.md`: descriptive statistics, trend analysis and simple forecasting, outlier and anomaly detection, and the claims to be cautious about. Hypothesis tests, effect sizes, multiple comparisons and Simpson's Paradox are in `SKILL.md` and `statistical-testing-concepts.md`.
 
 The code snippets assume a pandas DataFrame `df`; the scripts in `scripts/` do not need pandas.
 

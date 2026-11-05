@@ -1,8 +1,6 @@
 # Templates — `subdomains.md` and the `decompose.json` skeleton
 
-Copy, fill, delete what the depth does not need. Sections marked `[standard+]` or `[deep]` are omitted
-at lower depths; everything else is written at every depth. Keep the prose short: the JSON carries the
-chain, the Markdown is what a human reviews.
+Copy, fill, delete what the depth does not need. Sections marked `[standard+]` or `[deep]` are omitted at lower depths; everything else is written at every depth. Keep the prose short: the JSON carries the chain, the Markdown is what a human reviews.
 
 ## A. `ddd/03-decompose/subdomains.md`
 
@@ -90,8 +88,7 @@ One row per term × context (a term may differ across three or more contexts).
 
 ## 8. Next
 
-Boundaries are in `ddd/03-decompose/decompose.json`. Next: `/ddd-strategize` classifies each subdomain
-(core / supporting / generic) and decides build vs buy.
+Boundaries are in `ddd/03-decompose/decompose.json`. Next: `/ddd-strategize` classifies each subdomain (core / supporting / generic) and decides build vs buy.
 ```
 
 ## B. `ddd/03-decompose/decompose.json` skeleton (types matter)
@@ -133,13 +130,7 @@ Boundaries are in `ddd/03-decompose/decompose.json`. Next: `/ddd-strategize` cla
 }
 ```
 
-Type reminders that bite: `subdomains[].terms` is a list of **strings**; `bounded_contexts[].terms` is a
-list of **objects** `{term, meaning_here}`; `open_questions[].blocking` is a boolean; `heuristics_applied`
-values come from the slug list in SKILL.md (the check script warns on others); `bounded_contexts[].wraps`
-is optional and additive (external system ids this context stands for); `notes_for_downstream[].for` holds
-bare later step names; `deprecated[]` items are `{id, collection, reason, since}` where `collection` is the
-list the item left (`open_questions`, `assumptions`, `relationships`, `bounded_contexts`, …) — re-runs
-only, contract §7; `produced_at` is set by `ddd decompose check --stamp`, not by hand.
+Type reminders that bite: `subdomains[].terms` is a list of **strings**; `bounded_contexts[].terms` is a list of **objects** `{term, meaning_here}`; `open_questions[].blocking` is a boolean; `heuristics_applied` values come from the slug list in SKILL.md (the check script warns on others); `bounded_contexts[].wraps` is optional and additive (external system ids this context stands for); `notes_for_downstream[].for` holds bare later step names; `deprecated[]` items are `{id, collection, reason, since}` where `collection` is the list the item left (`open_questions`, `assumptions`, `relationships`, `bounded_contexts`, …) — re-runs only, contract §7; `produced_at` is set by `ddd decompose check --stamp`, not by hand.
 
 ## C. Per-context glossary block (appended to `ddd/glossary.md`, idempotent)
 
@@ -148,5 +139,4 @@ only, contract §7; `produced_at` is set by `ddd decompose check --stamp`, not b
 **Box** — the menu choice for a week (not the parcel).
 ```
 
-One heading per context that has `terms[]`; one `**Term** — meaning` line per term; never rewrite the
-`## Shared` section. `ddd decompose check --sync-glossary` appends exactly the missing lines.
+One heading per context that has `terms[]`; one `**Term** — meaning` line per term; never rewrite the `## Shared` section. `ddd decompose check --sync-glossary` appends exactly the missing lines.

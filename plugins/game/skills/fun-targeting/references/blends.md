@@ -5,14 +5,9 @@ version: 1
 
 # Blend deck: proven combinations of the eight kinds of fun
 
-A **blend** is 2–3 of LeBlanc's eight kinds of fun that reinforce each other through ONE shared
-dynamic, so the same core loop produces all of them. The first kind is the **primary** aesthetic;
-the others are **supporting**. Pick a blend from this deck; never invent a combination that is not
-here. Each blend cites where the combination is proven. See `eight-kinds-of-fun.md` for primary vs
-supporting and the fold-in rule.
+A **blend** is 2–3 of LeBlanc's eight kinds of fun that reinforce each other through ONE shared dynamic, so the same core loop produces all of them. The first kind is the **primary** aesthetic; the others are **supporting**. Pick a blend from this deck; never invent a combination that is not here. Each blend cites where the combination is proven. See `eight-kinds-of-fun.md` for primary vs supporting and the fold-in rule.
 
-Format (machine-parsed; keep it exactly): one `## <id>: <Name>` heading per blend, then the seven
-bullet keys below in this order, one line each.
+Format (machine-parsed; keep it exactly): one `## <id>: <Name>` heading per blend, then the seven bullet keys below in this order, one line each.
 
 <!-- DRAFT: tune me -->
 

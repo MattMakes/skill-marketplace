@@ -21,9 +21,7 @@ Not one guess — fifty measured attempts, compounding.
 
 ## Commands
 
-The upstream package exposed these as five slash commands; here they are flows of this one
-skill, driven by the three scripts in `scripts/`. In every command below, `$S` is
-`${CLAUDE_PLUGIN_ROOT}/skills/autoresearch-agent/scripts`.
+The upstream package exposed these as five slash commands; here they are flows of this one skill, driven by the three scripts in `scripts/`. In every command below, `$S` is `${CLAUDE_PLUGIN_ROOT}/skills/autoresearch-agent/scripts`.
 
 | Flow | What it does |
 |------|-------------|
@@ -35,8 +33,7 @@ skill, driven by the three scripts in `scripts/`. In every command below, `$S` i
 
 ### setup
 
-If the user gave the parameters, pass them straight to `setup_experiment.py` (see Setup
-below). If not, collect each one at a time:
+If the user gave the parameters, pass them straight to `setup_experiment.py` (see Setup below). If not, collect each one at a time:
 
 1. **Domain** — "What domain? (engineering, marketing, content, prompts, custom)"
 2. **Name** — "Experiment name? (e.g., api-speed, blog-titles)"
@@ -47,28 +44,18 @@ below). If not, collect each one at a time:
 7. **Evaluator** (optional) — show `python3 "$S/setup_experiment.py" --list-evaluators`. "Use a built-in evaluator, or your own?"
 8. **Scope** — "Store in project (.autoresearch/) or user (~/.autoresearch/)?"
 
-Then run `setup_experiment.py` with the collected parameters. `--list` shows existing
-experiments. Afterwards report the experiment path and branch name, whether the eval
-command worked and the baseline metric, and offer **run** (one iteration) or **loop**.
+Then run `setup_experiment.py` with the collected parameters. `--list` shows existing experiments. Afterwards report the experiment path and branch name, whether the eval command worked and the baseline metric, and offer **run** (one iteration) or **loop**.
 
 ### run
 
-Exactly ONE iteration: if no experiment was named, run `setup_experiment.py --list` and ask
-the user to pick. Then follow the Agent Protocol below (load context, decide one change,
-edit, commit, evaluate) and report the result: **KEEP** "Improvement! {metric}: {value}
-({delta} from previous best)", **DISCARD** "No improvement. {metric}: {value} vs best
-{best}. Reverted.", **CRASH** "Evaluation failed: {reason}. Reverted."
+Exactly ONE iteration: if no experiment was named, run `setup_experiment.py --list` and ask the user to pick. Then follow the Agent Protocol below (load context, decide one change, edit, commit, evaluate) and report the result: **KEEP** "Improvement! {metric}: {value} ({delta} from previous best)", **DISCARD** "No improvement. {metric}: {value} vs best {best}. Reverted.", **CRASH** "Evaluation failed: {reason}. Reverted."
 
 ### loop
 
-A recurring loop at a user-selected interval, using Claude Code's in-session scheduler
-(`CronCreate` / `CronDelete`; the `/loop` skill is the same mechanism).
+A recurring loop at a user-selected interval, using Claude Code's in-session scheduler (`CronCreate` / `CronDelete`; the `/loop` skill is the same mechanism).
 
 1. Resolve the experiment (list and let the user pick if needed).
-2. Select the interval if not given: every 10 minutes (rapid — stay and watch), every hour
-   (background — check back later), daily at ~9am (overnight), weekly on Monday
-   (long-running), monthly on the 1st (slow). Cron expressions: `*/10 * * * *` (10m),
-   `7 * * * *` (1h), `57 8 * * *` (daily), `57 8 * * 1` (weekly), `57 8 1 * *` (monthly).
+2. Select the interval if not given: every 10 minutes (rapid — stay and watch), every hour (background — check back later), daily at ~9am (overnight), weekly on Monday (long-running), monthly on the 1st (slow). Cron expressions: `*/10 * * * *` (10m), `7 * * * *` (1h), `57 8 * * *` (daily), `57 8 * * 1` (weekly), `57 8 1 * *` (monthly).
 3. Create the recurring job with this prompt, filled in:
 
 ```
@@ -96,33 +83,22 @@ Current best metric: {read from results.tsv or "no baseline yet"}
 Total experiments so far: {count from results.tsv}
 ```
 
-4. Write `.autoresearch/{domain}/{name}/loop.json` with `cron_id`, `interval`, `started`
-   (ISO timestamp) and `experiment`.
+4. Write `.autoresearch/{domain}/{name}/loop.json` with `cron_id`, `interval`, `started` (ISO timestamp) and `experiment`.
 5. Confirm: interval, cron ID, how to check progress (**status**) and how to stop.
 
-**Stopping:** read `loop.json` for the cron ID, delete the job, delete `loop.json`, confirm
-"Loop stopped for {experiment}. {n} experiments completed."
+**Stopping:** read `loop.json` for the cron ID, delete the job, delete `loop.json`, confirm "Loop stopped for {experiment}. {n} experiments completed."
 
-**Limitations:** scheduled jobs auto-expire (3 days); re-run **loop** to restart and it picks up
-where it left off, since results persist. One loop per experiment. Concurrent experiments
-only on different git branches (the default — each gets `autoresearch/{domain}/{name}`).
+**Limitations:** scheduled jobs auto-expire (3 days); re-run **loop** to restart and it picks up where it left off, since results persist. One loop per experiment. Concurrent experiments only on different git branches (the default — each gets `autoresearch/{domain}/{name}`).
 
 ### status
 
-`log_results.py` as in Viewing Results below (`--experiment`, `--domain`, `--dashboard`,
-`--format csv|markdown --output <file>`). For each experiment also `cat
-.autoresearch/{domain}/{name}/loop.json 2>/dev/null` and, if it exists, show
-`Active loop: every {interval} (cron ID: {id}, started: {date})`.
+`log_results.py` as in Viewing Results below (`--experiment`, `--domain`, `--dashboard`, `--format csv|markdown --output <file>`). For each experiment also `cat .autoresearch/{domain}/{name}/loop.json 2>/dev/null` and, if it exists, show `Active loop: every {interval} (cron ID: {id}, started: {date})`.
 
 ### resume
 
-1. If no experiment was named, `setup_experiment.py --list`; show status for each
-   (active/paused/done from results.tsv age) and let the user pick.
-2. Load full context: `git checkout autoresearch/{domain}/{name}`, read `config.cfg`,
-   `program.md`, `results.tsv`, and `git log --oneline -20`.
-3. Summarize: target, metric and direction, totals (kept / discarded / crashed), best and
-   delta from baseline, the last experiment and its result, and recent patterns by kind of
-   change (what was kept, what was discarded, what looks promising).
+1. If no experiment was named, `setup_experiment.py --list`; show status for each (active/paused/done from results.tsv age) and let the user pick.
+2. Load full context: `git checkout autoresearch/{domain}/{name}`, read `config.cfg`, `program.md`, `results.tsv`, and `git log --oneline -20`.
+3. Summarize: target, metric and direction, totals (kept / discarded / crashed), best and delta from baseline, the last experiment and its result, and recent patterns by kind of change (what was kept, what was discarded, what looks promising).
 4. Ask: single iteration (**run**), start a loop (**loop**), or just review the results.
 
 ---
@@ -262,10 +238,7 @@ python3 "$S/run_experiment.py" --experiment engineering/api-speed --dry-run
 - If no improvement in 20+ runs: update program.md Strategy section
 
 ### Self-Improvement
-After every 10 experiments, review results.tsv for patterns. Update the
-Strategy section of program.md with what you learned (e.g., "caching changes
-consistently improve by 5-10%", "refactoring attempts never improve the metric").
-Future iterations benefit from this accumulated knowledge.
+After every 10 experiments, review results.tsv for patterns. Update the Strategy section of program.md with what you learned (e.g., "caching changes consistently improve by 5-10%", "refactoring attempts never improve the metric"). Future iterations benefit from this accumulated knowledge.
 
 ### Stopping
 - Run until interrupted by the user, context limit reached, or goal in program.md is met

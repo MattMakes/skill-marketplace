@@ -2,9 +2,7 @@
 
 <!-- Adapted from blader/humanizer (MIT, Siqi Chen); see ../LICENSE-humanizer. -->
 
-Scrubbing tells is half the job. Sterile, voiceless prose is as recognisable as slop. Good writing
-has a person behind it. Apply this after the scrub, before the audit, and only where the register
-allows: a release note or a personal post wants a pulse; an API reference does not.
+Scrubbing tells is half the job. Sterile, voiceless prose is as recognisable as slop. Good writing has a person behind it. Apply this after the scrub, before the audit, and only where the register allows: a release note or a personal post wants a pulse; an API reference does not.
 
 ## Signs of soulless writing, even when technically clean
 

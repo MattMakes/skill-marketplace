@@ -1,22 +1,14 @@
 # Prompt Cookbook
 
-Tested prompt patterns for the highest-quality results from this skill. Each
-recipe states what to include, why it matters, and what the skill does with it.
-Adapt the bracketed parts; keep the structural clauses.
+Tested prompt patterns for the highest-quality results from this skill. Each recipe states what to include, why it matters, and what the skill does with it. Adapt the bracketed parts; keep the structural clauses.
 
 ## General rules that always help
 
-1. **Name the audience and the file format.** "for an exec review, PNG +
-   editable .drawio" changes layout, colors, and what gets simplified.
-2. **List the components explicitly.** An enumerated list of nodes beats
-   "a typical microservices system" — the skill cannot invent your topology.
-3. **State the relations with verbs.** "Kafka consumes events from Order
-   Service" yields labeled, directed edges instead of anonymous lines.
-4. **Say what is external or out of scope** to get boundary containers and
-   honest trust boundaries.
-5. **For source-backed models, point at the real directory/manifest.** Anything
-   the skill imports from code/IaC/SQL carries provenance; anything invented
-   does not.
+1. **Name the audience and the file format.** "for an exec review, PNG + editable .drawio" changes layout, colors, and what gets simplified.
+2. **List the components explicitly.** An enumerated list of nodes beats "a typical microservices system" — the skill cannot invent your topology.
+3. **State the relations with verbs.** "Kafka consumes events from Order Service" yields labeled, directed edges instead of anonymous lines.
+4. **Say what is external or out of scope** to get boundary containers and honest trust boundaries.
+5. **For source-backed models, point at the real directory/manifest.** Anything the skill imports from code/IaC/SQL carries provenance; anything invented does not.
 
 ## Natural-language architecture diagram
 
@@ -29,9 +21,7 @@ gateway over HTTPS; services talk over gRPC inside the VPC; Payment calls
 Stripe over mTLS. Output PNG + editable .drawio.
 ```
 
-Why it works: enumerated nodes, protocol-labeled edges, explicit external
-system, audience stated. Swap "exec review" for "security review" and the
-same prompt projects a different view.
+Why it works: enumerated nodes, protocol-labeled edges, explicit external system, audience stated. Swap "exec review" for "security review" and the same prompt projects a different view.
 
 ## Codebase visualization
 
@@ -40,9 +30,7 @@ Visualize the module structure of ./myproject as an import graph. Group by
 top-level package, and hide utilities modules. Export .drawio + PNG.
 ```
 
-The directory path is doing the work here: `diagramctl.py build ./myproject
---group` reads the real imports, so the diagram stays syncable when the code
-changes. Do not also list components by hand — the importer wins.
+The directory path is doing the work here: `diagramctl.py build ./myproject --group` reads the real imports, so the diagram stays syncable when the code changes. Do not also list components by hand — the importer wins.
 
 ## Incremental sync (the "don't lose my layout" workflow)
 
@@ -64,9 +52,7 @@ service must have an owner, and every external call must have a timeout.
 Fail the build on errors.
 ```
 
-Maps to a policy file + `diagramctl.py test`. Better: commit the IR JSON and
-wire the `drawio-architecture-test` GitHub Action (see
-`references/ci-gate.md`) so this runs on every PR.
+Maps to a policy file + `diagramctl.py test`. Better: commit the IR JSON and wire the `drawio-architecture-test` GitHub Action (see `references/ci-gate.md`) so this runs on every PR.
 
 ## Multi-view projection
 
@@ -118,8 +104,7 @@ Order Service reserves inventory (gRPC) -> Payment Service charges Stripe
 OrderPlaced to Kafka. Show the failure path when Stripe times out.
 ```
 
-Multiplicities and explicit failure branches are the clauses agents skip
-without them.
+Multiplicities and explicit failure branches are the clauses agents skip without them.
 
 ## ER diagram from DDL
 
@@ -161,8 +146,7 @@ tensor shapes on every arrow and color-code by layer type (attention /
 normalization / feed-forward).
 ```
 
-Tensor-shape annotations are the difference between a poster and a
-teachable figure; ask for them explicitly.
+Tensor-shape annotations are the difference between a poster and a teachable figure; ask for them explicitly.
 
 ## Mermaid-first authoring (draw.io CLI >= 30)
 
@@ -171,20 +155,12 @@ Draft this as a Mermaid mindmap first (it's structure-only), then convert
 to native .drawio: quarterly OKRs with three branches...
 ```
 
-Use Mermaid for standard types with no custom styling; switch to XML/IR
-authoring the moment you need vendor icons, swimlanes, or precise geometry.
+Use Mermaid for standard types with no custom styling; switch to XML/IR authoring the moment you need vendor icons, swimlanes, or precise geometry.
 
 ## Anti-patterns (these produce weak diagrams)
 
-- "Draw a typical e-commerce architecture" — invented topology, no
-  provenance, nothing to check. Enumerate nodes or name the source dir.
-- "Make it beautiful" with no audience — the skill has to guess colors,
-  density, and export format. Name the audience or a style preset.
-- "Auto-layout it" for under ~15 nodes — hand-arranged placement from the
-  IR preserves semantic grouping better; large graphs are where
-  autolayout earns its keep.
-- Mixing real sources and invented components in one request without
-  saying which is which — provenance gets muddled and review findings
-  become noise.
-- Asking for PNG only on an architecture you will iterate on — always ask
-  for the editable `.drawio` (or the IR JSON) as well.
+- "Draw a typical e-commerce architecture" — invented topology, no provenance, nothing to check. Enumerate nodes or name the source dir.
+- "Make it beautiful" with no audience — the skill has to guess colors, density, and export format. Name the audience or a style preset.
+- "Auto-layout it" for under ~15 nodes — hand-arranged placement from the IR preserves semantic grouping better; large graphs are where autolayout earns its keep.
+- Mixing real sources and invented components in one request without saying which is which — provenance gets muddled and review findings become noise.
+- Asking for PNG only on an architecture you will iterate on — always ask for the editable `.drawio` (or the IR JSON) as well.

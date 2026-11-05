@@ -1,20 +1,12 @@
 ---
 name: game-ideation
 description: >-
-  Use when generating game ideas or concepts — diverges into at least 6 concepts under a
-  constraint card (target fun, core verb, setting, twist, session length, scope), each written
-  through a different ideation frame, rejects any concept that crosses the caller's content
-  boundaries before scoring, scores the rest on fun fit, novelty against a history list,
-  one-sentence clarity and prototypability, and returns a ranked shortlist with the pick, the
-  runners-up and a machine-readable JSON block. Trigger on: "give me game ideas", "brainstorm a
-  game", "constraint card", "pick a concept", or the ideation step of the game-design pipeline.
-  Runs headless: never asks, infers and states assumptions.
+  Use when generating game ideas or concepts — diverges into at least 6 concepts under a constraint card (target fun, core verb, setting, twist, session length, scope), each written through a different ideation frame, rejects any concept that crosses the caller's content boundaries before scoring, scores the rest on fun fit, novelty against a history list, one-sentence clarity and prototypability, and returns a ranked shortlist with the pick, the runners-up and a machine-readable JSON block. Trigger on: "give me game ideas", "brainstorm a game", "constraint card", "pick a concept", or the ideation step of the game-design pipeline. Runs headless: never asks, infers and states assumptions.
 ---
 
 # Game Ideation
 
-You diverge first, then converge. You write many different concepts, remove the ones that break
-the caller's content boundaries, score the rest, and pick one.
+You diverge first, then converge. You write many different concepts, remove the ones that break the caller's content boundaries, score the rest, and pick one.
 
 Read these files before you start:
 - `references/frames.md` (the ideation frames)
@@ -24,9 +16,7 @@ Read these files before you start:
 ## Input
 
 The caller gives some of:
-- a **constraint card**: target fun (2–3 kinds), core verb, setting, twist, session length, scope,
-  and optionally a **blend** from `../fun-targeting/references/blends.md` (id, name, kinds,
-  signature dynamic, loop pattern);
+- a **constraint card**: target fun (2–3 kinds), core verb, setting, twist, session length, scope, and optionally a **blend** from `../fun-targeting/references/blends.md` (id, name, kinds, signature dynamic, loop pattern);
 - **boundaries**: content rules a concept must not cross;
 - a **history** list of past concepts, for novelty;
 - **seed concepts** the caller wants judged alongside yours.
@@ -34,32 +24,24 @@ The caller gives some of:
 ## Rules
 
 - Never ask the user a question. Infer what is missing and write it under **Assumptions**.
-- If the card is missing or incomplete, draw each missing field from its deck in
-  `references/decks/` and say so under Assumptions. If the target fun is missing, pick 2 kinds
-  that suit the verb.
-- If the card carries a blend, the target fun is exactly the blend's kinds, in its order, and you
-  score `fun_fit` against the blend's **signature dynamic** (see `references/rubric.md`). Every
-  concept's one-liner shows the core verb producing that dynamic.
+- If the card is missing or incomplete, draw each missing field from its deck in `references/decks/` and say so under Assumptions. If the target fun is missing, pick 2 kinds that suit the verb.
+- If the card carries a blend, the target fun is exactly the blend's kinds, in its order, and you score `fun_fit` against the blend's **signature dynamic** (see `references/rubric.md`). Every concept's one-liner shows the core verb producing that dynamic.
 - Write **at least 6** new concepts. Each uses a different frame from `references/frames.md`.
 - Include every seed concept too, with the frame `supplied`. Seeds do not count toward the 6.
 - **Boundaries first.** Check every concept against every boundary **before** you score anything.
   - A concept that crosses a boundary is rejected. Do not soften or rewrite it to pass.
   - When it is unclear whether a concept crosses a boundary, reject it.
-  - A rejected concept gets `scores: {}`, `total: null` and a `rejected_reason` that names the
-    boundary it crossed.
-  - If the caller supplies no boundaries, write "No boundaries supplied" under Assumptions and
-    reject nothing on boundary grounds.
+  - A rejected concept gets `scores: {}`, `total: null` and a `rejected_reason` that names the boundary it crossed.
+  - If the caller supplies no boundaries, write "No boundaries supplied" under Assumptions and reject nothing on boundary grounds.
 - Score only concepts that passed the gate, with the rubric in `references/rubric.md`.
 - Never pick a rejected concept.
 
 ## Steps
 
 1. Write the constraint card (given or drawn).
-2. Diverge: write at least 6 concepts, one frame each. Each concept has a title (2–4 words) and a
-   one-liner (one sentence, at most 30 words). Add the seed concepts.
+2. Diverge: write at least 6 concepts, one frame each. Each concept has a title (2–4 words) and a one-liner (one sentence, at most 30 words). Add the seed concepts.
 3. Gate: check every concept against the boundaries. Record each rejection and its reason.
-4. Score: give each remaining concept 1–5 on `fun_fit`, `novelty`, `clarity`, `prototypability`.
-   Compute the total with the weights in the rubric.
+4. Score: give each remaining concept 1–5 on `fun_fit`, `novelty`, `clarity`, `prototypability`. Compute the total with the weights in the rubric.
 5. Converge: pick the highest total. Name the next 2 as runners-up.
 6. Write the output in the exact format below.
 

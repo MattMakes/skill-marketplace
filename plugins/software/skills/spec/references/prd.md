@@ -5,8 +5,7 @@ PRD mode of software:spec, from write-spec in anthropics/knowledge-work-plugins
 
 # PRD guidance
 
-What each section of a PRD-mode spec holds, and how to write it well. The workflow that
-produces it is the PRD mode in `../SKILL.md`.
+What each section of a PRD-mode spec holds, and how to write it well. The workflow that produces it is the PRD mode in `../SKILL.md`.
 
 Sections, in order:
 

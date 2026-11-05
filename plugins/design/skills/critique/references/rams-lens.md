@@ -69,41 +69,35 @@ If the target is only a stub or wireframe with no real decisions to preserve, ke
 
 Deploy subagents in parallel. Each must return ONLY the required fields below — no prose paragraphs, no scoring.
 
-**1. Structural Evidence** subagent (always deploy)
-Required fields returned:
+**1. Structural Evidence** subagent (always deploy) Required fields returned:
 - Total interactive-element count on audited surface
 - Max nesting depth of the primary component tree
 - Repeated-pattern count (same affordance appearing >1 place with the same purpose)
 - Dead-prop / unused-import count
 - File:line citations for every count
 
-**2. Visual Evidence** subagent (always deploy)
-Mode: if target is a reachable URL or running dev server → use a browser tool (Claude in Chrome, Playwright, or whatever the session offers) for screenshots and computed-style inspection. If target is a static repo with no running instance → read source CSS / tokens / component files and report inferred facts only (mark these "INFERRED").
-Required fields returned:
+**2. Visual Evidence** subagent (always deploy) Mode: if target is a reachable URL or running dev server → use a browser tool (Claude in Chrome, Playwright, or whatever the session offers) for screenshots and computed-style inspection. If target is a static repo with no running instance → read source CSS / tokens / component files and report inferred facts only (mark these "INFERRED"). Required fields returned:
 - Spacing scale observed (px array)
 - Type scale observed (px array)
 - Distinct color count (count of unique hex/oklch tokens actually rendered or referenced)
 - Lowest contrast ratio observed across primary text
 - States present checklist: empty / loading / error / success / focus / disabled — present or missing for each
 
-**3. Copy & Honesty** subagent (always deploy)
-Required fields returned:
+**3. Copy & Honesty** subagent (always deploy) Required fields returned:
 - List of every user-facing string with file:line
 - Flagged inflations (marketing superlatives without backing)
 - Flagged dark patterns (forced continuity, hidden cost, fake scarcity, confirmshaming)
 - Flagged jargon / unclear labels with proposed plain replacement
 - Label→behavior mismatches with file:line of both
 
-**4. Weight & Friction** subagent (always deploy)
-Required fields returned:
+**4. Weight & Friction** subagent (always deploy) Required fields returned:
 - Initial JS bytes (number)
 - Network request count for primary view (number)
 - Time-to-interactive ms (number, measured or estimated with method noted)
 - Animation count on idle screen (number)
 - Notification / badge / modal count on initial load (number)
 
-**5. Accessibility Evidence** subagent (OPTIONAL — deploy only if target has a meaningful interactive UI surface; skip for static landing pages without interaction)
-Required fields returned:
+**5. Accessibility Evidence** subagent (OPTIONAL — deploy only if target has a meaningful interactive UI surface; skip for static landing pages without interaction) Required fields returned:
 - WCAG contrast pass/fail per text token
 - Focus order list across primary controls
 - Keyboard reachability of every primary action (yes/no per action)
@@ -141,16 +135,7 @@ N. Good design is <principle> — Score: X/3
 
 Per-principle scoring anchors (apply verbatim — pick the level whose signal best matches the audited surface):
 
-#1 innovative — 3: introduces a pattern not seen in 5+ peer products and ships it with restraint. 2: refreshes an existing pattern with a clear improvement. 1: imitates competitors with minor variation. 0: copies a competitor's flow wholesale.
-#2 useful — 3: primary task completes in fewest possible steps; no decoy actions. 2: primary task completes but adjacent surface adds steps. 1: primary task requires unnecessary detours. 0: primary task is not directly supported on the screen audited.
-#3 aesthetic — 3: spacing/type/color obey a single visible system; no orphan styles. 2: ≤2 minor inconsistencies across audited surface. 1: 3–5 inconsistencies OR one jarring violation. 0: no visible system OR active visual noise.
-#4 understandable — 3: a first-time user names every primary control correctly. 2: 1 control needs a tooltip. 1: 2–3 controls unclear; jargon present. 0: primary action is not identifiable without help.
-#5 unobtrusive — 3: chrome recedes; content is the figure, UI the ground. 2: chrome visible but quiet. 1: decoration competes with content. 0: chrome dominates content.
-#6 honest — 3: every claim, badge, and label maps 1:1 to actual behavior. 2: ≤1 minor inflation (e.g. "powerful" once). 1: 2+ inflations OR one dark pattern. 0: any deceptive flow (forced continuity, hidden cost, fake scarcity).
-#7 long-lasting — 3: visual language has no dated trend markers; would read as current 3 years from now. 2: 1 dated marker. 1: 2–3 dated markers (skeuomorph residue, fad gradients, trend typography). 0: design reads as a specific year's trend.
-#8 thorough — 3: empty / loading / error / success / focus / disabled all present and considered. 2: 1 state missing or rough. 1: 2–3 states missing. 0: 4+ states missing or default-browser.
-#9 environmentally friendly — 3: initial JS <100KB, no idle animation, dark mode honored, prefers-reduced-motion respected. 2: <500KB, motion gated. 1: 500KB–2MB, motion always on. 0: >2MB OR autoplay video OR dark mode ignored.
-#10 as little design as possible — 3: every element earns its place; removing any one breaks the task. 2: ≤2 removable elements. 1: 3–5 removable elements. 0: page is dominated by decoration or duplicated affordances.
+#1 innovative — 3: introduces a pattern not seen in 5+ peer products and ships it with restraint. 2: refreshes an existing pattern with a clear improvement. 1: imitates competitors with minor variation. 0: copies a competitor's flow wholesale. #2 useful — 3: primary task completes in fewest possible steps; no decoy actions. 2: primary task completes but adjacent surface adds steps. 1: primary task requires unnecessary detours. 0: primary task is not directly supported on the screen audited. #3 aesthetic — 3: spacing/type/color obey a single visible system; no orphan styles. 2: ≤2 minor inconsistencies across audited surface. 1: 3–5 inconsistencies OR one jarring violation. 0: no visible system OR active visual noise. #4 understandable — 3: a first-time user names every primary control correctly. 2: 1 control needs a tooltip. 1: 2–3 controls unclear; jargon present. 0: primary action is not identifiable without help. #5 unobtrusive — 3: chrome recedes; content is the figure, UI the ground. 2: chrome visible but quiet. 1: decoration competes with content. 0: chrome dominates content. #6 honest — 3: every claim, badge, and label maps 1:1 to actual behavior. 2: ≤1 minor inflation (e.g. "powerful" once). 1: 2+ inflations OR one dark pattern. 0: any deceptive flow (forced continuity, hidden cost, fake scarcity). #7 long-lasting — 3: visual language has no dated trend markers; would read as current 3 years from now. 2: 1 dated marker. 1: 2–3 dated markers (skeuomorph residue, fad gradients, trend typography). 0: design reads as a specific year's trend. #8 thorough — 3: empty / loading / error / success / focus / disabled all present and considered. 2: 1 state missing or rough. 1: 2–3 states missing. 0: 4+ states missing or default-browser. #9 environmentally friendly — 3: initial JS <100KB, no idle animation, dark mode honored, prefers-reduced-motion respected. 2: <500KB, motion gated. 1: 500KB–2MB, motion always on. 0: >2MB OR autoplay video OR dark mode ignored. #10 as little design as possible — 3: every element earns its place; removing any one breaks the task. 2: ≤2 removable elements. 1: 3–5 removable elements. 0: page is dominated by decoration or duplicated affordances.
 
 Scoring rules:
 - **Tie-breaker rule**: When uncertain between two scores, pick the lower one. Convergence > generosity.

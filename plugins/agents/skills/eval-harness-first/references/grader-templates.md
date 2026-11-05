@@ -2,19 +2,11 @@ Last verified: 2026-07-14
 
 # Grader Templates
 
-Runnable examples for the four grader shapes named
-in `SKILL.md`'s Graders section: schema-compliance,
-exact-match with normalization, execution-based, and
-LLM-judge. Every grader returns a binary pass/fail —
-never a Likert score — per the plugin-wide rule.
-Wire each one to exactly one failure bucket from
-error analysis; don't blend buckets into one grader.
+Runnable examples for the four grader shapes named in `SKILL.md`'s Graders section: schema-compliance, exact-match with normalization, execution-based, and LLM-judge. Every grader returns a binary pass/fail — never a Likert score — per the plugin-wide rule. Wire each one to exactly one failure bucket from error analysis; don't blend buckets into one grader.
 
 ## Schema Compliance
 
-For buckets where the failure mode is "the output
-isn't shaped right" — tool calls, structured
-extraction, JSON responses:
+For buckets where the failure mode is "the output isn't shaped right" — tool calls, structured extraction, JSON responses:
 
 ```python
 import json
@@ -49,9 +41,7 @@ def grade_schema_compliance(completion: str) -> bool:
 
 ## Exact Match with Normalization
 
-For buckets with a single ground-truth string (math
-final answers, extracted entities, classification
-labels) where naive `==` fails on formatting noise:
+For buckets with a single ground-truth string (math final answers, extracted entities, classification labels) where naive `==` fails on formatting noise:
 
 ```python
 import re
@@ -73,21 +63,9 @@ def grade_exact_match(completion: str, ground_truth: str) -> bool:
 
 ## Execution-Based
 
-For buckets where correctness means "the code runs
-and does the right thing" — the strongest signal
-available when applicable, since it needs no
-normalization or judgment call.
+For buckets where correctness means "the code runs and does the right thing" — the strongest signal available when applicable, since it needs no normalization or judgment call.
 
-**WARNING — this grader executes model-generated
-code and REQUIRES an isolated environment:** a
-network-disabled container, gVisor/firejail, or a
-dedicated CI sandbox, with **no secrets or
-credentials in the environment** — no HF tokens,
-experiment-tracker keys, cloud credentials, or SSH
-keys. Never run it directly on a host holding
-credentials. The timeout below protects grading-loop
-liveness only — **it is NOT a security boundary**;
-isolation comes entirely from `sandbox_cmd`.
+**WARNING — this grader executes model-generated code and REQUIRES an isolated environment:** a network-disabled container, gVisor/firejail, or a dedicated CI sandbox, with **no secrets or credentials in the environment** — no HF tokens, experiment-tracker keys, cloud credentials, or SSH keys. Never run it directly on a host holding credentials. The timeout below protects grading-loop liveness only — **it is NOT a security boundary**; isolation comes entirely from `sandbox_cmd`.
 
 ```python
 import logging
@@ -153,12 +131,7 @@ def grade_execution(completion: str, test_code: str, sandbox_cmd: list[str]) -> 
 
 ## LLM-Judge Template
 
-Only for buckets that failed the deterministic-first
-check in `SKILL.md` — genuinely subjective criteria.
-Few-shot slots and a binary output contract are both
-mandatory; a judge without few-shot anchors drifts
-toward its own prior instead of the calibrated
-labels.
+Only for buckets that failed the deterministic-first check in `SKILL.md` — genuinely subjective criteria. Few-shot slots and a binary output contract are both mandatory; a judge without few-shot anchors drifts toward its own prior instead of the calibrated labels.
 
 ```python
 JUDGE_PROMPT = """You are grading whether a response
@@ -203,18 +176,11 @@ def grade_llm_judge(task: str, response: str, criterion: str,
     return verdict == "PASS"
 ```
 
-The grader's return value stays binary pass/fail per this
-file's plugin-wide rule — `JudgeParseError` is not a third
-grading state, it's an operational failure. Never catch it
-and coerce to `False`; log it and re-run the judge call or
-route the item to human review instead.
+The grader's return value stays binary pass/fail per this file's plugin-wide rule — `JudgeParseError` is not a third grading state, it's an operational failure. Never catch it and coerce to `False`; log it and re-run the judge call or route the item to human review instead.
 
 ## drift-suite.yaml Example
 
-Frozen general-capability benchmarks plus a
-domain-adjacent slice, per `SKILL.md`'s Directory
-Contract. Benchmark subsets are frozen at a fixed
-seed/split so re-runs are comparable run over run:
+Frozen general-capability benchmarks plus a domain-adjacent slice, per `SKILL.md`'s Directory Contract. Benchmark subsets are frozen at a fixed seed/split so re-runs are comparable run over run:
 
 ```yaml
 # eval/drift-suite.yaml
@@ -246,49 +212,13 @@ drift_budget:
   hard_fail_threshold_pts: 5   # >5pt drop is a hard fail regardless of task-metric gains
 ```
 
-**Minimum viable drift suite for a small/dogfood run:** the
-500/250/300 general-benchmark sizes and the 200-500
-`domain_adjacent` range above are scoped for production-scale
-runs and can be hours of wall-clock at greedy single-stream
-decode on modest hardware. Scope down deliberately rather than
-silently truncating — pick n per benchmark using
-`agents:checkpoint-promotion`'s item-count-from-budget rule (95% CI
-half-width comfortably under half the hard-fail threshold), and
-document the scoped-down suite inline in `drift-suite.yaml`
-(a comment naming the budget it was sized against). The
-`domain_adjacent` block itself is **optional when the golden
-set is small and already fully consumed by the task harness** —
-if `eval/goldens.jsonl` has no separate drift-suite-tagged
-holdout because every golden is already spoken for by the task
-grader, omit the block rather than fabricating a slice with
-nothing behind it; the frozen general benchmarks alone still
-provide a capability-drift signal.
+**Minimum viable drift suite for a small/dogfood run:** the 500/250/300 general-benchmark sizes and the 200-500 `domain_adjacent` range above are scoped for production-scale runs and can be hours of wall-clock at greedy single-stream decode on modest hardware. Scope down deliberately rather than silently truncating — pick n per benchmark using `agents:checkpoint-promotion`'s item-count-from-budget rule (95% CI half-width comfortably under half the hard-fail threshold), and document the scoped-down suite inline in `drift-suite.yaml` (a comment naming the budget it was sized against). The `domain_adjacent` block itself is **optional when the golden set is small and already fully consumed by the task harness** — if `eval/goldens.jsonl` has no separate drift-suite-tagged holdout because every golden is already spoken for by the task grader, omit the block rather than fabricating a slice with nothing behind it; the frozen general benchmarks alone still provide a capability-drift signal.
 
 ## Drift-Suite MMLU-Style Scoring: Logprob Over Generate-and-Extract
 
-"Letter-choice logprob or generate-and-extract" are not
-equivalent scoring methods, though earlier guidance in this
-plugin implied they were interchangeable:
+"Letter-choice logprob or generate-and-extract" are not equivalent scoring methods, though earlier guidance in this plugin implied they were interchangeable:
 
-- **Generate-and-extract** (sample a completion, extract the
-  first A–D letter from a tight token budget) is **parse-brittle**
-  for models that preamble before answering. Observed on a real
-  drift run: a near-base checkpoint hit 9/100 unparsed-scored-
-  as-wrong items (all prose restarts like "The energy levels
-  of...") on a `max_new_tokens=8` budget, versus 0–1 unparsed
-  for other checkpoints in the same series — this conflates
-  answer-format compliance with the knowledge MMLU is supposed
-  to measure, and can hard-fail a checkpoint on formatting alone.
-- **Logprob scoring** (compare the model's log-probability on
-  each of the four answer-letter tokens directly, no generation
-  or parsing involved) is robust to this failure mode entirely —
-  there is nothing to parse, so a verbose or preambling model
-  scores on its actual answer distribution.
+- **Generate-and-extract** (sample a completion, extract the first A–D letter from a tight token budget) is **parse-brittle** for models that preamble before answering. Observed on a real drift run: a near-base checkpoint hit 9/100 unparsed-scored-as-wrong items (all prose restarts like "The energy levels of...") on a `max_new_tokens=8` budget, versus 0–1 unparsed for other checkpoints in the same series — this conflates answer-format compliance with the knowledge MMLU is supposed to measure, and can hard-fail a checkpoint on formatting alone.
+- **Logprob scoring** (compare the model's log-probability on each of the four answer-letter tokens directly, no generation or parsing involved) is robust to this failure mode entirely — there is nothing to parse, so a verbose or preambling model scores on its actual answer distribution.
 
-**Prefer logprob scoring whenever the harness has logit access**
-(local inference, not a hosted API that only returns text). When
-logit access isn't available and generate-and-extract is the
-only option, use a generous token budget and retry with a longer
-budget on any unparsed output before scoring it as wrong — don't
-let a tight budget silently convert "the model reasoned before
-answering" into "the model failed the benchmark."
+**Prefer logprob scoring whenever the harness has logit access** (local inference, not a hosted API that only returns text). When logit access isn't available and generate-and-extract is the only option, use a generous token budget and retry with a longer budget on any unparsed output before scoring it as wrong — don't let a tight budget silently convert "the model reasoned before answering" into "the model failed the benchmark."

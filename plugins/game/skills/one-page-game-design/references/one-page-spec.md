@@ -20,15 +20,10 @@ Input to `scripts/render_one_page.py`. All fields are plain JSON — strings, ar
 ## Rendering rules the spec must satisfy
 
 - Tier 1 callouts render at the largest font size; tier 3 at the smallest, never below 8 px.
-- Text wraps to its box width using a simple character-width estimate — keep callout `text` and
-  sidebar bullets short (under ~120 characters) so wrapping stays legible.
-- Callouts sharing an anchor share one cell: `n`/`s` place them side by side, the other anchors
-  stack them. If a block does not fit its region, rendering fails with
-  `<block> does not fit: redesign` (for example `callout 'Risk' does not fit: redesign`).
-- `&`, `<`, `>` and other XML-significant characters in any string are escaped automatically by
-  the renderer; write them plain in the spec.
-- Missing `central.image_slot` art (no `--key-art`, or a `--key-art` path that does not exist)
-  renders as a labeled placeholder box, never an error.
+- Text wraps to its box width using a simple character-width estimate — keep callout `text` and sidebar bullets short (under ~120 characters) so wrapping stays legible.
+- Callouts sharing an anchor share one cell: `n`/`s` place them side by side, the other anchors stack them. If a block does not fit its region, rendering fails with `<block> does not fit: redesign` (for example `callout 'Risk' does not fit: redesign`).
+- `&`, `<`, `>` and other XML-significant characters in any string are escaped automatically by the renderer; write them plain in the spec.
+- Missing `central.image_slot` art (no `--key-art`, or a `--key-art` path that does not exist) renders as a labeled placeholder box, never an error.
 
 ## Minimal example
 

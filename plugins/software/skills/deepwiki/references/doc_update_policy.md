@@ -97,8 +97,7 @@ for section in new_sections:
 
 ### Document-TOC Coexistence Rule
 
-Documents without PAGE_ID marker or with PAGE_ID not in TOC are **ignored** (not deleted).
-This allows manually written documents to coexist in the same directory.
+Documents without PAGE_ID marker or with PAGE_ID not in TOC are **ignored** (not deleted). This allows manually written documents to coexist in the same directory.
 
 ---
 
@@ -122,8 +121,7 @@ python3 collect_update_context.py --include-diff --diff-context 5 --repo-path /p
 
 ### Prerequisites
 
-The TOC must have a valid `ref_commit_hash` in the project section.
-If missing, fall back to full generation mode.
+The TOC must have a valid `ref_commit_hash` in the project section. If missing, fall back to full generation mode.
 
 ### Outputs
 

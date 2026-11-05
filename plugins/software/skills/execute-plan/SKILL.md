@@ -85,10 +85,7 @@ grep -i "worktree.*director" CLAUDE.md 2>/dev/null
 
 #### 3. Default
 
-If no directory exists and no CLAUDE.md preference, use `.worktrees/` inside the
-repository. Set `DEV_WORKTREE_ROOT` to an absolute path to keep worktrees
-elsewhere (for example `DEV_WORKTREE_ROOT=~/worktrees` gives
-`~/worktrees/<project-name>/<branch>`).
+If no directory exists and no CLAUDE.md preference, use `.worktrees/` inside the repository. Set `DEV_WORKTREE_ROOT` to an absolute path to keep worktrees elsewhere (for example `DEV_WORKTREE_ROOT=~/worktrees` gives `~/worktrees/<project-name>/<branch>`).
 
 ### Safety Verification
 

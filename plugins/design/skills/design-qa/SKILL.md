@@ -5,9 +5,7 @@ description: Set up or run design QA gates — token + hardcoded-value lint, aut
 
 # Skill: Design QA
 
-> **Step 0 — doctrine first.** Load `design:design-doctrine` if it is not already loaded
-> this session; every step below assumes its verification protocol and house rules.
-> The render gates need Playwright once per install: `npm install --prefix "${CLAUDE_PLUGIN_ROOT}/shared" && npx --prefix "${CLAUDE_PLUGIN_ROOT}/shared" playwright install chromium`. Without it they print SKIPPED, which is not a pass.
+> **Step 0 — doctrine first.** Load `design:design-doctrine` if it is not already loaded this session; every step below assumes its verification protocol and house rules. The render gates need Playwright once per install: `npm install --prefix "${CLAUDE_PLUGIN_ROOT}/shared" && npx --prefix "${CLAUDE_PLUGIN_ROOT}/shared" playwright install chromium`. Without it they print SKIPPED, which is not a pass.
 
 Stand up the automated + manual gates that stop quality from regressing.
 

@@ -16,9 +16,7 @@ Avoid when there's a single decisive action to take — Long Document hides CTAs
 Reference: Frank Chimero's site, destroytoday.com, long-form Substack essays in product disguise.
 
 **Sample opening lines** (imitate the *specificity*, not the wording):
-> *"Saturday, 6:14 a.m. The dough went in at midnight."* — opens with a time-stamp; the brand introduces itself as a moment in the day
-> *"A monthly art publication featuring contributions by some of the most engaged thinkers working today."* — e-flux.com/journal
-> *"We design everything for everyone."* — pentagram.com — refusal of the verb, treats design as universal practice
+> *"Saturday, 6:14 a.m. The dough went in at midnight."* — opens with a time-stamp; the brand introduces itself as a moment in the day *"A monthly art publication featuring contributions by some of the most engaged thinkers working today."* — e-flux.com/journal *"We design everything for everyone."* — pentagram.com — refusal of the verb, treats design as universal practice
 
 ```html
 <article class="prose">

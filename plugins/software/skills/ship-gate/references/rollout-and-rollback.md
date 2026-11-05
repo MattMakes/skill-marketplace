@@ -1,10 +1,6 @@
 # Rollout and Rollback
 
-How to release once ship-gate says CLEAR TO SHIP or SHIP WITH CAUTION: flags, a staged rollout
-with numeric advance/hold/rollback thresholds, what to monitor, an error-budget gate and a
-rollback plan template. From addyosmani/agent-skills `shipping-and-launch` (MIT), unchanged
-apart from this header. For flag system design see `software:feature-flags-architect`; for SLOs and
-burn-rate alerts see `software:slo-architect` and `software:observability-and-instrumentation`.
+How to release once ship-gate says CLEAR TO SHIP or SHIP WITH CAUTION: flags, a staged rollout with numeric advance/hold/rollback thresholds, what to monitor, an error-budget gate and a rollback plan template. From addyosmani/agent-skills `shipping-and-launch` (MIT), unchanged apart from this header. For flag system design see `software:feature-flags-architect`; for SLOs and burn-rate alerts see `software:slo-architect` and `software:observability-and-instrumentation`.
 
 ## Feature Flag Strategy
 

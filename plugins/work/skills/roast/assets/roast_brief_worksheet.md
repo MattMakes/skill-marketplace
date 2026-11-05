@@ -1,10 +1,8 @@
 # Roast Brief Worksheet
 
-Fill this in before convening the panel. All five reviewers judge the *same* brief, so vagueness here
-becomes noise in the verdict. Keep each answer tight — one or two sentences.
+Fill this in before convening the panel. All five reviewers judge the *same* brief, so vagueness here becomes noise in the verdict. Keep each answer tight — one or two sentences.
 
-> Tip: run `scripts/brief_builder.py` with these fields to get a normalized paragraph + a check for
-> anything still missing.
+> Tip: run `scripts/brief_builder.py` with these fields to get a normalized paragraph + a check for anything still missing.
 
 ---
 

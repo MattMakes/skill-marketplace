@@ -10,36 +10,26 @@ metadata:
 
 # Roast — 5-Angle Idea Panel → One Verdict
 
-> **Portability:** Reasoning-led skill with 3 stdlib Python tools. No external APIs, no LLM calls in
-> scripts. Works in Claude Code CLI and Claude.ai web. The panel does the depth; the Judge does the call.
+> **Portability:** Reasoning-led skill with 3 stdlib Python tools. No external APIs, no LLM calls in scripts. Works in Claude Code CLI and Claude.ai web. The panel does the depth; the Judge does the call.
 
 ## What this does
 
-Claude's default is to agree with you. `/roast` is the opposite. It convenes a panel of five
-independent reviewers — **The Critic, The Champion, The Analyst, The Investigator, and The
-Customer** — who tear an idea apart and build it up from every angle, then a Judge synthesizes
-everything into one honest verdict. Use it before you sink time and money into building the wrong
-thing.
+Claude's default is to agree with you. `/roast` is the opposite. It convenes a panel of five independent reviewers — **The Critic, The Champion, The Analyst, The Investigator, and The Customer** — who tear an idea apart and build it up from every angle, then a Judge synthesizes everything into one honest verdict. Use it before you sink time and money into building the wrong thing.
 
-The panel is adversarial on purpose. No reviewer is allowed to hedge or be polite. The point is to
-surface what you can't see because you're too close to it.
+The panel is adversarial on purpose. No reviewer is allowed to hedge or be polite. The point is to surface what you can't see because you're too close to it.
 
 ## Step 1 — Frame the idea
 
-If `$ARGUMENTS` contains the idea, start there. Then ask the user a tight set of clarifying
-questions so the panel has real context to work with. Ask only what hasn't already been provided.
-Keep it to 3-4 questions max, in one batch:
+If `$ARGUMENTS` contains the idea, start there. Then ask the user a tight set of clarifying questions so the panel has real context to work with. Ask only what hasn't already been provided. Keep it to 3-4 questions max, in one batch:
 
 1. **The idea** in one or two sentences (what it is, what it does).
 2. **Who it's for** and **how it makes money** (the buyer + the price/model).
 3. **Your edge** — relevant skills, audience, or assets you already have.
 4. **Constraints** — budget, timeline, how fast you need first dollar.
 
-If the user says "just run it" or gives you enough already, skip the questions and proceed. Don't
-over-interrogate. One round, then run the panel.
+If the user says "just run it" or gives you enough already, skip the questions and proceed. Don't over-interrogate. One round, then run the panel.
 
-Assemble the brief with `scripts/brief_builder.py` — it normalizes the four load-bearing inputs into
-one paragraph and tells you if anything critical is still missing before you spend five subagents:
+Assemble the brief with `scripts/brief_builder.py` — it normalizes the four load-bearing inputs into one paragraph and tells you if anything critical is still missing before you spend five subagents:
 
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/roast/scripts/brief_builder.py \
@@ -53,11 +43,9 @@ Paste the resulting brief verbatim into every panelist's prompt, so all five jud
 
 ## Step 2 — Run the 5-angle panel (5 reviewers, in parallel)
 
-Spin up **all five reviewers in parallel in a single message** (one Task call each,
-`subagent_type: general-purpose`). Paste the same brief into each, then give each its mandate below.
+Spin up **all five reviewers in parallel in a single message** (one Task call each, `subagent_type: general-purpose`). Paste the same brief into each, then give each its mandate below.
 
-Each panelist must return: a one-line stance, their 3-5 sharpest points, the single most important
-thing the user must hear, and a 1-10 score on their own dimension (1 = walk away, 10 = no-brainer).
+Each panelist must return: a one-line stance, their 3-5 sharpest points, the single most important thing the user must hear, and a 1-10 score on their own dimension (1 = walk away, 10 = no-brainer).
 
 **1. The Critic — "What kills this?"**
 > You are The Critic on an idea panel. Assume this idea fails. Your job is to find the fatal flaws, the fastest way it dies, and the load-bearing assumptions that are probably wrong. Be ruthless and specific. No hedging, no "but it could work." Attack the weakest points. THE BRIEF: [brief]
@@ -76,24 +64,16 @@ thing the user must hear, and a 1-10 score on their own dimension (1 = walk away
 
 ## Step 3 — Call the verdict
 
-Once all five return, YOU act as the Judge. Read every panelist's findings, weigh them, and
-synthesize one decisive verdict. **Do not just average the scores.** Run the five scores through the
-synthesizer so the call is reproducible weighting, not vibes — then name the real tension between the
-reviewers and resolve it in prose:
+Once all five return, YOU act as the Judge. Read every panelist's findings, weigh them, and synthesize one decisive verdict. **Do not just average the scores.** Run the five scores through the synthesizer so the call is reproducible weighting, not vibes — then name the real tension between the reviewers and resolve it in prose:
 
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/roast/scripts/verdict_synthesizer.py \
   --critic 4 --champion 8 --analyst 7 --investigator 5 --customer 6
 ```
 
-The tool weights demand (Customer) and survival (Critic) heaviest and the bull (Champion) lightest,
-applies hard gates (a Customer who won't pay, or a fatal flaw the Critic landed, vetoes a GO), and
-flags the widest disagreement as the tension you must resolve. Use its verdict + confidence as your
-spine; write the prose yourself.
+The tool weights demand (Customer) and survival (Critic) heaviest and the bull (Champion) lightest, applies hard gates (a Customer who won't pay, or a fatal flaw the Critic landed, vetoes a GO), and flags the widest disagreement as the tension you must resolve. Use its verdict + confidence as your spine; write the prose yourself.
 
-Fold in the **economics lens** yourself: rough pricing, realistic time-to-first-dollar, and whether
-the user can actually ship this fast given the edge they described. Then design the cheapest test
-from the riskiest assumption the panel surfaced:
+Fold in the **economics lens** yourself: rough pricing, realistic time-to-first-dollar, and whether the user can actually ship this fast given the edge they described. Then design the cheapest test from the riskiest assumption the panel surfaced:
 
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/roast/scripts/cheapest_test_designer.py --risk price --price 99

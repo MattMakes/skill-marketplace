@@ -2,39 +2,15 @@ Last verified: 2026-07-13
 
 # GRPO Reward Function Library
 
-Complete, runnable reward functions for TRL's
-`GRPOTrainer`. Every function here follows the
-current TRL reward-function signature: it accepts
-`completions` plus any extra dataset columns as
-keyword arguments, and returns a `list[float]` the
-same length as `completions`. Base models are never
-named here — `SFT_CHECKPOINT`/`JUDGE_MODEL` are
-placeholders; see `agents:finetuning-method-selection`'s
-`references/model-catalog.md` for actual
-checkpoints.
+Complete, runnable reward functions for TRL's `GRPOTrainer`. Every function here follows the current TRL reward-function signature: it accepts `completions` plus any extra dataset columns as keyword arguments, and returns a `list[float]` the same length as `completions`. Base models are never named here — `SFT_CHECKPOINT`/`JUDGE_MODEL` are placeholders; see `agents:finetuning-method-selection`'s `references/model-catalog.md` for actual checkpoints.
 
-**These examples assume the standard (string)
-completion format** — `completions: list[str]` — and
-call `.strip()`, `json.loads()`, `.split()`, etc.
-directly on each `completion`. TRL's conversational
-dataset format instead passes each completion as
-`[{"role": "assistant", "content": "..."}]`; on that
-format, extract `completion[0]["content"]` before
-applying any of the string operations below, in
-every function in this file.
+**These examples assume the standard (string) completion format** — `completions: list[str]` — and call `.strip()`, `json.loads()`, `.split()`, etc. directly on each `completion`. TRL's conversational dataset format instead passes each completion as `[{"role": "assistant", "content": "..."}]`; on that format, extract `completion[0]["content"]` before applying any of the string operations below, in every function in this file.
 
-**Before wiring any of these into a training run,
-inspect them against 50–100 sampled outputs by
-hand** — this is `SKILL.md`'s Inspection Rule, not
-optional. A reward function that looks correct in
-isolation can still disagree with human judgment
-on real model outputs.
+**Before wiring any of these into a training run, inspect them against 50–100 sampled outputs by hand** — this is `SKILL.md`'s Inspection Rule, not optional. A reward function that looks correct in isolation can still disagree with human judgment on real model outputs.
 
 ## Format Reward
 
-Checks structural compliance — did the completion
-follow the required response shape at all — as a
-prerequisite to grading correctness:
+Checks structural compliance — did the completion follow the required response shape at all — as a prerequisite to grading correctness:
 
 ```python
 import re
@@ -55,9 +31,7 @@ def format_reward(completions, **kwargs) -> list[float]:
 
 ## Correctness Reward — Exact Match
 
-The baseline verifiable-answer reward, for tasks
-with a single ground-truth string (math final
-answers, closed-form lookups):
+The baseline verifiable-answer reward, for tasks with a single ground-truth string (math final answers, closed-form lookups):
 
 ```python
 def correctness_reward(completions, answer, **kwargs) -> list[float]:
@@ -76,9 +50,7 @@ def correctness_reward(completions, answer, **kwargs) -> list[float]:
 
 ## Correctness Reward — Schema Validation
 
-For structured-output and tool-call tasks, where
-"correct" means "conforms to the required JSON
-schema," not string equality:
+For structured-output and tool-call tasks, where "correct" means "conforms to the required JSON schema," not string equality:
 
 ```python
 import json
@@ -116,31 +88,9 @@ def schema_reward(completions, output_schema, **kwargs) -> list[float]:
 
 ## Correctness Reward — Unit Test Execution
 
-For code-generation tasks, where "correct" means
-the generated function passes a held-out test
-suite. Execute in a subprocess with a hard
-timeout — never `exec()` untrusted completions
-in-process.
+For code-generation tasks, where "correct" means the generated function passes a held-out test suite. Execute in a subprocess with a hard timeout — never `exec()` untrusted completions in-process.
 
-**WARNING — this function executes model-generated
-code and REQUIRES an isolated environment:** a
-network-disabled container, gVisor/firejail, or a
-dedicated CI sandbox, with **no secrets or
-credentials in the environment** — no HF tokens,
-experiment-tracker keys, cloud credentials, or SSH
-keys. GRPO will, by design, push adversarial
-completions through this path as the policy
-explores. Never run it directly on a training host
-holding credentials. The timeout below protects
-training-loop liveness only — **it is NOT a
-security boundary**. Likewise, `TemporaryDirectory`
-confines where the harness writes its files, not
-what the executed code can read or reach. The
-function below enforces this: it takes the sandbox
-boundary as a required argument and refuses to run
-at all — returning reward 0.0 — when the caller
-doesn't supply one. It never falls back to host
-execution.
+**WARNING — this function executes model-generated code and REQUIRES an isolated environment:** a network-disabled container, gVisor/firejail, or a dedicated CI sandbox, with **no secrets or credentials in the environment** — no HF tokens, experiment-tracker keys, cloud credentials, or SSH keys. GRPO will, by design, push adversarial completions through this path as the policy explores. Never run it directly on a training host holding credentials. The timeout below protects training-loop liveness only — **it is NOT a security boundary**. Likewise, `TemporaryDirectory` confines where the harness writes its files, not what the executed code can read or reach. The function below enforces this: it takes the sandbox boundary as a required argument and refuses to run at all — returning reward 0.0 — when the caller doesn't supply one. It never falls back to host execution.
 
 ```python
 import logging
@@ -219,11 +169,7 @@ def test_execution_reward(
 
 ## Length-Penalty Wrapper
 
-Wraps any reward function above to discourage
-runaway completion length without replacing the
-underlying correctness signal — use when a
-correctness-only reward starts trending toward
-longer, padded outputs:
+Wraps any reward function above to discourage runaway completion length without replacing the underlying correctness signal — use when a correctness-only reward starts trending toward longer, padded outputs:
 
 ```python
 def with_length_penalty(reward_fn, target_len=512, penalty_per_token=0.001):
@@ -245,35 +191,15 @@ def with_length_penalty(reward_fn, target_len=512, penalty_per_token=0.001):
     return wrapped
 ```
 
-Note that `len(completion.split())` counts words
-as a cheap proxy for tokens — use the model's own
-tokenizer for true token counts when tuning
-`target_len`.
+Note that `len(completion.split())` counts words as a cheap proxy for tokens — use the model's own tokenizer for true token counts when tuning `target_len`.
 
-This is a targeted fix for observed length
-creep, not a substitute for Dr.GRPO — if length
-bias is systemic rather than an occasional
-overflow, route to the Dr.GRPO variant in
-`SKILL.md`'s Variant Selection instead of stacking
-penalty wrappers.
+This is a targeted fix for observed length creep, not a substitute for Dr.GRPO — if length bias is systemic rather than an occasional overflow, route to the Dr.GRPO variant in `SKILL.md`'s Variant Selection instead of stacking penalty wrappers.
 
 ## Rubric-as-Reward Judge Pattern
 
-For tasks where correctness isn't code-checkable
-but the pass/fail line is still crisp enough for a
-judge to apply consistently — e.g., "did the
-response follow the requested format and stay
-on-topic" rather than "is this a good essay."
-Binary pass/fail, not a Likert score:
+For tasks where correctness isn't code-checkable but the pass/fail line is still crisp enough for a judge to apply consistently — e.g., "did the response follow the requested format and stay on-topic" rather than "is this a good essay." Binary pass/fail, not a Likert score:
 
-TRL calls reward functions with `completions` plus
-whatever dataset columns the trainer was given, via
-`**kwargs` — it does not inject arbitrary objects
-like a judge client. Bind `judge_client` and the
-fixed `rubric` in a closure before handing the
-result to `GRPOTrainer(reward_funcs=[...])`, rather
-than declaring them as parameters TRL is expected to
-supply:
+TRL calls reward functions with `completions` plus whatever dataset columns the trainer was given, via `**kwargs` — it does not inject arbitrary objects like a judge client. Bind `judge_client` and the fixed `rubric` in a closure before handing the result to `GRPOTrainer(reward_funcs=[...])`, rather than declaring them as parameters TRL is expected to supply:
 
 ```python
 def make_rubric_judge_reward(judge_client, rubric):
@@ -302,15 +228,4 @@ def make_rubric_judge_reward(judge_client, rubric):
     return rubric_judge_reward
 ```
 
-**Calibration is a hard prerequisite, not a
-nice-to-have.** An uncalibrated judge is a
-noisier, more expensive version of the exact-match
-reward above — before wiring `rubric_judge_reward`
-into a GRPO run, the judge must be calibrated
-against human labels (train/dev/sealed-test
-splits, TPR/TNR reported, judge pinned to a fixed
-snapshot). That calibration workflow lives in
-`agents:eval-harness-first`; do not skip it because the
-rubric "looks obviously right" — the same
-plugin-wide judge-calibration prerequisite applies
-here as everywhere else a judge grades a reward.
+**Calibration is a hard prerequisite, not a nice-to-have.** An uncalibrated judge is a noisier, more expensive version of the exact-match reward above — before wiring `rubric_judge_reward` into a GRPO run, the judge must be calibrated against human labels (train/dev/sealed-test splits, TPR/TNR reported, judge pinned to a fixed snapshot). That calibration workflow lives in `agents:eval-harness-first`; do not skip it because the rubric "looks obviously right" — the same plugin-wide judge-calibration prerequisite applies here as everywhere else a judge grades a reward.

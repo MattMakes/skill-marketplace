@@ -18,8 +18,7 @@ Work like a **careful, cautious, and precise investigator**. Surface evidence an
 
 **Key symbols:** {SYMBOLS}
 
-**Initial commits touching this code (most recent first):**
-{COMMIT_LIST}
+**Initial commits touching this code (most recent first):** {COMMIT_LIST}
 
 **PR numbers extracted from commit messages:** {PR_NUMBERS}
 

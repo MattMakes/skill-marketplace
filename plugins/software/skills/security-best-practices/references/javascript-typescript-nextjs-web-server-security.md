@@ -195,14 +195,7 @@ Detection hints:
 * Check `package.json` and lockfiles for `next` version.
 * Compare against Next.js support policy and advisories.
 
-IMPORTANT: Any versions older than these minor versions are vulnerable to "react2shell" vulnerability (https://nextjs.org/blog/CVE-2025-66478):
-15.0.5
-15.1.9
-15.2.6
-15.3.6
-15.4.8
-15.5.7
-16.0.7
+IMPORTANT: Any versions older than these minor versions are vulnerable to "react2shell" vulnerability (https://nextjs.org/blog/CVE-2025-66478): 15.0.5 15.1.9 15.2.6 15.3.6 15.4.8 15.5.7 16.0.7
 
 Fix:
 

@@ -1,7 +1,6 @@
 # herdr CLI reference (0.8.2)
 
-What the scripts in `../scripts/` wrap, plus the areas they deliberately leave
-alone. Read this only when you need something the scripts do not cover.
+What the scripts in `../scripts/` wrap, plus the areas they deliberately leave alone. Read this only when you need something the scripts do not cover.
 
 ## Contents
 
@@ -15,16 +14,11 @@ alone. Read this only when you need something the scripts do not cover.
 
 ## Verified behaviour and traps
 
-Each of these was confirmed against herdr 0.8.2, and each is already handled by
-the corresponding script.
+Each of these was confirmed against herdr 0.8.2, and each is already handled by the corresponding script.
 
-**Responses can be invalid JSON.** Terminal escape bytes from the user's shell
-prompt are copied unescaped into `.result.read.text`, so `jq` fails on the
-document. Strip C0 control bytes first, keeping tab and newline:
-`LC_ALL=C tr -d '\000-\010\013-\037\177'`.
+**Responses can be invalid JSON.** Terminal escape bytes from the user's shell prompt are copied unescaped into `.result.read.text`, so `jq` fails on the document. Strip C0 control bytes first, keeping tab and newline: `LC_ALL=C tr -d '\000-\010\013-\037\177'`.
 
-**`pane run` has no exit status.** It types a command and returns immediately.
-To recover the status, append a marker carrying `$?` and wait for it:
+**`pane run` has no exit status.** It types a command and returns immediately. To recover the status, append a marker carrying `$?` and wait for it:
 
 ```bash
 tok="HERDR$(od -An -N6 -tx1 /dev/urandom | tr -d ' \n')"
@@ -32,47 +26,27 @@ herdr pane run "$pane" "( $cmd ) ; printf '$tok rc=%s\n' \"\$?\""
 herdr pane wait-output "$pane" --regex "$tok rc=[0-9]+" --timeout 120000
 ```
 
-Three details make this work. The subshell keeps `exit` or `set -e` inside the
-command from killing the pane's shell. The token is unique per invocation because
-`wait-output` matches text already in the scrollback, so a reused token matches a
-previous run instantly. And the marker prints `rc=%s`, so herdr's echo of the
-command line contains `rc=%s` while only the result line contains `rc=<digits>` —
-which is what stops the regex matching the echo.
+Three details make this work. The subshell keeps `exit` or `set -e` inside the command from killing the pane's shell. The token is unique per invocation because `wait-output` matches text already in the scrollback, so a reused token matches a previous run instantly. And the marker prints `rc=%s`, so herdr's echo of the command line contains `rc=%s` while only the result line contains `rc=<digits>` — which is what stops the regex matching the echo.
 
-**`wait-output --match` can match the command's own echo.** The snapshot includes
-what is already on screen, including the line herdr echoed.
+**`wait-output --match` can match the command's own echo.** The snapshot includes what is already on screen, including the line herdr echoed.
 
-**`agent start` can succeed onto a dialog.** It may return success while the agent
-is still painting a first-run trust or login prompt, which herdr reports as
-`unknown`, not `blocked`. Prompting then sends Enter into that dialog. Claude Code
-highlights *No, exit*, so the agent quits. Wait for a settled `idle`/`done`/`blocked`
-before treating a start as ready.
+**`agent start` can succeed onto a dialog.** It may return success while the agent is still painting a first-run trust or login prompt, which herdr reports as `unknown`, not `blocked`. Prompting then sends Enter into that dialog. Claude Code highlights *No, exit*, so the agent quits. Wait for a settled `idle`/`done`/`blocked` before treating a start as ready.
 
-**Pane-busy is a process-group question.** A pane is idle at its shell when
-`foreground_process_group_id == shell_pid`. Counting `foreground_processes` does
-not work — a shell still sourcing its rc files shows several while being idle.
+**Pane-busy is a process-group question.** A pane is idle at its shell when `foreground_process_group_id == shell_pid`. Counting `foreground_processes` does not work — a shell still sourcing its rc files shows several while being idle.
 
-**Error shapes differ.** Most commands return `{"error":{"code":...}}`; waits
-return a bare `{"code":...}`. Read `.error.code // .code`.
+**Error shapes differ.** Most commands return `{"error":{"code":...}}`; waits return a bare `{"code":...}`. Read `.error.code // .code`.
 
 **Exit codes.** `1` server error (JSON on stderr), `2` CLI syntax error.
 
 ## IDs and caller context
 
-Opaque and stable: workspace `w1`, tab `w1:t1`, pane `w1:p1`. Closed IDs are never
-reused. Read IDs from JSON responses; never predict them.
+Opaque and stable: workspace `w1`, tab `w1:t1`, pane `w1:p1`. Closed IDs are never reused. Read IDs from JSON responses; never predict them.
 
-`workspace create` returns `.result.workspace`, `.result.tab`, `.result.root_pane`.
-`tab create` returns `.result.tab` and `.result.root_pane`. `pane split` returns
-`.result.pane`. After `pane move`, continue with `.result.move_result.pane.pane_id`;
-a cross-workspace move changes the pane's ID.
+`workspace create` returns `.result.workspace`, `.result.tab`, `.result.root_pane`. `tab create` returns `.result.tab` and `.result.root_pane`. `pane split` returns `.result.pane`. After `pane move`, continue with `.result.move_result.pane.pane_id`; a cross-workspace move changes the pane's ID.
 
-Inside a managed pane: `HERDR_ENV=1`, `HERDR_PANE_ID`, `HERDR_TAB_ID`,
-`HERDR_WORKSPACE_ID`. Other useful variables: `HERDR_SESSION` selects a named
-session for CLI commands, `HERDR_CONFIG_PATH`, `HERDR_SOCKET_PATH`, `HERDR_LOG`.
+Inside a managed pane: `HERDR_ENV=1`, `HERDR_PANE_ID`, `HERDR_TAB_ID`, `HERDR_WORKSPACE_ID`. Other useful variables: `HERDR_SESSION` selects a named session for CLI commands, `HERDR_CONFIG_PATH`, `HERDR_SOCKET_PATH`, `HERDR_LOG`.
 
-Omitting a pane target uses whichever pane the UI has focused — which may belong to
-the human or another client. Always pass an explicit ID or `--current`.
+Omitting a pane target uses whichever pane the UI has focused — which may belong to the human or another client. Always pass an explicit ID or `--current`.
 
 ## Layout: workspace, tab, pane
 
@@ -86,10 +60,7 @@ herdr pane split [<pane_id>|--current] --direction right|down [--ratio F] [--cwd
 herdr pane close <pane_id>
 ```
 
-Creation leaves focus unchanged by default. Closing a workspace's last tab closes
-the workspace. Geometry helpers: `pane layout`, `pane edges`, `pane neighbor
---direction`, `pane resize --direction [--amount F]`, `pane zoom`, `pane swap`,
-`pane move`.
+Creation leaves focus unchanged by default. Closing a workspace's last tab closes the workspace. Geometry helpers: `pane layout`, `pane edges`, `pane neighbor --direction`, `pane resize --direction [--amount F]`, `pane zoom`, `pane swap`, `pane move`.
 
 ## Pane input and output
 
@@ -102,12 +73,9 @@ herdr pane wait-output <pane_id> (--match TEXT|--regex PATTERN) [--timeout MS]
 herdr pane process-info [--pane ID|--current]
 ```
 
-Key syntax: printable (`a`), named (`enter`, `tab`, `esc`, `backspace`, arrows),
-chords (`ctrl+c`, `alt+x`, `shift+tab`), function keys (`f1`), named punctuation
-(`minus`, `plus`, `backtick`). `escape` is accepted for `esc`; `C-c` for `ctrl+c`.
+Key syntax: printable (`a`), named (`enter`, `tab`, `esc`, `backspace`, arrows), chords (`ctrl+c`, `alt+x`, `shift+tab`), function keys (`f1`), named punctuation (`minus`, `plus`, `backtick`). `escape` is accepted for `esc`; `C-c` for `ctrl+c`.
 
-Prefer `pane run` over send-text plus send-keys: it honours bracketed paste and
-submits atomically.
+Prefer `pane run` over send-text plus send-keys: it honours bracketed paste and submits atomically.
 
 ## Agents
 
@@ -121,34 +89,17 @@ herdr agent send-keys <target> <key>...
 herdr agent rename|focus|attach <target>
 ```
 
-Targets are a unique live agent name or the pane ID hosting it — not terminal IDs
-or bare kind labels. Names: `[a-z][a-z0-9_-]{0,31}`, unique among live agents,
-cleared when the agent exits or is replaced.
+Targets are a unique live agent name or the pane ID hosting it — not terminal IDs or bare kind labels. Names: `[a-z][a-z0-9_-]{0,31}`, unique among live agents, cleared when the agent exits or is replaced.
 
-Kinds: `pi claude codex gemini cursor devin agy cline omp mastracode opencode
-copilot kimi kiro droid amp grok hermes kilo qodercli qwen maki`.
+Kinds: `pi claude codex gemini cursor devin agy cline omp mastracode opencode copilot kimi kiro droid amp grok hermes kilo qodercli qwen maki`.
 
-`agent start` needs a pane already at its shell prompt and never creates layout.
-Startup timeout defaults to 30000ms; explicit values must be 3001–300000.
+`agent start` needs a pane already at its shell prompt and never creates layout. Startup timeout defaults to 30000ms; explicit values must be 3001–300000.
 
-Lifecycle states: `idle` ready and its tab has been seen in the focused UI; `done`
-the same idle state after unseen background work finished; `working`; `blocked` at
-a recognized approval or question UI; `unknown` present but unclassified —
-which does **not** mean finished. In JSON the field is `agent_status`, and the
-agent's kind is in `agent`.
+Lifecycle states: `idle` ready and its tab has been seen in the focused UI; `done` the same idle state after unseen background work finished; `working`; `blocked` at a recognized approval or question UI; `unknown` present but unclassified — which does **not** mean finished. In JSON the field is `agent_status`, and the agent's kind is in `agent`.
 
-`agent prompt` rejects a blocked agent with `agent_blocked` before sending input.
-With `--wait`, a prompt from a non-working state must produce a lifecycle change
-within five seconds or returns `agent_prompt_stalled`. It tracks lifecycle, not
-individual turns: if the agent is already working, the current turn finishing can
-satisfy the wait.
+`agent prompt` rejects a blocked agent with `agent_blocked` before sending input. With `--wait`, a prompt from a non-working state must produce a lifecycle change within five seconds or returns `agent_prompt_stalled`. It tracks lifecycle, not individual turns: if the agent is already working, the current turn finishing can satisfy the wait.
 
-Full-screen agents (Claude Code, OpenCode) render history on the terminal's
-alternate screen. For an idle agent at the bottom of its transcript, `recent` reads
-with `--lines` beyond the visible screen use the agent's scroll interface
-automatically; the same request while it is working returns `agent_not_idle`. If a
-long answer still will not come back, ask the agent to write it to a file and reply
-with the path, then read the file.
+Full-screen agents (Claude Code, OpenCode) render history on the terminal's alternate screen. For an idle agent at the bottom of its transcript, `recent` reads with `--lines` beyond the visible screen use the agent's scroll interface automatically; the same request while it is working returns `agent_not_idle`. If a long answer still will not come back, ask the agent to write it to a file and reply with the path, then read the file.
 
 ## Read sources
 
@@ -174,9 +125,6 @@ herdr notification show <title> [--body TEXT] [--sound none|done|request]
 herdr integration install|uninstall <agent> | status
 ```
 
-`worktree create` makes a Git checkout and opens it as a workspace grouped with the
-parent repo. `workspace close` closes only herdr state; `worktree remove` deletes
-the checkout and never deletes the branch.
+`worktree create` makes a Git checkout and opens it as a workspace grouped with the parent repo. `workspace close` closes only herdr state; `worktree remove` deletes the checkout and never deletes the branch.
 
-Never run `herdr server stop` from an active session, and never kill the main herdr
-process — both take the user's panes down with them.
+Never run `herdr server stop` from an active session, and never kill the main herdr process — both take the user's panes down with them.

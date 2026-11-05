@@ -25,8 +25,7 @@ description: "Design a goal-oriented agent loop or review one for failure modes:
 | **Execution** (low) | machine / agent | Measures "how far from the literal goal" and grinds it to zero. The machine is strong here. |
 | **Judgment** (high) | **human** | Decides "is this goal itself right, should it change, should it stop." The machine can't step outside its own loop to question the goal. |
 
-> A thermostat can feed back "how far from 26°C," but when you have a fever and want 28°C it can't judge whether 26 is the *right* target — it just grinds toward 26. **"What to set today" is always the human's call.**
-> Handing judgment / sign-off / the last switch to the machine = removing the high-level feedback = it sprints, fast and hard, toward a goal no one questioned → wrong output.
+> A thermostat can feed back "how far from 26°C," but when you have a fever and want 28°C it can't judge whether 26 is the *right* target — it just grinds toward 26. **"What to set today" is always the human's call.** Handing judgment / sign-off / the last switch to the machine = removing the high-level feedback = it sprints, fast and hard, toward a goal no one questioned → wrong output.
 
 ---
 
@@ -68,8 +67,7 @@ The whole loop rides on the comparator's "is it done yet?" **The comparator can 
 
 ### Step 3 · Pick a skeleton
 
-**Maintenance type (tend something that exists) → document-driven dispatch.**
-The loop isn't "run a fixed check on a timer," it's **"read a doc on a timer, and dispatch only when the doc changed."** The doc is the task queue + state machine + human interface.
+**Maintenance type (tend something that exists) → document-driven dispatch.** The loop isn't "run a fixed check on a timer," it's **"read a doc on a timer, and dispatch only when the doc changed."** The doc is the task queue + state machine + human interface.
 Three disciplines: ① the problem column is human-write-only, the result column is loop-write-only, **state advances one-way and never rolls back**; ② **the exit code is final** (if the script says exit 1, the script wins); ③ state advances only as far as "awaiting verification" — **the "done" cell is flipped by a human only.** The loop is the worker, not the acceptance officer.
 
 **Greenfield type (build from scratch) → plan / build / judge, three roles.**
@@ -132,10 +130,8 @@ The naive loop and the reviewed loop differ by four lines of constraint — and 
 
 ## One-line close
 
-> The hard part of writing a loop isn't "can I write a loop," it's **defining a goal a machine can reconcile** — decidable, bounded, reconciliation-based. The controller must be deterministic and external; keep judgment and the standard with the human; the system tends toward entropy, so maintain it.
-> **A loop only rewards someone who has already thought it through. Count on it to think for you, and it will happily think wrong, with you, at scale.**
+> The hard part of writing a loop isn't "can I write a loop," it's **defining a goal a machine can reconcile** — decidable, bounded, reconciliation-based. The controller must be deterministic and external; keep judgment and the standard with the human; the system tends toward entropy, so maintain it. **A loop only rewards someone who has already thought it through. Count on it to think for you, and it will happily think wrong, with you, at scale.**
 
 ---
 
-> Lineage: Wiener's two-level feedback (*The Human Use of Human Beings*, 1950) for the judgment/execution split and red lines; the plan/build/judge pattern from Anatoli's *Loops explained* and Addy's *Loop Engineering*.
-> Mechanism layer (how to wire the loop architecture) is out of scope here. This skill does not re-implement mechanism; it covers goal definition and runaway prevention only. For the human sign-off lane of a loop see `software:human-gate`; to audit a running agent stack see `agents:agent-architecture-audit`.
+> Lineage: Wiener's two-level feedback (*The Human Use of Human Beings*, 1950) for the judgment/execution split and red lines; the plan/build/judge pattern from Anatoli's *Loops explained* and Addy's *Loop Engineering*. Mechanism layer (how to wire the loop architecture) is out of scope here. This skill does not re-implement mechanism; it covers goal definition and runaway prevention only. For the human sign-off lane of a loop see `software:human-gate`; to audit a running agent stack see `agents:agent-architecture-audit`.

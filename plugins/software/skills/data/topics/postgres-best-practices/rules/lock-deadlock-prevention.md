@@ -7,8 +7,7 @@ tags: deadlocks, locking, transactions, ordering
 
 ## Prevent Deadlocks with Consistent Lock Ordering
 
-Deadlocks occur when transactions lock resources in different orders. Always
-acquire locks in a consistent order.
+Deadlocks occur when transactions lock resources in different orders. Always acquire locks in a consistent order.
 
 **Incorrect (inconsistent lock ordering):**
 

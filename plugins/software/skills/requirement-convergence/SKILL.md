@@ -83,31 +83,13 @@ A flow that produces neither document carries the record in its own context to t
 
 Acceptance-criteria steps:
 
-1. **Converge, lightly when the request is clear.** `outcome` becomes the Goal,
-   `desired-future` requirements the in-scope behavior, user-authored `nonGoals` the out of
-   scope. The `cost` band decides whether to stop for approval.
-2. **Inspect context before asking.** Technical facts come from the repository, docs, schemas
-   and test harness. Product and business constraints (business rules, compliance, SLAs,
-   pricing, retention, priority, target users) never come from code: take them from the user
-   or a product artifact, or list them as assumptions to confirm.
-3. **Choose the depth.** Quick Capture (goal, scope, assumptions, 3-7 criteria, blockers) for a
-   clear low or moderate risk change. Full Acceptance Brief for security, data, migration,
-   cross-system, compliance or high-cost work, or a handoff. Existing Specification Review when
-   a PRD, issue or plan is supplied: review it, do not restart discovery.
-4. **Write `AC-001`, `AC-002`, ...** Each names a scenario, a single action, an observable
-   expected result, a prohibited side effect where meaningful, a verification method, an
-   environment or safety constraint where verification could touch data, services, cost or
-   secrets, and a priority. "Correctly", "securely", "fast" and "robust" are banned unless
-   defined as observable evidence or marked as human judgment.
-5. **Cover only the boundaries that apply** (happy path, validation, authorization, persistence,
-   compatibility, failure recovery, idempotency, performance, UX and accessibility).
-6. **Present and continue.** Block only on a decision that could cause security exposure, data
-   loss, an irreversible migration, a broken contract, meaningful cost or a destructive
-   external action; the `high-irreversible` band always blocks. Otherwise record the criteria
-   and proceed. Write the brief to a file only when asked.
-7. **Revise in the open.** When a criterion cannot be met for an architectural or external
-   reason found during implementation, mark it `[revised]`, state the constraint, increment
-   the revision and re-present only the changed criteria.
+1. **Converge, lightly when the request is clear.** `outcome` becomes the Goal, `desired-future` requirements the in-scope behavior, user-authored `nonGoals` the out of scope. The `cost` band decides whether to stop for approval.
+2. **Inspect context before asking.** Technical facts come from the repository, docs, schemas and test harness. Product and business constraints (business rules, compliance, SLAs, pricing, retention, priority, target users) never come from code: take them from the user or a product artifact, or list them as assumptions to confirm.
+3. **Choose the depth.** Quick Capture (goal, scope, assumptions, 3-7 criteria, blockers) for a clear low or moderate risk change. Full Acceptance Brief for security, data, migration, cross-system, compliance or high-cost work, or a handoff. Existing Specification Review when a PRD, issue or plan is supplied: review it, do not restart discovery.
+4. **Write `AC-001`, `AC-002`, ...** Each names a scenario, a single action, an observable expected result, a prohibited side effect where meaningful, a verification method, an environment or safety constraint where verification could touch data, services, cost or secrets, and a priority. "Correctly", "securely", "fast" and "robust" are banned unless defined as observable evidence or marked as human judgment.
+5. **Cover only the boundaries that apply** (happy path, validation, authorization, persistence, compatibility, failure recovery, idempotency, performance, UX and accessibility).
+6. **Present and continue.** Block only on a decision that could cause security exposure, data loss, an irreversible migration, a broken contract, meaningful cost or a destructive external action; the `high-irreversible` band always blocks. Otherwise record the criteria and proceed. Write the brief to a file only when asked.
+7. **Revise in the open.** When a criterion cannot be met for an architectural or external reason found during implementation, mark it `[revised]`, state the constraint, increment the revision and re-present only the changed criteria.
 
 ## Quality Checklist
 

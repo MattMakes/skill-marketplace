@@ -5,9 +5,7 @@ description: Design a UI component spec to the house quality bar — anatomy, va
 
 # Skill: Design Component
 
-> **Step 0 — doctrine first.** Load `design:design-doctrine` if it is not already loaded
-> this session; every step below assumes its verification protocol and house rules.
-> The render gates need Playwright once per install: `npm install --prefix "${CLAUDE_PLUGIN_ROOT}/shared" && npx --prefix "${CLAUDE_PLUGIN_ROOT}/shared" playwright install chromium`. Without it they print SKIPPED, which is not a pass.
+> **Step 0 — doctrine first.** Load `design:design-doctrine` if it is not already loaded this session; every step below assumes its verification protocol and house rules. The render gates need Playwright once per install: `npm install --prefix "${CLAUDE_PLUGIN_ROOT}/shared" && npx --prefix "${CLAUDE_PLUGIN_ROOT}/shared" playwright install chromium`. Without it they print SKIPPED, which is not a pass.
 
 Produce a complete component specification matching the project format.
 
@@ -27,8 +25,7 @@ A component is only "correct" when **every variant × state** renders right — 
 - `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/verify_states.mjs <harness> [--dark]` — contrast of every element in default/hover/focus
 - `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/axe_audit.mjs <harness> [--dark]` — ARIA/role/name/label correctness
 - `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/measure_render.mjs <harness> [--dark]` — every text element AA
-- overlays/modals also: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/verify_focustrap.mjs <harness> --open=<trigger>`
-Every state must pass in light AND dark before the component is "done". Never claim a state is correct without a gate proving it.
+- overlays/modals also: `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/verify_focustrap.mjs <harness> --open=<trigger>` Every state must pass in light AND dark before the component is "done". Never claim a state is correct without a gate proving it.
 
 ## Gates prove contrast/a11y — they do NOT prove pixels. RENDER AND LOOK.
 The contrast/axe gates pass while the UI is still visibly broken: a checkbox that doesn't toggle, a dash sitting at the bottom of its box, a checkmark and an indeterminate dash with mismatched stroke weight, a control that's too heavy. **You must screenshot the harness and inspect it** before claiming done — for every state, and after interaction. Playwright + system Chrome:

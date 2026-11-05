@@ -9,10 +9,7 @@ metadata: {"author":"Agents365-ai","version":"3.4.0","upstream_name":"drawio-ski
 
 # Draw.io Architecture Studio
 
-Produce editable `.drawio` artifacts, not flattened pictures. The preferred
-entrypoint is `scripts/diagramctl.py`, which unifies generation, incremental
-sync, multi-view projection, semantic queries/tests/reviews, failure analysis,
-and accessible publishing over a shared Diagram IR.
+Produce editable `.drawio` artifacts, not flattened pictures. The preferred entrypoint is `scripts/diagramctl.py`, which unifies generation, incremental sync, multi-view projection, semantic queries/tests/reviews, failure analysis, and accessible publishing over a shared Diagram IR.
 
 ## Choose the workflow
 
@@ -42,9 +39,7 @@ and accessible publishing over a shared Diagram IR.
 
 ## Unified CLI
 
-The scripts live at `${CLAUDE_PLUGIN_ROOT}/skills/drawio/scripts/`. The examples
-below write `scripts/` for brevity: run them from this skill directory, or replace
-`scripts/` with that absolute path:
+The scripts live at `${CLAUDE_PLUGIN_ROOT}/skills/drawio/scripts/`. The examples below write `scripts/` for brevity: run them from this skill directory, or replace `scripts/` with that absolute path:
 
 ```bash
 python3 scripts/diagramctl.py doctor
@@ -63,47 +58,27 @@ python3 scripts/diagramctl.py whatif architecture.ir.json --fail kafka \
 python3 scripts/diagramctl.py story architecture.ir.json -o walkthrough.html
 ```
 
-`doctor` does not launch GUI tools unless `--probe` is passed. Core semantic
-commands are offline and stdlib-only.
+`doctor` does not launch GUI tools unless `--probe` is passed. Core semantic commands are offline and stdlib-only.
 
 ## Creation workflow
 
-1. Infer the diagram type, audience, scope, output format, and location from the
-   request. Ask only when a missing choice materially changes the result;
-   default to PNG plus `.drawio` in the working directory.
-2. Select the authoring route from the table above. For a data-backed diagram,
-   prefer Diagram IR and preserve provenance. For a large graph, use an importer
-   or `autolayout.py`; do not hand-place more than roughly fifteen nodes.
-3. Resolve an explicitly named style preset, or the user's default preset, as
-   documented in `references/style-presets.md`. Structural diagram conventions
-   and visual presets compose; they do not replace each other.
+1. Infer the diagram type, audience, scope, output format, and location from the request. Ask only when a missing choice materially changes the result; default to PNG plus `.drawio` in the working directory.
+2. Select the authoring route from the table above. For a data-backed diagram, prefer Diagram IR and preserve provenance. For a large graph, use an importer or `autolayout.py`; do not hand-place more than roughly fifteen nodes.
+3. Resolve an explicitly named style preset, or the user's default preset, as documented in `references/style-presets.md`. Structural diagram conventions and visual presets compose; they do not replace each other.
 4. Generate the `.drawio`, then run structural validation:
 
    ```bash
    python3 scripts/validate.py diagram.drawio --score
    ```
 
-   When semantic metadata or an architecture policy is in scope, also run
-   `diagramctl.py test`. Do not present inferred semantic findings as verified
-   runtime facts.
-5. Export a draft PNG without embedded XML and inspect it visually. Fix obvious
-   overlap, clipping, disconnected edges, edge-through-node routing, stacked
-   edges, and unreadable labels. Stop automatic vision repair after two rounds.
-   When the drawio binary is unavailable or a visual check is inconclusive,
-   verify the renderer's own DOM instead (`--dump-dom` on the viewer URL, see
-   `references/troubleshooting.md`): read each edge's `<path>` segments and
-   label anchor coordinates directly — vision alone both misses geometry
-   defects and hallucinates new ones.
-6. Show the draft and apply targeted edits. Preserve existing geometry for
-   local changes. Use `sync` for source-backed changes and write a reviewable
-   output; use `--prune` only when deletion was requested.
-7. After approval, create final requested formats and report both editable
-   source and export paths.
+   When semantic metadata or an architecture policy is in scope, also run `diagramctl.py test`. Do not present inferred semantic findings as verified runtime facts.
+5. Export a draft PNG without embedded XML and inspect it visually. Fix obvious overlap, clipping, disconnected edges, edge-through-node routing, stacked edges, and unreadable labels. Stop automatic vision repair after two rounds. When the drawio binary is unavailable or a visual check is inconclusive, verify the renderer's own DOM instead (`--dump-dom` on the viewer URL, see `references/troubleshooting.md`): read each edge's `<path>` segments and label anchor coordinates directly — vision alone both misses geometry defects and hallucinates new ones.
+6. Show the draft and apply targeted edits. Preserve existing geometry for local changes. Use `sync` for source-backed changes and write a reviewable output; use `--prune` only when deletion was requested.
+7. After approval, create final requested formats and report both editable source and export paths.
 
 ## Export invariants
 
-Resolve the available binary once (`drawio`, `draw.io`, the macOS app path, or
-the Windows executable) and use that exact binary for the run.
+Resolve the available binary once (`drawio`, `draw.io`, the macOS app path, or the Windows executable) and use that exact binary for the run.
 
 ```bash
 # Draft for visual inspection: never use -e here
@@ -118,32 +93,19 @@ drawio -x -f svg -e --embed-svg-images -o diagram.svg diagram.drawio
 drawio -x -f pdf -e -o diagram.pdf diagram.drawio
 ```
 
-Do not combine `--width` and `-s`. Embedded PNG exports require
-`repair_png.py`; draft PNGs used by vision must not use `-e`. On Linux headless,
-follow `references/troubleshooting.md` rather than improvising Electron flags.
-If the CLI crashes in a macOS sandbox, try one permitted escalated run, then use
-`encode_drawio_url.py` or deliver XML; do not repeatedly launch it.
+Do not combine `--width` and `-s`. Embedded PNG exports require `repair_png.py`; draft PNGs used by vision must not use `-e`. On Linux headless, follow `references/troubleshooting.md` rather than improvising Electron flags. If the CLI crashes in a macOS sandbox, try one permitted escalated run, then use `encode_drawio_url.py` or deliver XML; do not repeatedly launch it.
 
 ## Editing and identity
 
 - Use stable semantic IDs and never reuse reserved IDs `0` or `1`.
 - Every edge requires `<mxGeometry relative="1" as="geometry"/>`.
-- For a local edit, change the matching cell only; for a global direction
-  change, regenerate/re-layout the page.
-- Keep provenance, `data-model-id`, semantic properties, manual geometry, and
-  manual styles intact unless the user requests otherwise.
+- For a local edit, change the matching cell only; for a global direction change, regenerate/re-layout the page.
+- Keep provenance, `data-model-id`, semantic properties, manual geometry, and manual styles intact unless the user requests otherwise.
 - When reconciling, retain removals as reviewable faded elements by default.
-- For edges stacked at a boundary, run `edgeports.py`; add waypoints when an
-  edge still crosses an unrelated shape. There is no CLI-only edge rerouter
-  that preserves node positions.
+- For edges stacked at a boundary, run `edgeports.py`; add waypoints when an edge still crosses an unrelated shape. There is no CLI-only edge rerouter that preserves node positions.
 
 ## Quality and trust
 
-An attractive diagram can still be wrong. Prefer source-backed relationships,
-show provenance where useful, distinguish exact extraction from AI inference,
-and keep architecture review findings framed as prompts. Story HTML must remain
-self-contained, keyboard usable, and include a text alternative. Never include
-secrets in node properties or provenance because they are embedded in outputs.
+An attractive diagram can still be wrong. Prefer source-backed relationships, show provenance where useful, distinguish exact extraction from AI inference, and keep architecture review findings framed as prompts. Story HTML must remain self-contained, keyboard usable, and include a text alternative. Never include secrets in node properties or provenance because they are embedded in outputs.
 
-For all focused scripts and composition patterns, read `references/toolbox.md`;
-load only the task-specific reference needed for the current request.
+For all focused scripts and composition patterns, read `references/toolbox.md`; load only the task-specific reference needed for the current request.

@@ -287,15 +287,13 @@ Issues where the organization cannot proceed without resolution:
 - IP provisions that could jeopardize core assets
 - Terms that conflict with regulatory obligations
 
-**Tier 2 -- Should-Haves (Strong Preferences)**
-Issues that materially affect risk but have negotiation room:
+**Tier 2 -- Should-Haves (Strong Preferences)** Issues that materially affect risk but have negotiation room:
 - Liability cap adjustments within range
 - Indemnification scope and mutuality
 - Termination flexibility
 - Audit and compliance rights
 
-**Tier 3 -- Nice-to-Haves (Concession Candidates)**
-Issues that improve the position but can be conceded strategically:
+**Tier 3 -- Nice-to-Haves (Concession Candidates)** Issues that improve the position but can be conceded strategically:
 - Preferred governing law (if alternative is acceptable)
 - Notice period preferences
 - Minor definitional improvements

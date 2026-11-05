@@ -1,7 +1,6 @@
 # Folding existing instructions into AGENTS.md
 
-The goal is fewer files and less drift: every agent instruction lives in exactly
-one AGENTS.md. Nothing is deleted until the user confirms it in this session.
+The goal is fewer files and less drift: every agent instruction lives in exactly one AGENTS.md. Nothing is deleted until the user confirms it in this session.
 
 ## Shell safety
 

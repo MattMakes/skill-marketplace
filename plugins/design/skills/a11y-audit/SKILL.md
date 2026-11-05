@@ -31,9 +31,7 @@ For every violation it finds, it provides the precise before/after code fix tail
 
 ### Design audit
 
-> **Step 0 — doctrine first.** Load `design:design-doctrine` if it is not already loaded
-> this session; every step below assumes its verification protocol and house rules.
-> The render gates need Playwright once per install: `npm install --prefix "${CLAUDE_PLUGIN_ROOT}/shared" && npx --prefix "${CLAUDE_PLUGIN_ROOT}/shared" playwright install chromium`. Without it they print SKIPPED, which is not a pass.
+> **Step 0 — doctrine first.** Load `design:design-doctrine` if it is not already loaded this session; every step below assumes its verification protocol and house rules. The render gates need Playwright once per install: `npm install --prefix "${CLAUDE_PLUGIN_ROOT}/shared" && npx --prefix "${CLAUDE_PLUGIN_ROOT}/shared" playwright install chromium`. Without it they print SKIPPED, which is not a pass.
 
 1. Read `${CLAUDE_PLUGIN_ROOT}/shared/accessibility/wcag-checklist.md` (POUR-organized, P0/P1/P2) and `${CLAUDE_PLUGIN_ROOT}/shared/accessibility/aria-patterns.md`. For an AAA target add `${CLAUDE_PLUGIN_ROOT}/shared/accessibility/wcag-aaa.md`.
 2. Check the mandatory P0 set per component: keyboard navigable, focus visible (≥3:1), screen-reader name/role/state, contrast (4.5:1 text / 3:1 UI), target size ≥24×24, no color-only signaling.

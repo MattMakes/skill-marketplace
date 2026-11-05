@@ -18,8 +18,7 @@ Dependency rule: `domain/` imports nothing outside itself; `application/` import
 Composition root: `{{apps/<deployable>/main…}}` wires adapters to ports.
 
 ## 2. Domain model
-{{Domain-model contexts: one row per aggregate linking its canvas; then value objects, entities, domain services.
-Transaction-script / active-record contexts: "No aggregates by design (pattern = …)." then the records or the scripts' data.}}
+{{Domain-model contexts: one row per aggregate linking its canvas; then value objects, entities, domain services. Transaction-script / active-record contexts: "No aggregates by design (pattern = …)." then the records or the scripts' data.}}
 
 | Aggregate | Root | Invariants | Commands → events | Canvas |
 |---|---|---|---|---|

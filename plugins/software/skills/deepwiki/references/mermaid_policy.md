@@ -15,8 +15,7 @@ This document defines the rules and best practices for Mermaid diagrams in wiki 
 
 ## Diagram Density (MANDATORY)
 
-Diagrams are not decoration — they are the fastest path to comprehension. Pages
-that are walls of prose fail review.
+Diagrams are not decoration — they are the fastest path to comprehension. Pages that are walls of prose fail review.
 
 | Page scope | Minimum diagrams | Minimum distinct types |
 |------------|------------------|------------------------|
@@ -26,11 +25,8 @@ that are walls of prose fail review.
 
 Rules:
 
-- **Minimum 3 diagrams per page**, scaled by scope as above. More is better —
-  aim for roughly one diagram per major section.
-- **Use at least 2 DIFFERENT diagram types per page.** Never repeat the same
-  type for every diagram. Mix `graph`, `sequenceDiagram`, `classDiagram`,
-  `stateDiagram-v2`, `erDiagram`, `flowchart` as the content warrants.
+- **Minimum 3 diagrams per page**, scaled by scope as above. More is better — aim for roughly one diagram per major section.
+- **Use at least 2 DIFFERENT diagram types per page.** Never repeat the same type for every diagram. Mix `graph`, `sequenceDiagram`, `classDiagram`, `stateDiagram-v2`, `erDiagram`, `flowchart` as the content warrants.
 
 ## Diagram Selection Heuristic
 
@@ -51,9 +47,7 @@ Pick the type from what you are explaining, not from habit:
 
 **Always use `graph TD` (top-down), never `graph LR` (left-right).**
 
-`graph LR` renders wide and scrolls badly on narrow pages. The linter accepts
-`LR` but emits a `horizontal_orientation` warning; this policy is stricter than
-the linter — treat `LR` as a defect and rewrite it as `TD`.
+`graph LR` renders wide and scrolls badly on narrow pages. The linter accepts `LR` but emits a `horizontal_orientation` warning; this policy is stricter than the linter — treat `LR` as a defect and rewrite it as `TD`.
 
 ### Rule 2: Quote All Node Text
 
@@ -166,19 +160,13 @@ graph TD
     A["Load Config [config.ts:10]"] --> B["Validate"]
 ```
 
-Citations belong outside the diagram — in the documentation text and in the
-`<!-- Sources: ... -->` comment block required by Rule 7. Note that citation
-brackets inside an unquoted label are also a hard parse error
-(`unquoted_node_label`), so this rule is enforced by the linter as well as by
-policy.
+Citations belong outside the diagram — in the documentation text and in the `<!-- Sources: ... -->` comment block required by Rule 7. Note that citation brackets inside an unquoted label are also a hard parse error (`unquoted_node_label`), so this rule is enforced by the linter as well as by policy.
 
 ### Rule 7: Sources Comment Block Under Every Diagram
 
-**Every Mermaid block must be immediately followed by a `<!-- Sources: ... -->`
-comment listing the files the diagram was derived from.**
+**Every Mermaid block must be immediately followed by a `<!-- Sources: ... -->` comment listing the files the diagram was derived from.**
 
-This satisfies Rule 6 (nothing inside the diagram) while keeping every diagram
-evidence-backed. It goes *after* the closing fence, never inside it.
+This satisfies Rule 6 (nothing inside the diagram) while keeping every diagram evidence-backed. It goes *after* the closing fence, never inside it.
 
 #### CORRECT
 ````markdown
@@ -194,11 +182,9 @@ A diagram with no `<!-- Sources: ... -->` block is an incomplete diagram.
 
 ### Rule 8: Always Use `autonumber` in Sequence Diagrams
 
-**Every `sequenceDiagram` block must declare `autonumber` on the line directly
-after the diagram header.**
+**Every `sequenceDiagram` block must declare `autonumber` on the line directly after the diagram header.**
 
-Numbered steps let prose reference individual messages ("step 3 validates the
-token") instead of describing them again.
+Numbered steps let prose reference individual messages ("step 3 validates the token") instead of describing them again.
 
 #### CORRECT
 ```mermaid
@@ -216,8 +202,7 @@ The linter reports a missing `autonumber` as a `missing_autonumber` warning.
 
 **Use `<br>` for line breaks in labels. Never use `<br/>` or `<br />`.**
 
-Self-closing break tags can break Mermaid parsing and are rejected by some
-renderers. The linter reports them as a `br_self_closing` warning.
+Self-closing break tags can break Mermaid parsing and are rejected by some renderers. The linter reports them as a `br_self_closing` warning.
 
 #### CORRECT
 ```mermaid
@@ -233,8 +218,7 @@ graph TD
 
 ## Dark-Mode Color Mandate
 
-**All diagrams are authored for dark-theme rendering.** Light fills are
-unreadable against the dark backgrounds the wiki is rendered on.
+**All diagrams are authored for dark-theme rendering.** Light fills are unreadable against the dark backgrounds the wiki is rendered on.
 
 | Element | Property | Value |
 |---------|----------|-------|
@@ -247,11 +231,8 @@ unreadable against the dark backgrounds the wiki is rendered on.
 
 Rules:
 
-- **If you use an inline `style` directive, you MUST include `,color:#e6edf3`.**
-  Setting a dark fill without setting the text color leaves dark text on a dark
-  node — invisible.
-- Never use light fills (`#fff`, `#ffffff`, `#eee`, `white`, `lightgrey`, ...).
-  The linter reports these as a `light_mode_fill` warning.
+- **If you use an inline `style` directive, you MUST include `,color:#e6edf3`.** Setting a dark fill without setting the text color leaves dark text on a dark node — invisible.
+- Never use light fills (`#fff`, `#ffffff`, `#eee`, `white`, `lightgrey`, ...). The linter reports these as a `light_mode_fill` warning.
 - All hex colors must be 3 or 6 digits — never 4 or 5.
 
 #### CORRECT
@@ -278,9 +259,7 @@ graph TD
 
 **Node labels should be in the target language (default: `en-US`).**
 
-The locale is read from the TOC `project.language` field; `en-US` is only the
-default when none is set. Node labels, edge labels and notes must all be written
-in that language.
+The locale is read from the TOC `project.language` field; `en-US` is only the default when none is set. Node labels, edge labels and notes must all be written in that language.
 
 #### For English output (default)
 ```mermaid
@@ -410,11 +389,7 @@ stateDiagram-v2
 
 Validation is performed by `scripts/validate_mermaid.py`.
 
-**Zero dependencies.** It is a pure-stdlib Python linter. There is nothing to
-install — no Node.js, no npm, no `mermaid-cli`, no `pip install`. Mermaid is
-rendered natively by GitHub, GitLab and VitePress, so no local renderer is
-needed; the only thing a local tool usefully adds is a syntax check, and that is
-all this script does.
+**Zero dependencies.** It is a pure-stdlib Python linter. There is nothing to install — no Node.js, no npm, no `mermaid-cli`, no `pip install`. Mermaid is rendered natively by GitHub, GitLab and VitePress, so no local renderer is needed; the only thing a local tool usefully adds is a syntax check, and that is all this script does.
 
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/deepwiki/scripts/validate_mermaid.py --input {doc_dir} --invalid-only --output _reports/mermaid_invalid.json
@@ -449,8 +424,7 @@ Exit codes: `0` = all valid, `1` = invalid diagrams found, `2` = bad invocation.
 
 ### 2. Errors (hard failures)
 
-An error means the diagram would genuinely fail to parse. These are the complete
-set of `error_type` values the linter emits:
+An error means the diagram would genuinely fail to parse. These are the complete set of `error_type` values the linter emits:
 
 | `error_type` | Meaning | Fix |
 |--------------|---------|-----|
@@ -474,16 +448,11 @@ set of `error_type` values the linter emits:
 ( ) [ ] { } " | ;
 ```
 
-They collide with shape delimiters, the edge-label delimiter, the statement
-separator, or string quoting. Characters like `/ , : < >` parse fine unquoted —
-`A[Save/Cancel]` and `A[Retry <br>now]` are valid Mermaid. Policy still requires
-quoting **every** label (Rule 2), so those surface as *warnings*, not errors. Do
-not claim they are parse failures.
+They collide with shape delimiters, the edge-label delimiter, the statement separator, or string quoting. Characters like `/ , : < >` parse fine unquoted — `A[Save/Cancel]` and `A[Retry <br>now]` are valid Mermaid. Policy still requires quoting **every** label (Rule 2), so those surface as *warnings*, not errors. Do not claim they are parse failures.
 
 ### 3. Warnings (policy nits)
 
-Warnings do not fail a block unless you pass `--strict`. They are the executable
-form of this policy document:
+Warnings do not fail a block unless you pass `--strict`. They are the executable form of this policy document:
 
 | Warning type | Meaning |
 |--------------|---------|
@@ -564,9 +533,7 @@ sequenceDiagram
     A->>B: Request()
 ```
 
-(Header keywords are matched case-insensitively, so `flowChart TD` parses fine —
-it is `graph`/`flowchart` either way. Only a genuinely unrecognized keyword
-raises `unknown_diagram_type`.)
+(Header keywords are matched case-insensitively, so `flowChart TD` parses fine — it is `graph`/`flowchart` either way. Only a genuinely unrecognized keyword raises `unknown_diagram_type`.)
 
 ### `reserved_node_id` — node named `end`, `graph` or `subgraph`
 

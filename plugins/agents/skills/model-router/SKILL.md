@@ -44,9 +44,7 @@ Use the Agent tool with an explicit `model`. Brief it properly: subagents inheri
 
 Say the call in **one line** before you spawn, so the user can see and override it:
 
-> Mechanical rename across 41 files, rule is already fixed — sending to Haiku.
-> Three independent modules to audit — fanning out to three Sonnet agents.
-> This race condition survived my first pass — escalating to a fresh Opus agent with the repro.
+> Mechanical rename across 41 files, rule is already fixed — sending to Haiku. Three independent modules to audit — fanning out to three Sonnet agents. This race condition survived my first pass — escalating to a fresh Opus agent with the repro.
 
 One line. Not a section, not a table, not a justification — the user wants the work, not your reasoning about the work.
 

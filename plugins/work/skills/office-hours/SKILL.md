@@ -221,8 +221,7 @@ The pressure is in the stacking — don't collapse it into a single ask. The spe
 
 ## Phase 2B: Builder Mode — Design Partner
 
-Use this mode when the user is building for fun, learning, hacking on open source, at a hackathon, or doing research.
-The section below applies to every builder-mode reply, including a direct request for ideas or unlocks that skips the generative questions.
+Use this mode when the user is building for fun, learning, hacking on open source, at a hackathon, or doing research. The section below applies to every builder-mode reply, including a direct request for ideas or unlocks that skips the generative questions.
 
 ### Operating Principles
 
@@ -294,8 +293,7 @@ If no matches found, proceed silently.
 After understanding the problem through questioning, search for what the world thinks. This is NOT competitive research. This is understanding conventional wisdom so you can evaluate where it's wrong.
 
 **Privacy gate:** Before searching, use AskUserQuestion: "I'd like to search for what the world thinks about this space to inform our discussion. This sends generalized category terms (not your specific idea) to a search engine through the WebSearch tool. OK to proceed?"
-Options: A) Yes, search away  B) Skip — keep this session private
-If B: skip this phase entirely and proceed to Phase 3. Use only in-distribution knowledge.
+Options: A) Yes, search away  B) Skip — keep this session private If B: skip this phase entirely and proceed to Phase 3. Use only in-distribution knowledge.
 
 When searching, use **generalized category terms** — never the user's specific product name, proprietary concept, or stealth idea. For example, search "task management app landscape" not "SuperTodo AI-powered task killer."
 
@@ -589,8 +587,7 @@ Share 2-3 resources from the pool below. If the user says to skip these, skip th
 **Format each resource as:**
 
 > **{Title}** ({duration or "essay"})
-> {1-2 sentence blurb — direct, specific, encouraging. Tell them WHY this one matters for THEIR situation.}
-> {url}
+> {1-2 sentence blurb — direct, specific, encouraging. Tell them WHY this one matters for THEIR situation.} {url}
 
 **Resource Pool:**
 
@@ -650,10 +647,7 @@ Offer via AskUserQuestion:
 >
 > You just wrote a design doc. The natural next step is a structured review that catches scope and architecture problems before you build. I can launch it right now, or you can run it later yourself.
 >
-> A) Run `work:plan-ceo-review` now — pressure-tests ambition and scope, finds the 10-star version of the product (recommended for EXPANSION / ambitious designs)
-> B) Run `design:plan-design-review` now — catches visual/UX problems while they are still cheap plan-stage changes (recommended for visual/UX-heavy designs; little value for backend-only work)
-> C) Run `software:create-plan` now — turns the approved design into an implementation plan (recommended for well-scoped designs ready to build)
-> D) Not now — I'll run a review later
+> A) Run `work:plan-ceo-review` now — pressure-tests ambition and scope, finds the 10-star version of the product (recommended for EXPANSION / ambitious designs) B) Run `design:plan-design-review` now — catches visual/UX problems while they are still cheap plan-stage changes (recommended for visual/UX-heavy designs; little value for backend-only work) C) Run `software:create-plan` now — turns the approved design into an implementation plan (recommended for well-scoped designs ready to build) D) Not now — I'll run a review later
 
 On the user's selection of A/B/C, invoke the chosen skill via the **Skill tool**; it reads the design doc from `docs/designs/`. On D, stop.
 

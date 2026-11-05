@@ -16,8 +16,6 @@ Avoid for products. Portfolio Grid is service-business shape.
 Reference: Pentagram, 14islands, Locomotive, Bureau Borsche.
 
 **Sample opening lines** (imitate the *specificity* — Portfolio Grid openings name the volume and the era):
-> *"Selected work · 2018 — 2026."* — date range, two characters of meta
-> *"Twelve projects, six clients, two countries."* — three counts, no adjective
-> *"Work, indexed by year."* — five-word labels, the index is the whole site
+> *"Selected work · 2018 — 2026."* — date range, two characters of meta *"Twelve projects, six clients, two countries."* — three counts, no adjective *"Work, indexed by year."* — five-word labels, the index is the whole site
 
 ---

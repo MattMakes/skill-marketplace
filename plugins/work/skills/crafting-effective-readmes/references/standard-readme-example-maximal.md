@@ -2,10 +2,7 @@
 
 ![banner](assets/text_wordmark_dark.png)
 
-![GitHub Created At](https://img.shields.io/github/created-at/RichardLitt/standard-readme?color=bright-green&style=flat-square)
-![GitHub contributors](https://img.shields.io/github/contributors/RichardLitt/standard-readme?color=bright-green&style=flat-square)
-[![license](https://img.shields.io/github/license/RichardLitt/standard-readme.svg?color=bright-green&style=flat-square)](LICENSE)
-[![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
+![GitHub Created At](https://img.shields.io/github/created-at/RichardLitt/standard-readme?color=bright-green&style=flat-square) ![GitHub contributors](https://img.shields.io/github/contributors/RichardLitt/standard-readme?color=bright-green&style=flat-square) [![license](https://img.shields.io/github/license/RichardLitt/standard-readme.svg?color=bright-green&style=flat-square)](LICENSE) [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 
 This is an example file with maximal choices selected.
 

@@ -1,8 +1,6 @@
 # Capture queue
 
-Read this when you set up real-window captures for workers that cannot open a window (a
-sandbox, a headless container, a remote agent). One runner outside the sandbox does every
-windowed run, one at a time, under the window lock.
+Read this when you set up real-window captures for workers that cannot open a window (a sandbox, a headless container, a remote agent). One runner outside the sandbox does every windowed run, one at a time, under the window lock.
 
 ## Folder layout
 
@@ -33,10 +31,8 @@ The `.done` file is the signal. The runner writes it after the log is complete.
 
 1. Loop over `<queue>/*.req` whose id has no `.done` file.
 2. Reject a request whose line 3 has a shell character. Write `.done` with a non-zero code.
-3. Take a free window lock with `mkdir <lock dir>`. Write an owner file. If every lock is busy,
-   try again on the next loop.
-4. Run Godot with `--path <line 2>` and the words of line 3, as separate arguments. Do not pass
-   them through a shell. Set the scratch save location for the requester.
+3. Take a free window lock with `mkdir <lock dir>`. Write an owner file. If every lock is busy, try again on the next loop.
+4. Run Godot with `--path <line 2>` and the words of line 3, as separate arguments. Do not pass them through a shell. Set the scratch save location for the requester.
 5. Kill the run after a time limit, for example 300 s.
 6. Write `<id>.log`, then `<id>.done` with the exit code.
 7. Release the lock inside the branch that took it, and only if the owner file names this runner.
@@ -77,8 +73,7 @@ func _parse(user_args: PackedStringArray) -> Dictionary:
 	return out
 ```
 
-This is an outline, not a tested file. Adapt the scene path, the state build and the shot
-list. Parse-check it headless before you queue it.
+This is an outline, not a tested file. Adapt the scene path, the state build and the shot list. Parse-check it headless before you queue it.
 
 ## Worker side
 

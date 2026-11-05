@@ -22,13 +22,11 @@ flags — a generated skill never widens its own authority.
 ## How to Use This Skill
 
 - **No argument** — load the core frameworks below
-- **A topic** — ask about `<example topic>`; I resolve it through the Topic Index and read
-  that chapter file
+- **A topic** — ask about `<example topic>`; I resolve it through the Topic Index and read that chapter file
 - **`chNN`** — I load that chapter's summary
 - **"what chapters do you have?"** — the full index
 
-When you ask about something not in Core Frameworks, I read the relevant chapter file before
-answering rather than guessing from the index.
+When you ask about something not in Core Frameworks, I read the relevant chapter file before answering rather than guessing from the index.
 
 ---
 
@@ -75,12 +73,9 @@ answering rather than guessing from the index.
 
 ## Scope & Limits
 
-This skill covers **<Full Title>** and nothing else. It carries that source's blind spots and
-its publication-era assumptions.
+This skill covers **<Full Title>** and nothing else. It carries that source's blind spots and its publication-era assumptions.
 
-For hands-on implementation in a codebase, combine it with project-specific tools. For topics
-this source does not cover, say so rather than improvising — a compiled skill that quietly
-extrapolates is worse than one that admits its boundary.
+For hands-on implementation in a codebase, combine it with project-specific tools. For topics this source does not cover, say so rather than improvising — a compiled skill that quietly extrapolates is worse than one that admits its boundary.
 
 <!-- Provenance (see references/rights_and_provenance.md): compiled notes, not a reproduction.
      If this skill is packaged for distribution, the rights basis is recorded in the plugin

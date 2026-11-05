@@ -42,28 +42,18 @@ Next
   Or continue the design: /ddd-<next step>   |   re-run a step: "run ddd from <step>"
 ```
 
-Keep counts real (read them from the JSON), quote blocking questions verbatim, and give absolute
-paths at least once so the message stands alone.
+Keep counts real (read them from the JSON), quote blocking questions verbatim, and give absolute paths at least once so the message stands alone.
 
 Where each count comes from:
 - events / pivotal / hotspots / scenarios → `discover.json` (`events`, `pivotal_events`, `hotspots`, `scenarios`)
 - contexts / relationships → `decompose.json` (`bounded_contexts`, `relationships`); core → `strategize.json` `core_domains`
 - flows / messages / coupling concerns → `connect.json`; teams / deployables / target → `organise.json` + manifest `scale_target`
 - canvases / quality attributes → `define.json`; aggregates → `code.json` `contexts[].aggregates`
-- contracts → `contracts.json` `entries[]` (split published vs `inherited: true`). Also report the
-  in-process count from `ddd contracts check` — messages organise keeps inside one deployable get no
-  wire contract, and a reader who is not told will read the gap as missing work rather than a decision
-- glossary: "N shared terms" = `discover.json` `glossary[]`; "M with context-specific meanings" = shared terms the
-  define renderer flagged "meaning differs by context" in `glossary.md`; add "K coined later" from any
-  `coined_terms[]` on later steps
+- contracts → `contracts.json` `entries[]` (split published vs `inherited: true`). Also report the in-process count from `ddd contracts check` — messages organise keeps inside one deployable get no wire contract, and a reader who is not told will read the gap as missing work rather than a decision
+- glossary: "N shared terms" = `discover.json` `glossary[]`; "M with context-specific meanings" = shared terms the define renderer flagged "meaning differs by context" in `glossary.md`; add "K coined later" from any `coined_terms[]` on later steps
 - open questions → each step's `open_questions[]`; blocking = `blocking: true`
-- review page and diagrams → `ddd review <ddd-dir>` prints what it wrote (`review: N svg, M png …`, with a note
-  when no Chrome was found); list `review.html`, `diagrams/` and, when present, `diagrams/final.html` from
-  `ddd export blueprint <ddd-dir> --deliver`. Decisions still open → each step's `decisions[]` without `chosen`;
-  they lead the page's worklist, so say how many there are
-- the review order ("what costs most if wrong") → each step's `plain_words.riskiest`. That line is
-  the step's own answer to the question, already in plain language, so quote it rather than writing
-  a new one; a step with no `plain_words` goes to the top of the list, because nobody has said what its risk is
+- review page and diagrams → `ddd review <ddd-dir>` prints what it wrote (`review: N svg, M png …`, with a note when no Chrome was found); list `review.html`, `diagrams/` and, when present, `diagrams/final.html` from `ddd export blueprint <ddd-dir> --deliver`. Decisions still open → each step's `decisions[]` without `chosen`; they lead the page's worklist, so say how many there are
+- the review order ("what costs most if wrong") → each step's `plain_words.riskiest`. That line is the step's own answer to the question, already in plain language, so quote it rather than writing a new one; a step with no `plain_words` goes to the top of the list, because nobody has said what its risk is
 
 
 When every step is `done` (no `next:` line), the "Next" block reads:

@@ -1,8 +1,6 @@
 # Post-flight report template
 
-The report format for the full post-flight mode of `software:check-implementation`
-(see [post-flight.md](post-flight.md)). Fill every row; mark runtime rows PENDING until the
-outputs are in.
+The report format for the full post-flight mode of `software:check-implementation` (see [post-flight.md](post-flight.md)). Fill every row; mark runtime rows PENDING until the outputs are in.
 
 ```markdown
 # Post-Flight Report: [Plan Name]
@@ -92,8 +90,7 @@ Total: 47
 
 Failing tests:
 - UserServiceTests.ShouldHandleNullEmail
-- OrderControllerTests.ShouldReturn404ForMissingOrder
-[...]
+- OrderControllerTests.ShouldReturn404ForMissingOrder [...]
 ```
 
 ---

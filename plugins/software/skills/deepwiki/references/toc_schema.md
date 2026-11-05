@@ -1,11 +1,8 @@
 # TOC Schema Specification
 
-This document defines the schema for `toc.json`, the table of contents that drives
-wiki generation.
+This document defines the schema for `toc.json`, the table of contents that drives wiki generation.
 
-The TOC is **JSON**, not YAML. That keeps the whole toolchain on the Python standard
-library — nothing to `pip install` — and it is the same shape the catalogue phase
-emits. A legacy `toc.yaml` from upstream deepwiki-skill can be converted with:
+The TOC is **JSON**, not YAML. That keeps the whole toolchain on the Python standard library — nothing to `pip install` — and it is the same shape the catalogue phase emits. A legacy `toc.yaml` from upstream deepwiki-skill can be converted with:
 
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/deepwiki/scripts/toc_io.py --convert path/to/toc.yaml   # -> toc.json
@@ -59,9 +56,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/deepwiki/scripts/toc_io.py --convert path/t
 }
 ```
 
-> The `//` comments above are annotation only. Real `toc.json` must be strict JSON
-> with no comments and no trailing commas — `toc_io.load_toc()` will reject it
-> otherwise.
+> The `//` comments above are annotation only. Real `toc.json` must be strict JSON with no comments and no trailing commas — `toc_io.load_toc()` will reject it otherwise.
 
 ## Field Details
 

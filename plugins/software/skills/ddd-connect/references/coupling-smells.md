@@ -1,11 +1,6 @@
 # Coupling smells checklist — what to look for once the flows are drawn
 
-Walk every flow and every relationship against this list. Each hit becomes a `coupling_concerns[]` entry:
-`{ "id": "CC<n>", "text": "…", "contexts": [<bounded-context ids only>], "severity": "low|medium|high",
-"smell": "<id below>", "flows": ["F<n>"], "mitigation": "…" }`. Name actors and external systems in
-`text`, never in `contexts` (the validator rejects them there). Do not "fix" a smell silently by
-redrawing the flow: if the fix changes a boundary, that is a decompose re-run — record the concern and an
-open question and let the human decide.
+Walk every flow and every relationship against this list. Each hit becomes a `coupling_concerns[]` entry: `{ "id": "CC<n>", "text": "…", "contexts": [<bounded-context ids only>], "severity": "low|medium|high", "smell": "<id below>", "flows": ["F<n>"], "mitigation": "…" }`. Name actors and external systems in `text`, never in `contexts` (the validator rejects them there). Do not "fix" a smell silently by redrawing the flow: if the fix changes a boundary, that is a decompose re-run — record the concern and an open question and let the human decide.
 
 `ddd connect render --check` detects the smells marked **lint**; the rest need eyes.
 
@@ -31,26 +26,17 @@ open question and let the human decide.
 | `hidden-integration` | a cross-context policy or read model with no flow and no relationship in the context map | **lint** (uncovered policy) / `ddd connect inputs` (no relationship) | medium | add the flow; re-run decompose to add the relationship |
 | `bbom-upstream` | relationship pattern `big-ball-of-mud` | eyes | high | stateful ACL; batch import; plan the replacement |
 
-A `distributed-transaction` or `event-should-be-command` hit that needs a branch, a timeout or a compensation is a
-saga / process-manager candidate: at `standard` or `light` depth add `"saga_candidate": true` to the concern and stop
-there (name the would-be owner in `mitigation`); `deep` designs it in `sagas[]` (method §6).
+A `distributed-transaction` or `event-should-be-command` hit that needs a branch, a timeout or a compensation is a saga / process-manager candidate: at `standard` or `light` depth add `"saga_candidate": true` to the concern and stop there (name the would-be owner in `mitigation`); `deep` designs it in `sagas[]` (method §6).
 
 ## Severity rules of thumb
 
-- **high** — the design would need a distributed transaction, a shared database, or puts a synchronous
-  chain / external call on the core's critical path; or a core context is shaped by something it does not own.
-- **medium** — chatty, bidirectional, data-hungry, temporal coupling the business does not require, a policy
-  in the wrong place.
+- **high** — the design would need a distributed transaction, a shared database, or puts a synchronous chain / external call on the core's critical path; or a core context is shaped by something it does not own.
+- **medium** — chatty, bidirectional, data-hungry, temporal coupling the business does not require, a policy in the wrong place.
 - **low** — hygiene: missing idempotency or version notes, wide fan-out that is still manageable.
 
 ## Writing a good concern
 
 Bad: `"Fulfilment and Subscriptions are coupled"`.
-Good: `"Fulfilment needs recipe names and portion sizes for the picking list, which Subscriptions owns;
-today F1 has Fulfilment querying Subscriptions synchronously while packing. If the warehouse service is
-separate (organise), this puts Subscriptions on the packing critical path."` — contexts `[subscriptions,
-fulfilment]`, severity medium, smell `data-hungry`, flows `[F1]`, mitigation `"replicate a picking read
-model from meals-chosen (add recipeNames, portions to the payload) so packing works offline"`.
+Good: `"Fulfilment needs recipe names and portion sizes for the picking list, which Subscriptions owns; today F1 has Fulfilment querying Subscriptions synchronously while packing. If the warehouse service is separate (organise), this puts Subscriptions on the packing critical path."` — contexts `[subscriptions, fulfilment]`, severity medium, smell `data-hungry`, flows `[F1]`, mitigation `"replicate a picking read model from meals-chosen (add recipeNames, portions to the payload) so packing works offline"`.
 
-A reader of `ddd-organise` should be able to decide from the concern alone whether the two contexts must
-share a deployable.
+A reader of `ddd-organise` should be able to decide from the concern alone whether the two contexts must share a deployable.

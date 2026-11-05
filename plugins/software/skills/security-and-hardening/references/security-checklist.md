@@ -67,8 +67,7 @@ Before reaching for controls, spend five minutes thinking like an attacker:
 
 ### Destructive Path Operations
 
-Containment for a target named by data. Resolve first, then decide — and treat the
-result as a candidate, not as authorization:
+Containment for a target named by data. Resolve first, then decide — and treat the result as a candidate, not as authorization:
 
 ```typescript
 import { realpath, readFile } from 'node:fs/promises';
@@ -96,13 +95,8 @@ async function resolveDeletable(candidate: string, expectedOwner: string) {
 
 What this does not do, and must be said where the snippet is copied from:
 
-- **The marker is self-attestation.** Anything that can write inside the root can write
-  `.owner`. `expectedOwner` has to come from authenticated state, and the marker needs
-  integrity protection (restrictive ownership, or a MAC) before it is authorization
-  rather than a consistency check against a misderived target.
-- **Returning a path leaves a check/use race.** Where an untrusted process can swap an
-  ancestor between the check and the call, operate on a descriptor with no-follow,
-  beneath-the-root semantics, or guarantee the hierarchy is immutable for the duration.
+- **The marker is self-attestation.** Anything that can write inside the root can write `.owner`. `expectedOwner` has to come from authenticated state, and the marker needs integrity protection (restrictive ownership, or a MAC) before it is authorization rather than a consistency check against a misderived target.
+- **Returning a path leaves a check/use race.** Where an untrusted process can swap an ancestor between the check and the call, operate on a descriptor with no-follow, beneath-the-root semantics, or guarantee the hierarchy is immutable for the duration.
 
 ## Security Headers
 

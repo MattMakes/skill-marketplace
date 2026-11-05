@@ -1,7 +1,6 @@
 # Fleet pitfalls: the full table
 
-Read this file when a fleet step fails and the short table in `../SKILL.md` does not name
-the fault. The rows are grouped by area. Each row comes from a real fleet session.
+Read this file when a fleet step fails and the short table in `../SKILL.md` does not name the fault. The rows are grouped by area. Each row comes from a real fleet session.
 
 ## Worktrees, imports and merges
 

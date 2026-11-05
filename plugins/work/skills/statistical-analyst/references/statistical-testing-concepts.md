@@ -77,8 +77,7 @@ d = (x̄₂ − x̄₁) / s_pooled
 s_pooled = √[((n₁−1)s₁² + (n₂−1)s₂²) / (n₁+n₂−2)]
 ```
 
-**Warning for heavy-tailed metrics (revenue, LTV):**
-Mean tests are sensitive to outliers. If the distribution has heavy tails, consider:
+**Warning for heavy-tailed metrics (revenue, LTV):** Mean tests are sensitive to outliers. If the distribution has heavy tails, consider:
 1. Winsorizing at 99th percentile before testing
 2. Log-transforming (if values are positive)
 3. Using a non-parametric test (Mann-Whitney U) and flagging for human review

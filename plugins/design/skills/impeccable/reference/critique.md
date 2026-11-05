@@ -209,8 +209,7 @@ Skip this step if the Setup slug was null (vague or root-level target).
 
 5. **Append a single line to the user-visible output**, after the report and before the questions:
 
-   > **Trend for `<slug>` (last 5 runs): 24 → 28 → 32 → 29 → 32 (out of 40)**
-   > Wrote `.impeccable/critique/<filename>`.
+   > **Trend for `<slug>` (last 5 runs): 24 → 28 → 32 → 29 → 32 (out of 40)** Wrote `.impeccable/critique/<filename>`.
 
    Read `max_score` on each trend entry. When every entry shares one maximum, state it once as above. When they differ, print each score with its own denominator (`24/32 → 30/40`) and note that the runs scored different heuristic sets, so the line is not a like-for-like comparison. Treat a missing `max_score` on an older entry as 40.
 
@@ -253,8 +252,7 @@ Ask questions along these lines (adapt to the specific findings; do NOT ask gene
 List recommended commands in priority order, based on the user's answers:
 
 1. **`/command-name`**: Brief description of what to fix (specific context from critique findings)
-2. **`/command-name`**: Brief description (specific context)
-...
+2. **`/command-name`**: Brief description (specific context) ...
 
 **Rules for recommendations**:
 - Only recommend commands from: /impeccable adapt, /impeccable animate, /impeccable audit, /impeccable bolder, /impeccable clarify, /impeccable colorize, /impeccable critique, /impeccable delight, /impeccable distill, /impeccable document, /impeccable harden, /impeccable layout, /impeccable onboard, /impeccable optimize, /impeccable overdrive, /impeccable polish, /impeccable quieter, /impeccable shape, /impeccable typeset

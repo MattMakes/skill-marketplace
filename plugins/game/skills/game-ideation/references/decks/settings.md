@@ -1,9 +1,7 @@
 <!-- DRAFT: tune me -->
 # Deck: settings
 
-Where the game takes place. Draw one. Every entry is boundary-safe: no battlefields, war zones,
-casinos, betting halls or settings whose point is violence or sexual content. When you add an
-entry, keep it that way.
+Where the game takes place. Draw one. Every entry is boundary-safe: no battlefields, war zones, casinos, betting halls or settings whose point is violence or sexual content. When you add an entry, keep it that way.
 
 1. a lighthouse on a foggy island
 2. a night market that moves every evening

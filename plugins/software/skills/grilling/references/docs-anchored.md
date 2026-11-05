@@ -9,8 +9,7 @@ three citation references are Alireza Rezvani's wrapper, MIT.
 
 # Docs-anchored grilling
 
-Grill the plan against the project's existing language (`CONTEXT.md`) and recorded
-decisions (`docs/adr/`), and update both inline as terms and trade-offs crystallise.
+Grill the plan against the project's existing language (`CONTEXT.md`) and recorded decisions (`docs/adr/`), and update both inline as terms and trade-offs crystallise.
 
 ## Domain awareness
 
@@ -84,8 +83,7 @@ If any of the three is missing, skip the ADR. Use the format in [ADR-FORMAT.md](
 
 ## Validators (stdlib-only)
 
-The scripts live in `${CLAUDE_PLUGIN_ROOT}/skills/grilling/scripts/`; run them with `python3`
-from the project root. Each also takes `--output json` and `--sample`.
+The scripts live in `${CLAUDE_PLUGIN_ROOT}/skills/grilling/scripts/`; run them with `python3` from the project root. Each also takes `--output json` and `--sample`.
 
 | Tool | One-line role |
 |---|---|
@@ -93,14 +91,9 @@ from the project root. Each also takes `--output json` and `--sample`.
 | `adr_scanner.py docs/adr/` | Walk `docs/adr/`, check `NNNN-slug.md` pattern, numbering integrity, body completeness. |
 | `glossary_code_consistency.py --context CONTEXT.md --code src/` | Cross-reference bold terms in `CONTEXT.md` against codebase usage. Flag dead glossary + code-only common nouns. |
 
-1. **Pre-flight (before the first round):** lint `CONTEXT.md` if it exists, scan `docs/adr/`
-   if it exists, and run the glossary-vs-code check. Its dead-glossary terms and undefined
-   code-only nouns become opening questions.
-2. **During the session:** when a term is sharpened, edit `CONTEXT.md` at once and re-run the
-   linter if the edit is structural. When an ADR is warranted, write it under `docs/adr/` and
-   re-run the scanner to confirm numbering.
-3. **Closing:** a final glossary-vs-code run confirms no new orphan terms; summarise terms
-   added or refined, ADRs written, scenarios discussed and open items.
+1. **Pre-flight (before the first round):** lint `CONTEXT.md` if it exists, scan `docs/adr/` if it exists, and run the glossary-vs-code check. Its dead-glossary terms and undefined code-only nouns become opening questions.
+2. **During the session:** when a term is sharpened, edit `CONTEXT.md` at once and re-run the linter if the edit is structural. When an ADR is warranted, write it under `docs/adr/` and re-run the scanner to confirm numbering.
+3. **Closing:** a final glossary-vs-code run confirms no new orphan terms; summarise terms added or refined, ADRs written, scenarios discussed and open items.
 
 ## Citations behind each rule
 

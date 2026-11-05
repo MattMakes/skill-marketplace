@@ -5,8 +5,7 @@ description: Write or review UI copy — buttons, errors, empty states, microcop
 
 # Skill: UX Writing
 
-> **Step 0 — doctrine first.** Load `design:design-doctrine` if it is not already loaded
-> this session; every step below assumes its house rules (no emoji, token by intent, output completeness).
+> **Step 0 — doctrine first.** Load `design:design-doctrine` if it is not already loaded this session; every step below assumes its house rules (no emoji, token by intent, output completeness).
 
 Produce or critique interface copy in the project's voice.
 

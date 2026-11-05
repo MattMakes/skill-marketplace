@@ -1,9 +1,7 @@
 <!-- DRAFT: tune me -->
 # Deck: core verbs
 
-The core verb is what the player does most. Draw one. Every entry is boundary-safe: no verb here
-implies combat, killing, weapons, sexual content or real-money gambling. When you add an entry,
-keep it that way.
+The core verb is what the player does most. Draw one. Every entry is boundary-safe: no verb here implies combat, killing, weapons, sexual content or real-money gambling. When you add an entry, keep it that way.
 
 1. tend
 2. build

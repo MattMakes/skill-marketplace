@@ -1,22 +1,14 @@
 # Toolbox — every bundled script, by use-case
 
-A map of the 42 focused tools, the unified `diagramctl.py` orchestrator
-(and its MCP server wrapper), and its
-internal `diagram_ir.py` model grouped by what you're trying to do. The
-per-task routing table in `SKILL.md` says *when* to reach for each; this says
-*how they fit together*. Read it when you're not sure which script a request
-maps to, or you want to chain several.
+A map of the 42 focused tools, the unified `diagramctl.py` orchestrator (and its MCP server wrapper), and its internal `diagram_ir.py` model grouped by what you're trying to do. The per-task routing table in `SKILL.md` says *when* to reach for each; this says *how they fit together*. Read it when you're not sure which script a request maps to, or you want to chain several.
 
-The recurring backbone is one pipeline — an **extractor** emits graph JSON, then
-`autolayout.py` places it, then `validate.py` lints it, then the draw.io CLI
-exports it:
+The recurring backbone is one pipeline — an **extractor** emits graph JSON, then `autolayout.py` places it, then `validate.py` lints it, then the draw.io CLI exports it:
 
 ```text
 <extractor> → graph.json → autolayout.py → diagram.drawio → validate.py → (export PNG/SVG/PDF)
 ```
 
-For new workflows, prefer the semantic backbone. It retains provenance and
-supports incremental updates instead of one-shot regeneration:
+For new workflows, prefer the semantic backbone. It retains provenance and supports incremental updates instead of one-shot regeneration:
 
 ```text
 source → diagramctl build → Diagram IR → views/test/review/story
@@ -24,8 +16,7 @@ source → diagramctl build → Diagram IR → views/test/review/story
                        diagramctl sync ↔ existing .drawio
 ```
 
-Use focused scripts directly when you need their narrow interface; use
-`diagramctl.py` when a task crosses several stages.
+Use focused scripts directly when you need their narrow interface; use `diagramctl.py` when a task crosses several stages.
 
 ## Quick decision guide
 

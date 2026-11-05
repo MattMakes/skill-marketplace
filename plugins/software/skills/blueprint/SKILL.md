@@ -43,10 +43,7 @@ Use this path for ordinary generation. Read the visual-storytelling reference fo
 
 Do not read `renderers/shared/geometry.mjs`, renderer source, validator source, tests, or benchmarks before the first candidate. Inspect implementation only for an unsupported internal diagnostic or after two focused repairs fail.
 
-Workflow note: use schema v2 for new workflows; preserve schema v1 when an
-existing source needs fixed legacy geometry. Keep semantic edge labels and act
-on the compiler diagnostic. The canonical layout, pin, migration, and receipt
-contract is in [`renderers/workflow/README.md`](renderers/workflow/README.md#layout-contracts).
+Workflow note: use schema v2 for new workflows; preserve schema v1 when an existing source needs fixed legacy geometry. Keep semantic edge labels and act on the compiler diagnostic. The canonical layout, pin, migration, and receipt contract is in [`renderers/workflow/README.md`](renderers/workflow/README.md#layout-contracts).
 
 Lifecycle note: phase columns `0..4` occupy the main rail; event/terminal column `N` in `0..2` aligns exactly beneath main column `N + 2`. A recoverable state uses `type: "failure"` plus a real transition back to the active state.
 

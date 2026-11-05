@@ -4,10 +4,7 @@ This policy says what changes when error budget is burned. Without it, the SLO i
 
 ## Scope
 
-Applies to: `<list of SLO IDs covered by this policy>`
-Owner: `<team-name>`
-Review cadence: quarterly
-Last reviewed: `<YYYY-MM-DD>`
+Applies to: `<list of SLO IDs covered by this policy>` Owner: `<team-name>` Review cadence: quarterly Last reviewed: `<YYYY-MM-DD>`
 
 ## States and actions
 

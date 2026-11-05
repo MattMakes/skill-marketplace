@@ -1,7 +1,6 @@
 # Bot balance loop: the full pitfall table
 
-Read this before a long batch, a wall triage or a fan-out. Each row is a fault that a real project hit. The rows are
-grouped by the section of `SKILL.md` they belong to. Numbers are examples from 1 project, not targets.
+Read this before a long batch, a wall triage or a fan-out. Each row is a fault that a real project hit. The rows are grouped by the section of `SKILL.md` they belong to. Numbers are examples from 1 project, not targets.
 
 ## Fight tables
 

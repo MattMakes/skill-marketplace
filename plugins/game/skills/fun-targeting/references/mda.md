@@ -1,7 +1,6 @@
 # MDA: Mechanics, Dynamics, Aesthetics
 
-Source: Robin Hunicke, Marc LeBlanc and Robert Zubek, "MDA: A Formal Approach to Game Design and
-Game Research", Proceedings of the AAAI Workshop on Challenges in Game AI, 2004.
+Source: Robin Hunicke, Marc LeBlanc and Robert Zubek, "MDA: A Formal Approach to Game Design and Game Research", Proceedings of the AAAI Workshop on Challenges in Game AI, 2004.
 
 ## The three layers
 
@@ -15,8 +14,7 @@ Game Research", Proceedings of the AAAI Workshop on Challenges in Game AI, 2004.
 
 - The **designer** builds Mechanics → Dynamics → Aesthetics.
 - The **player** experiences Aesthetics → Dynamics → Mechanics.
-- So design **backwards**: pick the target aesthetics first, then ask "what player behavior
-  produces this feeling?" (dynamics), then "what rules produce that behavior?" (mechanics).
+- So design **backwards**: pick the target aesthetics first, then ask "what player behavior produces this feeling?" (dynamics), then "what rules produce that behavior?" (mechanics).
 
 ## The aesthetic trace
 

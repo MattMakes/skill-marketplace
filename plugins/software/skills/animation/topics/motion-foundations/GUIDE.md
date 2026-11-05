@@ -8,9 +8,7 @@ metadata:
 
 # Motion Foundations
 
-The base layer of the motion system. Defines every value, constraint, and
-rule that downstream skills (`software:animation` (topic `motion-patterns`), `software:animation` (topic `motion-advanced`)) inherit.
-Load this skill before any animation work begins.
+The base layer of the motion system. Defines every value, constraint, and rule that downstream skills (`software:animation` (topic `motion-patterns`), `software:animation` (topic `motion-advanced`)) inherit. Load this skill before any animation work begins.
 
 ## When to Activate
 
@@ -38,8 +36,7 @@ Motion must do at least one of the following or it must be removed:
 - Communicate state
 - Preserve spatial continuity
 
-Responsiveness always outranks smoothness. A 60 fps animation that causes
-input delay is worse than no animation.
+Responsiveness always outranks smoothness. A 60 fps animation that causes input delay is worse than no animation.
 
 ## Rules
 
@@ -169,8 +166,7 @@ export const motionConfig = {
 2. Low-end device detection — reduces duration, removes non-essential animations
 3. Design preference — everything else
 
-Motion must degrade gracefully. It must never disappear abruptly in a way
-that causes layout shift or confuses orientation.
+Motion must degrade gracefully. It must never disappear abruptly in a way that causes layout shift or confuses orientation.
 
 ```tsx
 // hooks/use-reduced-motion.tsx

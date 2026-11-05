@@ -1,7 +1,6 @@
 # Personal Project README Template
 
-Use this template for side projects, portfolio pieces, and experiments.
-Balance between documenting for future-you and showcasing for others.
+Use this template for side projects, portfolio pieces, and experiments. Balance between documenting for future-you and showcasing for others.
 
 ---
 

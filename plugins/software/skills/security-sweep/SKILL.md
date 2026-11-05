@@ -80,8 +80,7 @@ For each auditor that will run in Phase 2 EXCEPT `skill-supply-chain`:
    | `go` | `golang` |
    | (anything else, including `none`) | (no catalog — skip inlining) |
 
-3. For each running auditor `<agent>` (excluding `skill-supply-chain`), Read:
-   `<skill-dir>/catalogs/<folder>/<agent-suffix>.md`
+3. For each running auditor `<agent>` (excluding `skill-supply-chain`), Read: `<skill-dir>/catalogs/<folder>/<agent-suffix>.md`
 
    where `<agent-suffix>` is:
    - `owasp-auditor` → `owasp`

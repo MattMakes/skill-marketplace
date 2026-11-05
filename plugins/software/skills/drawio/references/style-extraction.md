@@ -119,9 +119,7 @@ Input: a `.drawio` file path. Output: candidate preset JSON. Deterministic, no L
 1. **Parse the file.** Read the XML, collect every `<mxCell>` with a `style=` attribute, split into vertices (`vertex="1"`) and edges (`edge="1"`).
 2. **Tokenize each `style=` string** on `;`. Each element is either `key=value` or a bare keyword (e.g., `rhombus`, `ellipse`, `rounded=1`).
 3. **Extract palette.** For every vertex, take the `(fillColor, strokeColor)` pair (skip vertices with neither). Count frequency. Keep the top ≤7 pairs.
-4. **Extract shape vocabulary + role mapping.** For each vertex determine a shape class by precedence:
-   `cylinder3 > ellipse > rhombus > swimlane > rounded=1 > rounded=0`.
-   Then infer the semantic role from the vertex's shape class and its `value` (label) attribute. **Evaluate the rules below in order; first match wins.**
+4. **Extract shape vocabulary + role mapping.** For each vertex determine a shape class by precedence: `cylinder3 > ellipse > rhombus > swimlane > rounded=1 > rounded=0`. Then infer the semantic role from the vertex's shape class and its `value` (label) attribute. **Evaluate the rules below in order; first match wins.**
    - `cylinder3` → `database`
    - `rhombus` → `decision`
    - `swimlane` → `container`
@@ -144,8 +142,7 @@ Input: a `.drawio` file path. Output: candidate preset JSON. Deterministic, no L
 
 5. **Extract fonts.** Compute modal `fontFamily` and `fontSize` across vertices; emit them as `font.fontFamily` and `font.fontSize`. Also track `fontStyle` per vertex as a **working variable** (not an output field — the schema has no top-level `font.fontStyle`). If a distinguishable subset of vertices uses a larger `fontSize` combined with `fontStyle=1` (bold), treat that subset as titles: set `font.titleFontSize` to their modal size and `font.titleBold: true`. Otherwise omit both title fields.
 
-6. **Extract edge defaults.** Take the modal edge style string, but strip these per-edge coordinate keys before counting: `entryX`, `entryY`, `exitX`, `exitY`, `entryDx`, `entryDy`, `exitDx`, `exitDy`. Record arrow style from `endArrow`/`endFill` separately in `edges.arrow`.
-   If any edges have `dashed=1`, collect their `value` (label) attributes. If ≥2 share a common token (e.g., all are labeled "async" or "optional"), add that token to `edges.dashedFor`.
+6. **Extract edge defaults.** Take the modal edge style string, but strip these per-edge coordinate keys before counting: `entryX`, `entryY`, `exitX`, `exitY`, `entryDx`, `entryDy`, `exitDx`, `exitDy`. Record arrow style from `endArrow`/`endFill` separately in `edges.arrow`. If any edges have `dashed=1`, collect their `value` (label) attributes. If ≥2 share a common token (e.g., all are labeled "async" or "optional"), add that token to `edges.dashedFor`.
 
 7. **Extract extras.** `sketch=1` seen on any vertex or edge → `extras.sketch = true`. Modal `strokeWidth` across vertices → `extras.globalStrokeWidth` (default `1`).
 
@@ -171,8 +168,7 @@ Input: a `.drawio` file path. Output: candidate preset JSON. Deterministic, no L
 
 Input: path to a PNG/JPG (or any vision-readable image format). Output: candidate preset JSON. Inference-based; `confidence: "medium"` at best.
 
-**Prerequisite:** the agent's vision capability must be available (same mechanism the main workflow's self-check uses). If vision is not available, stop and tell the user:
-*"Image-based learning needs a vision-enabled model (Claude Sonnet or Opus). Re-run on such a model, or provide the `.drawio` source file instead."*
+**Prerequisite:** the agent's vision capability must be available (same mechanism the main workflow's self-check uses). If vision is not available, stop and tell the user: *"Image-based learning needs a vision-enabled model (Claude Sonnet or Opus). Re-run on such a model, or provide the `.drawio` source file instead."*
 
 ### Steps
 

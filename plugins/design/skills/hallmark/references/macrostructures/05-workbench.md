@@ -17,8 +17,7 @@ Reference: Linear.app, Vercel, Raycast, Arc Browser.
 
 **Sample opening lines** (imitate the *specificity*, not the wording — the page walks the user through):
 > *"$ streampipe parse access.log --filter status=5xx | jq"* — open on a real command, not a marketing claim
-> *"Read anything that emits lines. Files, pipes, sockets, kubectl logs."* — names the inputs, refuses abstraction
-> *"Open the trace, find the span, fix the regression. No glossary required."* — three concrete verbs, then a refusal
+> *"Read anything that emits lines. Files, pipes, sockets, kubectl logs."* — names the inputs, refuses abstraction *"Open the trace, find the span, fix the regression. No glossary required."* — three concrete verbs, then a refusal
 
 ```html
 <header class="lite">…</header>

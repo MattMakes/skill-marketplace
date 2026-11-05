@@ -10,11 +10,7 @@ node bin/blueprint.mjs deliver <type> <candidate.json> <output.html> --quality s
 
 Deliver reads the specification once, writes those exact bytes to a private same-directory candidate snapshot, renders that snapshot, runs the complete artifact checker, and only replaces the target after all artifact checks pass. The JSON receipt includes SHA-256 and byte counts for both `specification` and `artifact`. Renderer, checker, receipt, or commit failure exits non-zero, removes private state, preserves the previous trusted artifact, and never invokes an opener.
 
-Run `visual-check` only after `deliver` exits zero for the current candidate. If
-delivery fails and the output path already exists, that path still names the
-previous trusted artifact; running `visual-check` then would measure and capture
-stale output, not the rejected candidate. Report the delivery diagnostics and
-repair the source before collecting new visual evidence.
+Run `visual-check` only after `deliver` exits zero for the current candidate. If delivery fails and the output path already exists, that path still names the previous trusted artifact; running `visual-check` then would measure and capture stale output, not the rejected candidate. Report the delivery diagnostics and repair the source before collecting new visual evidence.
 
 The delivery interface exposes three separate claims:
 
@@ -26,21 +22,13 @@ Passing one claim never implies either of the others. Never claim that the deter
 
 ## Automated browser evidence
 
-After delivery, inspect the exact trusted HTML without rerendering or modifying
-it:
+After delivery, inspect the exact trusted HTML without rerendering or modifying it:
 
 ```bash
 node bin/blueprint.mjs visual-check <output.html> --json
 ```
 
-The zero-dependency command uses Chrome/Chromium through the DevTools pipe. It
-measures light-theme containment at 1440×900, 1600×1000, 1920×1080, and
-2048×1320, then captures light/dark screenshots at 1440×900 and 2048×1320. It
-writes four PNG sidecars, one relative-path HTML contact sheet, and one JSON
-receipt beside the artifact. The receipt binds the source artifact SHA-256 and
-byte count, identifies `evidenceKind: "automated-browser"`, records READ plus
-Still runtime state, and always reports `visualReview: "pending"`; automated
-browser evidence cannot claim perceptual review.
+The zero-dependency command uses Chrome/Chromium through the DevTools pipe. It measures light-theme containment at 1440×900, 1600×1000, 1920×1080, and 2048×1320, then captures light/dark screenshots at 1440×900 and 2048×1320. It writes four PNG sidecars, one relative-path HTML contact sheet, and one JSON receipt beside the artifact. The receipt binds the source artifact SHA-256 and byte count, identifies `evidenceKind: "automated-browser"`, records READ plus Still runtime state, and always reports `visualReview: "pending"`; automated browser evidence cannot claim perceptual review.
 
 `browser_evidence` in the handoff records only the outcome of this automated command:
 
@@ -48,13 +36,7 @@ browser evidence cannot claim perceptual review.
 - `failed` maps from exit 1 and receipt `status: "fail"` when the inspection finds a defect, the command fails, or a runtime/capture error leaves the evidence incomplete.
 - `skipped` maps only from exit 2 and receipt `status: "skipped"` when Chrome/Chromium is unavailable and the inspection does not run.
 
-Runtime or capture failures leave incomplete evidence and must not be normalized to `skipped`. Failed or skipped capture runs remove stale
-image/contact-sheet sidecars rather than presenting prior evidence as current.
-They do not invalidate an already successful deterministic delivery, and they
-do not turn a perceptual visual review into passed or failed. Retry an
-environmental failure through the supported command in a browser-capable
-execution context when practical. Keep the packaged transport unchanged unless
-the failure reproduces through that seam in a capable environment.
+Runtime or capture failures leave incomplete evidence and must not be normalized to `skipped`. Failed or skipped capture runs remove stale image/contact-sheet sidecars rather than presenting prior evidence as current. They do not invalidate an already successful deterministic delivery, and they do not turn a perceptual visual review into passed or failed. Retry an environmental failure through the supported command in a browser-capable execution context when practical. Keep the packaged transport unchanged unless the failure reproduces through that seam in a capable environment.
 
 ## Optional opening
 

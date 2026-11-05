@@ -23,8 +23,7 @@ Before anything else, decide whether the redesign is **single-page** or **multi-
 - The user says "the whole site", "every page", "the app", "all the pages", "the marketing site".
 - The codebase has multiple route files (`app/page.tsx`, `app/about/page.tsx`, `app/pricing/page.tsx`, etc.) and the user pointed at the project root.
 
-If any of those fires → **multi-page redesign**. Go to § Multi-page flow.
-If none fires → **single-page redesign**. Go to § Single-page flow.
+If any of those fires → **multi-page redesign**. Go to § Multi-page flow. If none fires → **single-page redesign**. Go to § Single-page flow.
 
 ---
 

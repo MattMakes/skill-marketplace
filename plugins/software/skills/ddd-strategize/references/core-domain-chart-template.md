@@ -1,9 +1,6 @@
 # Template — `ddd/04-strategize/core-domain-chart.md`
 
-`ddd strategize render` produces this file from `strategize.json` so the Markdown can never
-disagree with the JSON (contract §7: the JSON is the chain). Every narrative section is a JSON key;
-if you want more prose in the Markdown, put it in the key and re-render. The layout below is what
-the command emits; write it by hand only if Node is unavailable.
+`ddd strategize render` produces this file from `strategize.json` so the Markdown can never disagree with the JSON (contract §7: the JSON is the chain). Every narrative section is a JSON key; if you want more prose in the Markdown, put it in the key and re-render. The layout below is what the command emits; write it by hand only if Node is unavailable.
 
 Optional JSON keys the renderer picks up (all top-level unless noted):
 
@@ -48,9 +45,7 @@ quadrantChart
   Fulfilment: [0.4, 0.4]
 ```
 
-Axes: x = model complexity (score/10), y = business differentiation (score/10). Top-right is the
-core; bottom-left is generic; a supporting subdomain far to the right is "suspect" (accidental
-complexity or a core in disguise). Points nudged by ≤ 0.01 for legibility (`…`); the table below holds the true scores.
+Axes: x = model complexity (score/10), y = business differentiation (score/10). Top-right is the core; bottom-left is generic; a supporting subdomain far to the right is "suspect" (accidental complexity or a core in disguise). Points nudged by ≤ 0.01 for legibility (`…`); the table below holds the true scores.
 
 ## Classifications
 

@@ -8,9 +8,7 @@ metadata:
 
 # Motion Advanced
 
-Complex, interactive, and physics-based animation patterns.
-Requires `software:animation` (topic `motion-foundations`) to be set up first.
-Use these when `software:animation` (topic `motion-patterns`) is not enough.
+Complex, interactive, and physics-based animation patterns. Requires `software:animation` (topic `motion-foundations`) to be set up first. Use these when `software:animation` (topic `motion-patterns`) is not enough.
 
 ## When to Activate
 
@@ -93,8 +91,7 @@ const opacity = useTransform(x, [-200, 0, 200], [0, 1, 0])
 
 ### useAnimate
 
-Returns `[scope, animate]`. The scope ref must be attached to a DOM element.
-`animate()` calls are interrupt-safe — calling mid-flight cancels the previous run.
+Returns `[scope, animate]`. The scope ref must be attached to a DOM element. `animate()` calls are interrupt-safe — calling mid-flight cancels the previous run.
 
 ```tsx
 const [scope, animate] = useAnimate()
@@ -494,9 +491,7 @@ export function PulseDot() {
 
 ## End-to-End Example
 
-Drag-to-dismiss sheet with shimmer content, loading state, and reduced motion
-support — combining `useMotionValue`, `useTransform`, `useSafeMotion`,
-`AnimatePresence`, and tokens from `software:animation` (topic `motion-foundations`):
+Drag-to-dismiss sheet with shimmer content, loading state, and reduced motion support — combining `useMotionValue`, `useTransform`, `useSafeMotion`, `AnimatePresence`, and tokens from `software:animation` (topic `motion-foundations`):
 
 ```tsx
 "use client"

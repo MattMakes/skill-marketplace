@@ -192,8 +192,7 @@ If the cache is re-used, emit a one-line note instead of the full block: *"Pre-f
 > *Pre-flight findings: vanilla HTML, no framework detected. No motion library, no Tailwind, no design tokens. Hallmark will introduce: full token system, macrostructure, microinteraction discipline, slop-test gates. Nothing to preserve.*
 
 *Astro + Tailwind + DTCG tokens already present:*
-> *Pre-flight findings: Astro 5 (astro.config.mjs L1) · Tailwind v4 with @theme inline tokens (src/styles/global.css L3) · `tokens.json` at project root (DTCG format, 12 colour tokens, 6 font tokens). No motion library detected.*
-> *Hallmark will preserve: Tailwind tokens, the `tokens.json` file (won't overwrite). Hallmark will introduce: macrostructure, microinteraction discipline, slop-test gates. Motion stance: motion-cut (no framer-motion / motion / gsap detected).*
+> *Pre-flight findings: Astro 5 (astro.config.mjs L1) · Tailwind v4 with @theme inline tokens (src/styles/global.css L3) · `tokens.json` at project root (DTCG format, 12 colour tokens, 6 font tokens). No motion library detected.* *Hallmark will preserve: Tailwind tokens, the `tokens.json` file (won't overwrite). Hallmark will introduce: macrostructure, microinteraction discipline, slop-test gates. Motion stance: motion-cut (no framer-motion / motion / gsap detected).*
 
 The pre-flight block is the user's accountability line: *"here's what I noticed about your project before I touched anything."* Skipping it is the fastest way to lose the user's trust.
 
@@ -205,22 +204,13 @@ Hallmark works best when you know three things before writing code:
 2. **Use case.** What single job does this interface do? What is the one action the user should be able to take?
 3. **Tone.** Pick an extreme — *editorial, brutalist, soft, utilitarian, luxury, playful, technical, austere*. "Clean and modern" is not a tone.
 
-Infer these from the brief, project evidence, conversation, and active design
-system first. If they are sufficiently clear, state the inferred audience, use
-case, and tone in one line and proceed. Ask only when an unresolved choice
-would materially change the result.
+Infer these from the brief, project evidence, conversation, and active design system first. If they are sufficiently clear, state the inferred audience, use case, and tone in one line and proceed. Ask only when an unresolved choice would materially change the result.
 
-When clarification is actually needed, ask once with the AskUserQuestion
-tool, in one consolidated question that includes only the unresolved audience,
-use-case, or tone fields.
+When clarification is actually needed, ask once with the AskUserQuestion tool, in one consolidated question that includes only the unresolved audience, use-case, or tone fields.
 
-Do not ladder follow-ups or repeat the question as markdown. If the user answers
-some fields and skips others, treat the skipped fields as opt-out and infer
-them. If the user says "go ahead", "you pick", "just build it", or "don't
-ask", proceed without a form.
+Do not ladder follow-ups or repeat the question as markdown. If the user answers some fields and skips others, treat the skipped fields as opt-out and infer them. If the user says "go ahead", "you pick", "just build it", or "don't ask", proceed without a form.
 
-The gate is silent for `audit`, `study`, or `redesign --mood`; those verbs
-read context from the target rather than requiring a requirements interview.
+The gate is silent for `audit`, `study`, or `redesign --mood`; those verbs read context from the target rather than requiring a requirements interview.
 
 **Genre — pick before themes.** Before the theme route, settle on a genre. Hallmark ships four: **editorial** (default · the canonical anti-slop voice), **modern-minimal** (Stripe / Linear / ElevenLabs school), **atmospheric** (Suno / Runway / dark-AI-tool school), **playful** (post-Linear soft school). The genre scopes which themes can rotate, which slop-test gates apply, and which voice fixtures the LLM picks from. Detection is signal-based — silent default to editorial unless the brief fires one of these:
 

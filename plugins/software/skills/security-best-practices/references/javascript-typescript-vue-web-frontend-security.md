@@ -243,8 +243,7 @@ Required:
 
   * `v-html`
   * `innerHTML` in render functions / JSX
-  * direct DOM APIs (`element.innerHTML`, `insertAdjacentHTML`)
-    unless the HTML is trusted or robustly sanitized and the risk is explicitly accepted. ([Vue.js][1])
+  * direct DOM APIs (`element.innerHTML`, `insertAdjacentHTML`) unless the HTML is trusted or robustly sanitized and the risk is explicitly accepted. ([Vue.js][1])
 
 Insecure patterns:
 

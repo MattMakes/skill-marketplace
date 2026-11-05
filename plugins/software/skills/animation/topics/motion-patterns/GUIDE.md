@@ -8,9 +8,7 @@ metadata:
 
 # Motion Patterns
 
-Copy-paste patterns for the most common UI animation needs.
-Every pattern here is built on `software:animation` (topic `motion-foundations`) tokens and springs.
-Do not define new duration or easing values here — import them.
+Copy-paste patterns for the most common UI animation needs. Every pattern here is built on `software:animation` (topic `motion-foundations`) tokens and springs. Do not define new duration or easing values here — import them.
 
 ## When to Activate
 
@@ -342,9 +340,7 @@ export function ExpandingCard({ title, body }: { title: string; body: string }) 
 
 ## End-to-End Example
 
-A staggered list that enters on mount, handles conditional presence, and
-respects reduced motion — combining tokens, springs, AnimatePresence, and
-the accessibility hook from `software:animation` (topic `motion-foundations`):
+A staggered list that enters on mount, handles conditional presence, and respects reduced motion — combining tokens, springs, AnimatePresence, and the accessibility hook from `software:animation` (topic `motion-foundations`):
 
 ```tsx
 "use client"

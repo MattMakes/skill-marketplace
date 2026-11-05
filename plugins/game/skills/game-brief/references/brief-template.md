@@ -1,9 +1,6 @@
 # Brief template and section guide
 
-The brief is for a reader who has 2 minutes. Stone Librande's test applies: "Most people don't
-read past the first page or screen" (Librande, "One-Page Designs", GDC 2010). So the first screen
-(Pitch, Player fantasy, play-by-play) must sell the game on its own. Kinds of fun follow Marc
-LeBlanc, "8 Kinds of Fun" (8kindsoffun.com), and MDA (Hunicke, LeBlanc and Zubek, 2004).
+The brief is for a reader who has 2 minutes. Stone Librande's test applies: "Most people don't read past the first page or screen" (Librande, "One-Page Designs", GDC 2010). So the first screen (Pitch, Player fantasy, play-by-play) must sell the game on its own. Kinds of fun follow Marc LeBlanc, "8 Kinds of Fun" (8kindsoffun.com), and MDA (Hunicke, LeBlanc and Zubek, 2004).
 
 ## Frontmatter
 
@@ -38,7 +35,6 @@ rating:                       # left empty; the reader fills it
 
 ## Rules of thumb
 
-- Every claim of fun names a mechanic. "It's relaxing" is not enough; "no fail state and a
-  90-second tide timer that only resets the board" is.
+- Every claim of fun names a mechanic. "It's relaxing" is not enough; "no fail state and a 90-second tide timer that only resets the board" is.
 - The prototype is small. If it needs more than two weeks for one person, cut it down.
 - Comparable games are real, published games. Never name living artists.

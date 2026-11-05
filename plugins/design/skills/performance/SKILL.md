@@ -5,9 +5,7 @@ description: Optimize UI performance against Core Web Vitals (LCP, INP, CLS) for
 
 # Skill: Performance
 
-> **Step 0 — doctrine first.** Load `design:design-doctrine` if it is not already loaded
-> this session; every step below assumes its verification protocol and house rules.
-> The render gates need Playwright once per install: `npm install --prefix "${CLAUDE_PLUGIN_ROOT}/shared" && npx --prefix "${CLAUDE_PLUGIN_ROOT}/shared" playwright install chromium`. Without it they print SKIPPED, which is not a pass.
+> **Step 0 — doctrine first.** Load `design:design-doctrine` if it is not already loaded this session; every step below assumes its verification protocol and house rules. The render gates need Playwright once per install: `npm install --prefix "${CLAUDE_PLUGIN_ROOT}/shared" && npx --prefix "${CLAUDE_PLUGIN_ROOT}/shared" playwright install chromium`. Without it they print SKIPPED, which is not a pass.
 
 Make the UI fast and stable. Treat performance as an accessibility concern — slow/janky UIs fail low-end devices first.
 

@@ -16,8 +16,6 @@ Avoid as a substitute for narrative. Some stories shouldn't be read spatially.
 Reference: process visualisation sites, ecosystem maps, knowledge-graph products.
 
 **Sample opening lines** (imitate the *specificity* — Map / Diagram openings name the path or the territory):
-> *"Browser → API → Database. Where Tracejam fits."* — names the layers, names the position
-> *"From stdin, through the pipe, into your dashboard."* — labels the spatial flow on the page below
-> *"Three tiers · two regions · one ledger."* — counts the system, geographic + structural
+> *"Browser → API → Database. Where Tracejam fits."* — names the layers, names the position *"From stdin, through the pipe, into your dashboard."* — labels the spatial flow on the page below *"Three tiers · two regions · one ledger."* — counts the system, geographic + structural
 
 ---

@@ -1,18 +1,14 @@
 # Page Template and Markers
 
-This document defines the page structure, writing principles, and marker
-conventions for wiki pages.
+This document defines the page structure, writing principles, and marker conventions for wiki pages.
 
 ## Writing Principles
 
-These govern *what goes inside* a section. The markers below govern *how a
-section is delimited* — both apply to every page.
+These govern *what goes inside* a section. The markers below govern *how a section is delimited* — both apply to every page.
 
 ### 1. TL;DR First
 
-**Every section opens with a TL;DR** — a 1–2 sentence summary of what the
-section establishes, before any detail. A reader who stops after the TL;DR
-should still have learned the main point.
+**Every section opens with a TL;DR** — a 1–2 sentence summary of what the section establishes, before any detail. A reader who stops after the TL;DR should still have learned the main point.
 
 ```markdown
 ## Request Authentication
@@ -26,23 +22,18 @@ are rejected before they reach any handler.
 
 ### 2. Progressive Disclosure
 
-**Big picture first, then drill down.** Do not front-load implementation
-details. Order every page and every section so a reader can stop at any depth
-and still have a coherent (if less complete) understanding.
+**Big picture first, then drill down.** Do not front-load implementation details. Order every page and every section so a reader can stop at any depth and still have a coherent (if less complete) understanding.
 
-- Start with the at-a-glance summary table — the reader should grasp the system
-  in 30 seconds.
+- Start with the at-a-glance summary table — the reader should grasp the system in 30 seconds.
 - Then the architecture and the WHY.
 - Then components, then methods, then edge cases.
 
 ### 3. Table-Driven Presentation
 
-**Prefer tables over prose for any structured information** — APIs, parameters,
-configuration keys, components, comparisons, data models.
+**Prefer tables over prose for any structured information** — APIs, parameters, configuration keys, components, comparisons, data models.
 
 - Start each major section with an at-a-glance **summary table** before details.
-- **Every table listing code artifacts MUST carry a "Source" column** with
-  citations. See `evidence_citation_policy.md` for the citation forms.
+- **Every table listing code artifacts MUST carry a "Source" column** with citations. See `evidence_citation_policy.md` for the citation forms.
 - If a paragraph is really just a list of things, convert it to a table.
 
 ```markdown
@@ -58,12 +49,10 @@ configuration keys, components, comparisons, data models.
 
 - If function A calls B calls C, follow it all the way and say so.
 - Explain WHY something exists before explaining WHAT it does.
-- No hand-waving. Never write "this likely handles..." — read the code and state
-  what it actually does.
+- No hand-waving. Never write "this likely handles..." — read the code and state what it actually does.
 - Distinguish fact from inference, and mark inferences explicitly.
 
-A shallow page that covers ten subsystems is worth less than a deep page that
-covers three.
+A shallow page that covers ten subsystems is worth less than a deep page that covers three.
 
 ### 5. Systems Thinking
 
@@ -73,15 +62,11 @@ Organize from the whole down to the parts, at every scale:
 Architecture → Subsystems → Components → Methods
 ```
 
-Each level should make the next level's existence feel inevitable. A reader who
-knows the architecture should be able to predict roughly what subsystems exist.
+Each level should make the next level's existence feel inevitable. A reader who knows the architecture should be able to predict roughly what subsystems exist.
 
 ### 6. Visual Rhythm
 
-Alternate prose, tables, diagrams, and code blocks. Avoid long walls of text.
-See `mermaid_policy.md` for the per-page diagram minimums (3–5 diagrams, at
-least 2 different types) — those minimums are a requirement of this template,
-not a suggestion.
+Alternate prose, tables, diagrams, and code blocks. Avoid long walls of text. See `mermaid_policy.md` for the per-page diagram minimums (3–5 diagrams, at least 2 different types) — those minimums are a requirement of this template, not a suggestion.
 
 ## Page Structure
 
@@ -263,17 +248,14 @@ store; only route-level containers talk to the API, which is what keeps the leaf
 components trivially testable.
 ```
 
-Do not open a section with a content-free restatement of its own title ("This
-section describes the component structure"). Say something.
+Do not open a section with a content-free restatement of its own title ("This section describes the component structure"). Say something.
 
 ### Section Body
 
 Ordered by progressive disclosure — summary before detail:
-1. An at-a-glance **summary table** (with a Source column) where the section
-   introduces multiple artifacts
+1. An at-a-glance **summary table** (with a Source column) where the section introduces multiple artifacts
 2. Explanatory text with source citations, WHY before WHAT
-3. Diagrams (if `diagrams_needed: true`), each followed by its
-   `<!-- Sources: ... -->` comment block
+3. Diagrams (if `diagrams_needed: true`), each followed by its `<!-- Sources: ... -->` comment block
 4. Tables for any remaining structured data
 5. Code examples from real source files (if relevant)
 

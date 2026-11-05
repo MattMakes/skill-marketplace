@@ -1,17 +1,11 @@
 # `message-flows.md` — template and the JSON that produces it
 
-> **Paths:** `${CLAUDE_PLUGIN_ROOT}` below means this plugin's install directory — the absolute
-> path already resolved in the SKILL.md that sent you here. Supporting files like this one are
-> read raw, so substitute that path yourself; never paste the literal token into a shell.
+> **Paths:** `${CLAUDE_PLUGIN_ROOT}` below means this plugin's install directory — the absolute path already resolved in the SKILL.md that sent you here. Supporting files like this one are read raw, so substitute that path yourself; never paste the literal token into a shell.
 
 
-`ddd/05-connect/message-flows.md` is **rendered** from `connect.json` by
-`node ${CLAUDE_PLUGIN_ROOT}/shared/bin/ddd.mjs connect render <ddd-dir> --write-md`. Author the JSON
-(including the optional narrative keys below), run the renderer, and the Markdown comes out in this shape.
-Do not hand-write the mermaid; `--write-mermaid` fills `flows[].mermaid` from `flows[].steps`.
+`ddd/05-connect/message-flows.md` is **rendered** from `connect.json` by `node ${CLAUDE_PLUGIN_ROOT}/shared/bin/ddd.mjs connect render <ddd-dir> --write-md`. Author the JSON (including the optional narrative keys below), run the renderer, and the Markdown comes out in this shape. Do not hand-write the mermaid; `--write-mermaid` fills `flows[].mermaid` from `flows[].steps`.
 
-If a human has hand-edited `message-flows.md` since the last render (re-runs), reconcile first: interactive →
-ask which wins; auto → trust the Markdown, update the JSON to match, then re-render (contract §7).
+If a human has hand-edited `message-flows.md` since the last render (re-runs), reconcile first: interactive → ask which wins; auto → trust the Markdown, update the JSON to match, then re-render (contract §7).
 
 ## Rendered structure
 
@@ -130,19 +124,13 @@ Notes on the optional keys (all ignored by `ddd validate`, all rendered):
 
 - `flows[].kind`: `happy-path` | `alternative` | `policy` | `failure`; `flows[].summary`, `flows[].notes`,
   `flows[].policies` (discover policy ids realised), `flows[].failure_paths` (strings; deep).
-- `steps[].note` (rendered as a Mermaid note), `steps[].when` (consecutive steps with the same `when`
-  are wrapped in `opt <when>`).
+- `steps[].note` (rendered as a Mermaid note), `steps[].when` (consecutive steps with the same `when` are wrapped in `opt <when>`).
 - `messages[].name`, `description`, `idempotency`, `version`, `response_payload`.
-- `messages[].channels[]` — a secondary channel when one message travels two ways: `{ "via": "file", "sync": false,
-  "delivery": "at-least-once", "note": "nightly manifest" }`; the primary channel stays in `delivery` and the steps' `via`.
-- `parties[]` (top level; contract §4.5, checked by the validator, which warns until discover adopts them) — a party
-  discover never named: `{ "id": "depot", "name": "Courier depot", "kind": "external-system", "description": "…" }`.
-- `coupling_concerns[].saga_candidate: true` — a long-running / compensating flow flagged at standard or light depth
-  (deep designs it in `sagas[]`).
+- `messages[].channels[]` — a secondary channel when one message travels two ways: `{ "via": "file", "sync": false, "delivery": "at-least-once", "note": "nightly manifest" }`; the primary channel stays in `delivery` and the steps' `via`.
+- `parties[]` (top level; contract §4.5, checked by the validator, which warns until discover adopts them) — a party discover never named: `{ "id": "depot", "name": "Courier depot", "kind": "external-system", "description": "…" }`.
+- `coupling_concerns[].saga_candidate: true` — a long-running / compensating flow flagged at standard or light depth (deep designs it in `sagas[]`).
 - `integration_patterns[].assumed_distance` (`same-deployable` | `separate-deployable`), `integration`
   (`none` for separate-ways).
 - `coupling_concerns[].smell` (id from `coupling-smells.md`), `flows`, `mitigation`.
-- `sagas[]` (deep): `{ "id": "SG1", "name", "style": "choreography|orchestration", "owner": "<context>",
-  "trigger": "<event id>", "steps": ["…"], "compensations": ["…"], "timeouts": "…" }`.
-- `deprecated[]` (envelope, re-runs only; in the shared schema): `{ "id": "F3", "collection": "flows|messages|coupling_concerns|integration_patterns|sagas",
-  "reason": "…", "since": "<produced_at>" }` — rendered as a "Deprecated" section so reviewers see what went away.
+- `sagas[]` (deep): `{ "id": "SG1", "name", "style": "choreography|orchestration", "owner": "<context>", "trigger": "<event id>", "steps": ["…"], "compensations": ["…"], "timeouts": "…" }`.
+- `deprecated[]` (envelope, re-runs only; in the shared schema): `{ "id": "F3", "collection": "flows|messages|coupling_concerns|integration_patterns|sagas", "reason": "…", "since": "<produced_at>" }` — rendered as a "Deprecated" section so reviewers see what went away.

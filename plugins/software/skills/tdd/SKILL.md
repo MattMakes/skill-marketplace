@@ -685,8 +685,7 @@ NO SKILL WITHOUT A FAILING TEST FIRST
 
 This applies to NEW skills AND EDITS to existing skills.
 
-Write skill before testing? Delete it. Start over.
-Edit skill without testing? Same violation.
+Write skill before testing? Delete it. Start over. Edit skill without testing? Same violation.
 
 **No exceptions:**
 - Not for "simple additions"

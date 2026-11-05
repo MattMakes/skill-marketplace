@@ -173,20 +173,14 @@ A section in the PR description or a `PERF.md` in the repo both work. What matte
 
 ### Step 5: Guard Against Regression
 
-Guard the metric the user actually feels, not every available number. Use the
-same LCP, INP, p95 latency, or other primary metric that justified the fix.
+Guard the metric the user actually feels, not every available number. Use the same LCP, INP, p95 latency, or other primary metric that justified the fix.
 
 Use two complementary layers when the surface is user-facing:
 
-- **Synthetic CI gate:** Catch reproducible regressions before merge with a
-  performance budget. Repeat noisy measurements or compare a median/trend so
-  normal run-to-run variance does not turn the gate into a flaky check.
-- **Field monitoring:** Alert on a meaningful p75 movement in RUM data. Use
-  attributed `web-vitals` data to locate the cause; treat CrUX's rolling window
-  as confirmation rather than an immediate alert.
+- **Synthetic CI gate:** Catch reproducible regressions before merge with a performance budget. Repeat noisy measurements or compare a median/trend so normal run-to-run variance does not turn the gate into a flaky check.
+- **Field monitoring:** Alert on a meaningful p75 movement in RUM data. Use attributed `web-vitals` data to locate the cause; treat CrUX's rolling window as confirmation rather than an immediate alert.
 
-When either guard fires, return to Step 1 and establish a fresh baseline before
-proposing another fix.
+When either guard fires, return to Step 1 and establish a fresh baseline before proposing another fix.
 
 **Set budgets and enforce them:**
 

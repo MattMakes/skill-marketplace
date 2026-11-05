@@ -27,9 +27,7 @@ For an adversarial verdict on taste, or a Dieter Rams scorecard that ends in a p
 
 ### Scored review
 
-> **Step 0 — doctrine first.** Load `design:design-doctrine` if it is not already loaded
-> this session; every step below assumes its verification protocol and house rules.
-> The render gates need Playwright once per install: `npm install --prefix "${CLAUDE_PLUGIN_ROOT}/shared" && npx --prefix "${CLAUDE_PLUGIN_ROOT}/shared" playwright install chromium`. Without it they print SKIPPED, which is not a pass.
+> **Step 0 — doctrine first.** Load `design:design-doctrine` if it is not already loaded this session; every step below assumes its verification protocol and house rules. The render gates need Playwright once per install: `npm install --prefix "${CLAUDE_PLUGIN_ROOT}/shared" && npx --prefix "${CLAUDE_PLUGIN_ROOT}/shared" playwright install chromium`. Without it they print SKIPPED, which is not a pass.
 
 1. Read `${CLAUDE_PLUGIN_ROOT}/shared/workflows/design-review.md` (rubric, scoring guide, process).
 2. Gather context from the request and the files: the screen(s) or flow, target users, platform, constraints.
@@ -111,18 +109,7 @@ For each issue, build two HTML renders side by side:
 
 These are rebuilt in HTML, not screenshots. Both versions should be crisp and consistent.
 
-**Render the fix INSIDE the real page chrome, not the component bare.** If the
-preview exists so the user can choose how a change looks on a real product surface,
-a stripped-down component render is wrong — it looks nothing like the live site and
-the user can't judge it (real correction: a component preview rendered bare looked
-"so different than the site" because it wasn't shown inside the card it lives in).
-Pull the app's actual CSS verbatim, reproduce the surrounding chrome (container,
-nav, breadcrumb, the component's own card wrapper), run the app's real client-side
-transform, and feed it real fixture content. For multiple options, build ONE
-in-context page with a fixed option switcher (radio groups toggling `body`
-data-attributes) plus a "Current" baseline, so the user flips variants live against
-the real surface. Full recipe, the exec-don't-regex helper-decode pitfall, and the
-pre-deploy verify step: `references/in-context-preview.md`.
+**Render the fix INSIDE the real page chrome, not the component bare.** If the preview exists so the user can choose how a change looks on a real product surface, a stripped-down component render is wrong — it looks nothing like the live site and the user can't judge it (real correction: a component preview rendered bare looked "so different than the site" because it wasn't shown inside the card it lives in). Pull the app's actual CSS verbatim, reproduce the surrounding chrome (container, nav, breadcrumb, the component's own card wrapper), run the app's real client-side transform, and feed it real fixture content. For multiple options, build ONE in-context page with a fixed option switcher (radio groups toggling `body` data-attributes) plus a "Current" baseline, so the user flips variants live against the real surface. Full recipe, the exec-don't-regex helper-decode pitfall, and the pre-deploy verify step: `references/in-context-preview.md`.
 
 Package everything into a single HTML page:
 

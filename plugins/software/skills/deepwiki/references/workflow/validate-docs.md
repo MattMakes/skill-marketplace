@@ -3,8 +3,7 @@
 ## Goal
 
 Validate the generated documentation and apply safe fixes:
-- Mermaid diagrams parse (the linter is pure stdlib, so it always runs — there is no
-  "tool unavailable" outcome to report)
+- Mermaid diagrams parse (the linter is pure stdlib, so it always runs — there is no "tool unavailable" outcome to report)
 - Document structure is consistent (PAGE_ID markers, AUTOGEN markers, no overlaps)
 
 ## Inputs
@@ -87,11 +86,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/deepwiki/scripts/validate_docs_structure.py
 
 Extracts and lints Mermaid diagrams in markdown files.
 
-**Zero dependencies.** This is a pure-stdlib Python linter — no Node.js, no npm,
-no `mermaid-cli`/`mmdc`, nothing to `pip install`. Mermaid is rendered natively by
-GitHub, GitLab, VitePress and most Markdown viewers, so no local tool is needed to
-*draw* a diagram; the only thing worth doing locally is checking that it parses,
-which is what this does.
+**Zero dependencies.** This is a pure-stdlib Python linter — no Node.js, no npm, no `mermaid-cli`/`mmdc`, nothing to `pip install`. Mermaid is rendered natively by GitHub, GitLab, VitePress and most Markdown viewers, so no local tool is needed to *draw* a diagram; the only thing worth doing locally is checking that it parses, which is what this does.
 
 The rules are the executable form of `references/mermaid_policy.md`.
 
@@ -124,8 +119,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/deepwiki/scripts/validate_mermaid.py --code
 
 *One of `--input`, `--code`, or `--blocks` is required (mutually exclusive).
 
-**Exit codes**: `0` = all diagrams valid, `1` = invalid diagrams found, `2` = bad
-invocation. This makes the phase usable as a CI gate.
+**Exit codes**: `0` = all diagrams valid, `1` = invalid diagrams found, `2` = bad invocation. This makes the phase usable as a CI gate.
 
 **Output Structure** (with `--invalid-only`):
 ```json
@@ -180,8 +174,7 @@ Every block also carries `diagram_type` and a `warnings` list.
 | `multiline_label` | Quoted label spans several lines |
 | `horizontal_orientation` | `graph LR` instead of the preferred `graph TD` |
 
-Characters such as `/`, `,`, `:`, `<`, `>` parse fine in an unquoted label and are
-**not** errors — they only raise the `unquoted_node_label` warning. Only
+Characters such as `/`, `,`, `:`, `<`, `>` parse fine in an unquoted label and are **not** errors — they only raise the `unquoted_node_label` warning. Only
 `( ) [ ] { } " | ;` genuinely break the parser.
 
 ## Workflow
@@ -196,9 +189,7 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/deepwiki/scripts/validate_mermaid.py \
     --output "{output_dir}/_reports/mermaid_invalid.json"
 ```
 
-   The linter is pure stdlib, so it always runs — there is no "tool unavailable"
-   path to handle. A non-zero exit means real invalid diagrams, not a broken
-   toolchain.
+   The linter is pure stdlib, so it always runs — there is no "tool unavailable" path to handle. A non-zero exit means real invalid diagrams, not a broken toolchain.
 
 2) If invalid blocks are found (`total_invalid > 0`):
    - Fix each invalid diagram (max 3 attempts per diagram) using `mermaid_policy.md` and the `fix_hint`.

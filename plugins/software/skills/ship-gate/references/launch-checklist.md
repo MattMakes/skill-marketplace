@@ -7,11 +7,9 @@ The pre-launch checklist ship-gate reports against. Each item is settled by one 
 - **run**: run the project's own command (test, build, lint) and report its exit code;
 - **manual**: ask the user to confirm.
 
-An item passes only when everything mapped to it passes. Anything the scanner skipped and you
-could not settle another way is MANUAL, not PASS.
+An item passes only when everything mapped to it passes. Anything the scanner skipped and you could not settle another way is MANUAL, not PASS.
 
-Pre-launch checklist from addyosmani/agent-skills `shipping-and-launch` (MIT); the mapping
-column is ship-gate's.
+Pre-launch checklist from addyosmani/agent-skills `shipping-and-launch` (MIT); the mapping column is ship-gate's.
 
 ## Code Quality
 
@@ -28,9 +26,7 @@ column is ship-gate's.
 
 ## Security
 
-Run `software:security-sweep` and map its findings here. If the user declines the sweep (a
-~10 minute multi-agent pass), fall back to the scanner's SEC checks in brackets and say in the
-report that the fallback was used.
+Run `software:security-sweep` and map its findings here. If the user declines the sweep (a ~10 minute multi-agent pass), fall back to the scanner's SEC checks in brackets and say in the report that the fallback was used.
 
 | Item | Settled by |
 |------|-----------|

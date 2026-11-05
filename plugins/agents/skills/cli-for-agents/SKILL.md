@@ -1,11 +1,7 @@
 ---
 name: cli-for-agents
 description: >-
-  Designs or reviews CLIs so coding agents can run them reliably: non-interactive
-  flags, layered --help with examples, stdin/pipelines, fast actionable errors,
-  idempotency, dry-run, and predictable structure. Use when building a CLI,
-  adding commands, writing --help, or when the user mentions agents, terminals,
-  or automation-friendly CLIs.
+  Designs or reviews CLIs so coding agents can run them reliably: non-interactive flags, layered --help with examples, stdin/pipelines, fast actionable errors, idempotency, dry-run, and predictable structure. Use when building a CLI, adding commands, writing --help, or when the user mentions agents, terminals, or automation-friendly CLIs.
 ---
 
 # CLI for agents

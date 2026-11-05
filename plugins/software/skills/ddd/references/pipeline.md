@@ -1,8 +1,6 @@
 # The nine steps — inputs, outputs, and what "good" looks like
 
-> **Paths:** `${CLAUDE_PLUGIN_ROOT}` below means this plugin's install directory — the absolute
-> path already resolved in the SKILL.md that sent you here. Supporting files like this one are
-> read raw, so substitute that path yourself; never paste the literal token into a shell.
+> **Paths:** `${CLAUDE_PLUGIN_ROOT}` below means this plugin's install directory — the absolute path already resolved in the SKILL.md that sent you here. Supporting files like this one are read raw, so substitute that path yourself; never paste the literal token into a shell.
 
 
 All paths are relative to the project root; the workspace is `ddd/` unless the manifest says otherwise.
@@ -22,11 +20,7 @@ Full field-level contract: `${CLAUDE_PLUGIN_ROOT}/shared/references/artifact-con
 
 ## What travels between steps
 
-Only JSON travels. Each step reads its predecessor's `<step>.json`, the glossary, and every
-`notes_for_downstream[]` entry in earlier artifacts whose `for` names it (language conflicts, fixed
-process order, ownerless records, decisions already taken). `ddd validate --status` prints the notes
-addressed to the next step, so the orchestrator can pass them into the step's prompt verbatim.
-Prose in the Markdown artifacts is for humans and does not reach the next step.
+Only JSON travels. Each step reads its predecessor's `<step>.json`, the glossary, and every `notes_for_downstream[]` entry in earlier artifacts whose `for` names it (language conflicts, fixed process order, ownerless records, decisions already taken). `ddd validate --status` prints the notes addressed to the next step, so the orchestrator can pass them into the step's prompt verbatim. Prose in the Markdown artifacts is for humans and does not reach the next step.
 
 ## Gate commands
 
@@ -42,8 +36,4 @@ Node 18 or newer runs all of them; there is nothing to install.
 
 ## Re-running
 
-Re-run a step → its `produced_at` moves forward → `ddd validate` marks every later step `stale`
-(it compares each step against the newest of all earlier steps) → run them again in order. Ids are
-stable across re-runs (contract §7), so downstream artifacts usually need only small edits. A hand
-edit must be followed by `ddd stamp <file>` or nothing goes stale. Every `ddd mark` rebuilds the
-review page and the diagrams, so the page always shows the run as it is.
+Re-run a step → its `produced_at` moves forward → `ddd validate` marks every later step `stale` (it compares each step against the newest of all earlier steps) → run them again in order. Ids are stable across re-runs (contract §7), so downstream artifacts usually need only small edits. A hand edit must be followed by `ddd stamp <file>` or nothing goes stale. Every `ddd mark` rebuilds the review page and the diagrams, so the page always shows the run as it is.

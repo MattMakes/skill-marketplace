@@ -11,8 +11,7 @@ It is intentionally written as a set of **normative requirements** (“MUST/SHOU
 
 ## 0) Safety, boundaries, and anti-abuse constraints (MUST FOLLOW)
 
-* MUST NOT request, output, log, hard-code, or commit secrets (API keys intended to be secret, private keys, passwords, OAuth refresh tokens, session tokens, cookies).
-  Notes:
+* MUST NOT request, output, log, hard-code, or commit secrets (API keys intended to be secret, private keys, passwords, OAuth refresh tokens, session tokens, cookies). Notes:
 
   * Frontend code is inherently observable by end users. If a value must remain secret, it must not be in browser-delivered code.
   * If the project uses “public” keys (e.g., publishable analytics keys), they MUST be treated as non-secret and scoped accordingly.

@@ -31,8 +31,7 @@ The session is done when the frontier is empty: every branch of the design tree 
 
 ## Modes
 
-Every mode keeps the rounds, the recommended answers and the rule that facts are yours to find.
-Pick by what anchors the session.
+Every mode keeps the rounds, the recommended answers and the rule that facts are yours to find. Pick by what anchors the session.
 
 | Mode | Pick when | Steps |
 |---|---|---|

@@ -164,8 +164,7 @@ The following is important in Remotion:
 
 ## Drawing lines
 
-Unless I request it, do not add a glow effect to the lines.
-Unless I request it, do not add additional points to the lines.
+Unless I request it, do not add a glow effect to the lines. Unless I request it, do not add additional points to the lines.
 
 ## Map style
 
@@ -384,8 +383,7 @@ _map.addLayer({
 });
 ```
 
-Make sure they are big enough. Check the composition dimensions and scale the labels accordingly.
-For a composition size of 1920x1080, the label font size should be at least 40px.
+Make sure they are big enough. Check the composition dimensions and scale the labels accordingly. For a composition size of 1920x1080, the label font size should be at least 40px.
 
 IMPORTANT: Keep the `text-offset` small enough so it is close to the marker. Consider the marker circle radius. For a circle radius of 40, this is a good offset:
 

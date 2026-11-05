@@ -5,14 +5,7 @@ Refresh checklist: (1) check Unsloth supported-models page, (2) check the curren
 
 ## How to Read This Table
 
-Pick the row matching the target parameter count,
-then read across: a text recommendation, a vision
-(VLM) recommendation for the same size class, what
-that class can do on a single DGX Spark, and any
-notes that change the recommendation. Cross-check
-the "last verified" date above before trusting a
-row — if it's stale, work the refresh checklist
-first.
+Pick the row matching the target parameter count, then read across: a text recommendation, a vision (VLM) recommendation for the same size class, what that class can do on a single DGX Spark, and any notes that change the recommendation. Cross-check the "last verified" date above before trusting a row — if it's stale, work the refresh checklist first.
 
 ## Catalog (2026-07)
 
@@ -26,14 +19,5 @@ first.
 
 ## Vision Model Notes
 
-- **LLaVA is legacy.** Do not recommend it for new
-  work; it is listed here only so a stale
-  recommendation can be recognized as such.
-- **InternVL3.5 MoE variants are the MoE VLM
-  alternative** to the dense Qwen2.5-VL / Qwen3-VL
-  and Gemma 3 vision models above, for cases that
-  specifically call for a mixture-of-experts
-  vision-language architecture — InternVL3.5 also
-  ships dense checkpoints, so pick the MoE variant
-  explicitly rather than assuming every InternVL3.5
-  release is MoE.
+- **LLaVA is legacy.** Do not recommend it for new work; it is listed here only so a stale recommendation can be recognized as such.
+- **InternVL3.5 MoE variants are the MoE VLM alternative** to the dense Qwen2.5-VL / Qwen3-VL and Gemma 3 vision models above, for cases that specifically call for a mixture-of-experts vision-language architecture — InternVL3.5 also ships dense checkpoints, so pick the MoE variant explicitly rather than assuming every InternVL3.5 release is MoE.

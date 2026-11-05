@@ -149,8 +149,7 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 // export const prisma = globalForPrisma.prisma ?? new PrismaClient({ ... });
 ```
 
-Use Option A if your Prisma install requires an `adapter` argument in the `PrismaClient` constructor.
-Use Option B if `new PrismaClient()` works without arguments. Let the compiler tell you which is correct.
+Use Option A if your Prisma install requires an `adapter` argument in the `PrismaClient` constructor. Use Option B if `new PrismaClient()` works without arguments. Let the compiler tell you which is correct.
 
 The `globalThis` pattern prevents duplicate instances during hot reload (Next.js, nodemon, ts-node-dev).
 

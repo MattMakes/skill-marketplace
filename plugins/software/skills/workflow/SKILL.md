@@ -9,15 +9,9 @@ Display the following workflow paths to help the user choose the right sequence 
 
 ## Using Skills
 
-Every step below is a skill in this plugin. Invoke it with the `Skill` tool as
-`dev:<name>` (for example `software:brainstorm`); do not open the SKILL.md with
-the Read tool. Process skills (brainstorm, debug) come before implementation
-skills. A skill marked rigid (TDD, debugging) is followed exactly; the rest adapt
-their principles to the situation.
+Every step below is a skill in this plugin. Invoke it with the `Skill` tool as `dev:<name>` (for example `software:brainstorm`); do not open the SKILL.md with the Read tool. Process skills (brainstorm, debug) come before implementation skills. A skill marked rigid (TDD, debugging) is followed exactly; the rest adapt their principles to the situation.
 
-**Glossary.** A **change** is the unit of work under review: a merge request on
-GitLab, a pull request on GitHub. Skills that talk to the hosting platform detect
-`glab` or `gh` and use whichever is installed.
+**Glossary.** A **change** is the unit of work under review: a merge request on GitLab, a pull request on GitHub. Skills that talk to the hosting platform detect `glab` or `gh` and use whichever is installed.
 
 ## Present these workflows:
 

@@ -1,9 +1,6 @@
 # Independent Service Heuristics (ISH) — checklist, contract mapping, verdict rule
 
-Read this when filling `bounded_contexts[].independent_service_check` (SKILL.md workflow step 3).
-ISH (Team Topologies) asks one question ten ways: *could this thing be run as a separate
-service/product with its own team?* The more "yes/probably" answers, the better the candidate
-for an independent stream of change. Mixed answers mean "investigate", not "reject".
+Read this when filling `bounded_contexts[].independent_service_check` (SKILL.md workflow step 3). ISH (Team Topologies) asks one question ten ways: *could this thing be run as a separate service/product with its own team?* The more "yes/probably" answers, the better the candidate for an independent stream of change. Mixed answers mean "investigate", not "reject".
 
 ## 1. The ten questions (with the sub-prompts that make them answerable)
 
@@ -20,9 +17,7 @@ for an independent stream of change. Mixed answers mean "investigate", not "reje
 | 9 | **Impact / value** | Is the scope big enough to give a team an engaging, impactful challenge with recognised value? | `impact` (optional extra key) |
 | 10 | **Product decisions** | Could its team own a product roadmap based on its own user discovery? | `product_decisions` (optional extra key) |
 
-The contract requires only `verdict`; the seven named keys are the recommended record; the three
-optional keys are for depth `deep` or when the user cares about team autonomy. The validator does not
-reject extra keys.
+The contract requires only `verdict`; the seven named keys are the recommended record; the three optional keys are for depth `deep` or when the user cares about team autonomy. The validator does not reject extra keys.
 
 ## 2. Answer scale
 
@@ -34,28 +29,19 @@ reject extra keys.
 "Yes-ish" = `yes` or `probably`.
 
 1. `sense_check` not yes-ish → **`merge`** (nobody would recognise it as a thing).
-2. Otherwise, `data` not yes-ish *and* `user_personas` not yes-ish → **`merge`** (it has neither its own
-   inputs nor its own users; it is a feature of a neighbour).
+2. Otherwise, `data` not yes-ish *and* `user_personas` not yes-ish → **`merge`** (it has neither its own inputs nor its own users; it is a feature of a neighbour).
 3. Otherwise, at least 4 of the 7 recorded keys yes-ish → **`candidate`**.
-4. Otherwise → **`unsure`** and add an `open_questions[]` entry naming the two most doubtful heuristics
-   (ISH: "mixed answers warrant deeper investigation").
+4. Otherwise → **`unsure`** and add an `open_questions[]` entry naming the two most doubtful heuristics (ISH: "mixed answers warrant deeper investigation").
 
 What the verdict means downstream:
 
 - `candidate` — could be its own deployable and/or team; `ddd-organise` decides whether it is, given the scale target.
-- `merge` — **does not delete the context.** It says "this is a module inside a neighbour's deployable, not
-  a service". Before writing, merge the *context* into its neighbour only if it also has no language of
-  its own (no `terms[]` with a distinct `meaning_here`) — a thin wrapper around an external system with its
-  own vocabulary stays a context (the mealkit fixture's `billing` is exactly this). Carry the module
-  decision to `ddd-organise` as a `notes_for_downstream` entry (`for: ["organise"]`, `kind: decision`).
-- `unsure` — the context exists (its language is distinct) but is a module, never its own deployable.
-  This is *ISH*-unsure, not *boundary*-unsure (which merges — SKILL.md Method states the precedence
-  once). Record the open question **and** the same `organise` note; `ddd decompose check` reminds you.
+- `merge` — **does not delete the context.** It says "this is a module inside a neighbour's deployable, not a service". Before writing, merge the *context* into its neighbour only if it also has no language of its own (no `terms[]` with a distinct `meaning_here`) — a thin wrapper around an external system with its own vocabulary stays a context (the mealkit fixture's `billing` is exactly this). Carry the module decision to `ddd-organise` as a `notes_for_downstream` entry (`for: ["organise"]`, `kind: decision`).
+- `unsure` — the context exists (its language is distinct) but is a module, never its own deployable. This is *ISH*-unsure, not *boundary*-unsure (which merges — SKILL.md Method states the precedence once). Record the open question **and** the same `organise` note; `ddd decompose check` reminds you.
 
 ## 4. Depth scaling
 
-- `light`: `verdict` plus the two decisive answers (`sense_check`, `data`) at minimum; the other five are
-  one word each, so fill them when you can.
+- `light`: `verdict` plus the two decisive answers (`sense_check`, `data`) at minimum; the other five are one word each, so fill them when you can.
 - `standard`: all seven keys.
 - `deep`: all ten, and a line per "no" in `rationale` saying what would have to change for it to become a `yes`.
 

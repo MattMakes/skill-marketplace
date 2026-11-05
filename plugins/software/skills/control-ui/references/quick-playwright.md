@@ -4,14 +4,11 @@
 ../LICENSE-webapp-testing.txt). Changed here on 2026-11-05: folded into control-ui as a mode,
 paths rewritten to this skill, decision tree and pattern text condensed. -->
 
-Native Python Playwright scripts against a local web app, with `scripts/with_server.py`
-starting and stopping the servers.
+Native Python Playwright scripts against a local web app, with `scripts/with_server.py` starting and stopping the servers.
 
 ## The helper is a black box
 
-Run `python3 "${CLAUDE_PLUGIN_ROOT}/skills/control-ui/scripts/with_server.py" --help` first. Do
-not read its source unless running it shows you need a custom solution; it exists to be called,
-not loaded into context.
+Run `python3 "${CLAUDE_PLUGIN_ROOT}/skills/control-ui/scripts/with_server.py" --help` first. Do not read its source unless running it shows you need a custom solution; it exists to be called, not loaded into context.
 
 ## Decision tree
 
@@ -44,8 +41,7 @@ python3 "${CLAUDE_PLUGIN_ROOT}/skills/control-ui/scripts/with_server.py" \
   -- python3 your_automation.py
 ```
 
-It waits for each port to accept connections, runs the command after `--`, then kills the
-servers. The automation script holds only Playwright logic:
+It waits for each port to accept connections, runs the command after `--`, then kills the servers. The automation script holds only Playwright logic:
 
 ```python
 from playwright.sync_api import sync_playwright
@@ -61,8 +57,7 @@ with sync_playwright() as p:
 
 ## Reconnaissance-then-action
 
-1. Inspect the rendered DOM: `page.screenshot(path='/tmp/inspect.png', full_page=True)`,
-   `page.content()`, `page.locator('button').all()`.
+1. Inspect the rendered DOM: `page.screenshot(path='/tmp/inspect.png', full_page=True)`, `page.content()`, `page.locator('button').all()`.
 2. Pick selectors from what you saw.
 3. Act with those selectors.
 
@@ -80,5 +75,4 @@ In `${CLAUDE_PLUGIN_ROOT}/skills/control-ui/examples/`:
 
 - `element_discovery.py` — list the buttons, links and inputs on a page
 - `static_html_automation.py` — drive a local HTML file through a `file://` URL
-- `console_logging.py` — capture console messages during a run (change its output path from
-  upstream's `/mnt/user-data/outputs/` to somewhere local)
+- `console_logging.py` — capture console messages during a run (change its output path from upstream's `/mnt/user-data/outputs/` to somewhere local)

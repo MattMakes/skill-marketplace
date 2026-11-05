@@ -1,8 +1,6 @@
 # Ideation frames
 
-A frame is a lens for turning a constraint card into a concept. Write each concept through a
-**different** frame, so the six concepts differ in kind, not only in detail. Use the frame name
-exactly as written here in the `frame` field.
+A frame is a lens for turning a constraint card into a concept. Write each concept through a **different** frame, so the six concepts differ in kind, not only in detail. Use the frame name exactly as written here in the `frame` field.
 
 | # | Frame | Ask this | Example move |
 |---|---|---|---|

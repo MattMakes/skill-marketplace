@@ -1,8 +1,6 @@
 # Plan: <task>
 
-Scope: <validated pipeline id; store this file at .unlazy/<scope>/PLAN.md>
-Depth: tree <N>
-Mode: orchestrated
+Scope: <validated pipeline id; store this file at .unlazy/<scope>/PLAN.md> Depth: tree <N> Mode: orchestrated
 
 ## Contract
 

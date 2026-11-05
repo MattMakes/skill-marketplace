@@ -41,13 +41,10 @@
 1. Navigate to {URL}
    ![Step 1](screenshots/issue-001-step-1.png)
 
-2. {Action -- e.g., click "Settings" in the sidebar}
-   ![Step 2](screenshots/issue-001-step-2.png)
+2. {Action -- e.g., click "Settings" in the sidebar} ![Step 2](screenshots/issue-001-step-2.png)
 
-3. {Action -- e.g., type "test" in the search field and press Enter}
-   ![Step 3](screenshots/issue-001-step-3.png)
+3. {Action -- e.g., type "test" in the search field and press Enter} ![Step 3](screenshots/issue-001-step-3.png)
 
-4. **Observe:** {what goes wrong -- e.g., the page shows a blank white screen instead of search results}
-   ![Result](screenshots/issue-001-result.png)
+4. **Observe:** {what goes wrong -- e.g., the page shows a blank white screen instead of search results} ![Result](screenshots/issue-001-result.png)
 
 ---

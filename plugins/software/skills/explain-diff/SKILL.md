@@ -20,10 +20,7 @@ Format:
 - Please write with the clarity and flow of Martin Kleppmann, making it engaging and written in classic style. Transitions between sections should be smooth.
 - Use `software:blueprint` for technical diagrams. Read [references/blueprint-diagrams.md](references/blueprint-diagrams.md) for the CLI path, diagram selection, before/after evidence, schema/ERD treatment, and self-contained embedding. Use a small number of reusable diagram families that explain the change, with concrete example data. Simple UI mockups can remain HTML/CSS. If Blueprint cannot run (a loose copy of explain-diff, or no Node), continue with inline SVG/HTML figures and disclose the fallback; do not install anything automatically.
 - Don't use ASCII diagrams. Use Blueprint's rendered HTML/SVG for technical figures, simple HTML/CSS for UI sketches, and HTML lists for lists.
-  - For code blocks, always use `<pre>` tags. If you use a custom styled div instead, it **must** have
-    `white-space: pre-wrap` in its CSS, or the browser will collapse all newlines into a single line.
-    Before saving the file, scan each code block in the HTML source and confirm its CSS includes
-    `white-space: pre` or `pre-wrap`.
+  - For code blocks, always use `<pre>` tags. If you use a custom styled div instead, it **must** have `white-space: pre-wrap` in its CSS, or the browser will collapse all newlines into a single line. Before saving the file, scan each code block in the HTML source and confirm its CSS includes `white-space: pre` or `pre-wrap`.
 - Use callouts for key concepts or definitions, important edge cases, etc.
 - Keep quiz headings inside padded cards, aligned with the answer column. Use a labeled group and a normal heading, or explicitly style fieldset legends so they do not straddle the card border; wrapped question text should align beneath itself.
 - Make the page readable by everyone: text at 4.5:1 contrast or better against its background in light and dark (honour `prefers-color-scheme`), a visible focus ring on every quiz option, quiz options as real `<button>` elements so the keyboard reaches them, feedback announced with `aria-live="polite"`, no emoji as icons, and no horizontal scroll at 320px wide outside `<pre>` blocks.
@@ -48,19 +45,10 @@ Check the page:
 
 Narration:
 
-- Mark every element whose text should be read aloud with a bare `data-tts` attribute:
-  prose `<p>`, prose `<li>`, callout text, and the `<h2>`/`<h3>` section headings (they become
-  spoken section cues). Do not mark `<pre>`, diagrams, figures, the table of contents, or the
-  quiz. Where a paragraph leans on inline code that would read badly aloud, add
-  `data-tts-text="the spoken version"` to that element and the narrator says that instead.
+- Mark every element whose text should be read aloud with a bare `data-tts` attribute: prose `<p>`, prose `<li>`, callout text, and the `<h2>`/`<h3>` section headings (they become spoken section cues). Do not mark `<pre>`, diagrams, figures, the table of contents, or the quiz. Where a paragraph leans on inline code that would read badly aloud, add `data-tts-text="the spoken version"` to that element and the narrator says that instead.
 - After saving the HTML, run
-  `node ${CLAUDE_PLUGIN_ROOT}/skills/explain-diff/scripts/narrate.mjs <file.html> --inline`
-  (allow a 10 minute timeout; synthesis runs at roughly real time, so a long explainer takes
-  about as many minutes as it does to listen to). Keep `--inline` so audio is embedded in the
-  self-contained file. Run narration after embedding all figures.
-- Act on the exit code and nothing else. `0`: say the narrated player is embedded. `3`: say in one
-  sentence that the narration service is not running, and stop — the explainer is complete without
-  it. `4`: say narration is still generating and the same command can be re-run to pick it up.
+  `node ${CLAUDE_PLUGIN_ROOT}/skills/explain-diff/scripts/narrate.mjs <file.html> --inline` (allow a 10 minute timeout; synthesis runs at roughly real time, so a long explainer takes about as many minutes as it does to listen to). Keep `--inline` so audio is embedded in the self-contained file. Run narration after embedding all figures.
+- Act on the exit code and nothing else. `0`: say the narrated player is embedded. `3`: say in one sentence that the narration service is not running, and stop — the explainer is complete without it. `4`: say narration is still generating and the same command can be re-run to pick it up.
   Anything else: show the script's stderr. Never narrate by hand or substitute another tool.
 
 - Quiz fairness (from the discussion on the source gist): shuffle the position of the correct answer across questions and keep every option about the same length and specificity, so the right answer cannot be guessed from its position or because it is the longest.

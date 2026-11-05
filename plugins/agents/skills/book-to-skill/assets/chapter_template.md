@@ -13,8 +13,7 @@ on every load and tells the agent nothing.
 ## Core Idea
 
 <One or two sentences: the single most important thing this chapter teaches. If you cannot
-state it plainly, re-read the chapter — you have copied it, not extracted it. If the chapter
-is genuinely thin, say so here rather than padding the sections below.>
+state it plainly, re-read the chapter — you have copied it, not extracted it. If the chapter is genuinely thin, say so here rather than padding the sections below.>
 
 ## Frameworks Introduced
 

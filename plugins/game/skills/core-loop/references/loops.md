@@ -1,8 +1,6 @@
 # Loops: flowchart first
 
-Source: Stone Librande, "One-Page Designs", GDC 2010. Librande's advice is to draw the flowchart
-first: every game has an engine loop, and the loop is the design's backbone. Kinds of fun are
-from Marc LeBlanc, "8 Kinds of Fun" (8kindsoffun.com).
+Source: Stone Librande, "One-Page Designs", GDC 2010. Librande's advice is to draw the flowchart first: every game has an engine loop, and the loop is the design's backbone. Kinds of fun are from Marc LeBlanc, "8 Kinds of Fun" (8kindsoffun.com).
 
 ## The engine loop
 
@@ -20,10 +18,7 @@ If a step is missing, the loop is broken:
 
 ## Librande's example: creature training
 
-Librande shows a creature-training loop. The creature does something. The player chooses one of
-five responses: **Shake**, **Discourage**, **Ignore**, **Praise** or **Treat**. The system adjusts
-the creature's tendency to repeat the behavior. The creature's next behavior is the feedback, and
-it sets up the player's next choice of response.
+Librande shows a creature-training loop. The creature does something. The player chooses one of five responses: **Shake**, **Discourage**, **Ignore**, **Praise** or **Treat**. The system adjusts the creature's tendency to repeat the behavior. The creature's next behavior is the feedback, and it sets up the player's next choice of response.
 
 ```mermaid
 flowchart LR
@@ -33,8 +28,7 @@ flowchart LR
   D1 --> A1
 ```
 
-The drawing shows the whole design at once: five inputs, one hidden variable, one visible
-output. That is why it fits on one page.
+The drawing shows the whole design at once: five inputs, one hidden variable, one visible output. That is why it fits on one page.
 
 ## Three time scales
 
@@ -44,20 +38,13 @@ output. That is why it fits on one page.
 | **Session** | one sitting (minutes) | What goal does one sitting reach, and what does it leave open? |
 | **Long-term** | days to weeks | Why does the player come back tomorrow? |
 
-The moment-to-moment loop runs inside the session loop; the session loop runs inside the
-long-term loop. The output of an inner loop is the input of the outer loop (for example, coins
-earned per move buy upgrades per session).
+The moment-to-moment loop runs inside the session loop; the session loop runs inside the long-term loop. The output of an inner loop is the input of the outer loop (for example, coins earned per move buy upgrades per session).
 
 ## Labeling feedback with fun
 
-Label every edge that leaves a feedback node with the one kind of fun that feedback serves
-(Sensation, Fantasy, Narrative, Challenge, Fellowship, Discovery, Expression or Submission).
-A feedback that serves none of the target kinds is a candidate to cut.
+Label every edge that leaves a feedback node with the one kind of fun that feedback serves (Sensation, Fantasy, Narrative, Challenge, Fellowship, Discovery, Expression or Submission). A feedback that serves none of the target kinds is a candidate to cut.
 
-One action often produces several kinds at once: a placement pops with sound (Sensation), shows the
-player's taste (Expression) and settles with no pressure (Submission). Draw one feedback node per
-kind (`F1`, `F2`, `F3`, at most 3 per loop), each fed by the same system response and each leading to
-the same decision, so every kind the core verb produces has its own labeled edge:
+One action often produces several kinds at once: a placement pops with sound (Sensation), shows the player's taste (Expression) and settles with no pressure (Submission). Draw one feedback node per kind (`F1`, `F2`, `F3`, at most 3 per loop), each fed by the same system response and each leading to the same decision, so every kind the core verb produces has its own labeled edge:
 
 ```mermaid
 flowchart LR

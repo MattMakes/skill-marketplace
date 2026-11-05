@@ -5,15 +5,9 @@ description: "Deterministic scripts for driving herdr, the terminal workspace ma
 
 # herdr-atomic
 
-Ten scripts in `scripts/`. Each one performs a complete action and prints a single
-JSON object on stdout. Run them; do not reconstruct what they do from raw `herdr`
-commands.
+Ten scripts in `scripts/`. Each one performs a complete action and prints a single JSON object on stdout. Run them; do not reconstruct what they do from raw `herdr` commands.
 
-That restriction is the point. The herdr CLI has sharp edges that cost a run to
-discover — responses that are not valid JSON, a `pane run` that reports no exit
-status, an `agent start` that returns success onto a dialog whose default button
-quits the agent. Every script here already handles the edge it touches. Composing
-the CLI by hand means rediscovering them.
+That restriction is the point. The herdr CLI has sharp edges that cost a run to discover — responses that are not valid JSON, a `pane run` that reports no exit status, an `agent start` that returns success onto a dialog whose default button quits the agent. Every script here already handles the edge it touches. Composing the CLI by hand means rediscovering them.
 
 ## Choosing a script
 
@@ -34,8 +28,7 @@ Every script accepts `--session NAME` and `-h`. Run `-h` for its full arguments.
 
 ## Exit codes
 
-Branch on the exit code. It is the same everywhere, so you never need to read the
-message to decide what to do next.
+Branch on the exit code. It is the same everywhere, so you never need to read the message to decide what to do next.
 
 | Code | Meaning | What to do |
 |---|---|---|
@@ -48,19 +41,13 @@ message to decide what to do next.
 | 7 | Pane or agent does not exist | Re-check with `snapshot.sh`. |
 | 8 | Other herdr error | Read `.message`. |
 
-`run_cmd.sh` is the exception worth remembering: a command that fails still exits
-**0**, because running it was successful. The command's own status is in
-`.exit_code`.
+`run_cmd.sh` is the exception worth remembering: a command that fails still exits **0**, because running it was successful. The command's own status is in `.exit_code`.
 
 ## The two guarantees worth knowing
 
-**Nothing implicit.** These scripts act inside a herdr pane (`HERDR_ENV=1`) or on a
-session you name with `--session`. With neither, they exit 3 rather than reach for
-whichever pane happens to be focused — that pane may belong to the human.
+**Nothing implicit.** These scripts act inside a herdr pane (`HERDR_ENV=1`) or on a session you name with `--session`. With neither, they exit 3 rather than reach for whichever pane happens to be focused — that pane may belong to the human.
 
-**Nothing you did not create.** Creating scripts record what they made.
-`cleanup.sh` closes only those records, so it cannot close the user's own work.
-Use `--dry-run` to see the list first.
+**Nothing you did not create.** Creating scripts record what they made. `cleanup.sh` closes only those records, so it cannot close the user's own work. Use `--dry-run` to see the list first.
 
 ## Typical flows
 
@@ -80,43 +67,29 @@ scripts/ask_agent.sh --agent reviewer --prompt "Review the current diff." --time
 # -> {"ok":true,"agent":"reviewer","status":"idle","text":"..."}
 ```
 
-Fan work out to several agents by spawning them all first, then prompting each —
-`ask_agent.sh` blocks until its agent settles, so prompt in one pass and collect in
-another rather than spawning and waiting one at a time.
+Fan work out to several agents by spawning them all first, then prompting each — `ask_agent.sh` blocks until its agent settles, so prompt in one pass and collect in another rather than spawning and waiting one at a time.
 
-When `spawn_agent.sh` or `ask_agent.sh` exits 6, the agent is alive and waiting on a
-question:
+When `spawn_agent.sh` or `ask_agent.sh` exits 6, the agent is alive and waiting on a question:
 
 ```bash
 scripts/read_pane.sh --agent reviewer --source visible   # see what it asked
 scripts/send_keys.sh --agent reviewer down enter         # answer deliberately
 ```
 
-Read the dialog before answering it. First-run agents commonly open a trust prompt
-whose highlighted default is *No, exit*, so a reflexive `enter` quits the agent
-instead of continuing.
+Read the dialog before answering it. First-run agents commonly open a trust prompt whose highlighted default is *No, exit*, so a reflexive `enter` quits the agent instead of continuing.
 
 ## Working sensibly
 
-Keep the human's focus where they left it — creation defaults to `--no-focus`;
-pass `--focus` only when the user asked to be taken somewhere.
+Keep the human's focus where they left it — creation defaults to `--no-focus`; pass `--focus` only when the user asked to be taken somewhere.
 
-Prefer `run_cmd.sh` over typing a command with `send_keys.sh`. It submits
-atomically and returns the real exit code; typing plus `enter` gives you neither.
+Prefer `run_cmd.sh` over typing a command with `send_keys.sh`. It submits atomically and returns the real exit code; typing plus `enter` gives you neither.
 
-Split panes get narrower each time. For more than two or three parallel agents,
-give each its own tab with `new_pane.sh --where tab`.
+Split panes get narrower each time. For more than two or three parallel agents, give each its own tab with `new_pane.sh --where tab`.
 
-Agent names must match `[a-z][a-z0-9_-]{0,31}` and be unique among live agents.
-Omit `--name` and one is generated.
+Agent names must match `[a-z][a-z0-9_-]{0,31}` and be unique among live agents. Omit `--name` and one is generated.
 
-If `wait_for.sh --pane --match` returns instantly, check the matched line: herdr's
-snapshot includes text already on screen, so a pattern can match the command being
-echoed rather than its output. `run_cmd.sh` avoids this with a unique end-marker;
-prefer it for anything you are running yourself.
+If `wait_for.sh --pane --match` returns instantly, check the matched line: herdr's snapshot includes text already on screen, so a pattern can match the command being echoed rather than its output. `run_cmd.sh` avoids this with a unique end-marker; prefer it for anything you are running yourself.
 
 ## Reference
 
-`references/herdr-cli.md` holds the details these scripts wrap — read it only when
-you need something the scripts do not cover, such as worktrees, plugins, or
-pane geometry.
+`references/herdr-cli.md` holds the details these scripts wrap — read it only when you need something the scripts do not cover, such as worktrees, plugins, or pane geometry.

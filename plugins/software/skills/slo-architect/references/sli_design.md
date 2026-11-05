@@ -45,8 +45,7 @@ Edge cases:
 
 ### 2. Request-latency
 
-Numerator: requests with latency below threshold
-Denominator: total requests
+Numerator: requests with latency below threshold Denominator: total requests
 
 ```
 sli = count(latency_p99 < 500ms) / count(all)
@@ -76,8 +75,7 @@ Define "up" precisely: is one health check failure "down"? Three consecutive? Pe
 
 ### 4. Data-freshness
 
-Numerator: data points younger than threshold
-Denominator: total data points
+Numerator: data points younger than threshold Denominator: total data points
 
 ```
 sli = count(data_age < 5min) / count(all_data)

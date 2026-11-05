@@ -1,15 +1,10 @@
 # Full post-flight: static, runtime and reflection
 
-The full post-flight mode of `software:check-implementation`. It verifies the built code against BOTH
-the plan AND the original codebase, and catches what the plan check alone misses: unresolvable DI
-dependencies, missing error paths, broken contracts, dead interfaces. It is the post-execution
-pair of `software:pre-flight`, which checks the same categories in the plan before any code is written.
+The full post-flight mode of `software:check-implementation`. It verifies the built code against BOTH the plan AND the original codebase, and catches what the plan check alone misses: unresolvable DI dependencies, missing error paths, broken contracts, dead interfaces. It is the post-execution pair of `software:pre-flight`, which checks the same categories in the plan before any code is written.
 
-**Core principle:** Trust but verify. Every claim needs evidence. Every interface needs resolution.
-Static code lies — runtime is the only truth.
+**Core principle:** Trust but verify. Every claim needs evidence. Every interface needs resolution. Static code lies — runtime is the only truth.
 
-**Save to:** `./ai_docs/reports/YYYY-MM-DD-post-flight-report.md`, in the format of
-[post-flight-report.md](post-flight-report.md).
+**Save to:** `./ai_docs/reports/YYYY-MM-DD-post-flight-report.md`, in the format of [post-flight-report.md](post-flight-report.md).
 
 ## Verification Phases
 

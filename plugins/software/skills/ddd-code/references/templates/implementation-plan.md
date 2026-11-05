@@ -1,7 +1,6 @@
 # Implementation plan — {{project title}}
 
-Produced by `ddd-code` on {{date}} from `ddd/07-define/define.json`, `ddd/04-strategize/strategize.json`, `ddd/05-connect/connect.json`, `ddd/06-organise/organise.json`, `ddd/02-discover/discover.json`.
-Language {{language}} · framework {{framework}} · architecture {{style}} · deployables {{ids}} · scaffold generated: {{no}}
+Produced by `ddd-code` on {{date}} from `ddd/07-define/define.json`, `ddd/04-strategize/strategize.json`, `ddd/05-connect/connect.json`, `ddd/06-organise/organise.json`, `ddd/02-discover/discover.json`. Language {{language}} · framework {{framework}} · architecture {{style}} · deployables {{ids}} · scaffold generated: {{no}}
 
 ## In plain words
 

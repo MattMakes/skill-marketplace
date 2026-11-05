@@ -1,7 +1,6 @@
 # Visual verification pitfalls
 
-Read this table when a capture, a gate or a UI test does something you did not expect. Rows are
-grouped by area. Each row is one real failure and the fix that worked.
+Read this table when a capture, a gate or a UI test does something you did not expect. Rows are grouped by area. Each row is one real failure and the fix that worked.
 
 ## Window and capture mechanics
 

@@ -5,24 +5,17 @@ description: Generate, validate and maintain wiki-style documentation for any co
 
 # DeepWiki
 
-Generates DeepWiki-style documentation for a codebase: a designed table of contents,
-evidence-based pages where every claim cites `file:line`, and Mermaid diagrams that
-are actually checked for syntax errors before they ship.
+Generates DeepWiki-style documentation for a codebase: a designed table of contents, evidence-based pages where every claim cites `file:line`, and Mermaid diagrams that are actually checked for syntax errors before they ship.
 
 **Your response MUST be written in the language given by the locale code (default: `en-US`).**
 
 ## Zero dependencies
 
-Everything here runs on a stock Python 3 install. There is no `mermaid-cli`/`mmdc`,
-no Node, no npm, no PyYAML, nothing to `pip install`.
+Everything here runs on a stock Python 3 install. There is no `mermaid-cli`/`mmdc`, no Node, no npm, no PyYAML, nothing to `pip install`.
 
-Mermaid is rendered natively by GitHub, GitLab, VitePress and most Markdown viewers,
-so no local tool is needed to *draw* a diagram — the consumer draws it. The only
-thing worth doing locally is checking a diagram parses, and
-`scripts/validate_mermaid.py` does that in pure Python.
+Mermaid is rendered natively by GitHub, GitLab, VitePress and most Markdown viewers, so no local tool is needed to *draw* a diagram — the consumer draws it. The only thing worth doing locally is checking a diagram parses, and `scripts/validate_mermaid.py` does that in pure Python.
 
-The one exception is the optional VitePress site build, which is inherently an npm
-tool. Core generation and validation never need it.
+The one exception is the optional VitePress site build, which is inherently an npm tool. Core generation and validation never need it.
 
 ## Workflow phases
 
@@ -45,13 +38,11 @@ tool. Core generation and validation never need it.
 | **Incremental** | 6 → 3 → 4 → 5 | Update pages after code changes (the CI path) |
 | **Brownfield** | `references/workflow/brownfield-doc.md` | One architecture document for AI agents about to change an existing system: the real patterns, debt, workarounds and constraints, scoped to a PRD or feature when one exists. Writes `ai_docs/docs/<name>.md`, no TOC or site |
 
-Run the chosen mode to completion. Do not stop to ask for confirmation mid-pipeline. The one
-exception is Brownfield's scope question in its Step 1, asked once before any work starts.
+Run the chosen mode to completion. Do not stop to ask for confirmation mid-pipeline. The one exception is Brownfield's scope question in its Step 1, asked once before any work starts.
 
 ## Optional phases
 
-Run these only when the user asks for them. Each is self-contained and assumes the
-core wiki already exists.
+Run these only when the user asks for them. Each is self-contained and assumes the core wiki already exists.
 
 | Ask | Spec | Produces |
 |-----|------|----------|
@@ -64,8 +55,7 @@ core wiki already exists.
 
 ## Policies
 
-Read the relevant policy before writing anything — they are the rules the validator
-enforces, so violating them means rework.
+Read the relevant policy before writing anything — they are the rules the validator enforces, so violating them means rework.
 
 | Policy | Read before |
 |--------|-------------|
@@ -101,26 +91,17 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/deepwiki/scripts/toc_io.py --convert docs/w
 
 ## Validation is a gate, not a suggestion
 
-`validate_mermaid.py` exits `1` when a diagram will not parse, so phase 4 can gate a
-build. A diagram that fails is **not** shipped — fix it and re-run. Use `--strict` to
-also fail on policy warnings (unquoted labels, light-mode fills, missing
-`autonumber`).
+`validate_mermaid.py` exits `1` when a diagram will not parse, so phase 4 can gate a build. A diagram that fails is **not** shipped — fix it and re-run. Use `--strict` to also fail on policy warnings (unquoted labels, light-mode fills, missing `autonumber`).
 
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/skills/deepwiki/scripts/validate_mermaid.py --input docs/wiki --invalid-only \
     --output docs/wiki/_reports/mermaid_invalid.json
 ```
 
-Each invalid block reports `error_type`, `error_line` and a `fix_hint`. Apply the
-hint, then re-run until clean.
+Each invalid block reports `error_type`, `error_line` and a `fix_hint`. Apply the hint, then re-run until clean.
 
 ## Parallel page generation
 
-When subagents are available, phase 3 (`doc-write`) should generate pages in
-parallel — one subagent per page from `toc.json`, run in the **foreground**. Wait for
-all of them before starting phase 4. If one fails, re-dispatch just that page.
+When subagents are available, phase 3 (`doc-write`) should generate pages in parallel — one subagent per page from `toc.json`, run in the **foreground**. Wait for all of them before starting phase 4. If one fails, re-dispatch just that page.
 
-Every subagent must be given the page's `page_id`, the `repo_path`, the `output_dir`,
-the `toc_file`, and the `language`, and must be told to read
-`references/evidence_citation_policy.md` and `references/mermaid_policy.md` before
-writing.
+Every subagent must be given the page's `page_id`, the `repo_path`, the `output_dir`, the `toc_file`, and the `language`, and must be told to read `references/evidence_citation_policy.md` and `references/mermaid_policy.md` before writing.

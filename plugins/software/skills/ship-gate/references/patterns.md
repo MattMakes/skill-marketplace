@@ -1,7 +1,6 @@
 # Ship Gate: Detection Patterns
 
-Grep and regex patterns for auto-scannable checks. Claude runs these
-against the codebase to detect issues.
+Grep and regex patterns for auto-scannable checks. Claude runs these against the codebase to detect issues.
 
 ## Table of Contents
 
@@ -14,9 +13,7 @@ against the codebase to detect issues.
 - OBS: Observability Patterns
 - DEPLOY: Deployment Patterns
 
-All patterns use `grep -rn` with `--include` filters. Exclude
-node_modules, .next, dist, build, .git, __pycache__, venv directories
-from all scans.
+All patterns use `grep -rn` with `--include` filters. Exclude node_modules, .next, dist, build, .git, __pycache__, venv directories from all scans.
 
 Base exclude flags:
 ```bash
@@ -27,9 +24,7 @@ EXCLUDE="--exclude-dir=node_modules --exclude-dir=.next --exclude-dir=dist --exc
 
 ## SEC: Security Patterns
 
-None. Security detection belongs to `software:security-sweep`; see the SEC section of
-[checks.md](checks.md). `scripts/ship_gate_scanner.py` keeps its own SEC regexes as a
-fallback when the sweep does not run.
+None. Security detection belongs to `software:security-sweep`; see the SEC section of [checks.md](checks.md). `scripts/ship_gate_scanner.py` keeps its own SEC regexes as a fallback when the sweep does not run.
 
 ---
 

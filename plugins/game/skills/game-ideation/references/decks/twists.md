@@ -1,8 +1,7 @@
 <!-- DRAFT: tune me -->
 # Deck: twists
 
-The one rule that makes the concept surprising. Draw one. Every entry is boundary-safe. When you
-add an entry, keep it that way.
+The one rule that makes the concept surprising. Draw one. Every entry is boundary-safe. When you add an entry, keep it that way.
 
 1. time loops every few minutes and you keep only what you learned
 2. gravity changes direction on a timer

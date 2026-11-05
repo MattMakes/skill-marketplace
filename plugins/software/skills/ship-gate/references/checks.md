@@ -1,7 +1,6 @@
 # Ship Gate: Complete Check Reference
 
-All checks organized by category with ID, description, detection method,
-severity, and remediation guidance.
+All checks organized by category with ID, description, detection method, severity, and remediation guidance.
 
 ## Table of Contents
 
@@ -44,16 +43,11 @@ Detection methods:
 | SEC-17 | No hardcoded secrets in .env committed to repo | auto | critical | all |
 | SEC-18 | .env files listed in .gitignore | auto | critical | all |
 
-SEC is `software:security-sweep`'s job. Run the sweep for this category; its
-owasp-auditor and secret-scanner cover every auto check above with per-language catalogs
-(Node/TypeScript, Python, Go, .NET), verify each finding, and give the remediation. The
-scanner's SEC checks are a fallback for when the sweep did not run; their findings carry
-file and line but no remediation here, so point the user at the sweep.
+SEC is `software:security-sweep`'s job. Run the sweep for this category; its owasp-auditor and secret-scanner cover every auto check above with per-language catalogs (Node/TypeScript, Python, Go, .NET), verify each finding, and give the remediation. The scanner's SEC checks are a fallback for when the sweep did not run; their findings carry file and line but no remediation here, so point the user at the sweep.
 
 Kept here because the sweep does not cover them:
 
-- **SEC-03** HTTPS enforced at the edge, HTTP redirected. A deployment fact, not code; confirm
-  manually.
+- **SEC-03** HTTPS enforced at the edge, HTTP redirected. A deployment fact, not code; confirm manually.
 - **SEC-10** Sessions invalidated server-side on logout. Confirm manually.
 
 ---
@@ -86,64 +80,45 @@ Remediation: Use parameterized queries or ORM methods.
 
 ### DB-07: RLS enabled (Supabase)
 
-Search migration files for `CREATE TABLE` without a corresponding
-`ALTER TABLE ... ENABLE ROW LEVEL SECURITY` statement.
-Also check for `CREATE POLICY` statements.
+Search migration files for `CREATE TABLE` without a corresponding `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` statement. Also check for `CREATE POLICY` statements.
 
 Remediation: Enable RLS on every table and create appropriate policies.
 
 ### DB-08: No service_role key in client code
 
-Search frontend directories (src/, app/, components/, pages/) for
-`service_role`, `supabase_service_role`, or the actual key pattern
-`eyJ...` used with createClient on the client side.
+Search frontend directories (src/, app/, components/, pages/) for `service_role`, `supabase_service_role`, or the actual key pattern `eyJ...` used with createClient on the client side.
 
-Remediation: Use service_role only in server-side code (API routes,
-Edge Functions, server actions).
+Remediation: Use service_role only in server-side code (API routes, Edge Functions, server actions).
 
 ### DB-05: Connection pooling
 
-Search for database connection configuration. Check for pool settings
-(max, min, idle timeout). For Supabase, check if using connection
-pooler URL (port 6543) vs direct (port 5432).
+Search for database connection configuration. Check for pool settings (max, min, idle timeout). For Supabase, check if using connection pooler URL (port 6543) vs direct (port 5432).
 
-Remediation: Use connection pooling for production. For Supabase,
-use the pooler URL. For raw pg, configure pool size based on expected
-concurrent connections.
+Remediation: Use connection pooling for production. For Supabase, use the pooler URL. For raw pg, configure pool size based on expected concurrent connections.
 
 ### DB-06: Migrations in version control
 
-Check if a migrations directory exists (supabase/migrations, prisma/
-migrations, alembic/versions, db/migrate). Verify it contains .sql
-or migration files, not empty.
+Check if a migrations directory exists (supabase/migrations, prisma/ migrations, alembic/versions, db/migrate). Verify it contains .sql or migration files, not empty.
 
-Remediation: Use your ORM or database tool's migration system. Never
-make manual schema changes to production.
+Remediation: Use your ORM or database tool's migration system. Never make manual schema changes to production.
 
 ### DB-09: Anon key writes without RLS
 
-Search for Supabase client-side inserts/updates using the anon key
-without RLS policies protecting the target tables.
+Search for Supabase client-side inserts/updates using the anon key without RLS policies protecting the target tables.
 
-Remediation: Enable RLS on all tables and create INSERT/UPDATE policies
-that scope access to authenticated users.
+Remediation: Enable RLS on all tables and create INSERT/UPDATE policies that scope access to authenticated users.
 
 ### DB-10: Storage bucket policies
 
-Search Supabase migration files and dashboard config for storage
-bucket creation. Verify each bucket has access policies defined.
+Search Supabase migration files and dashboard config for storage bucket creation. Verify each bucket has access policies defined.
 
-Remediation: Define storage policies for each bucket. Restrict
-uploads by file type, size, and user ownership.
+Remediation: Define storage policies for each bucket. Restrict uploads by file type, size, and user ownership.
 
 ### DB-12: PII stored unencrypted
 
-Search schema files and migration files for columns named email,
-phone, ssn, social_security, credit_card, address, date_of_birth
-that are stored as plain text without encryption.
+Search schema files and migration files for columns named email, phone, ssn, social_security, credit_card, address, date_of_birth that are stored as plain text without encryption.
 
-Remediation: Encrypt PII columns at rest. Use database-level
-encryption or application-level encryption for sensitive fields.
+Remediation: Encrypt PII columns at rest. Use database-level encryption or application-level encryption for sensitive fields.
 
 ---
 
@@ -167,19 +142,15 @@ encryption or application-level encryption for sensitive fields.
 
 ### DEPLOY-09: Health check endpoint
 
-Search for a `/health`, `/healthz`, `/api/health`, or `/status` route
-that returns a 200 response.
+Search for a `/health`, `/healthz`, `/api/health`, or `/status` route that returns a 200 response.
 
-Remediation: Add a health check endpoint that verifies database
-connectivity and returns a simple JSON response.
+Remediation: Add a health check endpoint that verifies database connectivity and returns a simple JSON response.
 
 ### DEPLOY-10: Structured logging
 
-Check if the project uses a logging library (winston, pino, bunyan,
-python logging module) vs raw console.log statements in server code.
+Check if the project uses a logging library (winston, pino, bunyan, python logging module) vs raw console.log statements in server code.
 
-Remediation: Replace console.log with a structured logger that outputs
-JSON with timestamps and request IDs.
+Remediation: Replace console.log with a structured logger that outputs JSON with timestamps and request IDs.
 
 ---
 
@@ -204,87 +175,66 @@ JSON with timestamps and request IDs.
 
 ### CODE-01: No console.log in production
 
-Search for `console.log`, `console.debug`, `console.info` in source
-files (exclude test files, config files, and node_modules).
+Search for `console.log`, `console.debug`, `console.info` in source files (exclude test files, config files, and node_modules).
 
-Remediation: Remove console.log statements or replace with a proper
-logger. Use a build tool to strip them automatically.
+Remediation: Remove console.log statements or replace with a proper logger. Use a build tool to strip them automatically.
 
 ### CODE-03: No empty catch blocks
 
 Search for `catch` blocks with empty bodies or only a comment inside.
 Pattern: `catch\s*\([^)]*\)\s*\{\s*(\/\/.*\n)?\s*\}`
 
-Remediation: At minimum, log the error. Better: handle it appropriately
-or rethrow.
+Remediation: At minimum, log the error. Better: handle it appropriately or rethrow.
 
 ### CODE-07: No TODO-auth/security patterns
 
-Search for `TODO.*auth`, `TODO.*security`, `TODO.*permission`,
-`FIXME.*auth`, `HACK.*auth`, `// auth`, `# TODO: add auth`.
+Search for `TODO.*auth`, `TODO.*security`, `TODO.*permission`, `FIXME.*auth`, `HACK.*auth`, `// auth`, `# TODO: add auth`.
 
 These indicate security features that were deferred and forgotten.
 
-Remediation: Implement the deferred security feature or remove the
-endpoint if it is not ready.
+Remediation: Implement the deferred security feature or remove the endpoint if it is not ready.
 
 ### CODE-09: React error boundaries
 
-Check if the app has at least one ErrorBoundary component or uses
-a library like react-error-boundary. Check app/error.tsx for Next.js
-App Router projects.
+Check if the app has at least one ErrorBoundary component or uses a library like react-error-boundary. Check app/error.tsx for Next.js App Router projects.
 
-Remediation: Add error boundaries at layout boundaries to prevent
-full-page crashes.
+Remediation: Add error boundaries at layout boundaries to prevent full-page crashes.
 
 ### CODE-02: Error handling on async operations
 
-Search for async functions and .then() chains. Check if they have
-corresponding try/catch or .catch() handlers.
+Search for async functions and .then() chains. Check if they have corresponding try/catch or .catch() handlers.
 
-Remediation: Wrap every async operation in try/catch. Log errors
-and show appropriate UI feedback.
+Remediation: Wrap every async operation in try/catch. Log errors and show appropriate UI feedback.
 
 ### CODE-04: Loading and error states in UI
 
-Search React components for data fetching (useEffect with fetch,
-useSWR, useQuery, server components) and check if they render
-loading and error states.
+Search React components for data fetching (useEffect with fetch, useSWR, useQuery, server components) and check if they render loading and error states.
 
-Remediation: Add loading spinners/skeletons and error messages
-for every data-dependent component.
+Remediation: Add loading spinners/skeletons and error messages for every data-dependent component.
 
 ### CODE-05: Pagination on list endpoints
 
-Search API routes that return arrays/lists from database queries.
-Check for LIMIT/OFFSET, cursor pagination, or take/skip parameters.
+Search API routes that return arrays/lists from database queries. Check for LIMIT/OFFSET, cursor pagination, or take/skip parameters.
 
-Remediation: Add pagination to every endpoint that returns a list.
-Default page size of 20-50 items. Never return unbounded result sets.
+Remediation: Add pagination to every endpoint that returns a list. Default page size of 20-50 items. Never return unbounded result sets.
 
 ### CODE-10: No leaked stack traces
 
-Search error handling code for responses that include stack traces,
-error.stack, or full error objects sent to the client.
+Search error handling code for responses that include stack traces, error.stack, or full error objects sent to the client.
 
-Remediation: Return generic error messages to the client. Log full
-stack traces server-side only.
+Remediation: Return generic error messages to the client. Log full stack traces server-side only.
 
 ### CODE-11: No eslint-disable on security rules
 
-Search for eslint-disable comments that suppress security-related
-rules (no-eval, no-implied-eval, no-script-url).
+Search for eslint-disable comments that suppress security-related rules (no-eval, no-implied-eval, no-script-url).
 
-Remediation: Fix the underlying issue instead of disabling the lint
-rule. If genuinely necessary, add a comment explaining why.
+Remediation: Fix the underlying issue instead of disabling the lint rule. If genuinely necessary, add a comment explaining why.
 
 ### CODE-14: TypeScript strict mode
 
-Check tsconfig.json for `"strict": true` or the individual flags
-(strictNullChecks, noImplicitAny, etc.).
+Check tsconfig.json for `"strict": true` or the individual flags (strictNullChecks, noImplicitAny, etc.).
 
-Remediation: Enable strict mode in tsconfig.json. Fix type errors
-incrementally if migrating an existing project.
+Remediation: Enable strict mode in tsconfig.json. Fix type errors incrementally if migrating an existing project.
 
 ---
 
@@ -303,17 +253,13 @@ incrementally if migrating an existing project.
 
 ### AI-01: System prompt leakage
 
-Search for system prompts stored in client-accessible files or returned
-in API responses. Check if the AI endpoint echoes the system prompt
-when asked "repeat your instructions" or similar.
+Search for system prompts stored in client-accessible files or returned in API responses. Check if the AI endpoint echoes the system prompt when asked "repeat your instructions" or similar.
 
-Remediation: Keep system prompts server-side only. Add input filtering
-for prompt extraction attempts.
+Remediation: Keep system prompts server-side only. Add input filtering for prompt extraction attempts.
 
 ### AI-03: LLM API keys not in frontend
 
-Search frontend code for `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`,
-`GOOGLE_AI_API_KEY`, `sk-ant-`, `sk-proj-`, `AIza` patterns.
+Search frontend code for `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GOOGLE_AI_API_KEY`, `sk-ant-`, `sk-proj-`, `AIza` patterns.
 
 Remediation: Proxy all LLM calls through server-side API routes.
 
@@ -333,19 +279,15 @@ Remediation: Proxy all LLM calls through server-side API routes.
 
 ### DEP-01: No git/URL dependencies
 
-Search package.json for dependencies with values starting with
-`git://`, `git+`, `http://`, `https://github.com`, or `file:`.
+Search package.json for dependencies with values starting with `git://`, `git+`, `http://`, `https://github.com`, or `file:`.
 
-Remediation: Use published npm packages with version ranges instead
-of git URLs.
+Remediation: Use published npm packages with version ranges instead of git URLs.
 
 ### DEP-05: Suspicious postinstall scripts
 
-Check package.json for `postinstall`, `preinstall`, `install` scripts
-that execute arbitrary commands, download files, or access the network.
+Check package.json for `postinstall`, `preinstall`, `install` scripts that execute arbitrary commands, download files, or access the network.
 
-Remediation: Review and remove unnecessary install scripts. Use
-`--ignore-scripts` for CI.
+Remediation: Review and remove unnecessary install scripts. Use `--ignore-scripts` for CI.
 
 ---
 
@@ -366,16 +308,13 @@ Remediation: Review and remove unnecessary install scripts. Use
 
 ### FE-01: Meta tags
 
-Check the root layout or index page for `<title>`, `<meta name="description">`,
-and Open Graph tags (`og:title`, `og:description`, `og:image`).
-For Next.js, check metadata export in layout.tsx.
+Check the root layout or index page for `<title>`, `<meta name="description">`, and Open Graph tags (`og:title`, `og:description`, `og:image`). For Next.js, check metadata export in layout.tsx.
 
 Remediation: Add metadata to your root layout or page head.
 
 ### FE-03: Custom 404 page
 
-Check for `404.tsx`, `404.jsx`, `not-found.tsx`, `404.html`, or
-equivalent in the pages/app directory.
+Check for `404.tsx`, `404.jsx`, `not-found.tsx`, `404.html`, or equivalent in the pages/app directory.
 
 Remediation: Create a branded 404 page that helps users navigate back.
 
@@ -395,8 +334,6 @@ Remediation: Create a branded 404 page that helps users navigate back.
 
 ### OBS-01: Error monitoring
 
-Search for imports or configuration of error monitoring tools:
-`@sentry/`, `LogRocket`, `Bugsnag`, `Datadog`, `Rollbar`, `Honeybadger`.
+Search for imports or configuration of error monitoring tools: `@sentry/`, `LogRocket`, `Bugsnag`, `Datadog`, `Rollbar`, `Honeybadger`.
 
-Remediation: Install and configure an error monitoring service.
-Sentry has a free tier suitable for solo projects.
+Remediation: Install and configure an error monitoring service. Sentry has a free tier suitable for solo projects.

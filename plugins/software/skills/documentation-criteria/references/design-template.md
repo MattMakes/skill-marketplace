@@ -81,8 +81,7 @@ How quality is enforced in the change area. Each item is either adopted (will be
 
 ## Acceptance Criteria (AC) - EARS Format
 
-Each AC is written in EARS (Easy Approach to Requirements Syntax) format.
-Keywords determine test type and reduce ambiguity.
+Each AC is written in EARS (Easy Approach to Requirements Syntax) format. Keywords determine test type and reduce ambiguity.
 
 **EARS Keywords**:
 | Keyword | Usage | Test Type |

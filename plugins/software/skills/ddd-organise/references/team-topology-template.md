@@ -1,15 +1,9 @@
 # Template — `ddd/06-organise/team-topology.md`
 
-> **Paths:** `${CLAUDE_PLUGIN_ROOT}` below means this plugin's install directory — the absolute
-> path already resolved in the SKILL.md that sent you here. Supporting files like this one are
-> read raw, so substitute that path yourself; never paste the literal token into a shell.
+> **Paths:** `${CLAUDE_PLUGIN_ROOT}` below means this plugin's install directory — the absolute path already resolved in the SKILL.md that sent you here. Supporting files like this one are read raw, so substitute that path yourself; never paste the literal token into a shell.
 
 
-Fill every section marked **[all]**. Add **[standard+]** sections at depth `standard` and `deep`,
-**[deep]** sections at depth `deep`. With two or more teams, "Interaction modes" is required at
-every depth. Keep a `light` run to about one screen. The mermaid block is generated:
-`node ${CLAUDE_PLUGIN_ROOT}/shared/bin/ddd.mjs organise mermaid <ddd-dir>` — paste its
-output verbatim so the diagram always matches `organise.json`.
+Fill every section marked **[all]**. Add **[standard+]** sections at depth `standard` and `deep`, **[deep]** sections at depth `deep`. With two or more teams, "Interaction modes" is required at every depth. Keep a `light` run to about one screen. The mermaid block is generated: `node ${CLAUDE_PLUGIN_ROOT}/shared/bin/ddd.mjs organise mermaid <ddd-dir>` — paste its output verbatim so the diagram always matches `organise.json`.
 
 ````markdown
 # Team topology — <project title>

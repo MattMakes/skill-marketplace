@@ -13,27 +13,20 @@ This document defines the rules for evidence-base writing requirements for wiki 
 
 ## Source Repository Resolution (MUST DO FIRST)
 
-**Resolve the source repository context BEFORE any page is written.** The
-citation form you use depends on it, and retrofitting citations across a whole
-wiki is expensive. Do not start writing pages until this is settled.
+**Resolve the source repository context BEFORE any page is written.** The citation form you use depends on it, and retrofitting citations across a whole wiki is expensive. Do not start writing pages until this is settled.
 
 1. **Check for a git remote**: `git remote get-url origin`
 2. **Pin a commit** for permanent links: `git rev-parse HEAD`
 3. **Decide the citation mode**:
-   - A remote URL resolved → store it as `REPO_URL` and use the **remote
-     (linked) form** for every citation.
-   - **No remote** (local-only repo, or the remote cannot be resolved) → fall
-     back to the **local (plain) form** for every citation.
-4. If the mode is ambiguous, ask the user: *"Is this a local-only repository, or
-   do you have a source repository URL (e.g. GitHub, GitLab, Azure DevOps)?"*
+   - A remote URL resolved → store it as `REPO_URL` and use the **remote (linked) form** for every citation.
+   - **No remote** (local-only repo, or the remote cannot be resolved) → fall back to the **local (plain) form** for every citation.
+4. If the mode is ambiguous, ask the user: *"Is this a local-only repository, or do you have a source repository URL (e.g. GitHub, GitLab, Azure DevOps)?"*
 
-Use ONE mode consistently across the whole wiki. Never mix linked and plain
-citations within a page.
+Use ONE mode consistently across the whole wiki. Never mix linked and plain citations within a page.
 
 ## Citation Format
 
-Two forms. Which one you use is decided once, up front, by the resolution step
-above.
+Two forms. Which one you use is decided once, up front, by the resolution step above.
 
 | Mode | When | Single line | Line range |
 |------|------|-------------|------------|
@@ -51,8 +44,7 @@ URL structure:
 
 Components:
 - `repo_base_url`: Base URL without commit hash (e.g., `https://github.com/owner/repo/blob`)
-- `ref_commit_hash`: Git commit hash — **pin a commit, not a branch name**, so
-  links stay valid as the branch moves
+- `ref_commit_hash`: Git commit hash — **pin a commit, not a branch name**, so links stay valid as the branch moves
 - `file_path`: Relative path from repository root
 - `start`: Starting line number
 - `end`: Ending line number (for ranges)
@@ -69,9 +61,7 @@ Components:
 
 ### Local Form (no remote resolved)
 
-When no source repository URL exists, cite the path and line as **plain text in
-parentheses — no link**. Do NOT invent a URL, and do NOT link to a `file://`
-path.
+When no source repository URL exists, cite the path and line as **plain text in parentheses — no link**. Do NOT invent a URL, and do NOT link to a `file://` path.
 
 **Single line**:
 ```markdown
@@ -83,8 +73,7 @@ The Button component accepts a `variant` prop (src/components/Button.tsx:42).
 Validation runs before persistence (src/services/validator.ts:42-58).
 ```
 
-In the local form the path is written from the repository root (not just the
-bare filename), because there is no link for the reader to follow.
+In the local form the path is written from the repository root (not just the bare filename), because there is no link for the reader to follow.
 
 ### Special Cases (both modes)
 
@@ -146,12 +135,9 @@ Include citations in table cells, **wrapped in parentheses**:
 ### Coverage Minimums
 
 - **Every non-trivial claim carries a citation.** "X calls Y" must say where.
-- **At least 5 different source files cited per page.** A page citing one file
-  has not been researched.
-- **Every Mermaid diagram** is followed by a `<!-- Sources: file:line, ... -->`
-  comment block (see `mermaid_policy.md`, Rule 7).
-- **Every table listing code artifacts** (components, APIs, config keys, data
-  models) includes a **"Source" column** carrying citations.
+- **At least 5 different source files cited per page.** A page citing one file has not been researched.
+- **Every Mermaid diagram** is followed by a `<!-- Sources: file:line, ... -->` comment block (see `mermaid_policy.md`, Rule 7).
+- **Every table listing code artifacts** (components, APIs, config keys, data models) includes a **"Source" column** carrying citations.
 
 ### Fact vs Inference
 
@@ -208,5 +194,4 @@ Distinguish what you read from what you concluded:
 
 6. **Language**: Generate content in the language specified by locale code
 - Default: `en-US` (English)
-- Respect locale from the TOC `project.language` field — the default applies
-  only when that field is unset
+- Respect locale from the TOC `project.language` field — the default applies only when that field is unset

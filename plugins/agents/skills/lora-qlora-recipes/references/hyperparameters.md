@@ -2,17 +2,11 @@ Last verified: 2026-07-13
 
 # LoRA/QLoRA Hyperparameter Tables
 
-Full tables and a complete worked config backing
-the summary in `SKILL.md`. Base models are never
-named here — every example is labeled by size
-class only; see `agents:finetuning-method-selection`'s
-`references/model-catalog.md` for which actual
-model to use at a given size class.
+Full tables and a complete worked config backing the summary in `SKILL.md`. Base models are never named here — every example is labeled by size class only; see `agents:finetuning-method-selection`'s `references/model-catalog.md` for which actual model to use at a given size class.
 
 ## Rank and Alpha by Task Type
 
-`lora_alpha = 2 * r` in every row — derive alpha
-from rank, don't set it independently.
+`lora_alpha = 2 * r` in every row — derive alpha from rank, don't set it independently.
 
 | Task type | Rank (`r`) | `lora_alpha` | Notes |
 |---|---|---|---|
@@ -22,11 +16,7 @@ from rank, don't set it independently.
 
 ## Learning Rate by Method
 
-LoRA/QLoRA learning rates run roughly **10x** the
-equivalent full-fine-tune LR — this is the single
-most common misconfiguration when porting a full-
-FT config to LoRA (leaving the LR unchanged
-under-trains the adapter).
+LoRA/QLoRA learning rates run roughly **10x** the equivalent full-fine-tune LR — this is the single most common misconfiguration when porting a full- FT config to LoRA (leaving the LR unchanged under-trains the adapter).
 
 | Method | LR range | Use when |
 |---|---|---|
@@ -34,52 +24,21 @@ under-trains the adapter).
 | LoRA, conservative | 1e-4 | Larger base model, higher rank, or a run that showed instability at 2e-4. |
 | LoRA, very conservative | 5e-5 | Continuing a run, fine-grained behavior adjustment, or a base model that's already close to the target behavior. |
 
-Treat these as starting points to sweep around,
-not fixed constants — but start here rather than
-porting a full-FT LR unchanged.
+Treat these as starting points to sweep around, not fixed constants — but start here rather than porting a full-FT LR unchanged.
 
 ## rsLoRA Note
 
-Rank-stabilized LoRA (rsLoRA) rescales the
-adapter update by `alpha / sqrt(r)` instead of
-`alpha / r`. It's **optional**, and only worth
-turning on at **r ≥ 32** — below that rank, the
-standard scaling (`alpha / r`) is stable enough
-that rsLoRA doesn't change outcomes meaningfully.
-If the SFT-at-scale row (rank up to ~256) is in
-play, turn rsLoRA on; for the general-default or
-RL rows, leave it off unless a specific
-instability shows up.
+Rank-stabilized LoRA (rsLoRA) rescales the adapter update by `alpha / sqrt(r)` instead of `alpha / r`. It's **optional**, and only worth turning on at **r ≥ 32** — below that rank, the standard scaling (`alpha / r`) is stable enough that rsLoRA doesn't change outcomes meaningfully. If the SFT-at-scale row (rank up to ~256) is in play, turn rsLoRA on; for the general-default or RL rows, leave it off unless a specific instability shows up.
 
 ## Batch and Packing Interactions
 
-- Keep **effective batch size under 32** — the
-  reference recipe was validated at that scale.
-  Effective batch is `per_device_batch_size *
-  gradient_accumulation_steps * num_devices`; a
-  multi-GPU or high-accumulation setup can cross
-  32 without the per-device batch size looking
-  large, so compute the product, not just the
-  per-device number.
-- Packing multiple short examples into one
-  sequence changes the effective batch's token
-  composition, not just its example count — a
-  packed batch of 8 sequences is not equivalent
-  to an unpacked batch of 8 short examples.
-  Apply the chat template before packing, not
-  after, and spot-check a handful of decoded
-  packed sequences before trusting the pipeline.
-- Gradient checkpointing (`use_gradient_checkpointing="unsloth"`)
-  and packing both trade compute for memory
-  independently — enabling both is normal for a
-  memory-constrained run, not redundant.
+- Keep **effective batch size under 32** — the reference recipe was validated at that scale. Effective batch is `per_device_batch_size * gradient_accumulation_steps * num_devices`; a multi-GPU or high-accumulation setup can cross 32 without the per-device batch size looking large, so compute the product, not just the per-device number.
+- Packing multiple short examples into one sequence changes the effective batch's token composition, not just its example count — a packed batch of 8 sequences is not equivalent to an unpacked batch of 8 short examples. Apply the chat template before packing, not after, and spot-check a handful of decoded packed sequences before trusting the pipeline.
+- Gradient checkpointing (`use_gradient_checkpointing="unsloth"`) and packing both trade compute for memory independently — enabling both is normal for a memory-constrained run, not redundant.
 
 ## Worked Config: Unsloth `FastLanguageModel` + `SFTConfig`
 
-A complete, internally consistent config at the
-general-default rank (`r=32`), QLoRA, standard
-LR. Swap `BASE_MODEL` for an actual checkpoint
-from the model catalog before running.
+A complete, internally consistent config at the general-default rank (`r=32`), QLoRA, standard LR. Swap `BASE_MODEL` for an actual checkpoint from the model catalog before running.
 
 ```python
 from unsloth import FastLanguageModel
@@ -148,12 +107,4 @@ trainer = SFTTrainer(
 trainer.train()
 ```
 
-This block is internally consistent: `r=32` →
-`lora_alpha=64` (2x rule), `load_in_4bit=True` →
-`learning_rate=2e-4` (QLoRA standard LR),
-`bf16=True` (never fp16), and effective batch
-`4 * 4 = 16` (under the 32 ceiling). Changing any
-one of these — rank, quantization, or batch
-shape — should trigger rechecking the others
-against the tables above rather than editing it
-in isolation.
+This block is internally consistent: `r=32` → `lora_alpha=64` (2x rule), `load_in_4bit=True` → `learning_rate=2e-4` (QLoRA standard LR), `bf16=True` (never fp16), and effective batch `4 * 4 = 16` (under the 32 ceiling). Changing any one of these — rank, quantization, or batch shape — should trigger rechecking the others against the tables above rather than editing it in isolation.

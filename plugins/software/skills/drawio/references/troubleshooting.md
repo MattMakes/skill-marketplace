@@ -33,9 +33,7 @@ Read this when something looks wrong in the output (rendering, export, layout, e
 
 ## WSL2 / Windows specifics
 
-**Locate the CLI.** Detect WSL2 with `grep -qi microsoft /proc/version`. On WSL2 the
-export CLI is the Windows desktop exe, reached through `/mnt/c` (quote the path —
-it contains a space):
+**Locate the CLI.** Detect WSL2 with `grep -qi microsoft /proc/version`. On WSL2 the export CLI is the Windows desktop exe, reached through `/mnt/c` (quote the path — it contains a space):
 
 ```bash
 "/mnt/c/Program Files/draw.io/draw.io.exe" --version
@@ -43,16 +41,13 @@ it contains a space):
 "/mnt/c/Users/$USER/AppData/Local/Programs/draw.io/draw.io.exe" --version
 ```
 
-**Open a file.** Convert the WSL path to a Windows path first; `cmd.exe` cannot
-follow `/mnt/c/...`:
+**Open a file.** Convert the WSL path to a Windows path first; `cmd.exe` cannot follow `/mnt/c/...`:
 
 ```bash
 cmd.exe /c start "" "$(wslpath -w diagram.drawio.png)"
 ```
 
-**Open a browser-fallback URL.** `cmd.exe /c start` strips the URL fragment
-(`&` ends the command, `#…` is dropped) — and the fragment carries the entire
-diagram. Write a `.url` shortcut and open it instead, so the URL survives intact:
+**Open a browser-fallback URL.** `cmd.exe /c start` strips the URL fragment (`&` ends the command, `#…` is dropped) — and the fragment carries the entire diagram. Write a `.url` shortcut and open it instead, so the URL survives intact:
 
 ```bash
 URL=$(python3 <this-skill-dir>/scripts/encode_drawio_url.py --edit diagram.drawio)
@@ -61,13 +56,11 @@ printf '[InternetShortcut]\r\nURL=%s\r\n' "$URL" > "$TMP"
 cmd.exe /c start "" "$(wslpath -w "$TMP")"
 ```
 
-On native Windows the same `.url`-file trick applies (`start "" "%TEMP%\d.url"`).
-On macOS/Linux just `open "$URL"` / `xdg-open "$URL"` — no workaround needed.
+On native Windows the same `.url`-file trick applies (`start "" "%TEMP%\d.url"`). On macOS/Linux just `open "$URL"` / `xdg-open "$URL"` — no workaround needed.
 
 ## Verifying the rendered output (viewer.diagrams.net)
 
-When the drawio binary is unavailable (or the render pipeline is flaky), verify
-geometry from the viewer's own output instead of eyeballing a screenshot:
+When the drawio binary is unavailable (or the render pipeline is flaky), verify geometry from the viewer's own output instead of eyeballing a screenshot:
 
 ```bash
 URL=$(python3 <this-skill-dir>/scripts/encode_drawio_url.py diagram.drawio)
@@ -79,14 +72,6 @@ msedge --headless=new --disable-gpu --user-data-dir="$(mktemp -d)" \
 
 Then check with a script, not by eye:
 
-- **Edge paths**: every stroke `<path d="M …">` should contain only the segments
-  you intended. A segment crossing a shape it does not terminate at, an
-  unexpected `Q` pair mid-segment (the 1–2 px S-wiggle from a misaligned
-  `entryX`), or an arrow tip past the target border are XML defects — fix the
-  file, don't re-route by hand.
-- **Label anchors**: label `foreignObject`s expose `padding-top: <y>px;
-  margin-left: <x>px`; assert each label box lands in empty space (no edge
-  segment, no shape boundary, no second label).
-- **Screenshot gating**: when a PNG is required, retry `ERR_CONNECTION_CLOSED`
-  with a fresh `--user-data-dir` and accept the file only after counting pixels
-  of a known palette fill — error pages pass naive "has content" checks.
+- **Edge paths**: every stroke `<path d="M …">` should contain only the segments you intended. A segment crossing a shape it does not terminate at, an unexpected `Q` pair mid-segment (the 1–2 px S-wiggle from a misaligned `entryX`), or an arrow tip past the target border are XML defects — fix the file, don't re-route by hand.
+- **Label anchors**: label `foreignObject`s expose `padding-top: <y>px; margin-left: <x>px`; assert each label box lands in empty space (no edge segment, no shape boundary, no second label).
+- **Screenshot gating**: when a PNG is required, retry `ERR_CONNECTION_CLOSED` with a fresh `--user-data-dir` and accept the file only after counting pixels of a known palette fill — error pages pass naive "has content" checks.

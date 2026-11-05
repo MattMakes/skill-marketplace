@@ -106,11 +106,9 @@ After:
 
 ## Related checks
 
-This skill is the entry point for prose in the `work` plugin. Two skills check a draft against one
-source each:
+This skill is the entry point for prose in the `work` plugin. Two skills check a draft against one source each:
 
 - `work:writing-clearly-and-concisely` applies Strunk's rules for clear, short prose.
-- `work:writing-guidelines` reviews docs against the Vercel Writing Guidelines and reports each
-  violation.
+- `work:writing-guidelines` reviews docs against the Vercel Writing Guidelines and reports each violation.
 
 For text that reads as machine-written, run `work:humanize`.

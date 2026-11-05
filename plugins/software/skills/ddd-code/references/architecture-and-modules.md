@@ -1,8 +1,6 @@
 # Architecture, ports & adapters, module layout, tests
 
-How a bounded context becomes folders, interfaces and tests. Default vocabulary is **hexagonal**
-(Cockburn): *driving* ports on the left (what calls us), *driven* ports on the right (what we call).
-Onion (Palermo) and Clean (Martin) say the same thing with layers; the mapping is in §1.
+How a bounded context becomes folders, interfaces and tests. Default vocabulary is **hexagonal** (Cockburn): *driving* ports on the left (what calls us), *driven* ports on the right (what we call). Onion (Palermo) and Clean (Martin) say the same thing with layers; the mapping is in §1.
 
 ## 1. One rule, three vocabularies
 
@@ -13,17 +11,9 @@ Onion (Palermo) and Clean (Martin) say the same thing with layers; the mapping i
 | Driven (secondary) port | Repository / infrastructure interface, *declared in the core* | Output boundary | `application/ports/driven/*` (repository interfaces may live in `domain/`) |
 | Adapter | Infrastructure implementation | Interface adapter / framework & driver | `adapters/driving/*`, `adapters/driven/*` |
 
-The rule all three share (Martin's Dependency Rule): **source-code dependencies point inward only.**
-Nothing in `domain/` imports from `application/` or `adapters/`; nothing in `application/` imports
-from `adapters/`. Data crossing a boundary is a plain structure (command, DTO, event), never an ORM
-entity, an HTTP request or a framework type. Cockburn's intent: the application can "equally be
-driven by users, programs, automated tests or batch scripts, and developed and tested in isolation
-from its eventual run-time devices and databases." Test adapters are first-class adapters.
+The rule all three share (Martin's Dependency Rule): **source-code dependencies point inward only.** Nothing in `domain/` imports from `application/` or `adapters/`; nothing in `application/` imports from `adapters/`. Data crossing a boundary is a plain structure (command, DTO, event), never an ORM entity, an HTTP request or a framework type. Cockburn's intent: the application can "equally be driven by users, programs, automated tests or batch scripts, and developed and tested in isolation from its eventual run-time devices and databases." Test adapters are first-class adapters.
 
-2–4 driving and 2–4 driven ports is typical (Cockburn counted purposes of conversation, not
-interfaces); core contexts may need more. Every port must be justified by a message row in the
-pre-fill brief or an infrastructure need (`Clock`, `IdGenerator` count). Ten ports for one aggregate
-means you are naming methods, not purposes of conversation.
+2–4 driving and 2–4 driven ports is typical (Cockburn counted purposes of conversation, not interfaces); core contexts may need more. Every port must be justified by a message row in the pre-fill brief or an infrastructure need (`Clock`, `IdGenerator` count). Ten ports for one aggregate means you are naming methods, not purposes of conversation.
 
 ## 2. Ports — derive them from the upstream JSON
 
@@ -42,14 +32,11 @@ A port is a *purpose of conversation*. Derive them, do not invent them:
 | External system we call (flow step to an external system) | `<Purpose>Gateway` (driven) — the anti-corruption layer; name by purpose (`PaymentGateway`), not vendor | `Fake<Purpose>Gateway` (tests), `Http<Vendor>Gateway` |
 | Invariant depends on time / ids / randomness | `Clock`, `IdGenerator` (driven) | `SystemClock`, `FixedClock` (tests) |
 
-Upstream contexts with `conformist` or `anticorruption-layer` relationships (`decompose.relationships`)
-also get a gateway port — the ACL translates *their* published language into *our* model in the
-adapter, so the domain never sees their types.
+Upstream contexts with `conformist` or `anticorruption-layer` relationships (`decompose.relationships`) also get a gateway port — the ACL translates *their* published language into *our* model in the adapter, so the domain never sees their types.
 
 ## 3. Module layout per implementation pattern
 
-Root = `module_path` from `code.json` (one per context, inside its deployable — §4). Language
-specifics (file names, casing, build files) are in `lang-*.md`; the shape is the same everywhere.
+Root = `module_path` from `code.json` (one per context, inside its deployable — §4). Language specifics (file names, casing, build files) are in `lang-*.md`; the shape is the same everywhere.
 
 **Domain model** (and event-sourced, see `event-sourcing.md`):
 
@@ -94,8 +81,7 @@ specifics (file names, casing, build files) are in `lang-*.md`; the shape is the
   tests/
 ```
 
-Composition root (DI wiring, config, migrations, main) belongs to the **deployable**, not the
-context: `apps/<deployable>/main.*` (or the language's equivalent). Contexts never wire themselves.
+Composition root (DI wiring, config, migrations, main) belongs to the **deployable**, not the context: `apps/<deployable>/main.*` (or the language's equivalent). Contexts never wire themselves.
 
 ## 4. Module paths follow the deployables
 
@@ -109,22 +95,11 @@ context: `apps/<deployable>/main.*` (or the language's equivalent). Contexts nev
 | Java/Kotlin | `src/main/<lang>/<project>/<context>` (one package = one module) | `<deployable>/src/main/<lang>/<project>/<context>` |
 | C# | `src/<Project>.<Context>/` | `src/<Deployable>/<Project>.<Context>/` |
 
-`ddd code prefill --skeleton` proposes these; a brownfield repo's existing convention wins
-(look at the top-level folders before proposing). Two contexts never share a module path; a
-`shared-kernel` relationship gets its own small package that both import. A context whose runtime
-a `frontend` deployable also hosts (`organise.deployables[].hosts_runtime_of`) is compiled into two
-deployables: `module_path` is the shared domain package (`packages/<context>/src`, `pkg/<context>`,
-`<context>-domain/…`), `deployable` stays the server-side owner and the frontend is listed in
-`also_compiled_into` (contract §4.8).
+`ddd code prefill --skeleton` proposes these; a brownfield repo's existing convention wins (look at the top-level folders before proposing). Two contexts never share a module path; a `shared-kernel` relationship gets its own small package that both import. A context whose runtime a `frontend` deployable also hosts (`organise.deployables[].hosts_runtime_of`) is compiled into two deployables: `module_path` is the shared domain package (`packages/<context>/src`, `pkg/<context>`, `<context>-domain/…`), `deployable` stays the server-side owner and the frontend is listed in `also_compiled_into` (contract §4.8).
 
 ## 5. Adapters: what the transport in `connect.json` implies
 
-Decide the transport **per (producer → consumer) edge**: the flow step's `via`; else the integration
-decision of the relationship (`in-process-call` → in-process, `sync-api` → http, `async-events` →
-message-bus, `shared-db` → db, `batch` → file); else the deployables (same → in-process, different →
-message-bus). One context may consume in-process from a sibling and over a bus from another
-deployable — that is normal and gives it one consumer adapter per transport. Only an edge that is
-in-process *across* deployables is a `ddd-connect` problem (assumption + open question).
+Decide the transport **per (producer → consumer) edge**: the flow step's `via`; else the integration decision of the relationship (`in-process-call` → in-process, `sync-api` → http, `async-events` → message-bus, `shared-db` → db, `batch` → file); else the deployables (same → in-process, different → message-bus). One context may consume in-process from a sibling and over a bus from another deployable — that is normal and gives it one consumer adapter per transport. Only an edge that is in-process *across* deployables is a `ddd-connect` problem (assumption + open question).
 
 | `via` / `delivery` | Driving side | Driven side |
 |---|---|---|
@@ -134,19 +109,11 @@ in-process *across* deployables is a `ddd-connect` problem (assumption + open qu
 | `db`, `file`, `batch` | Importer/job as a driving adapter that issues commands one aggregate at a time | Export adapter |
 | `grpc` | gRPC service adapter | gRPC client gateway |
 
-Domain events published across contexts are **integration events** in the published language:
-their payload is exactly `connect.messages[].payload` — translate from the internal domain event in
-the publisher adapter, never leak internal types. Version them from day one (`v1` in the name or a
-`version` field).
+Domain events published across contexts are **integration events** in the published language: their payload is exactly `connect.messages[].payload` — translate from the internal domain event in the publisher adapter, never leak internal types. Version them from day one (`v1` in the name or a `version` field).
 
 ## 6. Read models and the command → event → view chain
 
-Every read model in `discover.read_models` (and every `query` message in connect) becomes:
-name, the events that feed it (`source_events` — discover ids), who reads it, where it lives
-(same DB view/table for a monolith; separate projection table or cache when fed by another
-context's events). Read models are built by projectors reacting to events; they are rebuildable.
-Do not load aggregates to answer queries. Specify each slice Event-Modeling style:
-*Given* these events, *When* this command / this query, *Then* these events / this view.
+Every read model in `discover.read_models` (and every `query` message in connect) becomes: name, the events that feed it (`source_events` — discover ids), who reads it, where it lives (same DB view/table for a monolith; separate projection table or cache when fed by another context's events). Read models are built by projectors reacting to events; they are rebuildable. Do not load aggregates to answer queries. Specify each slice Event-Modeling style: *Given* these events, *When* this command / this query, *Then* these events / this view.
 
 ## 7. Tests — what must exist, by name
 
@@ -160,37 +127,21 @@ Do not load aggregates to answer queries. Specify each slice Event-Modeling styl
 | Adapter test | driven adapter | repository round-trip, gateway translation against a fake/recorded vendor response | `tests/adapters` |
 | Fitness test | module | "domain imports nothing from adapters/framework" (§8) | `tests/architecture` |
 
-Pattern shapes (Khononov): domain model → pyramid (mostly domain/use-case tests); transaction
-script/active record → reversed pyramid (mostly store-backed integration tests); event-sourced →
-diamond (aggregate decision tests + projection/replay tests).
+Pattern shapes (Khononov): domain model → pyramid (mostly domain/use-case tests); transaction script/active record → reversed pyramid (mostly store-backed integration tests); event-sourced → diamond (aggregate decision tests + projection/replay tests).
 
 ## 8. Guardrails for AI coding agents (2025–2026 practice)
 
-Coding agents optimise for making the immediate feature work, not for preserving boundaries. What
-holds the design together when an agent writes the code:
+Coding agents optimise for making the immediate feature work, not for preserving boundaries. What holds the design together when an agent writes the code:
 
-1. **A dependency-free domain layer, enforced by a test that runs in CI**: ArchUnit (Java/Kotlin),
-   Spring Modulith `verify()`, NetArchTest / ArchUnitNET (C#), dependency-cruiser or
-   eslint-plugin-boundaries (TS), import-linter (Python), `internal/` packages + go-arch-lint (Go).
-   Start with 3–5 rules on the critical boundaries: domain → nothing outward; application →
-   domain only; adapters → anything; contexts → only each other's published API.
-2. **Rules the agent can read**: put the layout of §3, the forbidden imports and the port/adapter
-   naming into `CLAUDE.md` / `AGENTS.md` / rules files. Say "one interface per use case",
-   "never import the ORM/framework in `domain/`", "in-memory adapter for every driven port".
-3. **Invariants as failing tests before implementation** — the plan's slices name the tests; the
-   agent must see them fail first (software:tdd).
-4. **Small units**: one aggregate per file/folder, one use case per file, so an edit fits one
-   bounded concern in the context window.
-5. **Review for drift**, not just for correctness: a passing feature that added a repository call
-   inside an aggregate is a regression.
+1. **A dependency-free domain layer, enforced by a test that runs in CI**: ArchUnit (Java/Kotlin), Spring Modulith `verify()`, NetArchTest / ArchUnitNET (C#), dependency-cruiser or eslint-plugin-boundaries (TS), import-linter (Python), `internal/` packages + go-arch-lint (Go). Start with 3–5 rules on the critical boundaries: domain → nothing outward; application → domain only; adapters → anything; contexts → only each other's published API.
+2. **Rules the agent can read**: put the layout of §3, the forbidden imports and the port/adapter naming into `CLAUDE.md` / `AGENTS.md` / rules files. Say "one interface per use case", "never import the ORM/framework in `domain/`", "in-memory adapter for every driven port".
+3. **Invariants as failing tests before implementation** — the plan's slices name the tests; the agent must see them fail first (software:tdd).
+4. **Small units**: one aggregate per file/folder, one use case per file, so an edit fits one bounded concern in the context window.
+5. **Review for drift**, not just for correctness: a passing feature that added a repository call inside an aggregate is a regression.
 
 ## Sources (accessed 2026-08-29)
 
-- Alistair Cockburn, *Hexagonal Architecture* — https://alistair.cockburn.us/hexagonal-architecture/
-  (intent, primary/secondary ports, "port = purpose of conversation", 2–4 ports, test adapters);
-  Juan Manuel Garrido de Paz, *Hexagonal Me* — https://jmgarridopaz.github.io/ (one port, many
-  adapters; back-door vs round-trip tests); book: Cockburn & Garrido de Paz, *Hexagonal Architecture
-  Explained* (2024)
+- Alistair Cockburn, *Hexagonal Architecture* — https://alistair.cockburn.us/hexagonal-architecture/ (intent, primary/secondary ports, "port = purpose of conversation", 2–4 ports, test adapters); Juan Manuel Garrido de Paz, *Hexagonal Me* — https://jmgarridopaz.github.io/ (one port, many adapters; back-door vs round-trip tests); book: Cockburn & Garrido de Paz, *Hexagonal Architecture Explained* (2024)
 - Jeffrey Palermo, *The Onion Architecture, part 1* — https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/
 - Robert C. Martin, *The Clean Architecture* — https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html
 - Adam Dymitruk, *Event Modeling* — https://eventmodeling.org/ (slices = one command or one view; GWT per slice)

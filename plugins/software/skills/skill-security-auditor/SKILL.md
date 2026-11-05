@@ -5,8 +5,7 @@ description: "Security audit and vulnerability scanner for AI agent skills befor
 
 # Skill Security Auditor
 
-Scan and audit AI agent skills for security risks before installation. Produces a
-clear **PASS / WARN / FAIL** verdict with findings and remediation guidance.
+Scan and audit AI agent skills for security risks before installation. Produces a clear **PASS / WARN / FAIL** verdict with findings and remediation guidance.
 
 ## Quick Start
 

@@ -1,21 +1,13 @@
 # Discover method guide — big-picture EventStorming, translated to Claude Code
 
-Read this before drafting a storm (sections 1–6 always; 7–12 for `standard`/`deep` runs or when
-something feels off). It distils Brandolini's EventStorming, the ddd-crew cheat sheet, Domain
-Storytelling and Example Mapping into rules a Claude Code session can actually follow, plus what
-2025–2026 practitioners learned about remote/async storms and LLM-drafted boards. Sources with
-access dates are at the end.
+Read this before drafting a storm (sections 1–6 always; 7–12 for `standard`/`deep` runs or when something feels off). It distils Brandolini's EventStorming, the ddd-crew cheat sheet, Domain Storytelling and Example Mapping into rules a Claude Code session can actually follow, plus what 2025–2026 practitioners learned about remote/async storms and LLM-drafted boards. Sources with access dates are at the end.
 
 ## 0. What decompose needs from you
 
 `ddd-decompose` cuts bounded contexts along your timeline. It uses, in order of value:
 
-1. **Pivotal events** — the 3–7 moments where the flow changes phase (*Order Placed*, *Payment
-   Received*, *Box Shipped*). Boundaries almost always sit on or next to them.
-2. **Language shifts** — the same word meaning two things (*Box* = menu choice vs packed parcel), or
-   two words for one thing. Record them in `glossary[].avoid`, as `conflict` hotspots and as
-   `notes_for_downstream[]` entries (`kind: language`) — only the JSON reaches decompose; never
-   smooth them over.
+1. **Pivotal events** — the 3–7 moments where the flow changes phase (*Order Placed*, *Payment Received*, *Box Shipped*). Boundaries almost always sit on or next to them.
+2. **Language shifts** — the same word meaning two things (*Box* = menu choice vs packed parcel), or two words for one thing. Record them in `glossary[].avoid`, as `conflict` hotspots and as `notes_for_downstream[]` entries (`kind: language`) — only the JSON reaches decompose; never smooth them over.
 3. **Actor changes** — where a different person/team/system takes over.
 4. **Events, commands, policies, read models** with stable ids — every later step references them.
 5. **Hotspots and scenarios** — connect turns scenarios into message flows; define reads hotspots.
@@ -38,12 +30,10 @@ If you only have time to get three things right: pivotal events, language confli
 
 Naming rules that keep the chain stable:
 
-- Event ids are `<noun>-<past-participle>`: `order-placed`, `payment-failed`. Command ids are
-  `<verb>-<noun>`: `place-order`. Policy ids say the reaction: `charge-on-choice`, `reserve-on-order`.
+- Event ids are `<noun>-<past-participle>`: `order-placed`, `payment-failed`. Command ids are `<verb>-<noun>`: `place-order`. Policy ids say the reaction: `charge-on-choice`, `reserve-on-order`.
   Read model ids are nouns: `weekly-menu`. Phases are gerunds or nouns: `ordering`, `fulfilling`.
 - One fact per event. *Order Placed And Paid* is two events.
-- Use the repo's words. If the README says "subscription", do not write "plan" — put "plan" in
-  `glossary[].avoid` instead. The corpus you were given *is* the ubiquitous language evidence.
+- Use the repo's words. If the README says "subscription", do not write "plan" — put "plan" in `glossary[].avoid` instead. The corpus you were given *is* the ubiquitous language evidence.
 - Names are Title Case; ids are kebab-case slugs; codes are `H1`, `S1`, `A1`, `Q1`.
 
 ## 2. The picture that explains everything
@@ -57,10 +47,7 @@ The process-modelling grammar reads left to right:
 [External system] ──────────────────────────────────────────────→ [Event] (a fact reported from outside)
 ```
 
-Every command ends in at least one event (or it is not a command). Every event has a cause: a
-command, a policy chain that ends in a command, an external system, or time. Read models sit before
-the decision they inform. Policies are where business rules hide — a policy with an exception
-("…unless the subscriber is paused") is a hotspot or a second policy, never a silent assumption.
+Every command ends in at least one event (or it is not a command). Every event has a cause: a command, a policy chain that ends in a command, an external system, or time. Read models sit before the decision they inform. Policies are where business rules hide — a policy with an exception ("…unless the subscriber is paused") is a hotspot or a second policy, never a silent assumption.
 
 ## 3. The workshop phases, translated
 
@@ -75,8 +62,7 @@ the decision they inform. Policies are where business rules hide — a policy wi
 | Problems & opportunities | Write hotspots with a `kind`; note opportunities in `assumptions`/summary; decide which hotspots block; pass boundary-relevant findings on as notes | `hotspots[]`, `open_questions[]`, `notes_for_downstream[]` |
 | Closing: what we learned, next steps | Seed the glossary; write the summary naming `/ddd-decompose` | `glossary[]`, closing summary |
 
-Interactive mode runs the walk-through *with* the user, one phase per checkpoint (≤4 questions).
-Auto mode runs it as self-review and logs what it would have asked.
+Interactive mode runs the walk-through *with* the user, one phase per checkpoint (≤4 questions). Auto mode runs it as self-review and logs what it would have asked.
 
 ## 4. Harvesting from documents (draft first)
 
@@ -93,116 +79,65 @@ Map `understand.json` mechanically before reading anything else:
 | `scale_target`, `depth` | how many events you are aiming for (section 10) |
 | `notes_for_downstream[]` whose `for` names `discover` | `language` → a `conflict` hotspot near the event where the meaning flips plus a glossary entry naming both meanings; `process` → the fixed event order; `risk` → a `risk` hotspot. Notes addressed only to later steps are re-emitted, sharpened, in your own `notes_for_downstream[]` |
 
-Then read the docs the manifest lists plus `README*`, `CONTEXT.md`, `docs/`, `brainstorm/`, ADRs,
-schemas/migrations, API specs, and for brownfield the module/table/enum names. Turn what you find
-into events:
+Then read the docs the manifest lists plus `README*`, `CONTEXT.md`, `docs/`, `brainstorm/`, ADRs, schemas/migrations, API specs, and for brownfield the module/table/enum names. Turn what you find into events:
 
-- Status fields and enums (`draft → placed → paid → shipped`) are event sequences: *Order Placed*,
-  *Order Paid*, *Order Shipped*.
+- Status fields and enums (`draft → placed → paid → shipped`) are event sequences: *Order Placed*, *Order Paid*, *Order Shipped*.
 - "When X, we do Y" sentences are policies. "The clerk checks the list before…" is a read model.
 - Endpoints and screens are commands (*POST /orders* → *Place Order*), never events.
 - Cron jobs and deadlines are time-triggered events (section 5).
 - Words the docs use inconsistently are glossary `avoid` entries or `conflict` hotspots.
 
-Missing sources (a README that is listed but absent, an empty docs folder) are not blockers: record
-an assumption ("drafted from understand.json only; README.md listed in manifest.sources not found",
-confidence low) and proceed.
+Missing sources (a README that is listed but absent, an empty docs folder) are not blockers: record an assumption ("drafted from understand.json only; README.md listed in manifest.sources not found", confidence low) and proceed.
 
 ## 5. Rules for the tricky cases
 
-- **Time-triggered events** (*Selection Deadline Passed*, *Month Closed*) — one rule, whether or
-  not a preceding event exists: declare the scheduler once as an external system,
-  `{"id": "clock", "name": "Clock"}`, and make it the `actor` of the command that fires
-  (*Close Selections*, `actor: "clock"`, `produces: ["selection-deadline-passed"]`); the schedule
-  ("Sunday 23:59", "last day of the month") goes in the command's `description`. The lint and the
-  validator accept `clock`; a calendar trigger with no preceding event needs nothing else.
-- **External facts** (*Payment Failed* reported by Stripe): `triggered_by` the command we sent
-  (*Charge Week*) if it is a response, otherwise `triggered_by: null` with `actor: <external-system-id>`.
-  The validator accepts external-system ids in `events[].actor`.
-- **One command, several events**: `produces: ["payment-succeeded", "payment-failed"]` when the
-  outcome branches. Keep both events; scenarios show which path.
-- **Commands with no actor**: only when a policy issues them (`actor: null`, and some policy lists
-  the command in `then`); the event they produce has `actor: null` too. Otherwise name the role.
-- **Manual policies** (*whenever a complaint is filed, a manager reviews it*): `kind: manual` — a
-  person decides, but the trigger is still an event. Decompose treats these as human-in-the-loop.
-- **Loops and retries**: do not model the loop, model the events (*Payment Retried*, *Payment Failed
-  Again* is a smell — prefer *Payment Retry Scheduled* and one *Payment Failed*). Scenarios may
-  repeat an event id; a scenario that deliberately jumps back in the timeline (*no access →
-  follow-up → rebook*) says `"loops": true`, so the lint stays quiet and the board marks it *(loops)*.
-- **Sub-processes** that dwarf the main flow (deep runs): give them their own phase; in `light`
-  or `standard` collapse them to one or two events and a `missing` hotspot ("returns flow not stormed").
-- **As-is vs to-be**: greenfield storms are to-be; brownfield storms are as-is, and the difference
-  between the two is a list of hotspots (kind `risk` or `missing`). Say which you drew in an assumption.
-- **Design-level detail** (validation errors, field names) is not big-picture: fold it into the
-  event's `data[]` or drop it. The band in section 10 is a sanity check, not a quota.
+- **Time-triggered events** (*Selection Deadline Passed*, *Month Closed*) — one rule, whether or not a preceding event exists: declare the scheduler once as an external system, `{"id": "clock", "name": "Clock"}`, and make it the `actor` of the command that fires (*Close Selections*, `actor: "clock"`, `produces: ["selection-deadline-passed"]`); the schedule ("Sunday 23:59", "last day of the month") goes in the command's `description`. The lint and the validator accept `clock`; a calendar trigger with no preceding event needs nothing else.
+- **External facts** (*Payment Failed* reported by Stripe): `triggered_by` the command we sent (*Charge Week*) if it is a response, otherwise `triggered_by: null` with `actor: <external-system-id>`. The validator accepts external-system ids in `events[].actor`.
+- **One command, several events**: `produces: ["payment-succeeded", "payment-failed"]` when the outcome branches. Keep both events; scenarios show which path.
+- **Commands with no actor**: only when a policy issues them (`actor: null`, and some policy lists the command in `then`); the event they produce has `actor: null` too. Otherwise name the role.
+- **Manual policies** (*whenever a complaint is filed, a manager reviews it*): `kind: manual` — a person decides, but the trigger is still an event. Decompose treats these as human-in-the-loop.
+- **Loops and retries**: do not model the loop, model the events (*Payment Retried*, *Payment Failed Again* is a smell — prefer *Payment Retry Scheduled* and one *Payment Failed*). Scenarios may repeat an event id; a scenario that deliberately jumps back in the timeline (*no access → follow-up → rebook*) says `"loops": true`, so the lint stays quiet and the board marks it *(loops)*.
+- **Sub-processes** that dwarf the main flow (deep runs): give them their own phase; in `light` or `standard` collapse them to one or two events and a `missing` hotspot ("returns flow not stormed").
+- **As-is vs to-be**: greenfield storms are to-be; brownfield storms are as-is, and the difference between the two is a list of hotspots (kind `risk` or `missing`). Say which you drew in an assumption.
+- **Design-level detail** (validation errors, field names) is not big-picture: fold it into the event's `data[]` or drop it. The band in section 10 is a sanity check, not a quota.
 
 ## 6. Pivotal events and phases
 
-Avanscoperta's guidance, compressed: pivotal events are "splitters between distinct phases of the
-business flow" with "a clear distinction between before and after"; they sit in the middle, not at
-the very first or last position; when several people independently write the same event it is
-usually at a responsibility boundary; detection is fast and approximate ("trading precision for
-plausibility") and gets refined. They become candidates for published-language events between
-contexts.
+Avanscoperta's guidance, compressed: pivotal events are "splitters between distinct phases of the business flow" with "a clear distinction between before and after"; they sit in the middle, not at the very first or last position; when several people independently write the same event it is usually at a responsibility boundary; detection is fast and approximate ("trading precision for plausibility") and gets refined. They become candidates for published-language events between contexts.
 
 How to pick them here:
 
-1. List the moments something irreversible or contractual happens (signed, paid, shipped,
-   approved, delivered, closed).
+1. List the moments something irreversible or contractual happens (signed, paid, shipped, approved, delivered, closed).
 2. Check the actor changes and the vocabulary changes around each one.
 3. Keep 3–7 (fewer for `light`). Mark `events[].pivotal: true` **and** list them in `pivotal_events[]`.
-4. Cut phases *after* pivotal events: the event closes its phase. Name phases with the domain's word
-   for that stage (`subscribing`, `choosing`, `fulfilling`), give them `order` 1..n, and put every
-   event in exactly one phase.
+4. Cut phases *after* pivotal events: the event closes its phase. Name phases with the domain's word for that stage (`subscribing`, `choosing`, `fulfilling`), give them `order` 1..n, and put every event in exactly one phase.
 
 ## 7. Hotspots — the Example Mapping lens
 
-Hotspots are the most valuable thing a workshop produces and the thing an LLM draft most
-under-reports (a model cannot see rules that nobody wrote down — see section 12). Use Example
-Mapping's three card types to find them:
+Hotspots are the most valuable thing a workshop produces and the thing an LLM draft most under-reports (a model cannot see rules that nobody wrote down — see section 12). Use Example Mapping's three card types to find them:
 
 - **Rule** (blue): a business rule you can state — becomes a policy or an aggregate invariant.
 - **Example** (green): a concrete case that tests the rule — becomes a scenario step.
-- **Question** (red): a case nobody can decide — becomes a hotspot. "Capture the question and move
-  on" rather than debating; it turns an unknown unknown into a known unknown.
+- **Question** (red): a case nobody can decide — becomes a hotspot. "Capture the question and move on" rather than debating; it turns an unknown unknown into a known unknown.
 
-Kinds: `unclear` (nobody knows), `conflict` (people or documents disagree; language conflicts go
-here), `risk` (known danger: regulation, money, data loss), `missing` (a part of the flow not
-stormed), `external` (depends on a system or party we do not control). Always set `near` to the
-event where the question bites. Wording: state the question or the disagreement and why it matters;
-never the fix. A vocabulary `conflict` also travels as a `notes_for_downstream[]` entry
-(`kind: language`, `for: ["decompose", "define"]`, text naming the hotspot id): hotspot prose stays in
-this artifact, the note reaches decompose.
+Kinds: `unclear` (nobody knows), `conflict` (people or documents disagree; language conflicts go here), `risk` (known danger: regulation, money, data loss), `missing` (a part of the flow not stormed), `external` (depends on a system or party we do not control). Always set `near` to the event where the question bites. Wording: state the question or the disagreement and why it matters; never the fix. A vocabulary `conflict` also travels as a `notes_for_downstream[]` entry (`kind: language`, `for: ["decompose", "define"]`, text naming the hotspot id): hotspot prose stays in this artifact, the note reaches decompose.
 
 ## 8. Scenarios — the Domain Storytelling lens
 
-Domain Storytelling tells one concrete story at a time — "*who* does *what* with *what* with
-*whom*", numbered sentences, no branches — and starts with "the '80% case' — the 'happy path'
-first"; "only then discuss *what else* could happen". Use that discipline for `scenarios[]`:
+Domain Storytelling tells one concrete story at a time — "*who* does *what* with *what* with *whom*", numbered sentences, no branches — and starts with "the '80% case' — the 'happy path' first"; "only then discuss *what else* could happen". Use that discipline for `scenarios[]`:
 
 - `S1` is the happy path from the first event to the last, for the main actor(s).
-- Each further scenario exercises one policy branch or failure (*payment fails after meals are
-  chosen*; *subscriber pauses before the deadline*). Alternatives are separate stories, not
-  branches inside one.
-- Every event in a scenario exists in `events[]`; list them in timeline order (a retry may repeat
-  an id). `actors[]` lists who appears.
+- Each further scenario exercises one policy branch or failure (*payment fails after meals are chosen*; *subscriber pauses before the deadline*). Alternatives are separate stories, not branches inside one.
+- Every event in a scenario exists in `events[]`; list them in timeline order (a retry may repeat an id). `actors[]` lists who appears.
 - Name the scenario after what makes it different, not after the phase.
 
-Domain Storytelling is also the better format for stakeholders who dislike sticky-note chaos: in
-interactive mode you can present a phase as a numbered story ("1. The subscriber chooses meals from
-the weekly menu. 2. Stripe charges the week…") instead of a table.
+Domain Storytelling is also the better format for stakeholders who dislike sticky-note chaos: in interactive mode you can present a phase as a numbered story ("1. The subscriber chooses meals from the weekly menu. 2. Stripe charges the week…") instead of a table.
 
 ## 9. Read models and aggregate candidates
 
-A read model answers "what does the actor look at before deciding?" — one per real decision, not
-one per screen. `informs` the command, `used_by` the actor.
+A read model answers "what does the actor look at before deciding?" — one per real decision, not one per screen. `informs` the command, `used_by` the actor.
 
-Aggregate candidates follow Brandolini's outside-in definition: "the portion of the system that
-receives commands and decides whether to execute them or not, thus producing a domain event". Group
-commands by the noun that has to be consistent when the decision is made (*Subscription* decides
-*choose-meals*; *Box* decides *pack-box*). Two or three candidates per phase is plenty; ddd-code
-designs them for real. If a noun changes meaning across a pivotal event (*Box*), that is one
-aggregate per meaning and a glossary conflict.
+Aggregate candidates follow Brandolini's outside-in definition: "the portion of the system that receives commands and decides whether to execute them or not, thus producing a domain event". Group commands by the noun that has to be consistent when the decision is made (*Subscription* decides *choose-meals*; *Box* decides *pack-box*). Two or three candidates per phase is plenty; ddd-code designs them for real. If a noun changes meaning across a pivotal event (*Box*), that is one aggregate per meaning and a glossary conflict.
 
 ## 10. Depth scaling
 
@@ -212,14 +147,11 @@ aggregate per meaning and a glossary conflict.
 | `standard` | 25–60 | 3–6 | 2–4 | read models for every human decision; aggregate candidates; glossary 10–20 |
 | `deep` | 60–150 | 5–10 | 3–6 | alternative flows as their own phases or explicit swimlane phases (e.g. `returns`), per-phase diagrams, glossary 20–40 |
 
-Bands are sanity checks. A tiny domain honestly stormed at 9 events beats 14 invented ones; log the
-shortfall as an assumption and move on. Stop before design-level detail: if you are writing
-*Validation Error Shown*, you have gone too deep.
+Bands are sanity checks. A tiny domain honestly stormed at 9 events beats 14 invented ones; log the shortfall as an assumption and move on. Stop before design-level detail: if you are writing *Validation Error Shown*, you have gone too deep.
 
 ## 11. Facilitating in interactive mode
 
-Sections of 150–300 words, one phase per checkpoint, at most 4 questions each. Ask about the domain,
-never about formatting. The facilitator's questions, in the order they usually pay off:
+Sections of 150–300 words, one phase per checkpoint, at most 4 questions each. Ask about the domain, never about formatting. The facilitator's questions, in the order they usually pay off:
 
 1. "What happens next / what had to happen first?" (gaps at phase edges — the most common miss)
 2. "Who needs to know when *X* happens, and what do they do?" (policies)
@@ -228,38 +160,19 @@ never about formatting. The facilitator's questions, in the order they usually p
 5. "Do *A* and *B* mean the same thing to everyone?" (language conflicts → boundaries)
 6. "Is *X* the moment this phase is really over?" (pivotal events)
 
-Prefer multiple-choice questions when a real decision exists ("Is payment taken (a) when meals are
-chosen, (b) at the selection deadline, (c) when the box ships?"). If the user says "looks good"
-or "just finish", stop asking and switch to auto for the rest, logging unasked questions as
-`open_questions`. Remote-workshop practice that carries over: short sections beat marathons; keep
-the board (the Markdown) self-explanatory so people can catch up alone; write a between-session
-summary — that is the closing summary.
+Prefer multiple-choice questions when a real decision exists ("Is payment taken (a) when meals are chosen, (b) at the selection deadline, (c) when the box ships?"). If the user says "looks good" or "just finish", stop asking and switch to auto for the rest, logging unasked questions as `open_questions`. Remote-workshop practice that carries over: short sections beat marathons; keep the board (the Markdown) self-explanatory so people can catch up alone; write a between-session summary — that is the closing summary.
 
 ## 12. Auto mode — what LLM-drafted storms get wrong, and the counter-measures
 
 Evidence from 2025–2026 practice:
 
-- LLMs find the obvious events well and should draft them so the humans spend their time on the
-  contested ones (k8mak *event-storm* skill; codecentric, Junker 2026). Counter-measure: draft the
-  full board, then spend the self-review on failure paths, phase edges and language.
-- They cannot infer rules nobody wrote down: in Junker's Larder example "the self-rating rule is
-  completely absent … was never visible in any artifact". Counter-measure: every rule you *suspect*
-  but cannot source becomes a hotspot or a `low`-confidence assumption, not a policy.
-- Small errors propagate through later DDD steps and accumulate (Eisenreich, Jusic & Wagner 2026:
-  steps 1–3 — language, event storming, contexts — worked; 4–5 degraded). Counter-measure: stable
-  ids, `ddd validate` before closing, and never renaming an id on re-run.
-- "Do not add any concept, field, or endpoint not visible in the artifacts" (Junker). Counter-measure:
-  when the repo has no word for something, say so in an assumption and use the plainest business
-  word, never a technical synonym.
-- Brandolini on pre-seeding structure remotely: you may "start with some structure in mind … but
-  keep in mind that no matter how smart you are, this structure can be badly wrong". Counter-measure:
-  phases drafted from capabilities are a hypothesis — record them as an assumption with `medium`
-  confidence so decompose treats them as such.
+- LLMs find the obvious events well and should draft them so the humans spend their time on the contested ones (k8mak *event-storm* skill; codecentric, Junker 2026). Counter-measure: draft the full board, then spend the self-review on failure paths, phase edges and language.
+- They cannot infer rules nobody wrote down: in Junker's Larder example "the self-rating rule is completely absent … was never visible in any artifact". Counter-measure: every rule you *suspect* but cannot source becomes a hotspot or a `low`-confidence assumption, not a policy.
+- Small errors propagate through later DDD steps and accumulate (Eisenreich, Jusic & Wagner 2026: steps 1–3 — language, event storming, contexts — worked; 4–5 degraded). Counter-measure: stable ids, `ddd validate` before closing, and never renaming an id on re-run.
+- "Do not add any concept, field, or endpoint not visible in the artifacts" (Junker). Counter-measure: when the repo has no word for something, say so in an assumption and use the plainest business word, never a technical synonym.
+- Brandolini on pre-seeding structure remotely: you may "start with some structure in mind … but keep in mind that no matter how smart you are, this structure can be badly wrong". Counter-measure: phases drafted from capabilities are a hypothesis — record them as an assumption with `medium` confidence so decompose treats them as such.
 
-Auto-mode rules of thumb: choose the conservative reading (fewer phases, fewer pivotal events, the
-repo's words); every guess a domain expert could overturn is an assumption; every question you
-would have asked is an open question with `blocking` set honestly (blocking = decompose cannot cut a
-sensible boundary without the answer).
+Auto-mode rules of thumb: choose the conservative reading (fewer phases, fewer pivotal events, the repo's words); every guess a domain expert could overturn is an assumption; every question you would have asked is an open question with `blocking` set honestly (blocking = decompose cannot cut a sensible boundary without the answer).
 
 ## 13. Sources (accessed 2026-08-29)
 

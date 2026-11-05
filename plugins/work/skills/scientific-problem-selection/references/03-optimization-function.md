@@ -25,10 +25,7 @@ Scientists must actively work against these defaults by choosing the right metri
 First, Claude should determine what type of project the user is pursuing:
 
 **Question 1: What is the primary goal?**
-A. Understand how biology works (fundamental knowledge)
-B. Enable new experiments or capabilities (tool/technology)
-C. Solve a practical problem (invention/application)
-D. Something else (please describe)
+A. Understand how biology works (fundamental knowledge) B. Enable new experiments or capabilities (tool/technology) C. Solve a practical problem (invention/application) D. Something else (please describe)
 
 **Question 2: What would "success" look like in 3-5 years?**
 - 1-2 sentences describing the ideal outcome

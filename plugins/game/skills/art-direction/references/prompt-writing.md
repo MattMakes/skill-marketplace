@@ -1,31 +1,20 @@
 # Prompt-writing rules for diffusion image prompts
 
-General rules for writing prompts to a text-to-image model, plus the exact output shape this
-skill emits. These rules apply to any diffusion-style image model; no vendor-specific syntax is
-assumed.
+General rules for writing prompts to a text-to-image model, plus the exact output shape this skill emits. These rules apply to any diffusion-style image model; no vendor-specific syntax is assumed.
 
 ## General rules
 
-1. **Describe style in words, never by naming a living artist, studio or copyrighted
-   character.** Use medium, era, palette, lighting and composition words instead:
-   "gouache painting", "1990s Saturday-morning cartoon", "warm desert palette, long shadows",
-   "flat vector shapes, no gradients".
+1. **Describe style in words, never by naming a living artist, studio or copyrighted character.** Use medium, era, palette, lighting and composition words instead: "gouache painting", "1990s Saturday-morning cartoon", "warm desert palette, long shadows", "flat vector shapes, no gradients".
 2. **Front-load the subject**, then style, then composition/lighting, then quality tags last.
    Example order: subject → action/pose → setting → style → lighting → composition.
-3. **Be concrete, not vague.** "A small fox made of folded paper, mid-leap, in a sunlit paper
-   diorama forest" beats "cute fox game art".
-4. **One clear subject per prompt.** A prompt trying to show two unrelated ideas at once produces
-   a muddled image; split it into two prompts instead.
-5. **Negative prompts remove failure modes, not just unwanted content.** List things the model
-   commonly gets wrong for this style (e.g. "extra limbs, warped text, blurry") alongside the
-   fixed content-boundary negatives.
-6. **State size/aspect ratio explicitly.** Default to `1024x1024` unless the shot calls for a
-   different ratio (e.g. a wide vista as `1536x1024`).
+3. **Be concrete, not vague.** "A small fox made of folded paper, mid-leap, in a sunlit paper diorama forest" beats "cute fox game art".
+4. **One clear subject per prompt.** A prompt trying to show two unrelated ideas at once produces a muddled image; split it into two prompts instead.
+5. **Negative prompts remove failure modes, not just unwanted content.** List things the model commonly gets wrong for this style (e.g. "extra limbs, warped text, blurry") alongside the fixed content-boundary negatives.
+6. **State size/aspect ratio explicitly.** Default to `1024x1024` unless the shot calls for a different ratio (e.g. a wide vista as `1536x1024`).
 
 ## Fixed content-boundary negatives
 
-Every prompt's `negative_prompt` must include these, verbatim, in addition to any
-concept-specific negatives:
+Every prompt's `negative_prompt` must include these, verbatim, in addition to any concept-specific negatives:
 
 ```
 weapons, blood, gore, nudity, sexual content, casino imagery, gambling imagery

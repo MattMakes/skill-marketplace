@@ -5,47 +5,20 @@ affaan-m/ECC (skills/intent-driven-development, commit 2d515e4), MIT, Affaan Mus
 
 # Acceptance Criteria
 
-Produce useful acceptance criteria without turning specification into ceremony. Inspect
-available context first, expose genuine ambiguity, and choose verification methods that fit
-the work and its risk. The steps are the acceptance-criteria mode in `../SKILL.md`; this file
-holds the rules, the boundary table, the template and the pass/fail rubric.
+Produce useful acceptance criteria without turning specification into ceremony. Inspect available context first, expose genuine ambiguity, and choose verification methods that fit the work and its risk. The steps are the acceptance-criteria mode in `../SKILL.md`; this file holds the rules, the boundary table, the template and the pass/fail rubric.
 
 ## Operating Rules
 
-1. Inspect the available repository, documentation, issue, design, and test context before
-   asking for technical facts that can be discovered locally.
-2. Do not infer product or business constraints from code. Business rules, compliance and
-   regulatory obligations, contractual SLAs, pricing, data-retention policy, prioritization,
-   and target users cannot be read from a repository. Treat them as unknown until the user
-   supplies them or an authoritative product artifact (PRD, contract, policy document) states
-   them. Record them as assumptions flagged for confirmation, never as discovered facts. The
-   repository tells you how the system behaves today, not what the business requires it to do.
-3. Ask only questions whose answers are required and cannot be safely inferred. Group short,
-   related questions when that saves unnecessary turns.
-4. Do not block implementation by default. When the user has asked to implement a sufficiently
-   clear change, record key assumptions and acceptance criteria briefly, then proceed or hand
-   them to the implementation workflow.
-5. Require explicit user confirmation before proceeding only when an unresolved decision could
-   create material security exposure, data loss, irreversible migration, contractual/API
-   breakage, meaningful cost, or destructive external action.
-6. Do not write an acceptance document into a repository, alter project files, create a branch,
-   commit, or invoke another skill unless the user requests it or the active repository
-   workflow explicitly requires it.
-7. Treat automated tests as evidence, not truth. Prefer automation when reliable and
-   proportionate; allow manual UX, accessibility, security, legal, or operational verification
-   where automation cannot establish the outcome.
-8. Never include real secrets, credentials, tokens, private keys, personal data, or sensitive
-   production payloads in acceptance criteria, fixtures, examples, or saved artifacts. Use
-   redacted or synthetic values.
-9. Do not run destructive tests, migrations, security probes, load tests, paid external calls,
-   or operations against production/live data without explicit authorization and an identified
-   safe environment.
-10. When an acceptance criterion cannot be satisfied due to an architectural, platform, or
-   external constraint discovered during implementation, do not silently drop or workaround it.
-   Update the affected criterion (mark it `[revised]`, state the constraint, and adjust scope or
-   verification method), increment the revision number, and re-present only the changed criteria
-   to the user before continuing. Require explicit confirmation only if the revision changes a
-   blocking decision or materially reduces safety or correctness guarantees.
+1. Inspect the available repository, documentation, issue, design, and test context before asking for technical facts that can be discovered locally.
+2. Do not infer product or business constraints from code. Business rules, compliance and regulatory obligations, contractual SLAs, pricing, data-retention policy, prioritization, and target users cannot be read from a repository. Treat them as unknown until the user supplies them or an authoritative product artifact (PRD, contract, policy document) states them. Record them as assumptions flagged for confirmation, never as discovered facts. The repository tells you how the system behaves today, not what the business requires it to do.
+3. Ask only questions whose answers are required and cannot be safely inferred. Group short, related questions when that saves unnecessary turns.
+4. Do not block implementation by default. When the user has asked to implement a sufficiently clear change, record key assumptions and acceptance criteria briefly, then proceed or hand them to the implementation workflow.
+5. Require explicit user confirmation before proceeding only when an unresolved decision could create material security exposure, data loss, irreversible migration, contractual/API breakage, meaningful cost, or destructive external action.
+6. Do not write an acceptance document into a repository, alter project files, create a branch, commit, or invoke another skill unless the user requests it or the active repository workflow explicitly requires it.
+7. Treat automated tests as evidence, not truth. Prefer automation when reliable and proportionate; allow manual UX, accessibility, security, legal, or operational verification where automation cannot establish the outcome.
+8. Never include real secrets, credentials, tokens, private keys, personal data, or sensitive production payloads in acceptance criteria, fixtures, examples, or saved artifacts. Use redacted or synthetic values.
+9. Do not run destructive tests, migrations, security probes, load tests, paid external calls, or operations against production/live data without explicit authorization and an identified safe environment.
+10. When an acceptance criterion cannot be satisfied due to an architectural, platform, or external constraint discovered during implementation, do not silently drop or workaround it. Update the affected criterion (mark it `[revised]`, state the constraint, and adjust scope or verification method), increment the revision number, and re-present only the changed criteria to the user before continuing. Require explicit confirmation only if the revision changes a blocking decision or materially reduces safety or correctness guarantees.
 
 ## Choose The Depth
 
@@ -61,22 +34,18 @@ Use for a clear but non-trivial change with low or moderate risk. Produce:
 - 3-7 acceptance criteria with verification methods
 - Blocking questions, if any
 
-Do not delay implementation for approval unless a blocking risk from the operating rules
-exists or the user specifically asked for a specification first.
+Do not delay implementation for approval unless a blocking risk from the operating rules exists or the user specifically asked for a specification first.
 
 ### Full Acceptance Brief
 
-Use for ambiguous, cross-system, security-sensitive, data-changing, migration, compliance,
-or high-cost changes, or when the user requests a handoff artifact. Produce the full template
-below and request confirmation for unresolved blocking decisions before risky implementation.
+Use for ambiguous, cross-system, security-sensitive, data-changing, migration, compliance, or high-cost changes, or when the user requests a handoff artifact. Produce the full template below and request confirmation for unresolved blocking decisions before risky implementation.
 
 ### Existing Specification Review
 
 When the user already supplied a PRD, issue, plan, or acceptance criteria:
 
 1. Review it instead of restarting discovery.
-2. Identify missing scope boundaries, unsafe assumptions, contradictions, and unverifiable
-   requirements.
+2. Identify missing scope boundaries, unsafe assumptions, contradictions, and unverifiable requirements.
 3. Return corrected or supplemental criteria.
 
 ## Workflow
@@ -88,8 +57,7 @@ Extract or ask for:
 - The observable outcome for the user or system.
 - The actors affected.
 - The main failure consequence.
-- Risk dimensions that actually apply: security/privacy, persistent data, compatibility/API,
-  migration, external dependencies, cost, concurrency, performance, usability/accessibility.
+- Risk dimensions that actually apply: security/privacy, persistent data, compatibility/API, migration, external dependencies, cost, concurrency, performance, usability/accessibility.
 
 Avoid asking generic questions about irrelevant risks.
 
@@ -102,14 +70,9 @@ When local or connected artifacts are available, inspect only what is needed:
 - Existing verification infrastructure and realistic commands.
 - External dependencies and whether they are testable in isolation.
 
-Record discovered facts separately from user-provided assumptions. If context cannot be
-inspected, say what is unknown and ask focused questions.
+Record discovered facts separately from user-provided assumptions. If context cannot be inspected, say what is unknown and ask focused questions.
 
-The repository reveals technical facts — how the system behaves today, its conventions, and
-its contracts. It does not reveal product or business constraints: business rules, compliance
-and regulatory obligations, contractual SLAs, pricing, data-retention policy, prioritization,
-and target users. Never reconstruct these from code or naming. Capture them only from the user
-or an authoritative product artifact, and list them as assumptions to confirm until then.
+The repository reveals technical facts — how the system behaves today, its conventions, and its contracts. It does not reveal product or business constraints: business rules, compliance and regulatory obligations, contractual SLAs, pricing, data-retention policy, prioritization, and target users. Never reconstruct these from code or naming. Capture them only from the user or an authoritative product artifact, and list them as assumptions to confirm until then.
 
 ### 3. Define Scope
 
@@ -117,15 +80,13 @@ State:
 
 - Goal: one sentence describing the intended outcome (the convergence `outcome`).
 - In scope: behavior this change must deliver (the `desired-future` requirements).
-- Out of scope: the exclusions the user authored (`nonGoals`). An adjacent capability you
-  noticed is not listed; the user need not reject what they did not request.
+- Out of scope: the exclusions the user authored (`nonGoals`). An adjacent capability you noticed is not listed; the user need not reject what they did not request.
 - Assumptions: claims not yet proven.
 - Blocking decisions: unresolved choices that materially affect safety or behavior.
 
 ### 4. Write Acceptance Criteria
 
-Use `AC-001`, `AC-002`, and so on. Each criterion must describe observable behavior and an
-appropriate verification method; criteria and tests are not required to map one-to-one.
+Use `AC-001`, `AC-002`, and so on. Each criterion must describe observable behavior and an appropriate verification method; criteria and tests are not required to map one-to-one.
 
 For each applicable criterion include:
 
@@ -133,13 +94,11 @@ For each applicable criterion include:
 - Action or trigger.
 - Expected observable behavior.
 - Prohibited side effect when meaningful.
-- Verification method: automated test, integration check, manual UX review, accessibility
-  check, security review, operational check, or stakeholder acceptance.
+- Verification method: automated test, integration check, manual UX review, accessibility check, security review, operational check, or stakeholder acceptance.
 - Environment/safety constraint when verification could affect data, services, cost, or secrets.
 - Priority: required, important, or optional.
 
-Do not use words such as "correctly", "securely", "fast", "intuitive", or "robust" without
-defining observable evidence or recording them as a human-review judgment.
+Do not use words such as "correctly", "securely", "fast", "intuitive", or "robust" without defining observable evidence or recording them as a human-review judgment.
 
 ### 5. Cover Only Relevant Boundaries
 
@@ -159,14 +118,10 @@ Consider these categories, but include only categories that apply:
 
 ### 6. Present And Continue
 
-- For a clarification/specification request, present the brief and ask for decisions only on
-  listed blockers.
-- For an implementation request with no blocker, present a compact criteria summary as part of
-  the work and continue with implementation.
-- For handoff to another agent or team, include enough context and verification detail for them
-  to act without inventing requirements.
-- Save the brief to a file only when requested. Use a repository-approved path when one exists;
-  otherwise ask for or state the chosen destination before writing.
+- For a clarification/specification request, present the brief and ask for decisions only on listed blockers.
+- For an implementation request with no blocker, present a compact criteria summary as part of the work and continue with implementation.
+- For handoff to another agent or team, include enough context and verification detail for them to act without inventing requirements.
+- Save the brief to a file only when requested. Use a repository-approved path when one exists; otherwise ask for or state the chosen destination before writing.
 
 ## Output Template
 
@@ -254,9 +209,7 @@ Use these to judge whether the skill actually produced a verifiable brief, not p
 AC-001: The export works correctly and is secure.
 ```
 
-Fails — "works correctly" and "secure" are not observable, there is no scenario, trigger,
-expected result, or verification method, and nothing states what must not happen. A reader
-cannot tell whether the implementation satisfied it.
+Fails — "works correctly" and "secure" are not observable, there is no scenario, trigger, expected result, or verification method, and nothing states what must not happen. A reader cannot tell whether the implementation satisfied it.
 
 **A passing acceptance criterion**
 
@@ -270,8 +223,7 @@ AC-001: Export generates file with correct headers
 - Priority: Required
 ```
 
-Passes — a concrete observable outcome, a prohibited side effect, and a named verification
-method. Two people would agree on whether it was met.
+Passes — a concrete observable outcome, a prohibited side effect, and a named verification method. Two people would agree on whether it was met.
 
 **A failing context entry**
 
@@ -279,9 +231,7 @@ method. Two people would agree on whether it was met.
 Discovered facts: Users on the free tier are limited to 100 exports per month.
 ```
 
-Fails — a per-tier limit is a business rule. It must not appear under discovered facts inferred
-from code; it belongs under Product/business constraints, supplied by the user, or be listed as
-an assumption to confirm.
+Fails — a per-tier limit is a business rule. It must not appear under discovered facts inferred from code; it belongs under Product/business constraints, supplied by the user, or be listed as an assumption to confirm.
 
 ### Pass/Fail Rubric
 
@@ -300,8 +250,7 @@ Before returning the brief, check:
 - The goal describes an outcome rather than an implementation choice.
 - Scope boundaries and assumptions are explicit.
 - Every required criterion is observable or clearly marked for human judgment.
-- Security, privacy, data, compatibility, external-effect, and UX risks were considered only
-  where relevant and not silently ignored.
+- Security, privacy, data, compatibility, external-effect, and UX risks were considered only where relevant and not silently ignored.
 - Verification methods identify safe environments for risky operations.
 - No secret or production-sensitive information was copied into the output.
 - No repository mutation or implementation block is imposed without justification or request.
