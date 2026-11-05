@@ -1,6 +1,6 @@
 ---
 name: deepwiki
-description: Generate, validate and maintain wiki-style documentation for any codebase, with line-level source citations and validated Mermaid diagrams. Use when documenting a new project, updating docs after code changes, designing or refining a wiki TOC, building an onboarding guide, generating AGENTS.md or llms.txt, producing a changelog, researching or answering a question about an unfamiliar codebase, or publishing docs as a VitePress site.
+description: Generate, validate and maintain wiki-style documentation for any codebase, with line-level source citations and validated Mermaid diagrams, or write one brownfield architecture document that tells AI agents how an existing system really works. Use when documenting a new project, updating docs after code changes, designing or refining a wiki TOC, building an onboarding guide, generating AGENTS.md or llms.txt, producing a changelog, researching or answering a question about an unfamiliar codebase, publishing docs as a VitePress site, documenting a brownfield or legacy project for AI agents, capturing technical debt, workarounds and constraints before an enhancement, or mapping which parts of the code a PRD or feature would touch.
 ---
 
 # DeepWiki
@@ -35,7 +35,7 @@ tool. Core generation and validation never need it.
 | 5 | `doc-summary` | `references/workflow/doc-summary.md` | Generate the `SUMMARY.md` report |
 | 6 | `incremental-sync` | `references/workflow/incremental-sync.md` | Detect TOC and source changes since last run |
 
-### Execution modes
+## Modes
 
 | Mode | Phases | When |
 |------|--------|------|
@@ -43,8 +43,10 @@ tool. Core generation and validation never need it.
 | **Structure-only** | 1 → 2 | Produce the TOC only, stop before writing pages |
 | **TOC-based** | 3 → 4 → 5 | Generate pages from an existing `toc.json` |
 | **Incremental** | 6 → 3 → 4 → 5 | Update pages after code changes (the CI path) |
+| **Brownfield** | `references/workflow/brownfield-doc.md` | One architecture document for AI agents about to change an existing system: the real patterns, debt, workarounds and constraints, scoped to a PRD or feature when one exists. Writes `ai_docs/docs/<name>.md`, no TOC or site |
 
-Run the chosen mode to completion. Do not stop to ask for confirmation mid-pipeline.
+Run the chosen mode to completion. Do not stop to ask for confirmation mid-pipeline. The one
+exception is Brownfield's scope question in its Step 1, asked once before any work starts.
 
 ## Optional phases
 

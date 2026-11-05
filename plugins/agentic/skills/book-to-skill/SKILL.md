@@ -219,7 +219,7 @@ Walk these one at a time, with a recommended answer, before running a conversion
 
 ## Related skills
 
-- **`meta:skill-creator`** — authoring a skill from your own expertise. Use that when the
+- **`agentic:skill-creator`** — authoring a skill from your own expertise. Use that when the
   knowledge is in your head; use this when it is in a document.
 - **`agentic:writing-for-agents`** — the writing craft the generated `SKILL.md` should follow.
 - Step 9.5 is the converter's own security gate; a repo-wide skill audit is a separate job.

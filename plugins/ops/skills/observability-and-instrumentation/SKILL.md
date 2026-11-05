@@ -18,9 +18,9 @@ Code you can't observe is code you can't operate. Observability is the ability t
 - Reviewing a PR that adds I/O, retries, queues, or cross-service calls
 
 **NOT for:**
-- Diagnosing a failure happening right now — use `tools:systematic-debugging` (observability is what makes that skill fast next time)
+- Diagnosing a failure happening right now — use `dev:debug` (observability is what makes that skill fast next time)
 - Profiling and optimizing measured slowness — that is performance work, not instrumentation
-- Launch-day monitoring checklists and rollback triggers — see `ops:shipping-and-launch`; this skill covers the instrumentation that feeds them
+- Launch-day monitoring checklists and rollback triggers — see `ops:ship-gate`; this skill covers the instrumentation that feeds them
 
 ## Process
 

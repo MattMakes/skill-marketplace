@@ -1,6 +1,6 @@
 ---
 name: control-ui
-description: Build or adapt a local browser/CDP harness to drive and inspect a web, IDE, or Electron UI. Use for local UI verification, screenshots, accessibility snapshots, perf profiles, visual diffs, or reproducing UI bugs.
+description: Build or adapt a local browser/CDP harness to drive and inspect a web, IDE, or Electron UI, or script a local web app with Python Playwright using a helper that starts and stops its dev servers. Use for local UI verification, testing a local web app, screenshots, accessibility snapshots, browser console logs, perf profiles, visual diffs, debugging UI behavior, or reproducing UI bugs.
 ---
 
 # Control UI
@@ -14,6 +14,23 @@ Use local browser automation to verify UI behavior with evidence. First reuse th
 - Checking local web, IDE, or Electron behavior before shipping.
 - Capturing console logs, network logs, CPU profiles, traces, or heap snapshots.
 - Creating before/after evidence for `verify:verify-this`.
+
+## Modes
+
+| Mode | Pick it when | Steps |
+|------|--------------|-------|
+| **Harness** (default) | The repo has its own Playwright, browser or Electron tooling; the target is Electron or a CDP debug port; or you need traces, heap snapshots or network control | Setup Pattern onward, below |
+| **Quick Playwright** | A plain local web app (or a static HTML file), no harness in the repo, and you want a short script with screenshots and console logs now | [references/quick-playwright.md](references/quick-playwright.md) |
+
+**Quick Playwright steps:**
+
+1. Run `python3 "${CLAUDE_PLUGIN_ROOT}/skills/control-ui/scripts/with_server.py" --help`. Use the helper as a black box; do not read its source unless it fails you.
+2. Static HTML: read the file for selectors and drive it over `file://`. Dynamic app not running: wrap your script with `with_server.py --server "<dev cmd>" --port <port> -- python3 script.py`.
+3. In the script, launch Chromium headless, `goto`, then `wait_for_load_state('networkidle')` before touching the DOM.
+4. Reconnaissance, then action: screenshot and list elements, pick selectors from what rendered, then act.
+5. Starting points are in `examples/`: `element_discovery.py`, `static_html_automation.py`, `console_logging.py`.
+
+Python Playwright lives outside the project (`pip install playwright`), so this mode adds no project dependency.
 
 ## Setup Pattern
 

@@ -26,9 +26,9 @@ A diagnostic workflow for agent systems that hide failures behind wrapper layers
 - You suspect hidden repair/retry loops silently mutating responses
 
 **Do not use for:**
-- General code debugging — use `tools:systematic-debugging`
+- General code debugging — use `dev:debug`
 - Code review — use a code-review skill or reviewer agent
-- Security scanning — use `code:security-sweep`
+- Security scanning — use `security:security-sweep`
 - Agent performance benchmarking — use an eval harness, not an audit
 - Writing new features — use the appropriate workflow skill
 
@@ -250,5 +250,5 @@ Audits should produce structured reports following this shape:
 ## Related Skills
 
 - `agentic:loop-design-check` — Design or review the agent loop itself (decidable goals, runaway prevention)
-- `tools:systematic-debugging` — Debug runtime failures (loops, timeouts, state errors) once the failing layer is known
-- `code:security-sweep` — Security audit for code and configuration
+- `dev:debug` — Debug runtime failures (loops, timeouts, state errors) once the failing layer is known
+- `security:security-sweep` — Security audit for code and configuration

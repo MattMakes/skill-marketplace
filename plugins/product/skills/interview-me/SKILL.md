@@ -11,7 +11,7 @@ What people ask for and what they actually want are different things. They ask f
 
 The cheapest moment to find this gap is before any plan, spec, or code exists. Once you've started building, switching costs are real, and the user will rationalize the wrong thing into a "good enough" thing. The misfit gets locked in.
 
-This skill closes the gap before it costs anything. The other define-phase skills assume you already know roughly what you want: `product:product-brainstorming` generates and explores ideas, `product:spec-driven-workflow` and `product:write-spec` write the requirements down, `product:devil` stress-tests a spec after you've drafted one. Interview-me is the part before all of those, where you ask one question at a time, with your best guess attached, until you can predict what the user is going to say before they say it.
+This skill closes the gap before it costs anything. The other define-phase skills assume you already know roughly what you want: `product:product-brainstorming` generates and explores ideas, `dev:spec-driven-workflow` and `product:spec` write the requirements down, `product:devil` stress-tests a spec after you've drafted one. Interview-me is the part before all of those, where you ask one question at a time, with your best guess attached, until you can predict what the user is going to say before they say it.
 
 ## When to Use
 
@@ -126,7 +126,7 @@ If they correct you, fold the correction in and restate. Loop until you get an e
 When the user confirms the statement of intent with an explicit "yes":
 
 1. **Deliver the confirmed Statement of Intent.**
-2. **Offer downstream paths** (offer to save it to `docs/intent/[topic].md`, draft a spec with `product:spec-driven-workflow` or `product:write-spec`, or move to task planning with `dev:create-plan` after the spec).
+2. **Offer downstream paths** (offer to save it to `docs/intent/[topic].md`, draft a spec with `dev:spec-driven-workflow` or `product:spec`, or move to task planning with `dev:create-plan` after the spec).
 3. **STOP YOUR TURN IMMEDIATELY.** Do NOT invoke tools or start downstream work in this turn. Hand control back to the user to choose the next step.
 
 ### The 95% Confidence Stop
@@ -188,7 +188,7 @@ Two questions in, the agent has discovered the actual ask isn't "a dashboard." I
 ## Interaction with Other Skills
 
 - **`product:product-brainstorming`**: downstream. If the confirmed intent is "I want X but I don't know how to scope it," hand off to it to generate variations against the now-explicit intent.
-- **`product:spec-driven-workflow` / `product:write-spec`**: downstream. If the confirmed intent is concrete ("I want X for Y users with Z success criteria"), hand off to one of them to write it down.
+- **`dev:spec-driven-workflow` / `product:spec`**: downstream. If the confirmed intent is concrete ("I want X for Y users with Z success criteria"), hand off to one of them to write it down.
 - **`dev:create-plan`**: two hops downstream of this skill (after the spec).
 - **`product:devil`**: opposite end of the timeline. Interview-me is pre-decision intent extraction; devil is post-decision artifact review. Both catch divergence, but at different moments.
 
@@ -231,4 +231,4 @@ After applying interview-me:
 - [ ] The user confirmed the restate with an explicit yes (not "whatever you think," not "sounds good," not silence)
 - [ ] At the stop point, the agent could predict reactions to the next three questions it would ask
 - [ ] Upon receiving explicit confirmation, stopped the turn immediately without invoking tools or starting downstream work
-- [ ] Any handoff to a downstream skill (`product:product-brainstorming`, `product:spec-driven-workflow`, `product:write-spec`) was framed in terms of the confirmed intent, not the original underspecified ask
+- [ ] Any handoff to a downstream skill (`product:product-brainstorming`, `dev:spec-driven-workflow`, `product:spec`) was framed in terms of the confirmed intent, not the original underspecified ask

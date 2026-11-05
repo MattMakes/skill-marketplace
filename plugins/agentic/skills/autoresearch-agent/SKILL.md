@@ -380,5 +380,5 @@ Flag these without being asked:
 ## Related Skills
 
 - **`agentic:loop-design-check`** — check the goal is machine-decidable and bounded before letting this loop run unattended.
-- **`agentic:human-gate`** — human sign-off before an experiment result ships.
-- **`tools:test-driven-development`** — complementary; tests can be the evaluation function.
+- **`verify:human-gate`** — human sign-off before an experiment result ships.
+- **`dev:tdd`** — complementary; tests can be the evaluation function.

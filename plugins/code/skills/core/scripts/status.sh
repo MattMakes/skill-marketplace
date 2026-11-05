@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # One call, one block: everything the skill needs to know before it decides
 # what to do. This exists so priming does not begin with a dozen exploratory
-# tool calls -- the shell can answer "is there a graph, is there a CORE tree,
-# is any of it broken, where are the undocumented boundaries" for free, and the
-# model only reads the answer.
+# tool calls -- the shell can answer "is there a graph, is there an AGENTS.md
+# tree, is agentic:keys available to build it, where are the undocumented
+# boundaries" for free, and the model only reads the answer.
 #
 # Usage: status.sh [--root DIR]
 
@@ -17,7 +17,7 @@ cd "$ROOT" || { echo "status.sh: cannot enter $ROOT" >&2; exit 2; }
 ROOT_ABS="$(pwd)"
 export PATH="$HOME/.local/bin:$PATH"
 
-echo "== CORE status =="
+echo "== core status =="
 echo "repo=$ROOT_ABS"
 
 # --- git -------------------------------------------------------------------
@@ -76,8 +76,8 @@ try:
 except Exception:
     print("unindexed_files=? removed_files=?"); raise SystemExit(0)
 disk = {l.strip() for l in open(sys.argv[2]) if l.strip()}
-# Tool-owned paths are not project code. The vendored .claude/core/core.py in
-# particular would otherwise report as permanent drift on every single prime.
+# Tool-owned paths are not project code, and would otherwise report as
+# permanent drift on every single prime.
 SKIP = (".claude/", ".codex/", ".cursor/", "graphify-out/")
 code = {f for f in disk
         if os.path.splitext(f)[1] in CODE and not f.startswith(SKIP)}
@@ -112,15 +112,30 @@ else
   echo "claude_hooks=missing"
 fi
 
-# --- the CORE tree ---------------------------------------------------------
-python3 "$SCRIPT_DIR/core.py" check --root . 2>/dev/null || echo "core_root=absent"
+# --- instruction files: the AGENTS.md tree agentic:keys owns ---------------
+# core does not write instruction files. It looks for the keys skill so the
+# verdict can say whether that layer can be built here at all. Order: an
+# explicit override, the installed agentic plugin's recorded path, then the
+# two places a sibling plugin sits (marketplace checkout, plugin cache).
+PLUGIN_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+KEYS_DIR=""
+for d in \
+  "${CORE_KEYS_DIR:-}" \
+  "$(python3 -c 'import json,os;p=json.load(open(os.path.expanduser("~/.claude/plugins/installed_plugins.json"))).get("plugins",{});print(next((v[0]["installPath"] for k,v in p.items() if k.startswith("agentic@")),""))' 2>/dev/null)/skills/keys" \
+  "$PLUGIN_ROOT/../agentic/skills/keys" \
+  "$PLUGIN_ROOT"/../../agentic/*/skills/keys; do
+  [ -n "$d" ] && [ -f "$d/scripts/keys.py" ] && { KEYS_DIR="$(cd "$d" && pwd)"; break; }
+done
+echo "keys=${KEYS_DIR:-absent}"
 
-# A committed AGENTS.md symlink pointing at a gitignored CLAUDE.md dangles for
-# everyone who clones the repo, which is a confusing way to find out.
-if [ "$IS_GIT" -eq 1 ] && git check-ignore -q CLAUDE.md 2>/dev/null; then
-  echo "claude_md_gitignored=yes (AGENTS.md symlinks will dangle on a fresh clone)"
-else
-  echo "claude_md_gitignored=no"
+TREE="$(python3 "$SCRIPT_DIR/core.py" check --root . 2>/dev/null)"
+printf '%s\n' "$TREE"
+
+KEYS_ERRORS=0
+if [ -n "$KEYS_DIR" ]; then
+  KC="$(python3 "$KEYS_DIR/scripts/keys.py" check --root . 2>/dev/null | tail -1)"
+  echo "keys_check=${KC#keys check: }"
+  KEYS_ERRORS="$(printf '%s' "$KC" | grep -Eo '[0-9]+ errors' | cut -d' ' -f1)"
 fi
 
 # --- undocumented boundaries ----------------------------------------------
@@ -128,18 +143,18 @@ echo "candidates:"
 python3 "$SCRIPT_DIR/core.py" boundaries --root . --limit 12 2>/dev/null | sed 's/^/  /'
 
 # --- what to do next -------------------------------------------------------
-CHECK="$(python3 "$SCRIPT_DIR/core.py" check --root . 2>/dev/null)"
-ROOT_STATE="$(printf '%s' "$CHECK" | grep '^core_root=' | cut -d= -f2)"
-# Only missing and broken links need repairing. A reversed pair
-# (CLAUDE.md -> AGENTS.md) is a working setup using the opposite convention, and
-# `core.py link` deliberately leaves it alone -- counting it here would send
-# people to fix a repo that is not broken.
-BROKEN="$(printf '%s' "$CHECK" | grep -Eo 'symlink_(missing|broken)=[0-9]+' | cut -d= -f2 | paste -sd+ - | bc 2>/dev/null || echo 0)"
-CONFLICTS="$(printf '%s' "$CHECK" | grep '^core_conflicts=' | cut -d= -f2)"
-
-if [ "$ROOT_STATE" != "present" ]; then
+# GRAPH_ONLY  agentic:keys is not available: build the graph, skip the tree
+# BOOTSTRAP   keys is available but has never been installed here
+# REPAIR      keys is installed but the tree is unfinished or has drifted:
+#             still unindexed, a CLAUDE.md left to fold, or keys check errors
+# REFRESH     the tree is clean; a keys refresh only if candidates grew
+# graphify_block is not part of the verdict: graph.sh writes that block itself.
+val() { printf '%s\n' "$TREE" | grep "^$1=" | cut -d= -f2; }
+if [ -z "$KEYS_DIR" ]; then
+  echo "verdict=GRAPH_ONLY"
+elif [ "$(val keys_root)" != "present" ]; then
   echo "verdict=BOOTSTRAP"
-elif [ "${BROKEN:-0}" -gt 0 ] || [ "$CONFLICTS" != "none" ]; then
+elif [ "$(val keys_indexed)" != "yes" ] || [ "$(val stray_claude_md)" -gt 0 ] || [ "${KEYS_ERRORS:-0}" -gt 0 ]; then
   echo "verdict=REPAIR"
 else
   echo "verdict=REFRESH"

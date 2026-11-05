@@ -1,6 +1,6 @@
 ---
 name: spec
-description: "Turn vague intent into a precise, executable spec in five strict phases (why, scope, code-grounded technical interrogation, draft review, file), interrogating round by round until an unfamiliar implementer could execute it without a follow-up question, then file it as a GitHub issue with gh or hand back the rendered title and body. Use when asked to spec this out, file an issue, write up a ticket, make this a GitHub issue, or turn this into a backlog item."
+description: "Turn vague intent into a precise, executable spec. Issue mode (default) runs five strict phases (why, scope, code-grounded technical interrogation, draft review, file), interrogating round by round until an unfamiliar implementer could execute it without a follow-up question, then files it as a GitHub issue with gh or hands back the rendered title and body. PRD mode is the faster path: from a feature idea or problem statement to a product requirements document with goals and non-goals, user stories, P0/P1/P2 requirements, success metrics and acceptance criteria. Use when asked to spec this out, file an issue, write up a ticket, make this a GitHub issue, turn this into a backlog item, write a PRD or feature spec, scope a feature with goals and non-goals, define success metrics, or break a big ask into a phased spec."
 allowed-tools: Bash, Read, Grep, Glob, Write, AskUserQuestion
 ---
 
@@ -23,10 +23,47 @@ count. "Improves performance" is not acceptable — state the metric and target.
 **HARD GATE:** Do NOT produce an issue after the first message. Always start with
 Phase 1. Do NOT propose implementation. Your only output is a spec — filed as a
 GitHub issue when `gh` is available, otherwise rendered for the user to paste, and
-optionally archived in the repo.
+optionally archived in the repo. (PRD mode, below, produces a PRD instead.)
 
 The user's first message after this prompt is their initial request. Begin Phase 1
 immediately — do NOT ask them to repeat themselves.
+
+---
+
+## Modes
+
+| Mode | Pick when | Output |
+|------|-----------|--------|
+| **Issue** (default) | Work that will be built next and needs an implementer-ready ticket | A GitHub issue, via the five phases below |
+| **PRD** (`--prd`, or the user asks for a PRD / feature spec) | A product feature still being shaped for stakeholders: goals, users, metrics and phasing matter more than files and schemas | A product requirements document |
+
+### PRD mode
+
+Faster than issue mode: ask the few questions that matter, then write the document and
+iterate on it. Section guidance, user stories, MoSCoW, metrics and Given/When/Then criteria
+are in [references/prd.md](references/prd.md).
+
+1. **Take the input as given** — a feature name, a problem statement, a user request or a
+   vague idea. Do not ask the user to repeat it.
+2. **Gather context conversationally**, most important first, never all at once: the user
+   problem and who has it, target segment, success metrics, constraints (technical,
+   timeline, regulatory, dependencies), prior art. If an MCP connector for a project
+   tracker, knowledge base or design tool is available, pull related tickets, prior specs,
+   research and mockups from it; otherwise work from what the user gave and do not ask them
+   to connect tools.
+3. **Write the PRD**: Problem Statement, Goals (outcomes, not outputs), Non-Goals with
+   rationale, User Stories by persona, Requirements as P0/P1/P2 each with acceptance
+   criteria, leading and lagging Success Metrics with targets and a measurement method,
+   Open Questions tagged with who answers and whether they block, Timeline Considerations.
+   Keep it scannable: a reader of the headers and bold text gets the gist.
+4. **Review and iterate** — ask what needs adjusting; offer follow-ups (a design brief, an
+   engineering breakdown, a stakeholder pitch). Each engineering child that is ready to
+   build becomes an issue-mode spec.
+5. **Before the PRD leaves the conversation** (filed, archived or pasted elsewhere), run
+   Phase 4.5, then file or archive it as in Phase 5.
+
+Be opinionated about scope: if the idea is too big for one spec, phase it and spec the
+first phase. Do not list open questions you can answer from context.
 
 ---
 
@@ -41,9 +78,10 @@ separated tokens starting with `--`. Last flag wins on conflict.
 | `--no-dedupe` | — | Skip the dedupe check. |
 | `--audit` | OFF | Route Phase 5 to the Audit/Cleanup template (instead of Standard). |
 | `--file-only` | OFF | Phase 5: file the issue but do not offer to archive the spec in the repo. |
+| `--prd` | OFF | Run PRD mode (see Modes) instead of the five-phase issue interrogation. |
 
 Echo the parsed flag set back to the user at the start of Phase 1 so they can
-confirm: "Flags: dedupe=ON, audit=OFF, file-only=OFF."
+confirm: "Flags: dedupe=ON, audit=OFF, file-only=OFF, prd=OFF."
 
 ---
 
@@ -522,7 +560,7 @@ Add to the standard template:
   passed the "is this worth building" bar.
 - **After `/spec`:** if the spec describes architectural or design risk that
   needs review before implementation starts, suggest `product:plan-ceo-review`
-  (scope and ambition) or `product:plan-design-review` (UI/UX); `product:devil`
+  (scope and ambition) or `design:plan-design-review` (UI/UX); `product:devil`
   will hunt for what the spec is silent about.
 - **For implementation:** the issue itself is the handoff. The implementer can
   open it and execute without re-asking the user. `dev:create-plan` turns it into

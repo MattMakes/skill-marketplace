@@ -18,7 +18,7 @@ Format:
 
 - Output a single self-contained HTML file which includes CSS and JavaScript. Make the whole thing one long page with section headers and a table of contents. Don't use tabs for the top-level structure. Basic responsive styling so you can view it on a phone is nice too. Save the file in the `docs/` folder at the root of the repository (find the root with `git rev-parse --show-toplevel`; create `docs/` if it does not exist), and make sure the filename always starts with today's date in `YYYY-MM-DD-` format, because it keeps the explainers time-sorted. For example: docs/2026-01-12-explanation-<slug>.html
 - Please write with the clarity and flow of Martin Kleppmann, making it engaging and written in classic style. Transitions between sections should be smooth.
-- Use `code:blueprint` for technical diagrams when available. Read [references/blueprint-diagrams.md](references/blueprint-diagrams.md) for skill discovery, diagram selection, before/after evidence, schema/ERD treatment, and self-contained embedding. Use a small number of reusable diagram families that explain the change, with concrete example data. Simple UI mockups can remain HTML/CSS. If Blueprint is unavailable, continue with inline SVG/HTML figures and disclose the fallback; do not install another plugin automatically.
+- Use `architecture:blueprint` for technical diagrams when available. Read [references/blueprint-diagrams.md](references/blueprint-diagrams.md) for skill discovery, diagram selection, before/after evidence, schema/ERD treatment, and self-contained embedding. Use a small number of reusable diagram families that explain the change, with concrete example data. Simple UI mockups can remain HTML/CSS. If Blueprint is unavailable, continue with inline SVG/HTML figures and disclose the fallback; do not install another plugin automatically.
 - Don't use ASCII diagrams. Use Blueprint's rendered HTML/SVG for technical figures, simple HTML/CSS for UI sketches, and HTML lists for lists.
   - For code blocks, always use `<pre>` tags. If you use a custom styled div instead, it **must** have
     `white-space: pre-wrap` in its CSS, or the browser will collapse all newlines into a single line.
@@ -36,15 +36,15 @@ Before delivery:
 
 Check the page:
 
-- If the `design-system` plugin is installed, measure the final file (after narration, which adds the player) rather than eyeballing it, and fix every failure in the page you wrote before reporting the explainer done. A failure inside the narration player comes from `scripts/player.mjs`: report it, do not hand-edit the generated player.
+- If the `design` plugin is installed, measure the final file (after narration, which adds the player) rather than eyeballing it, and fix every failure in the page you wrote before reporting the explainer done. A failure inside the narration player comes from `scripts/player.mjs`: report it, do not hand-edit the generated player.
 
   ```bash
-  KIT=$(ls -d "${CLAUDE_PLUGIN_ROOT}"/../design-system/shared "${CLAUDE_PLUGIN_ROOT}"/../../design-system/*/shared 2>/dev/null | sort -V | tail -1)
+  KIT=$(ls -d "${CLAUDE_PLUGIN_ROOT}"/../design/shared "${CLAUDE_PLUGIN_ROOT}"/../../design/*/shared 2>/dev/null | sort -V | tail -1)
   for m in "" --dark; do DS_REQUIRE_BROWSER=1 node "$KIT/scripts/measure_render.mjs" $m <file.html>; DS_REQUIRE_BROWSER=1 node "$KIT/scripts/axe_audit.mjs" <file.html> $m; done
   DS_REQUIRE_BROWSER=1 node "$KIT/scripts/verify_keyboard.mjs" <file.html>
   ```
 
-  A gate that cannot find a browser fails here instead of printing SKIPPED; say the page is unmeasured rather than calling it accessible. Without the `design-system` plugin, skip this step and say so.
+  A gate that cannot find a browser fails here instead of printing SKIPPED; say the page is unmeasured rather than calling it accessible. Without the `design` plugin, skip this step and say so.
 
 Narration:
 

@@ -164,7 +164,7 @@ Redact before values enter the logger, tracer, exception, or model context. Add 
 ## When NOT to Use
 
 - Use `security:security-and-hardening` or `security:security-best-practices` for ordinary application authentication, authorization, SQL injection, XSS, CSRF, and API security.
-- Use `code:security-sweep` for repository-wide automated vulnerability scanning.
+- Use `security:security-sweep` for repository-wide automated vulnerability scanning.
 - Use infrastructure-specific guidance for host, container, firewall, or cloud hardening.
 - Do not use this skill for penetration testing, exploit development, or unauthorized access.
 
@@ -172,4 +172,4 @@ Redact before values enter the logger, tracer, exception, or model context. Add 
 
 - `security:security-and-hardening`
 - `security:mcp-dependency-review`
-- `code:security-sweep`
+- `security:security-sweep`

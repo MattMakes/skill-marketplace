@@ -1,6 +1,7 @@
 ---
 name: debug
-description: Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes
+description: Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes. Also use when the user says "diagnose" or "debug this", or reports something broken, throwing, failing or slow; a diagnosis-loop mode handles hard bugs and performance regressions.
+license: MIT
 ---
 
 # Systematic Debugging
@@ -42,6 +43,15 @@ Use for ANY technical issue:
 - Issue seems simple (simple bugs have root causes too)
 - You're in a hurry (rushing guarantees rework)
 - Manager wants it fixed NOW (systematic is faster than thrashing)
+
+## Modes
+
+| Mode | Pick it when | Steps |
+|---|---|---|
+| **Systematic** (default) | Any bug, test failure or build break you can reach with a test or a log | The Four Phases below |
+| **Hard bug / performance regression** | The bug is intermittent, hard to reproduce, spans an environment you can't see, or something got slower; or one pass of the Four Phases left you without a root cause | `references/diagnosis-loop.md`: build a tight, red-capable feedback loop first, then reproduce and minimise, rank 3–5 falsifiable hypotheses, instrument with tagged logs (or measure, for perf), fix behind a regression test at a correct seam, clean up |
+
+The hard-bug mode replaces Phases 1–3 with a heavier loop; the Iron Law, the red flags and the 3-failed-fixes rule hold in both modes. For a human-driven repro it ships `scripts/hitl-loop.template.sh`.
 
 ## The Four Phases
 
@@ -282,10 +292,11 @@ These techniques are part of systematic debugging and available in this director
 - **`root-cause-tracing.md`** - Trace bugs backward through call stack to find original trigger
 - **`defense-in-depth.md`** - Add validation at multiple layers after finding root cause
 - **`condition-based-waiting.md`** - Replace arbitrary timeouts with condition polling
+- **`references/diagnosis-loop.md`** - The hard-bug / performance-regression mode
 
 **Related skills:**
 - **tdd** - For creating failing test case (Phase 4, Step 1)
-- **the Verification Gate section in `dev:execute-plan` or `dev:check-implementation`** - Verify fix worked before claiming success
+- **`dev:verification-before-completion`** - Verify fix worked before claiming success: fresh verification evidence, not memory of an earlier run
 
 ## Real-World Impact
 

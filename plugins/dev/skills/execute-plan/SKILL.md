@@ -43,7 +43,7 @@ Load an implementation plan, verify it against the codebase, execute tasks in co
 
 ### Single File Mode
 When given a single plan file:
-- Load the plan, run `tools:pre-flight`, and execute tasks in batches
+- Load the plan, run `dev:pre-flight`, and execute tasks in batches
 
 ### Directory Mode
 When given a directory containing multiple plan files:
@@ -405,7 +405,7 @@ Code reviewer: ✅ Approved
 ...
 
 [After all tasks]
-[Dispatch final dev:code-reviewer]
+[Dispatch final verify:code-reviewer]
 Final reviewer: All requirements met, ready to merge
 
 Done!
@@ -482,9 +482,9 @@ Done!
 
 1. Read the plan file completely
 2. Check for any existing checkmarks (`- [x]`) indicating prior progress
-3. If no prior progress: run pre-flight verification (use the `tools:pre-flight` skill)
-4. If the `tools:pre-flight` verdict is **HOLD**: report issues to user. Do not proceed.
-5. If the `tools:pre-flight` verdict is **CLEAR**: continue to execution
+3. If no prior progress: run pre-flight verification (use the `dev:pre-flight` skill)
+4. If the `dev:pre-flight` verdict is **HOLD**: report issues to user. Do not proceed.
+5. If the `dev:pre-flight` verdict is **CLEAR**: continue to execution
 6. Read all files mentioned in the plan to understand context — read files fully, never use limit/offset
 7. If concerns: raise them before starting
 8. If no concerns: create a todo list and proceed
@@ -494,7 +494,7 @@ Done!
 If the plan has existing checkmarks:
 - Trust that completed work is done
 - Pick up from the first unchecked item
-- Skip `tools:pre-flight` (prior execution already passed it)
+- Skip `dev:pre-flight` (prior execution already passed it)
 
 ### 3. Map Dependencies and Batch
 
@@ -707,7 +707,7 @@ Set {plan_path} and {task_id} to the same values.
 
 **d. If spec reviewer verdict is FAIL:** create fix tasks for each failed requirement. Do not proceed to next task until fixed.
 
-**e. If spec reviewer verdict is PASS:** dispatch code quality reviewer (optional — use code-quality-reviewer-prompt.md or `dev:code-reviewer` agent). Proceed regardless of code quality findings (they are advisory, not blocking).
+**e. If spec reviewer verdict is PASS:** dispatch code quality reviewer (optional — use code-quality-reviewer-prompt.md or `verify:code-reviewer` agent). Proceed regardless of code quality findings (they are advisory, not blocking).
 
 **Never mark a task complete based on a subagent's report alone. Do not trust. Verify.**
 
@@ -741,7 +741,7 @@ If instructed to execute multiple phases consecutively, skip the pause until the
 
 ### Code Review After Tasks
 
-Dispatch `dev:code-reviewer` subagent to catch issues before they cascade.
+Dispatch `verify:code-reviewer` subagent to catch issues before they cascade.
 
 **Core principle:** Review early, review often.
 
@@ -765,9 +765,9 @@ BASE_SHA=$(git rev-parse HEAD~1)  # or origin/main
 HEAD_SHA=$(git rev-parse HEAD)
 ```
 
-**2. Dispatch dev:code-reviewer subagent:**
+**2. Dispatch verify:code-reviewer subagent:**
 
-Use Task tool with `dev:code-reviewer` type, fill template at `code-reviewer.md` in this directory
+Use Task tool with `verify:code-reviewer` type, fill template at `code-reviewer.md` in this directory
 
 **Placeholders:**
 - `{WHAT_WAS_IMPLEMENTED}` - What you just built
@@ -792,7 +792,7 @@ You: Let me request code review before proceeding.
 BASE_SHA=$(git log --oneline | grep "Task 1" | head -1 | awk '{print $1}')
 HEAD_SHA=$(git rev-parse HEAD)
 
-[Dispatch dev:code-reviewer subagent]
+[Dispatch verify:code-reviewer subagent]
   WHAT_WAS_IMPLEMENTED: Verification and repair functions for conversation index
   PLAN_OR_REQUIREMENTS: Task 2 from ai_docs/plans/deployment-plan.md
   BASE_SHA: a7981ec
@@ -1172,9 +1172,9 @@ git worktree remove <worktree-path>
 
 ## Integration
 
-- Pre-flight runs automatically as step 1 (uses the `tools:pre-flight` skill)
+- Pre-flight runs automatically as step 1 (uses the `dev:pre-flight` skill)
 - Use the Verification Gate section above before any completion claims
-- Use `dev:code-reviewer` agent for code quality reviews
+- Use `verify:code-reviewer` agent for code quality reviews
 - Sub-agent prompt templates are in this skill's directory:
   - `implementer-prompt.md` — for dispatching implementation sub-agents
   - `spec-reviewer-prompt.md` — for spec compliance review

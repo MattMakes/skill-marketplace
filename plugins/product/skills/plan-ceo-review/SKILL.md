@@ -764,7 +764,7 @@ Evaluate:
 **Decision gate.** Complete Analyze → Resolve → Apply above for this section before continuing.
 
 ### Section 11: Design & UX Review (skip if no UI scope detected)
-The CEO calling in the designer. Not a pixel-level audit — that's `product:plan-design-review`. This is ensuring the plan has design intentionality.
+The CEO calling in the designer. Not a pixel-level audit — that's `design:plan-design-review`. This is ensuring the plan has design intentionality.
 
 Evaluate:
 * Information architecture — what does the user see first, second, third?
@@ -782,7 +782,7 @@ Evaluate:
 
 Required ASCII diagram: user flow showing screens/states and transitions.
 
-If this plan has significant UI scope, recommend: "Consider running product:plan-design-review for a deep design review of this plan before implementation."
+If this plan has significant UI scope, recommend: "Consider running design:plan-design-review for a deep design review of this plan before implementation."
 
 **Post-Implementation Design Audit (if UI scope detected):** After implementation, review the rendered UI (screenshots or a live session) to catch visual issues that can only be evaluated with rendered output.
 **Decision gate.** Complete Analyze → Resolve → Apply above for this section before continuing.
@@ -982,15 +982,15 @@ blocked**; skip the next-skill handoff.
 
 After publishing the summary, recommend the next review(s) based on what this CEO review discovered.
 
-**Recommend `product:plan-design-review` if UI scope was detected** — specifically if Section 11 (Design & UX Review) was NOT skipped, or if accepted scope expansions included UI-facing features. In SCOPE REDUCTION mode, skip this recommendation — design review is unlikely relevant for scope cuts.
+**Recommend `design:plan-design-review` if UI scope was detected** — specifically if Section 11 (Design & UX Review) was NOT skipped, or if accepted scope expansions included UI-facing features. In SCOPE REDUCTION mode, skip this recommendation — design review is unlikely relevant for scope cuts.
 
-**Recommend the engineering gate otherwise** — `dev:create-plan` to turn the reviewed scope into an implementation plan, then `tools:pre-flight` to catch wiring, contract and configuration gaps in that plan before execution. If this CEO review expanded scope or changed architectural direction, emphasize that the implementation plan must be rewritten, not patched.
+**Recommend the engineering gate otherwise** — `dev:create-plan` to turn the reviewed scope into an implementation plan, then `dev:pre-flight` to catch wiring, contract and configuration gaps in that plan before execution. If this CEO review expanded scope or changed architectural direction, emphasize that the implementation plan must be rewritten, not patched.
 
 **If both are needed, recommend the engineering gate first**, then design review.
 
 Use AskUserQuestion to present the next step. Include only applicable options:
 - **A)** Run `dev:create-plan` next (implementation plan from the reviewed scope)
-- **B)** Run `product:plan-design-review` next (only if UI scope detected)
+- **B)** Run `design:plan-design-review` next (only if UI scope detected)
 - **C)** Skip — I'll handle reviews manually
 
 On A or B, invoke the chosen skill via the Skill tool, pointing it at the working plan and (when written) the CEO summary.

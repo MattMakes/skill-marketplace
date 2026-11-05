@@ -98,9 +98,11 @@ npm test 2>&1 | grep 'DEBUG git init'
 
 If something appears during tests but you don't know which test:
 
-Use the bisection script `find-polluter.ts` in this directory:
+Use a bisection script in this directory: `find-polluter.sh` (bash, no dependencies) or
+`find-polluter.ts` (cross-platform; needs `tsx` and the `glob` package):
 
 ```bash
+./find-polluter.sh '.git' 'src/**/*.test.ts'
 npx tsx find-polluter.ts '.git' 'src/**/*.test.ts'
 ```
 

@@ -746,4 +746,4 @@ spec:
 
 - `ops:docker-development` — Multi-stage Dockerfiles and image security
 - `ops:deployment-pipeline-design` — CI/CD pipelines, rollback strategy, health check endpoints
-- `code:security-sweep` — Broader security hardening context
+- `security:security-sweep` — Broader security hardening context

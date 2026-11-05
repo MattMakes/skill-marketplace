@@ -353,7 +353,7 @@ CI=true vitest run --coverage
 
 ## Related
 
-- `tools:test-driven-development` — the red/green/refactor discipline behind the TDD Workflow above
+- `dev:tdd` — the red/green/refactor discipline behind the TDD Workflow above
 - `verify:playwright-pro` — Playwright E2E and component-level browser tests
 
 ## Examples

@@ -7,7 +7,7 @@ Use this template when dispatching a code quality reviewer subagent.
 **Only dispatch after spec compliance review passes.**
 
 ```
-Task tool (subagent_type: dev:code-reviewer):
+Task tool (subagent_type: verify:code-reviewer):
   description: "Review code quality for Task N"
 
   WHAT_WAS_IMPLEMENTED: [from implementer's report]

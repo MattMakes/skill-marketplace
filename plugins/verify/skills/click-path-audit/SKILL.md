@@ -194,7 +194,7 @@ Agent 1 MUST complete first. Its output is input for all other agents.
 
 ## When NOT to Use
 
-- For API-level bugs (wrong response shape, missing endpoint) — use `tools:systematic-debugging`
+- For API-level bugs (wrong response shape, missing endpoint) — use `dev:debug`
 - For styling/layout issues — visual inspection
 - For performance issues — profiling tools
 
@@ -202,9 +202,9 @@ Agent 1 MUST complete first. Its output is input for all other agents.
 
 ## Integration with Other Skills
 
-- Run AFTER `tools:systematic-debugging` (which finds the other 54 bug types)
+- Run AFTER `dev:debug` (which finds the other 54 bug types)
 - Run BEFORE `verify:verify-feature` (which verifies fixes work at the real surface)
-- Feeds into `tools:test-driven-development` — every bug found here should get a test
+- Feeds into `dev:tdd` — every bug found here should get a test
 
 ---
 

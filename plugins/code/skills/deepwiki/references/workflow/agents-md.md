@@ -21,7 +21,6 @@ Generate `AGENTS.md` files for the pertinent folders of a repository — and **o
 | Path | Description |
 |------|-------------|
 | `{folder}/AGENTS.md` | Agent instructions for that folder — written only if absent |
-| `{folder}/CLAUDE.md` | Companion pointer to `AGENTS.md` — written only if absent |
 
 ## Critical Guard: Only Generate If Missing
 
@@ -38,7 +37,9 @@ ls "{folder}/AGENTS.md" 2>/dev/null
 - Exists → **skip it**. Report: `AGENTS.md already exists at {folder} — skipping`.
 - Does not exist → generate.
 
-The check runs **independently for every folder**, and independently for the `CLAUDE.md` companion. This is non-negotiable.
+The check runs **independently for every folder**. This is non-negotiable.
+
+**AGENTS.md is the only instruction file.** Do not write a `CLAUDE.md`, and do not create a symlink between the two. This follows the marketplace's instruction-file model, which `agentic:keys` owns.
 
 ## Workflow
 
@@ -251,19 +252,9 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/deepwiki/scripts/validate_mermaid.py --inpu
 - Onboarding: `onboarding/` — four audience-tailored guides
 ```
 
-### 5. Generate the CLAUDE.md Companion
+### 5. Hand the Tree to `agentic:keys`
 
-Wherever you write an `AGENTS.md`, also write a `CLAUDE.md` in the same folder — **only if `CLAUDE.md` does not already exist**. This redirects Claude Code (and anything else that looks for `CLAUDE.md`) to the authoritative instructions.
-
-The content is always exactly:
-
-```markdown
-# CLAUDE.md
-
-<!-- Generated for repository development workflows. Do not edit directly. -->
-
-Before beginning work in this repository, read `AGENTS.md` and follow all scoped AGENTS guidance.
-```
+Do not write a `CLAUDE.md` companion. If the `agentic` plugin is installed, run `agentic:keys` after this phase: it indexes each new `AGENTS.md` in its parent's child index, and it folds any existing `CLAUDE.md` or other agent-instruction file into the `AGENTS.md` that owns it. If `agentic` is not installed, say in the report that the new files are not indexed.
 
 ### 6. Validate Before Writing
 
@@ -283,13 +274,10 @@ For each file, confirm:
 
 ### Created
 - `./AGENTS.md` — Root project instructions
-- `./CLAUDE.md` — Companion pointer to AGENTS.md
 - `tests/AGENTS.md` — Test harness instructions
-- `tests/CLAUDE.md` — Companion pointer to AGENTS.md
 
 ### Skipped (already exist)
 - `src/AGENTS.md` — already exists
-- `src/CLAUDE.md` — already exists
 
 ### Not applicable
 - `dist/` — generated output
@@ -309,6 +297,7 @@ For each file, confirm:
 ## Anti-Patterns
 
 - ❌ **Overwriting an existing `AGENTS.md`** — the cardinal sin of this phase
+- ❌ **Writing a `CLAUDE.md` or a symlink** — `AGENTS.md` is the only instruction file; `agentic:keys` folds the others
 - ❌ **"You are a helpful coding assistant"** — describes feelings, not actions
 - ❌ **Generic boilerplate** — content that would fit any repo tells an agent nothing
 - ❌ **Invented commands or paths** — every one must reference something real

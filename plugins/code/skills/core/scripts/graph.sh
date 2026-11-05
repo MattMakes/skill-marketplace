@@ -12,6 +12,10 @@
 #   --label     one-off: name communities with the configured backend (costs a
 #               couple of model calls, makes GRAPH_REPORT.md far more readable)
 #   --no-hooks  skip git hook + Claude Code hook installation
+#
+# `graphify claude install` writes its instructions into CLAUDE.md. Under the
+# AGENTS.md-only model (agentic:keys), step 4 moves them into a marked block in
+# the root AGENTS.md and removes what graphify left in CLAUDE.md.
 
 set -uo pipefail
 
@@ -28,6 +32,8 @@ while [ $# -gt 0 ]; do
   esac
 done
 
+# Resolved before the cd, so a relative invocation path still finds core.py.
+SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT" || { echo "graph.sh: cannot enter $ROOT" >&2; exit 2; }
 ROOT_ABS="$(pwd)"
 
@@ -111,7 +117,7 @@ if [ "$HOOKS" -eq 1 ]; then
     # Bash/Grep sweep or a run of one-by-one Reads. This is where the ongoing
     # saving actually comes from: the graph only pays for itself if it gets
     # consulted instead of grep.
-    graphify claude install --project 2>&1 | grep -E 'skill installed|PreToolUse|CLAUDE.md' | sed 's/^/  claude: /'
+    graphify claude install --project 2>&1 | grep -E 'skill installed|PreToolUse' | sed 's/^/  claude: /'
   else
     say "  claude: query-first hooks already registered"
   fi
@@ -129,18 +135,11 @@ if ! grep -qs '^graphify-out/cost.json' .gitignore; then
   say "  gitignore: added graphify-out/cost.json and .graphify_root"
 fi
 
-# Vendor core.py into the repo. The CORE contract written into CLAUDE.md
-# outlives this skill invocation: a teammate, a Codex run, or this same repo
-# next session without the plugin installed will read "run core.py index" and
-# have no way to resolve it, because ${CLAUDE_PLUGIN_ROOT} only means anything
-# while the skill is executing. Copying it in makes the repo self-contained, the
-# same way graphify-out/ is meant to be.
-SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-mkdir -p .claude/core
-if ! cmp -s "$SELF_DIR/core.py" .claude/core/core.py; then
-  cp "$SELF_DIR/core.py" .claude/core/core.py
-  say "  core: vendored core.py -> .claude/core/core.py"
-fi
+# graphify's instructions go in the root AGENTS.md, inside
+# <!-- GRAPHIFY:begin --> ... <!-- GRAPHIFY:end -->, never in CLAUDE.md. Runs on
+# every prime because `graphify claude install` (here or by hand) rewrites the
+# CLAUDE.md section. Idempotent.
+python3 "$SELF_DIR/core.py" graphify-block --root . 2>&1 | sed 's/^/  agents: /'
 
 python3 - "$ROOT_ABS/graphify-out/graph.json" <<'PY'
 import json, sys

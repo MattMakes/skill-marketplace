@@ -7,7 +7,7 @@ description: Establishes a project's quality bar as a written contract and stops
 
 ## Overview
 
-Other skills describe what good looks like. A code-review skill gives you axes to judge by. `tools:test-driven-development` gives you a cycle. `security:security-and-hardening` gives you a threat list. All of that lives in prose the agent reads and may or may not follow, and none of it survives the end of the session.
+Other skills describe what good looks like. A code-review skill gives you axes to judge by. `dev:tdd` gives you a cycle. `security:security-and-hardening` gives you a threat list. All of that lives in prose the agent reads and may or may not follow, and none of it survives the end of the session.
 
 This skill produces something different: a written record of **this project's** bar, with numbers, that outlives the conversation and can be checked mechanically.
 
@@ -304,7 +304,7 @@ The skill was applied correctly when:
 ## See Also
 
 - `product:interview-me` — the one-question-at-a-time discipline this skill's intake borrows
-- `tools:test-driven-development` — the suite that coverage and mutation constraints measure
+- `dev:tdd` — the suite that coverage and mutation constraints measure
 - `security:security-and-hardening` — what the security dimension should contain
 - `craft:performance-optimization` — where the performance numbers come from
 - Code review decides how to review; this skill decides what the review enforces. CI builds the pipeline these constraints run in.

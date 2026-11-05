@@ -166,9 +166,9 @@ Exact direct dependency pins do not prove full transitive reproducibility, safe 
 
 ## Related Skills
 
-- `meta:mcp-builder` — MCP server design, tools, resources, prompts, and transports.
+- `agentic:mcp-builder` — MCP server design, tools, resources, prompts, and transports.
 - `security:security-and-hardening` — broader application-security checklist.
-- `code:security-sweep` — broader security scanning workflow.
+- `security:security-sweep` — broader security scanning workflow.
 
 ## Further Reading
 

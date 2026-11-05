@@ -418,7 +418,7 @@ If a prior design for the same topic exists, the new doc gets a `Supersedes:` fi
 **Decision-record concision.** The doc is a decision record, not a transcript: one bullet per decision with its why; an approach the user ruled out DURING the session gets one line (name + rejection reason), never a resurrected full section that re-argues the case; omit template sections that are empty or that restate what's already settled. No page cap — extra length must come from genuinely open questions, not template completeness.
 
 After writing, tell the user:
-**"Design doc saved to: docs/designs/{topic-slug}.md. Other skills (product:plan-ceo-review, product:plan-design-review) will find it there."**
+**"Design doc saved to: docs/designs/{topic-slug}.md. Other skills (product:plan-ceo-review, design:plan-design-review) will find it there."**
 
 ### Startup mode design doc template:
 
@@ -651,7 +651,7 @@ Offer via AskUserQuestion:
 > You just wrote a design doc. The natural next step is a structured review that catches scope and architecture problems before you build. I can launch it right now, or you can run it later yourself.
 >
 > A) Run `product:plan-ceo-review` now — pressure-tests ambition and scope, finds the 10-star version of the product (recommended for EXPANSION / ambitious designs)
-> B) Run `product:plan-design-review` now — catches visual/UX problems while they are still cheap plan-stage changes (recommended for visual/UX-heavy designs; little value for backend-only work)
+> B) Run `design:plan-design-review` now — catches visual/UX problems while they are still cheap plan-stage changes (recommended for visual/UX-heavy designs; little value for backend-only work)
 > C) Run `dev:create-plan` now — turns the approved design into an implementation plan (recommended for well-scoped designs ready to build)
 > D) Not now — I'll run a review later
 

@@ -1,6 +1,7 @@
 # Third-party notices
 
-Every skill in this plugin is a copy of an upstream skill, taken at the commit below and kept
+Every skill in this plugin except `server-component-rules` (first-party, moved here from `dev` in
+the v3 taxonomy; its skill file names no upstream) is a copy of an upstream skill, taken at the commit below and kept
 under its upstream license. Where the upstream repository is itself a mirror of another
 project's skill, the original project is named as the author.
 
@@ -27,8 +28,8 @@ project's skill, the original project is named as the author.
 | `boost-asio-pro` | [alirezarezvani/claude-skills · engineering/boost-asio-pro](https://github.com/alirezarezvani/claude-skills/tree/19392f7/engineering/boost-asio-pro) | `19392f7` (2026-08-26) | MIT (repo LICENSE) | Alireza Rezvani; its worked examples link to alexprivalov/boost-asio-skill |
 | `remotion-best-practices` | [exiao/skills · design/remotion](https://github.com/exiao/skills/tree/7d2be64/design/remotion) | `7d2be64` (2026-07-27) | MIT (exiao README); upstream license not verified in the mirror | Remotion, mirrored from remotion-dev/skills |
 | `postgresql-table-design` | [wshobson/agents · plugins/database-design/skills/postgresql-table-design](https://github.com/wshobson/agents/tree/46891e7/plugins/database-design/skills/postgresql-table-design) | `46891e7` (2026-10-04) | MIT (repo LICENSE) | Seth Hobson |
-| `saga-orchestration` | [wshobson/agents · plugins/backend-development/skills/saga-orchestration](https://github.com/wshobson/agents/tree/46891e7/plugins/backend-development/skills/saga-orchestration) | `46891e7` (2026-10-04) | MIT (repo LICENSE) | Seth Hobson |
 | `dotnet-backend-patterns` | [wshobson/agents · plugins/dotnet-contribution/skills/dotnet-backend-patterns](https://github.com/wshobson/agents/tree/46891e7/plugins/dotnet-contribution/skills/dotnet-backend-patterns) | `46891e7` (2026-10-04) | MIT (repo LICENSE) | Seth Hobson |
+| `typescript-best-practices` | [cursor/plugins pstack/skills/typescript-best-practices](https://github.com/cursor/plugins/tree/9d76bca/pstack/skills/typescript-best-practices) | `9d76bca` | MIT | Lauren Tan |
 
 ## Changes made here
 
@@ -45,5 +46,10 @@ Every skill keeps its upstream `name` and had non-standard frontmatter keys remo
 - `prisma-patterns`, `database-migrations`, `cpp-coding-standards`: `metadata.origin` removed (attribution lives here). `prisma-patterns`' Related Skills now point at `stack:postgres-best-practices` and `stack:database-migrations`; `nestjs-patterns` and `backend-patterns` are not vendored and were dropped.
 - `motion-foundations`, `motion-patterns`, `motion-advanced`: `tags`, `category` and `author` frontmatter keys removed (author kept under `metadata`); sibling references rewritten from `motion-x` to `stack:motion-x`.
 - `boost-asio-pro`: the Cross-References section naming three unvendored upstream skills was removed. Links to the worked examples on GitHub stay.
-- `saga-orchestration`: the Related Skills section (three unvendored upstream skills) was removed; "see Template 3 above" now says "in `references/details.md`", where upstream had already moved the templates. The same two unvendored skill names were dropped from the "See Also" list at the end of `references/advanced-patterns.md`.
 - `remotion-best-practices`, `postgresql-table-design`, `dotnet-backend-patterns`, `motion-*` content, `cpp-coding-standards`, `database-migrations`: content unchanged.
+- `typescript-best-practices`: `disable-model-invocation: true` was removed from the frontmatter
+  (upstream set it for Cursor's `poteto-mode` router, not vendored; in Claude Code the flag hides
+  the skill from the model); the Cursor-only `paths:` glob key moved under `metadata:`;
+  principle references repointed in `SKILL.md` and `references/patterns.md` (to `pstack:` names,
+  now `craft:` names). The upstream folder's MIT license is reproduced as `LICENSE-pstack.txt`.
+  Moved here from the `pstack` plugin in the v3 taxonomy (2026-11-05).

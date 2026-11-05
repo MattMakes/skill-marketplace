@@ -29,7 +29,7 @@ Evaluate the user's request and current project state. **Select EXACTLY ONE path
 
 1. **Runtime Discovery**: Instruct the user to start the legacy service locally or in dev. Ask them to execute a representative request against the core endpoints and paste the raw request/response/headers and startup logs.
 2. **Credential Tracing**: Ask: *"Where does each external credential come from at runtime? (e.g., KeyVault, secrets manager, SQL proc, env vars? Are there expiring certs or proxy configurations?)"*
-3. **Endpoint Parity**: Instruct the user to run `dev:trace --parity <old_dir> <new_dir>` to baseline behavioral invariants. If the new dir doesn't exist yet, trace the old codebase first.
+3. **Endpoint Parity**: Instruct the user to run `code:trace --parity <old_dir> <new_dir>` to baseline behavioral invariants. If the new dir doesn't exist yet, trace the old codebase first.
 4. **Infrastructure Dependencies**: Ask: *"What infrastructure must the service connect to at startup? (databases, caches, message queues, cert stores, config providers)"*
 
 🛑 **PROGRESSIVE DISCLOSURE GATE:** STOP HERE. Do not present any architecture or design. Wait for the user to provide this runtime evidence before proceeding to the design phases below. If they cannot run the old service, document what is unknown and flag it as high-risk.
@@ -82,7 +82,7 @@ Evaluate the user's request and current project state. **Select EXACTLY ONE path
 - For each flow, write the **empty, loading, error and success** paths, and what each error tells the user to do next
 - Name every custom control (listbox, combobox, dialog, tabs) and its keyboard behaviour, and every destructive action and how it is confirmed
 - Say where the values come from: the project's existing tokens and theme, or new ones the design introduces
-- If the `design-system` plugin is installed, `/design-system:grill-me` closes the brief's open visual questions, and `design-system:design-screen` or `design-system:design-component` builds from this design afterwards
+- If the `design` plugin is installed, `/product:grilling` (design-brief mode) closes the brief's open visual questions, and `design:design-screen` or `design:design-component` builds from this design afterwards
 
 **Presenting the design — Part 2: Preservation Analysis (for rewrites/migrations):**
 - If modifying or replacing existing code (`[Path A]` or `[Path B]`), this section is MANDATORY
@@ -155,7 +155,7 @@ YAGNI ruthlessly — remove unnecessary features from all designs.
 - Ask: "Ready to set up for implementation?"
 - Create a feature branch if not already on one
 - Use `dev:create-plan` to create the implementation plan
-- Then use `tools:pre-flight` to verify the plan before executing
+- Then use `dev:pre-flight` to verify the plan before executing
 - Finally use `dev:execute-plan @plan.md` or `dev:swarm` to implement
 
 ## Key Principles

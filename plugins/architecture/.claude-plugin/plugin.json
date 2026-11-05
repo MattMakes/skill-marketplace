@@ -1,0 +1,26 @@
+{
+  "name": "architecture",
+  "displayName": "Architecture",
+  "version": "1.0.0",
+  "description": "How should the system be shaped? ddd runs the nine-step DDD Starter Modelling Process (understand, discover, decompose, strategize, connect, organise, define, code, contracts) over one ddd/ workspace with validators, a review page and recorded decisions, advised by the ddd-decision-strategist agent; domain-modeling is the light mode for an existing codebase. Module design: codebase-design, improve-codebase-architecture, improve, architect. Decisions: architecture-decision-records. Contracts: contract-first, api-design-principles, saga-orchestration. Diagrams: Blueprint renders validated architecture, workflow, sequence, data-flow and lifecycle diagrams as explorable HTML; drawio writes editable .drawio files. The DDD and Blueprint tools require Node.js 18 or newer. Vendored skills are credited in NOTICE.md.",
+  "author": {
+    "name": "Matt Scott"
+  },
+  "license": "MIT",
+  "keywords": [
+    "architecture",
+    "ddd",
+    "domain-driven-design",
+    "eventstorming",
+    "bounded-context",
+    "domain-modeling",
+    "adr",
+    "api-design",
+    "contract-first",
+    "saga",
+    "blueprint",
+    "diagrams",
+    "drawio",
+    "modules"
+  ]
+}

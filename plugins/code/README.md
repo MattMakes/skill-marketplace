@@ -1,130 +1,117 @@
 # code — Code Intelligence
 
-Design a system, understand an existing codebase, explain a change, or verify the implementation.
-
-## Start here
-
-| What you want to do | Invoke |
-|---|---|
-| Design a system with DDD, resume a model, or find the next modelling step | `code:ddd` |
-| Draw or animate an architecture, sequence, workflow, data flow, or schema relationship | `code:blueprint` |
-| Understand an unfamiliar repository | `code:core` |
-| Set up AGENTS.md instructions that stay current | `code:keys` |
-| Understand a diff, branch, or PR | `code:explain-diff` |
-| Document or verify implementation | `code:deepwiki`, `code:e2e-harness`, `code:security-sweep`, `code:complexity-sweep` |
-
-`ddd` is the DDD kickoff; it routes to nine focused step skills and keeps the workspace and validation gates consistent. See the [DDD guide](docs/ddd.md) for the full process. Blueprint is independently invocable and also supplies diagrams to DDD and explain-diff. There is one renderer in `skills/blueprint`.
-
-Migrating from the old `ddd` plugin: install/update `code@skill-marketplace`, then remove the old `ddd` plugin to avoid duplicate DDD skills. Invoke `code:ddd` in place of `ddd:ddd-workflow`; step and agent names now use the `code:` namespace. Existing project `ddd/` workspaces and their JSON formats are unchanged.
+What does this existing code do? Seven skills and three agents for understanding a codebase
+you did not write, or wrote long enough ago: prime it once into a code graph, trace and research
+it, find out why it is shaped the way it is, document it, and explain a change to someone who was
+not there. **Start with `core`** in any repository you will touch more than once.
 
 ```bash
 claude plugin install code@skill-marketplace
 ```
 
+## Skills
+
+### Prime
+
+| Skill | Use it when |
+|---|---|
+| `core` | Starting work in an unfamiliar or large repository, or after a big merge or refactor. Builds a deterministic, zero-token code knowledge graph with graphify, hands the `AGENTS.md` instruction tree to `agentic:keys`, then reads only what neither layer answers. Quick mode, from the former `dev:prime`: no graph, reads the manifests, entry points and at most 15–20 key files for the project type, writes nothing. |
+
+### Investigate
+
+| Skill | Use it when |
+|---|---|
+| `research-codebase` | A question about the codebase needs a written answer: documents the code as it is, without critique, by fanning out to the three agents below and synthesizing their findings into `ai_docs/research/`. |
+| `trace` | You need the business logic behind an entry point (API route, function, class, event handler, background job): traces upstream and downstream and writes it in plain prose to `ai_docs/trace/`. `--parity <old> <new>` sweeps two implementations for behavioural parity. |
+| `why` | "Why does X work this way", design rationale, regressions, postmortems, data-backed thresholds. Anchors in `git`/`gh`, spawns one investigator per connected evidence source (issue tracker, docs, chat, observability, error tracking, warehouse), then a synthesizer bound to a five-tier confidence framework. Not for how the code works at runtime. |
+
+### Document
+
+| Skill | Use it when |
+|---|---|
+| `deepwiki` | Generating, validating or maintaining a wiki for a codebase: a `toc.json`, one page per topic, every claim cited as `file:line`, Mermaid diagrams linted before they are accepted. Also onboarding guides, `AGENTS.md`, `llms.txt`, a changelog, an incremental sync after code changes, cited answers about an unfamiliar repo, and a VitePress site. Brownfield mode, from the former `dev:document-project`: one architecture document for agents about to change an existing system (real patterns, debt, workarounds, constraints), scoped to a PRD or feature. |
+| `code-tour` | An onboarding, architecture, PR, RCA or security walkthrough as a VS Code CodeTour `.tour` file: persona-to-depth table, verified file and line anchors, step types, the `ref`-field PR-branch gotcha. |
+
+### Explain a change
+
+| Skill | Use it when |
+|---|---|
+| `explain-diff` | Someone needs to understand a diff, branch or PR. Writes one self-contained HTML page with background, intuition, a code walkthrough and an interactive quiz, with diagrams from `architecture:blueprint` (inline SVG/HTML when Blueprint is not installed), and narrates itself when the local text-to-speech service is running. |
+
+### Agents
+
+Addressed as `code:<name>`. All three are read-only.
+
+| Agent | Does |
+|---|---|
+| `codebase-locator` | Finds where files, directories and components live. A "super Grep/Glob/LS". |
+| `codebase-analyzer` | Explains how specific code works, with `file:line` references. |
+| `codebase-pattern-finder` | Finds existing implementations and usage examples to model new work on, with the code. |
+
 ---
 
-# `core` — prime once, stay primed
+## `core` — prime once, stay primed
 
-Replaces the read-everything-again ritual at the start of a session with two
-artefacts that outlive it.
-
-## The idea
-
-Priming a codebase normally means reading the tree, the configs, and fifteen or twenty source files — every session, from scratch, and it is all gone after the next compaction. `core` spends that budget once and turns it into things that persist:
+Priming a codebase normally means reading the tree, the configs and fifteen or twenty source
+files, every session, from scratch, and it is all gone after the next compaction. `core` spends
+that budget once and turns it into things that persist:
 
 | Layer | Answers | Built by | Cost |
 |---|---|---|---|
-| **Graph** (`graphify-out/`) | what calls what, what breaks if you change this | tree-sitter AST | ~4s first build, ~1s refresh, **zero tokens** |
-| **CORE** (`CLAUDE.md` + `AGENTS.md`) | what a directory is *for*, what may not break | you, once per boundary | real tokens, once |
+| **Graph** (`graphify-out/`) | what calls what, what breaks if you change this | tree-sitter AST, via `core` | ~4s first build, ~1s refresh, **zero tokens** |
+| **Instruction files** (the `AGENTS.md` tree) | what a directory is *for*, what may not break, how to verify | `agentic:keys`, once per boundary | real tokens, once |
 | **Read** | the few specifics neither layer holds | you, every session | small, because the first two did the work |
 
-After that, a question about the codebase costs a scoped `graphify query` instead of a grep across the repo, and the local rules for a directory arrive by themselves when an agent reads a file in it.
+After that, a question about the codebase costs a scoped `graphify query` instead of a grep
+across the repo.
 
-## Using it
-
-In a repository:
+`core` owns the graph and the read. It writes no `CLAUDE.md` and no symlinks: `AGENTS.md` is
+the only instruction file, and `agentic:keys` builds and checks that tree. The one thing `core`
+puts in it is graphify's own instructions, in a `<!-- GRAPHIFY:begin -->` …
+`<!-- GRAPHIFY:end -->` block of the root `AGENTS.md` that keys leaves alone.
 
 ```
 /core
 ```
 
-The skill installs graphify itself if it is missing (`uv tool install graphifyy`, falling back to pipx, then pip — all isolated and reversible).
+`status.sh` reports the whole repository in one block — graphify, the graph and its drift, the
+hooks, where `agentic:keys` is, the `AGENTS.md` tree and keys' own check, and directories that
+look like boundaries but have no `AGENTS.md` — and ends with a `verdict=` line:
 
-## Why `CLAUDE.md` is the real file and `AGENTS.md` is the symlink
+| Verdict | Meaning | What `core` does |
+|---|---|---|
+| `GRAPH_ONLY` | the `agentic` plugin is not installed | builds the graph, skips the instruction files, and tells you to install `agentic` and run `/core` again |
+| `BOOTSTRAP` | no `AGENTS.md` tree yet | runs `agentic:keys`, feeding it the boundary candidates and graph queries |
+| `REPAIR` | the tree is unfinished, has a `CLAUDE.md` left to fold, or keys check reports errors | runs `agentic:keys` on its refresh path |
+| `REFRESH` | the tree is clean | nothing to build; a keys refresh only if new boundaries appeared |
 
-Claude Code [loads a subdirectory's `CLAUDE.md` the moment it reads a file in that directory](https://code.claude.com/docs/en/memory#how-claude-md-files-load). Keeping the real content there means a directory's contract shows up exactly when it becomes relevant, with nothing having to walk the tree to find it. The `AGENTS.md` symlink beside it hands the same bytes to Codex, Cursor, Aider and everything else that reads `AGENTS.md`, without a second copy to keep in sync.
+A repository primed by an older `core` (`CLAUDE.md` files with `<!-- CORE:begin -->` blocks and
+`AGENTS.md` symlinks) is handled by keys: it replaces the symlinks with regular files and drops
+the CORE blocks.
 
-`core.py link` handles the messy cases rather than clobbering them: an existing `AGENTS.md` is promoted or merged with a backup, a repo already using the opposite convention (`CLAUDE.md → AGENTS.md`) is reported and left alone unless you pass `--flip`, and a platform without symlink permissions gets an `@CLAUDE.md` import stub instead.
+**Nothing here calls a model.** `graphify extract . --code-only`, `graphify cluster-only .
+--no-label` and `graphify update .` are pure tree-sitter and need no API key;
+`core.py graphify-block | boundaries | check` is filesystem work. The single exception is
+opt-in: `graph.sh --label` spends a couple of model calls to name the graph's communities so
+`GRAPH_REPORT.md` reads well for a human. Skip it and you get `Community 1..N`.
 
-## Nothing here calls a model
-
-Every script is deterministic, which is what makes running it on every prime sane:
-
-- `graphify extract . --code-only` — pure tree-sitter, works with no API key at all
-- `graphify cluster-only . --no-label` — clustering without asking a model for names
-- `graphify update .` — incremental re-extract, explicitly no-LLM
-- `core.py link | index | check | boundaries` — filesystem work, no inference
-
-The single exception is opt-in: `graph.sh --label` spends a couple of model calls to name the graph's communities so `GRAPH_REPORT.md` reads well for a human. Skip it and you get `Community 1..N`.
-
-## Layout
+**Drift is measured against `graphify-out/manifest.json`, not mtimes.** `cp`, `git clone` and
+`git checkout` all rewrite timestamps wholesale, so a mtime comparison reports either everything
+or nothing as stale. The manifest records which files the graph was built from, so drift is a set
+difference, which survives being copied.
 
 ```
 skills/core/
 ├── SKILL.md
-├── assets/
-│   ├── CORE-root.md      the root contract, inserted into CLAUDE.md
-│   └── CORE-child.md     the six-section child skeleton
+├── references/
+│   └── quick-prime.md    quick mode: per-project-type file lists, no graph
 └── scripts/
     ├── status.sh         whole-repo state in one call, ends with verdict=
-    ├── graph.sh          install / build / refresh the graph, register hooks
-    └── core.py           link, block, index, boundaries, check
+    ├── graph.sh          install / build / refresh the graph, register hooks, place the graphify block
+    └── core.py           graphify-block, boundaries, check
 ```
 
-`status.sh` exists specifically so priming does not start with a dozen
-exploratory tool calls. It answers "is there a graph, is there a CORE tree, is
-any of it broken, where are the undocumented boundaries" in one block, for free.
-
-Two details that came out of running this against real repos:
-
-**`core.py` gets vendored into the repo** at `.claude/core/core.py`, and the CORE contract points there rather than at the plugin. The contract outlives the skill invocation — a teammate, a Codex run, or you next session without the plugin installed reads "run `core.py index`" and needs it to resolve, and `${CLAUDE_PLUGIN_ROOT}` means nothing outside a running skill.
-
-**Drift is measured against `graphify-out/manifest.json`, not mtimes.** `cp`, `git clone` and `git checkout` all rewrite timestamps wholesale, so a mtime comparison reports either everything or nothing as stale. The manifest records which files the graph was actually built from, so the question becomes a set difference — which survives being copied.
-
-The child template keeps all its authoring guidance in HTML comments. Claude Code strips those before a CLAUDE.md reaches the context window but the Read tool still shows them, so a filled-in child doc costs **274 characters of context against 2,638 on disk**. That matters because a child doc loads every single time an agent touches its directory, which makes unfilled boilerplate a bill rather than a placeholder.
-
----
-
-# `keys` — one AGENTS.md tree that stays current
-
-KEYS is AGENTS.md-only. Claude Code reads `AGENTS.md`, so the project needs no `CLAUDE.md` and no symlinks. The root `AGENTS.md` holds the framework rules and the project-wide instructions. A child `AGENTS.md` sits at each real boundary, and every doc indexes its direct children. Before an edit, the agent reads the chain from the root to the file. After a meaningful change, it updates the docs it affected.
-
-## Using it
-
-```
-/keys
-```
-
-The first run scans the project, installs the root `AGENTS.md`, folds existing instructions into it, builds the child tree, and runs `keys.py check` until it reports `0 errors`. Later runs upgrade the framework block, fold anything new, and add docs for new boundaries.
-
-## Folding, not duplicating
-
-Two instruction files for one folder drift apart. `keys` folds each `CLAUDE.md` into the `AGENTS.md` beside it, and root rule files such as `.cursorrules`, `GEMINI.md` and `.github/copilot-instructions.md` into the root. It also proposes hand-written `.md` rule sets, such as `docs/conventions.md`, when only agents read them. It shows the fold plan and deletes nothing until you confirm. `CLAUDE.local.md` is personal, so `keys` leaves it alone.
-
-## `keys` or `core`
-
-| | `keys` | `core` |
-|---|---|---|
-| Instruction files | real `AGENTS.md` only | real `CLAUDE.md` with `AGENTS.md` symlinks |
-| Code graph | none | graphify, zero tokens |
-| Existing `CLAUDE.md` | folded into `AGENTS.md` | kept as the real file |
-| Needs | Python 3 | Python 3, graphify |
-
----
-
-# `explain-diff` — a change you can actually learn from
-
-Point it at a diff, a branch or a PR and it writes one self-contained HTML page that explains the change to someone who was not there when it was made.
+## `explain-diff` — a change you can learn from
 
 ```
 /explain-diff origin/main..feature/retry-budget
@@ -134,108 +121,125 @@ The page always has the same four sections, in this order:
 
 | Section | What it does |
 |---|---|
-| **Background** | The part of the existing system the change touches — a deep version for a newcomer, marked skippable, then the narrow version the change actually depends on. The skill explores surrounding code to write this, not just the diff. |
-| **Intuition** | The essence of the change with toy data, Blueprint diagrams for architecture, sequences and data flow, plus HTML UI sketches. Schema changes get relationship maps and field tables. No ASCII art. |
+| **Background** | The part of the existing system the change touches: a deep version for a newcomer, marked skippable, then the narrow version the change depends on. The skill explores surrounding code to write it, not just the diff. |
+| **Intuition** | The essence of the change with toy data, Blueprint diagrams for architecture, sequences and data flow, and HTML UI sketches. Schema changes get relationship maps and field tables. No ASCII art. |
 | **Code** | A walkthrough of the diff, grouped and ordered so it reads as a story rather than a file list. |
 | **Quiz** | Five interactive multiple-choice questions, medium difficulty, with feedback on click. The correct answer is shuffled across positions and options are kept the same length so it cannot be guessed. |
 
-It is a single file with its own CSS and JavaScript, a table of contents, and
-enough responsive styling to read on a phone. The skill writes it to
-`docs/YYYY-MM-DD-explanation-<slug>.html` at the repository root, so explainers
-ship alongside the code and sort by date. `explain-diff` uses the same plugin’s `code:blueprint` skill for validated diagrams, finite trace
-motion and guided walkthroughs. `embed-blueprint.mjs` embeds each complete viewer
-in an isolated iframe inside the article; fonts, scripts and styles travel with
-the single HTML file. Typed diagram JSON is retained for later edits. Without
-Blueprint, the skill uses inline SVG/HTML and reports the fallback.
+It is a single file with its own CSS and JavaScript, a table of contents, and responsive styling
+for a phone. Diagrams come from `architecture:blueprint`; `embed-blueprint.mjs` embeds each
+viewer in an isolated iframe and the typed diagram JSON is kept for later edits. Without the
+`architecture` plugin or Node, the skill draws inline SVG/HTML figures and says so; it never
+installs a plugin. Schema explanations use labelled foreign-key relationships plus field tables;
+Blueprint has no native crow's-foot notation.
 
-Schema/ERD explanations use labeled foreign-key relationships plus field tables;
-Blueprint does not implement native crow's-foot notation. Optional narration
-runs after diagram embedding, with inline audio and no spoken diagram controls.
-
----
-
-# `deepwiki` — documentation that cites its sources
-
-Generates, validates and maintains a wiki for a codebase under `docs/wiki/`: a `toc.json`, one page per topic, every claim cited as `file:line`, and Mermaid diagrams that are linted before they are accepted. It also covers the smaller jobs that fall out of that: an onboarding guide, `AGENTS.md`, `llms.txt`, a changelog, an incremental sync after code changes, and answering a question about an unfamiliar repo with citations.
+## `deepwiki` — documentation that cites its sources
 
 ```
 /deepwiki document this repo
 /deepwiki update the docs for the changes since v2.3
+/deepwiki brownfield doc for the checkout PRD
 ```
 
-Eleven scripts, all stdlib Python 3 — no `pip install`. Three of them shell out, and only to `git` (`diff`, `log`) to find what changed since the last documented commit. The one optional step that needs npm is publishing the wiki as a VitePress site. Validation is a gate: a page with an invalid diagram or a missing citation is fixed, not shipped.
+Eleven scripts, all stdlib Python 3, no `pip install`. Validation is a gate: a page with an
+invalid diagram or a missing citation is fixed, not shipped. Its `AGENTS.md` phase writes an
+`AGENTS.md` only where one is missing, writes no `CLAUDE.md` companion and no symlink, and hands
+the new files to `agentic:keys` to index.
 
----
+## What these write and where they reach
 
-# `security-sweep` — a security audit with a paper trail
+Installing this plugin wires nothing. Everything below happens only when you invoke a skill.
 
-Orchestrates a multi-agent audit of the current repo in seven phases: detect the stack, plan which auditors to run, run them in parallel (OWASP, secrets, supply chain, LLM security, STRIDE modelling), queue every finding for an independent verifier fan-out, write an exploit scenario for each confirmed high-confidence finding, and assemble a CSO-style report.
+- **`core`** (`graph.sh`), in the repository you point it at:
+  - installs graphify if it is missing: `uv tool install graphifyy`, falling back to `pipx`, then
+    `pip install --user`. Isolated and reversible (`uv tool uninstall graphifyy`). This is the
+    only download, from PyPI.
+  - writes `graphify-out/` (meant to be committed) and appends `graphify-out/cost.json` and
+    `graphify-out/.graphify_root` to `.gitignore`.
+  - installs graphify's git hooks (post-commit and post-checkout rebuilds, plus a merge driver for
+    `graph.json`) and, through `graphify claude install --project`, a `.claude/skills/graphify/`
+    skill and a PreToolUse hook in `.claude/settings.json` that nudges toward `graphify query`
+    before a grep sweep. `graph.sh --no-hooks` skips both.
+  - moves graphify's `## graphify` section out of `CLAUDE.md` into the GRAPHIFY block of the root
+    `AGENTS.md`, and deletes a `CLAUDE.md` (or `.claude/CLAUDE.md`) the move left empty. A
+    `CLAUDE.md` with other text keeps it for keys to fold.
+  - `--label` is the one step that calls a model.
+  - The `AGENTS.md` tree itself is written by `agentic:keys`, which shows its fold plan and
+    deletes nothing until you confirm. Quick mode writes nothing.
+- **`research-codebase`** writes `ai_docs/research/YYYY-MM-DD-<description>.md`; **`trace`**
+  writes under `ai_docs/trace/` (and `ai_docs/trace/parity-report.md` for a parity sweep). Both
+  spawn Task subagents.
+- **`why`** runs `git` and `gh`, spawns Task subagents, and queries whatever MCP servers are
+  already connected in the session (issue tracker, docs, chat, observability, error tracking,
+  warehouse). That network reach goes only through tools you configured.
+- **`deepwiki`** writes the wiki under `docs/wiki/` (or the directory you name), `AGENTS.md`
+  files only where missing, `llms.txt` and `llms-full.txt` at the repo root when asked, and the
+  Brownfield document to `ai_docs/docs/<name>.md`. Three scripts shell out to `git diff` and
+  `git log`. The optional VitePress site build is the only step that needs npm.
+- **`code-tour`** writes `.tours/<persona>-<focus>.tour`.
+- **`explain-diff`** writes `docs/YYYY-MM-DD-explanation-<slug>.html` at the repository root,
+  runs Blueprint's Node CLI from the installed `architecture` plugin, and, when the `design`
+  plugin is installed, measures the page with its Playwright and axe gates. Narration posts the
+  page's text to the local narration service at `http://127.0.0.1:8477` (`BREEZE_TTS_URL`
+  overrides) and embeds the returned audio and player in the HTML.
 
-```
-/security-sweep
-```
+### Narration is a local companion, not part of the plugin
 
-Everything lands in `ai_docs/security-sweep/runs/<RUN_ID>/` inside the repo, one JSON or Markdown file per stage, and every agent reads the previous stage from disk rather than from another agent's reply so nothing drifts in transit. The auditor, verifier and exploit-author prompts are inline in the skill, so it dispatches only generic subagents. Six Node scripts (Node 18.17 or newer, no dependencies) handle the deterministic parts: stack detection, dispatch planning, queueing, and report assembly. Language catalogs for Node, Python, Go and .NET give each auditor a concrete checklist. Nothing calls out to the network.
+The narration service is [`services/breeze-tts`](../../services/breeze-tts/) in this repository:
+Breeze TTS 2 held in memory on Apple Silicon, started with `just install` once and `just start`
+after. It is not a plugin and `/plugin` does not install it. Narration is always optional: with
+the service down, `explain-diff` writes exactly the explainer it always did — the narration step
+exits 3, the skill says in one sentence that the service is not running, and nothing else
+changes. Exit 4 means narration is still generating; re-running the same command picks it up.
+The model weights are under a research and non-commercial licence and are never committed here;
+`setup.sh` fetches them from Hugging Face, where you accept those terms yourself.
 
----
+## How it works with the other plugins
 
-# `complexity-sweep` — complexity you can act on
-
-Runs a bundled static-analysis CLI over TypeScript, JavaScript, Python, Rust and GDScript (Godot 4), measuring 14 metrics in five families (control flow such as McCabe cyclomatic and essential complexity, data flow, cognitive load, information density such as Halstead, and composites such as the maintainability index), then reviews each function that breaks a threshold and either refactors it directly, re-running the analysis to confirm, or emits one structured refactoring prompt per function. It can also generate the repo's config file.
-
-```
-/complexity-sweep src/**/*.ts
-/complexity-sweep app/**/*.py
-/complexity-sweep crates/**/*.rs
-/complexity-sweep scripts/**/*.gd
-/complexity-sweep the files changed on this branch
-```
-
-The CLI ships as source plus a built `dist/` under `code/`; on first use the skill runs `npm install --omit=dev` in `code/core` and `code/cli` (ts-morph, web-tree-sitter with vendored Python, Rust and GDScript grammars, cosmiconfig, picomatch and tinyglobby). Read-only against the target repo apart from the refactorings you ask for.
-
----
-
-# `e2e-harness` — a documented system becomes a running suite
-
-Five phases; four of them are deterministic and belong to the `e2e` CLI, not to a
-model.
-
-```
-setup     probe the repo, write config.json, install the runner   deterministic
-discover  probe repo + docs -> inventory.json                     deterministic
-journeys  author journeys.json                                    <- judgment
-build     journeys.json + inventory.json -> Playwright specs      deterministic
-run       up -> readiness gate -> tests -> report -> down         deterministic
-```
-
-Only `journeys.json` needs a model, because deciding *which flows matter* and *what counts as success* is the one genuine judgment call. Finding services, resolving ports, emitting spec code and waiting on readiness are functions of files on disk, so the same repo always produces the same tests. A wrong test means a wrong journey — fix that and rebuild; hand-edits to generated specs are destroyed on the next `e2e build`.
-
-Covers services in Node, Python, Go, C# and Rust, plus Kafka and Event Hubs, and drives them through Playwright.
-
-```
-skills/e2e-harness/
-├── SKILL.md
-├── assets/templates/     harness.ts, playwright.config.ts
-├── references/           adapters.md, journeys-schema.md
-├── scripts/e2e           stdlib-only Python CLI, no install step
-└── evals/                fixtures and graded evals for the skill itself
-```
-
-`scripts/e2e` is stdlib-only Python and is invoked by path. The `evals/fixtures`
-tree carries a real sample project; its `node_modules/` and generated
-`e2e/artifacts/` are gitignored, so the plugin ships at a few hundred kilobytes.
+| Direction | Handoff |
+|---|---|
+| In | `dev:workflow` starts every flow with `code:core`, and its research and documentation flows continue with `code:research-codebase` and `code:deepwiki`. `design:design-doctrine` primes an unfamiliar codebase with `code:core` before touching its UI. |
+| In | `dev:brainstorm` and `dev:check-implementation` use `code:trace` (and `--parity`) to baseline and check behavioural equivalence. `architecture:architect` runs `code:why` on the existing shape; `verify:blast-radius` follows the same evidence rules as `code:why`. `agentic:rules-from-code` uses the `code:codebase-locator` agent. |
+| Out | `code:core` and `code:deepwiki` hand the `AGENTS.md` tree to `agentic:keys`. Without `agentic`, `core` stops at the graph and says so. |
+| Out | `code:explain-diff` draws with `architecture:blueprint`, and measures its page with the `design` plugin's render gates when that plugin is installed. |
+| Split | `code` explains code that exists. Shaping a new system or module is `architecture` (`architecture:ddd`, `architecture:blueprint`); reviewing a change for defects is `verify` (`verify:code-sweep`, `verify:complexity-sweep`); auditing it for security is `security:security-sweep`. |
 
 ## Credits
 
-The graph layer is **[graphify](https://github.com/Graphify-Labs/graphify)**
-(PyPI package `graphifyy`), used as-is. This plugin only chooses the flags that
-keep it deterministic and free.
+The graph layer is **[graphify](https://github.com/Graphify-Labs/graphify)** (PyPI package
+`graphifyy`), used as-is. This plugin only chooses the flags that keep it deterministic and free.
 
-`explain-diff` is adapted from **[Geoffrey Litt's
-explain-diff gist](https://gist.github.com/geoffreylitt/a29df1b5f9865506e8952488eac3d524)**
-— the four-section structure, the Kleppmann-style writing brief and the
-interactive quiz are his. The quiz-fairness rule comes from the gist's
-discussion thread.
+`explain-diff` is adapted from **[Geoffrey Litt's explain-diff
+gist](https://gist.github.com/geoffreylitt/a29df1b5f9865506e8952488eac3d524)** — the
+four-section structure, the Kleppmann-style writing brief and the interactive quiz are his. The
+quiz-fairness rule comes from the gist's discussion thread.
 
-`deepwiki`, `security-sweep` and `complexity-sweep` are the marketplace
-owner's.
+`why` is a vendored copy of Lauren Tan's pstack (cursor/plugins, MIT, `LICENSE-pstack.txt`);
+`code-tour` is from affaan-m/ECC (MIT); `deepwiki`'s Brownfield mode is adapted from
+BMAD-METHOD's `document-project` task (MIT); the three agents are adapted from HumanLayer
+(Apache-2.0). [NOTICE.md](NOTICE.md) has the upstream, commit, license and author of each, and
+the edits made here. `core`, `deepwiki`, `research-codebase` and `trace` are otherwise the
+marketplace owner's.
+
+## Moved in v3
+
+| Before | After |
+|---|---|
+| `dev:research-codebase` | `code:research-codebase` |
+| `dev:trace` | `code:trace` |
+| `pstack:why` | `code:why` |
+| `craft:code-tour` | `code:code-tour` |
+| `dev:codebase-locator`, `dev:codebase-analyzer`, `dev:codebase-pattern-finder` (agents) | `code:codebase-locator`, `code:codebase-analyzer`, `code:codebase-pattern-finder` |
+| `dev:prime` (merged) | `code:core`, quick mode (`references/quick-prime.md`) |
+| `dev:document-project` (merged) | `code:deepwiki`, Brownfield mode (`references/workflow/brownfield-doc.md`) |
+| `code:core`'s CORE layer (`CLAUDE.md` contracts with `AGENTS.md` symlinks) | `agentic:keys` (`AGENTS.md` only) |
+| `code:keys` | `agentic:keys` |
+| `code:ddd` and its nine steps (`ddd-understand` … `ddd-contracts`), `code:blueprint`, the `ddd-decision-strategist` agent, `shared/` and the DDD guide | `architecture:ddd`, `architecture:ddd-*`, `architecture:blueprint`, `architecture:ddd-decision-strategist`; guide at [plugins/architecture/docs/ddd.md](../architecture/docs/ddd.md) |
+| `code:security-sweep` | `security:security-sweep` |
+| `code:complexity-sweep`, `code:e2e-harness` | `verify:complexity-sweep`, `verify:e2e-harness` |
+
+## Invoking
+
+Namespaced under the plugin: `/code:core`, `/code:trace`, `/code:why`, `/code:deepwiki`,
+`/code:explain-diff`, and so on. Script paths inside each skill resolve from
+`${CLAUDE_PLUGIN_ROOT}/skills/<skill>/`.

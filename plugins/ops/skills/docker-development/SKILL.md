@@ -332,6 +332,6 @@ Flag these without being asked:
 
 ## Related Skills
 
-- **`code:security-sweep`** — Application security. Complementary — docker-development covers container security, security-sweep covers application-level threats.
+- **`security:security-sweep`** — Application security. Complementary — docker-development covers container security, security-sweep covers application-level threats.
 - **`ops:deployment-pipeline-design`** — Pipeline construction. Complementary — docker-development builds the containers, deployment-pipeline-design deploys them.
 - **`ops:kubernetes-patterns`** — Running the containers in production: Deployments, probes, resource limits.

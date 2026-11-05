@@ -1,13 +1,28 @@
 ---
 name: check-implementation
-description: Verify implementation matches the plan by checking components, tests, and build
+description: Use after executing an implementation plan (dev:execute-plan or dev:swarm) to verify the code matches the plan by checking components, tests, build and UI gates. Its full post-flight mode also verifies the code against the original codebase for wiring completeness (every dependency resolves), behavioral equivalence, contract preservation, dead interfaces, configuration and credential sources, then runs runtime smoke checks and a reflection. The post-execution pair of dev:pre-flight; use it before a merge request or deploy, and after a rewrite or migration.
 ---
 
 # Check for Consistency of Implementation
 
 ## Arguments
 
-- `plan_path` — Path to the plan document (same file passed to `/execute`)
+- `plan_path` — Path to the plan document (same file passed to `dev:execute-plan`)
+- `source_path` (optional) — Path to the original codebase when the plan was a rewrite or migration; selects the full post-flight mode
+
+## Modes
+
+| Mode | Pick it when | Steps |
+|---|---|---|
+| **Plan check** (default) | Any executed plan | The Process below, reported in the Output Format below |
+| **Full post-flight** | The plan added services, DI wiring, config, credentials or external dependencies; it was a rewrite or migration (`source_path` given); it went through `dev:pre-flight`; or the work is heading to a merge request or deploy | The Process below, then [references/post-flight.md](references/post-flight.md) |
+
+Full post-flight is the post-execution pair of `dev:pre-flight`: pre-flight checks the plan for wiring, behavior, contract, configuration and credential gaps before code is written; post-flight checks the built code for the same gaps. Its steps:
+
+1. **Phase 1, static** — wiring resolution (every constructor dependency resolves from DI), behavioral equivalence against `source_path` (`code:trace` the old and new paths in parallel subagents), contract comparison, dead interfaces, configuration consistency, build, credential sources. **Stop** and present the static report; continue once every `FAIL` is resolved or accepted as a documented risk.
+2. **Phase 2, runtime** — integration ping for each external dependency, a live smoke test of the primary endpoint, and for rewrites the same request sent to old and new with the responses diffed. Without real output from this phase the verdict is **WARN: Runtime Behavior Unverified**, never CLEAR.
+3. **Phase 3, reflection** — categorize each miss, name the pipeline stage it came from (brainstorm, plan, execution, quality), and propose improvements; save to `./ai_docs/reflections/YYYY-MM-DD-<topic>-reflection.md` and review it with the user.
+4. **Report** to `./ai_docs/reports/YYYY-MM-DD-post-flight-report.md` using [references/post-flight-report.md](references/post-flight-report.md), ending in a verdict: `CLEAR`, `ISSUES — N critical must-fix`, or `WARN: Runtime Behavior Unverified`.
 
 ## Process
 
@@ -20,14 +35,14 @@ description: Verify implementation matches the plan by checking components, test
    - Note: matches, deviations, missing pieces
 4. **Run the project's test suite** — capture full output, count passes/failures
 5. **Run the project's build command** — capture exit code and any errors
-6. **If the plan built UI, measure it** — when the change adds or alters screens or components and the `design-system` plugin is installed, run its gate suite against the rendered pages or component harnesses (a preview page, a Storybook static build, or the HTML the plan produced) and report the real `N/N` line:
+6. **If the plan built UI, measure it** — when the change adds or alters screens or components and the `design` plugin is installed, run its gate suite against the rendered pages or component harnesses (a preview page, a Storybook static build, or the HTML the plan produced) and report the real `N/N` line:
 
    ```bash
-   KIT=$(ls -d "${CLAUDE_PLUGIN_ROOT}"/../design-system/shared "${CLAUDE_PLUGIN_ROOT}"/../../design-system/*/shared 2>/dev/null | sort -V | tail -1)
+   KIT=$(ls -d "${CLAUDE_PLUGIN_ROOT}"/../design/shared "${CLAUDE_PLUGIN_ROOT}"/../../design/*/shared 2>/dev/null | sort -V | tail -1)
    node "$KIT/scripts/accuracy_report.mjs" <rendered page or dir> [--tokens <design-tokens.json>] [--theme <theme.css>] [--src <ui source dir>]
    ```
 
-   It checks contrast in every state, axe, keyboard, target size, responsive layout and theme consistency, light and dark. Render gates need Playwright once per install (`npm install --prefix "$KIT"`); a gate that cannot run counts as unmeasured, never as a pass. Without the `design-system` plugin, report the UI as unmeasured.
+   It checks contrast in every state, axe, keyboard, target size, responsive layout and theme consistency, light and dark. Render gates need Playwright once per install (`npm install --prefix "$KIT"`); a gate that cannot run counts as unmeasured, never as a pass. Without the `design` plugin, report the UI as unmeasured.
 7. **Report findings** using the output format below
 
 ## Verification Standards
@@ -202,3 +217,9 @@ Report findings as:
 
 ### Recommendation
 [Fix issues / Ready to proceed / Needs discussion]
+
+## Integration
+
+- Called AFTER `dev:execute-plan` or `dev:swarm` completes; `dev:pre-flight` is its pair before execution
+- If the report shows issues, create fix tasks, then re-run to verify the fixes
+- Proceed to a merge request or deploy only on a clean report (full post-flight: verdict CLEAR, including Phase 2)

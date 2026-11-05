@@ -4,9 +4,20 @@ Use Blueprint for architecture, sequences, workflows, data flow, lifecycle, and 
 
 ## Find the installed skill
 
-Invoke `code:blueprint`, or read `${CLAUDE_PLUGIN_ROOT}/skills/blueprint/SKILL.md`. Blueprint and explain-diff are both owned by the code plugin; in this marketplace the renderer lives at `plugins/code/skills/blueprint/`. Set `BLUEPRINT_SKILL_DIR` to that skill's actual absolute directory and use `"$BLUEPRINT_SKILL_DIR/bin/blueprint.mjs"`.
+Invoke `architecture:blueprint`. Blueprint lives in the `architecture` plugin, so `${CLAUDE_PLUGIN_ROOT}` (the `code` plugin while explain-diff runs) does not reach it. To call its CLI, locate its directory from the installed architecture plugin:
 
-For a loose copy of explain-diff, discover an available Blueprint skill rather than assuming installed plugins share a cache directory. If Blueprint or Node is unavailable, use self-contained inline SVG/HTML figures with the same factual constraints and disclose that Blueprint validation was unavailable. Do not install a plugin automatically or copy the renderer into the consumer.
+```bash
+for d in \
+  "$(python3 -c 'import json,os;p=json.load(open(os.path.expanduser("~/.claude/plugins/installed_plugins.json"))).get("plugins",{});print(next((v[0]["installPath"] for k,v in p.items() if k.startswith("architecture@")),""))' 2>/dev/null)/skills/blueprint" \
+  "${CLAUDE_PLUGIN_ROOT}/../architecture/skills/blueprint" \
+  "${CLAUDE_PLUGIN_ROOT}"/../../architecture/*/skills/blueprint; do
+  [ -f "$d/bin/blueprint.mjs" ] && { BLUEPRINT_SKILL_DIR="$(cd "$d" && pwd)"; break; }
+done; echo "BLUEPRINT_SKILL_DIR=${BLUEPRINT_SKILL_DIR:-absent}"
+```
+
+The candidates are the `installPath` recorded for `architecture@<marketplace>`, a marketplace checkout (`plugins/architecture/` beside `plugins/code/`), and the plugin cache (`<marketplace>/architecture/<version>/`). Use `node "$BLUEPRINT_SKILL_DIR/bin/blueprint.mjs"`, and read Blueprint's references from that directory.
+
+If Blueprint or Node is unavailable (`BLUEPRINT_SKILL_DIR=absent`, or `node` is missing), use self-contained inline SVG/HTML figures with the same factual constraints and disclose that Blueprint validation was unavailable. Do not install a plugin automatically or copy the renderer into the consumer.
 
 ## Choose what to explain
 

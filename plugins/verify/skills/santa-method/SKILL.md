@@ -278,7 +278,7 @@ def santa_batch(items, rubric, sample_rate=0.15):
 
 ## Integration with Other Skills
 
-- Deterministic checks (build, lint, test) belong to a verification pass such as `verify:verify-feature` or `tools:post-flight`. Run those first, Santa second, for the semantic checks (accuracy, hallucinations).
+- Deterministic checks (build, lint, test) belong to a verification pass such as `verify:verify-feature` or `dev:check-implementation` (full post-flight mode). Run those first, Santa second, for the semantic checks (accuracy, hallucinations).
 - Santa Method results can feed eval metrics. Track pass@k across Santa runs to measure generator quality over time.
 - Santa findings can become standing rules: repeated failures on the same criterion → a learned behavior to avoid the pattern.
 - Run Santa BEFORE compacting context. Don't lose review context mid-verification.

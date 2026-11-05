@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = resolve(scriptDirectory, '..', '..');
-const skillRoot = join(repositoryRoot, 'plugins', 'game-design', 'skills', 'one-page-game-design');
+const skillRoot = join(repositoryRoot, 'plugins', 'game', 'skills', 'one-page-game-design');
 const exporter = join(skillRoot, 'scripts', 'export_pdf.mjs');
 const detailedSvg = join(skillRoot, 'assets', 'detailed-diagram.svg');
 const lightHtml = join(skillRoot, 'assets', 'diagram-shell.html');

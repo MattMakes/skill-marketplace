@@ -108,10 +108,10 @@ Parallel feature implementation across layers or modules.
 **Pre-implementation gate:**
 
 Before spawning any build teammates:
-1. Create a `tools:pre-flight` task assigned to a dedicated `pre-flight-checker` teammate
-2. The pre-flight teammate runs the `tools:pre-flight` skill against the plan
-3. If the `tools:pre-flight` verdict is **HOLD**: report issues to user. Do not spawn build agents.
-4. If the `tools:pre-flight` verdict is **CLEAR**: proceed to spawn build team
+1. Create a `dev:pre-flight` task assigned to a dedicated `pre-flight-checker` teammate
+2. The pre-flight teammate runs the `dev:pre-flight` skill against the plan
+3. If the `dev:pre-flight` verdict is **HOLD**: report issues to user. Do not spawn build agents.
+4. If the `dev:pre-flight` verdict is **CLEAR**: proceed to spawn build team
 
 **Team structure:**
 - Each teammate owns a distinct file set (frontend, backend, tests, config, etc.)
@@ -362,7 +362,7 @@ At Tier 3, the lead operates in pure coordination mode:
 Before declaring the swarm complete:
 
 1. **Verify all tasks completed** — `TaskList` shows every task in `completed` status
-2. **Post-flight verification** — Dispatch a `post-flight-checker` teammate to run `tools:post-flight` against the plan and implementation. Do not declare success until post-flight passes. If post-flight finds issues, create fix tasks and re-verify.
+2. **Post-flight verification** — Dispatch a `post-flight-checker` teammate to run `dev:check-implementation` (full post-flight mode) against the plan and implementation. Do not declare success until post-flight passes. If post-flight finds issues, create fix tasks and re-verify.
 3. **Shut down teammates** — `SendMessage` with `type: "shutdown_request"` to each agent
 4. **Clean up team** — `TeamDelete` after all teammates have shut down
 5. **Report results** — Summary of what was accomplished, key files modified, and any remaining follow-up items

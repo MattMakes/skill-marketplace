@@ -58,7 +58,7 @@ purpose: "Token-efficient context for downstream PRD creation"
 **PRFAQ:** `{doc_workspace}/prfaq-{slug}.md`
 **Detail Pack:** `{doc_workspace}/prfaq-{slug}-distillate.md`
 
-**Recommended next step:** Use the PRFAQ and detail pack as input for PRD creation (`product:write-spec`). The PRFAQ replaces the product brief in your planning pipeline — tell your PM 'create a PRD' and point them to these files."
+**Recommended next step:** Use the PRFAQ and detail pack as input for PRD creation (`product:spec --prd`). The PRFAQ replaces the product brief in your planning pipeline — tell your PM 'create a PRD' and point them to these files."
 
 **Headless mode output:**
 ```json

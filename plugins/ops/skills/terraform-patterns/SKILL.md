@@ -706,5 +706,5 @@ inputs = {
 
 ## Related Skills
 
-- **`code:security-sweep`** — Application security. Complementary — terraform-patterns covers infrastructure security posture, security-sweep covers application-level threats.
+- **`security:security-sweep`** — Application security. Complementary — terraform-patterns covers infrastructure security posture, security-sweep covers application-level threats.
 - **`ops:deployment-pipeline-design`** — Pipeline construction. Complementary — terraform-patterns defines infrastructure, deployment-pipeline-design automates deployment.

@@ -1,8 +1,8 @@
 {
   "name": "work",
   "displayName": "Knowledge Work",
-  "version": "0.1.0",
-  "description": "Knowledge-work skills. Data: profile a dataset, QA an analysis before it ships, SQL across five warehouse dialects, business statistics, Python charts, an offline HTML dashboard, and stdlib A/B-test significance and sample-size calculators. Product operations: metrics reviews, roadmap updates, audience-specific stakeholder updates, competitive briefs, TAM/SAM/SOM market sizing and startup metrics benchmarks. Legal and finance: clause-by-clause contract review with redlines, NDA triage, and variance decomposition with waterfalls. Support: ticket triage and escalation packaging. Writing: Strunk's rules with AI-pattern avoidance, README authoring, Vercel's docs-review checklist and discovery questionnaires. Plus a source-grounded Markdown wiki with drift checks, editable draw.io diagrams generated from code and infrastructure, ffmpeg video editing and local file conversion. Contains third-party skills under their own licenses — see NOTICE.md.",
+  "version": "1.0.0",
+  "description": "Knowledge work and prose. Data: profile a dataset, QA an analysis before it ships, SQL across warehouse dialects, statistics and A/B tests with stdlib calculators, Python charts and an offline HTML dashboard. Product operations: metrics reviews, roadmap and stakeholder updates, competitive briefs, market sizing, startup metrics, variance analysis. Support and legal: ticket triage, customer escalations, contract review and NDA triage. Writing: technical-writing as the entry, with clear-prose and writing-guideline checks, humanize, READMEs and questionnaires. Media and files: HTML slide decks, ffmpeg video editing, file conversion, spaced-repetition Mochi decks and a grounded Markdown knowledge vault. Vendored skills are credited in NOTICE.md.",
   "author": {
     "name": "Matt Scott"
   },
@@ -20,16 +20,14 @@
     "market-sizing",
     "contract-review",
     "nda",
-    "variance-analysis",
     "customer-support",
-    "triage",
     "writing",
+    "technical-writing",
     "readme",
-    "documentation",
-    "drawio",
-    "diagrams",
+    "slides",
     "video",
     "ffmpeg",
-    "file-conversion"
+    "file-conversion",
+    "flashcards"
   ]
 }

@@ -18,6 +18,7 @@ Use this checklist after applying fixes to verify accessibility manually.
 - [ ] Error messages announced via `aria-live` or `role="alert"`
 - [ ] Page title updates on navigation (SPA)
 - [ ] Dynamic content changes announced appropriately
+- [ ] Primary journey completed with VoiceOver, NVDA or TalkBack (commands and passes: `design:screen-reader-testing`)
 
 ## Visual
 - [ ] Text contrast meets 4.5:1 for normal text, 3:1 for large text
@@ -26,12 +27,14 @@ Use this checklist after applying fixes to verify accessibility manually.
 - [ ] Text resizable to 200% without loss of content
 - [ ] No information conveyed by color alone
 - [ ] Focus indicators meet 2.4.11 Focus Appearance criteria
+- [ ] Usable in Windows High Contrast (`forced-colors`) mode
 
 ## Motion and Media
 - [ ] Animations respect `prefers-reduced-motion`
 - [ ] No auto-playing media with audio
 - [ ] No content flashing more than 3 times per second
 - [ ] Video has captions; audio has transcripts
+- [ ] Time limits warn before expiry and can be extended (2.2.1)
 
 ## Forms
 - [ ] All inputs have visible labels

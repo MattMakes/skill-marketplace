@@ -138,4 +138,4 @@ The naive loop and the reviewed loop differ by four lines of constraint — and 
 ---
 
 > Lineage: Wiener's two-level feedback (*The Human Use of Human Beings*, 1950) for the judgment/execution split and red lines; the plan/build/judge pattern from Anatoli's *Loops explained* and Addy's *Loop Engineering*.
-> Mechanism layer (how to wire the loop architecture) is out of scope here. This skill does not re-implement mechanism; it covers goal definition and runaway prevention only. For the human sign-off lane of a loop see `agentic:human-gate`; to audit a running agent stack see `agentic:agent-architecture-audit`.
+> Mechanism layer (how to wire the loop architecture) is out of scope here. This skill does not re-implement mechanism; it covers goal definition and runaway prevention only. For the human sign-off lane of a loop see `verify:human-gate`; to audit a running agent stack see `agentic:agent-architecture-audit`.

@@ -139,9 +139,9 @@ Every plan MUST end with:
 ```markdown
 ## Plan Verification Checklist
 
-Before executing this plan, run `tools:pre-flight` to verify completeness.
+Before executing this plan, run `dev:pre-flight` to verify completeness.
 
-After executing this plan, run `tools:post-flight` to verify correctness.
+After executing this plan, run `dev:check-implementation` (full post-flight mode) to verify correctness.
 
 ### Wiring Manifest
 | Interface | Implementation | Registration | Plan Task |
@@ -173,8 +173,8 @@ After saving the plan, offer execution:
 **"Plan complete and saved to `./ai_docs/plans/<filename>.md`. Ready to verify and execute?"**
 
 **To execute:**
-1. Use `tools:pre-flight` to verify plan completeness
+1. Use `dev:pre-flight` to verify plan completeness
 2. Use `dev:execute-plan @plan.md` or `dev:swarm` to implement
-3. Use `tools:post-flight` to verify implementation
+3. Use `dev:check-implementation` (full post-flight mode) to verify implementation
 
 This will execute the plan with batch checkpoints, sub-agent parallelism, and verification gates.

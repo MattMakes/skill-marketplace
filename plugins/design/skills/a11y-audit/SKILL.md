@@ -1,6 +1,6 @@
 ---
 name: "a11y-audit"
-description: "Accessibility audit skill for scanning, fixing, and verifying WCAG 2.2 Level A and AA compliance across React, Next.js, Vue, Angular, Svelte, and plain HTML codebases. Use when auditing accessibility, fixing a11y violations, checking color contrast, generating compliance reports, or integrating accessibility checks into CI/CD pipelines."
+description: "Accessibility audit: scan, fix and verify WCAG 2.2 Level A and AA across React, Next.js, Vue, Angular, Svelte and plain HTML codebases, or audit a design, component or rendered page against WCAG 2.2 and ARIA patterns with measured contrast, returning criterion-referenced findings with severity and a specific fix each. Use when auditing accessibility, fixing a11y violations, asked to \"improve accessibility\", \"make it accessible\" or \"WCAG compliance\", checking color contrast, keyboard navigation, focus or screen-reader support, confirming a component meets POUR, generating compliance reports, or adding accessibility checks to CI/CD."
 ---
 
 # Accessibility Audit
@@ -20,6 +20,28 @@ For every violation it finds, it provides the precise before/after code fix tail
 3. **Verifies** that fixes resolve the original violations and introduces no regressions
 4. **Reports** findings in a structured format suitable for developers, PMs, and compliance stakeholders
 5. **Integrates** into CI/CD pipelines to prevent accessibility regressions
+
+## Modes
+
+| Mode | Pick it when |
+|------|--------------|
+| **Code scan** (default) | There is a codebase or source files to scan and fix. Follow the three-phase workflow under Usage. |
+| **Design audit** | The target is a design, a component spec, or rendered HTML from this plugin's pipeline, or the question is "does this component meet POUR?". Follow the steps below. |
+| **Live page** | There is only a deployed URL. Run `npx lighthouse <url> --only-categories=accessibility` and `npx @axe-core/cli <url>`, then work through [references/testing-checklist.md](references/testing-checklist.md) by hand. |
+
+### Design audit
+
+> **Step 0 — doctrine first.** Load `design:design-doctrine` if it is not already loaded
+> this session; every step below assumes its verification protocol and house rules.
+> The render gates need Playwright once per install: `npm install --prefix "${CLAUDE_PLUGIN_ROOT}/shared" && npx --prefix "${CLAUDE_PLUGIN_ROOT}/shared" playwright install chromium`. Without it they print SKIPPED, which is not a pass.
+
+1. Read `${CLAUDE_PLUGIN_ROOT}/shared/accessibility/wcag-checklist.md` (POUR-organized, P0/P1/P2) and `${CLAUDE_PLUGIN_ROOT}/shared/accessibility/aria-patterns.md`. For an AAA target add `${CLAUDE_PLUGIN_ROOT}/shared/accessibility/wcag-aaa.md`.
+2. Check the mandatory P0 set per component: keyboard navigable, focus visible (≥3:1), screen-reader name/role/state, contrast (4.5:1 text / 3:1 UI), target size ≥24×24, no color-only signaling.
+3. Verify the WCAG 2.2 additions: Focus Not Obscured (2.4.11), Target Size (2.5.8), Accessible Authentication (3.3.8). Detail in [references/wcag-22-new-criteria.md](references/wcag-22-new-criteria.md).
+4. **Contrast — measure, don't eyeball.** For rendered HTML, run the real-render gates and report their actual output (`design:design-doctrine` → Verification protocol): `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/measure_render.mjs <file> [--dark]` (every text element), `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/verify_states.mjs <file> [--dark]` (every interactive element in default/hover/focus, which catches hover-state failures) and `node ${CLAUDE_PLUGIN_ROOT}/shared/scripts/axe_audit.mjs <file> [--dark]` (ARIA, names, labels, landmarks). For loose color pairs, `python3 ${CLAUDE_PLUGIN_ROOT}/shared/scripts/contrast.py "<fg>" "<bg>"`. Never state a ratio you did not measure.
+5. Check reduced-motion handling (`${CLAUDE_PLUGIN_ROOT}/shared/taste/motion-choreography.md`).
+
+Output a findings table: WCAG criterion (e.g. 1.4.3) · severity (P0/P1/P2) · what fails · specific fix. Confirm passes explicitly. Accessibility may never be traded for aesthetics.
 
 ## Features
 
@@ -179,10 +201,13 @@ Reports AA and AAA results for normal text, large text and UI components in one 
 | Skipping heading levels (h1 -> h3) | Heading levels must be sequential |
 | `onClick` without `onKeyDown` | Add keyboard support or prefer native elements |
 | Ignoring `prefers-reduced-motion` | Wrap animations in `@media (prefers-reduced-motion: no-preference)` |
+| No `lang` on `<html>` | `<html lang="en">`, and `lang` on foreign-language spans |
+| No way past repeated navigation | A skip link to `<main id="main-content" tabindex="-1">` |
+| Session timeout with no warning | Warn before expiry and offer to extend (2.2.1) |
 
 ## Related Skills
 
-`design:accessibility` carries the WCAG 2.1 guideline text with wrong/right examples, `design:screen-reader-testing` covers manual VoiceOver/NVDA/JAWS passes, and `tools:test-driven-development` fits when a11y checks become automated tests.
+`design:screen-reader-testing` covers manual VoiceOver/NVDA/JAWS passes and their commands, `design:design-review` scores accessibility as one of its review dimensions, and `dev:tdd` fits when a11y checks become automated tests.
 
 ## Reference Documentation
 

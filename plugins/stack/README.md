@@ -1,8 +1,12 @@
 # stack — Stack References
 
-Twenty-three reference skills for specific libraries, frameworks and languages, each carrying the
-API detail and the gotchas a model otherwise guesses at. All of them are vendored from upstream
-projects — several are the library authors' own official skills — and maintained here.
+What does this library get wrong? Twenty-four reference skills for specific libraries,
+frameworks and languages, each carrying the API detail and the gotchas a model otherwise guesses
+at. Start with the skill named after the library you are touching (`gsap-core` for any GSAP
+question, `motion-foundations` before the other motion skills). Twenty-three are vendored from
+upstream projects — several are the library authors' own official skills — and maintained here;
+`server-component-rules` is first-party. Patterns that are not tied to one library
+live elsewhere: saga orchestration in `architecture`, principles in `craft`.
 
 ```bash
 claude plugin install stack@skill-marketplace
@@ -32,7 +36,14 @@ claude plugin install stack@skill-marketplace
 |---|---|
 | `react-best-practices` | Writing, reviewing or refactoring React and Next.js code for performance: 45 prioritized rules on waterfalls, bundle size, server-side work, data fetching, re-renders and rendering, one file per rule plus a compiled `AGENTS.md`. |
 | `react-useeffect` | Writing or reviewing a `useEffect`, or storing derived values in state. A decision table and tree for when not to use an Effect, with anti-pattern and alternatives references. |
+| `server-component-rules` | Writing Next.js App Router components or Server Actions for data access, or deciding between server and client components. House rules: a fixed execution order for DAL Server Actions (flatten the payload, validate, query, paginate, serialize, `returnResponse()`, `handleError()`), server-by-default with `'use client'` only when needed, and two security rules (`server-only` imports, `NEXT_PUBLIC_*` exposure). Assumes a `src/dal/` layer and MongoDB; adapt the helper names to your project. |
 | `shadcn` | Adding, composing, styling or debugging shadcn/ui components, initializing a project or switching presets. Enforced styling, form, composition and icon rules with wrong/right pairs; CLI and customization references. Runs the shadcn CLI, see below. |
+
+### TypeScript
+
+| Skill | Use it when |
+|---|---|
+| `typescript-best-practices` | Reading or editing `.ts` or `.tsx`. Sixteen rules (discriminated unions, branded types, constructive modeling, simplest total type, `unknown` over `any`, narrowing hierarchy, `satisfies` over `as`, exhaustiveness, boundary validation) with before/after code in `references/patterns.md`. The TypeScript form of `craft:principle-type-system-discipline`. |
 
 ### Databases
 
@@ -56,7 +67,6 @@ claude plugin install stack@skill-marketplace
 | Skill | Use it when |
 |---|---|
 | `dotnet-backend-patterns` | Building or reviewing a C#/.NET backend: minimal APIs, DI lifetimes, EF Core and Dapper, IOptions, caching, resilience, xUnit; EF Core and Dapper references and C# templates. |
-| `saga-orchestration` | Distributed transactions without 2PC: orchestration vs choreography, compensation design, idempotent steps, per-step timeouts, stuck-saga troubleshooting, with full orchestrator implementations in `references/`. |
 
 ## What these write and where they reach
 
@@ -71,21 +81,43 @@ outside the conversation through commands they tell Claude to run:
 - `remotion-best-practices` describes FFmpeg and Remotion CLI commands for the user's own
   project; it runs nothing on load.
 
-`boost-asio-pro` links to its worked examples on GitHub rather than bundling them. Everything
-else is prose and code samples read from the skill directory.
+`boost-asio-pro` links to its worked examples on GitHub rather than bundling them.
+`typescript-best-practices` carries a `paths` glob (`**/*.ts`, `**/*.tsx`) under `metadata`; it
+is not a hook and runs nothing. Everything else is prose and code samples read from the skill
+directory.
+
+## How it works with the other plugins
+
+| Direction | Handoff |
+|---|---|
+| In | `craft:principle-type-system-discipline` points TypeScript work at `stack:typescript-best-practices`, which applies that principle and `craft:principle-boundary-discipline` first. |
+| In | `dev` builds the change and `verify` reviews it; when either touches a library here, the matching `stack` skill holds the library's rules. `verify:react-testing` covers tests for the React code that `react-best-practices`, `react-useeffect` and `server-component-rules` shape. |
+| Split | `stack:database-migrations` owns the per-tool migration workflow; `ops:migration-architect` owns system-level migration and `craft:deprecation-and-migration` code-level deprecation. Saga orchestration is a pattern, not a library, so it lives at `architecture:saga-orchestration`. |
 
 ## Credits
 
-Every skill here is a vendored, supply-chain-controlled copy: the upstream repository, path,
+Every vendored skill here is a supply-chain-controlled copy: the upstream repository, path,
 commit, date and license for each are recorded in [NOTICE.md](NOTICE.md), along with every
 change made in this copy. Upstream is re-pulled deliberately, by diffing against the recorded
-commit, not tracked live. The GSAP set is GreenSock's official skills; `shadcn` is shadcn/ui's,
-`postgres-best-practices` is Supabase's, `react-best-practices` is Vercel's and
-`remotion-best-practices` is Remotion's, each reached through a mirror repository named in
-NOTICE.md.
+commit, not tracked live. `typescript-best-practices` is from Lauren Tan's pstack in
+[cursor/plugins](https://github.com/cursor/plugins) at commit `9d76bca` (2026-10-11), MIT
+(`LICENSE-pstack.txt`). `server-component-rules` came from `dev`, whose README says parts of that
+plugin are adapted from obra/superpowers, HumanLayer, wshobson/agents and BMAD-METHOD with credit
+in the skill files; this skill file names no upstream. The GSAP set is
+GreenSock's official skills; `shadcn` is shadcn/ui's, `postgres-best-practices` is Supabase's,
+`react-best-practices` is Vercel's and `remotion-best-practices` is Remotion's, each reached
+through a mirror repository named in NOTICE.md.
+
+## Moved in v3
+
+| Before | After |
+|---|---|
+| `dev:server-component-rules` | `stack:server-component-rules` |
+| `pstack:typescript-best-practices` | `stack:typescript-best-practices` |
+| `stack:saga-orchestration` | `architecture:saga-orchestration` |
 
 ## Invoking
 
-Namespaced under the plugin: `stack:gsap-core`, `stack:react-best-practices`, `stack:prisma-patterns`,
-and so on. The skills cross-reference each other in that form (`stack:gsap-timeline`,
+Namespaced under the plugin: `/stack:gsap-core`, `/stack:react-best-practices`,
+`/stack:typescript-best-practices`, and so on. The skills cross-reference each other in that form (`stack:gsap-timeline`,
 `stack:motion-foundations`).

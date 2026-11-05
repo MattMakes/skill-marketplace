@@ -1,15 +1,17 @@
 # Third-party notices
 
 Every skill in this plugin is a copy of upstream work, vendored at the commit shown and
-maintained here. Licenses are as recorded in the upstream repository's LICENSE file or in a
-LICENSE file inside the skill directory, except where a row says otherwise.
+maintained here, except `humanize` (first-party, adapted from the upstream work in its row) and
+`mochi-deck` (first-party, the marketplace owner's). Licenses are as recorded in the upstream
+repository's LICENSE file or in a LICENSE file inside the skill directory, except where a row says
+otherwise.
 
 | Skill | Upstream | Commit | License | Author |
 |---|---|---|---|---|
 | `validate-data` | [anthropics/knowledge-work-plugins · data/skills/validate-data](https://github.com/anthropics/knowledge-work-plugins/tree/95bdacc/data/skills/validate-data) | `95bdacc` (2026-10-09) | Apache-2.0 | Anthropic |
 | `explore-data` | [anthropics/knowledge-work-plugins · data/skills/explore-data](https://github.com/anthropics/knowledge-work-plugins/tree/95bdacc/data/skills/explore-data) | `95bdacc` (2026-10-09) | Apache-2.0 | Anthropic |
 | `sql-queries` | [anthropics/knowledge-work-plugins · data/skills/sql-queries](https://github.com/anthropics/knowledge-work-plugins/tree/95bdacc/data/skills/sql-queries) | `95bdacc` (2026-10-09) | Apache-2.0 | Anthropic |
-| `statistical-analysis` | [anthropics/knowledge-work-plugins · data/skills/statistical-analysis](https://github.com/anthropics/knowledge-work-plugins/tree/95bdacc/data/skills/statistical-analysis) | `95bdacc` (2026-10-09) | Apache-2.0 | Anthropic |
+| `statistical-analyst` (`references/descriptive-trend-and-outliers.md`, from `statistical-analysis`) | [anthropics/knowledge-work-plugins · data/skills/statistical-analysis](https://github.com/anthropics/knowledge-work-plugins/tree/95bdacc/data/skills/statistical-analysis) | `95bdacc` (2026-10-09) | Apache-2.0 | Anthropic |
 | `data-visualization` | [anthropics/knowledge-work-plugins · data/skills/data-visualization](https://github.com/anthropics/knowledge-work-plugins/tree/95bdacc/data/skills/data-visualization) | `95bdacc` (2026-10-09) | Apache-2.0 | Anthropic |
 | `build-dashboard` | [anthropics/knowledge-work-plugins · data/skills/build-dashboard](https://github.com/anthropics/knowledge-work-plugins/tree/95bdacc/data/skills/build-dashboard) | `95bdacc` (2026-10-09) | Apache-2.0 | Anthropic |
 | `metrics-review` | [anthropics/knowledge-work-plugins · product-management/skills/metrics-review](https://github.com/anthropics/knowledge-work-plugins/tree/95bdacc/product-management/skills/metrics-review) | `95bdacc` (2026-10-09) | Apache-2.0 | Anthropic |
@@ -26,12 +28,16 @@ LICENSE file inside the skill directory, except where a row says otherwise.
 | `crafting-effective-readmes` | [davila7/claude-code-templates · cli-tool/components/skills/productivity/crafting-effective-readmes](https://github.com/davila7/claude-code-templates/tree/45b9b21/cli-tool/components/skills/productivity/crafting-effective-readmes) | `45b9b21` (2026-10-10) | MIT (repo). `references/` reproduce hackergrrl/art-of-readme, makeareadme.com (Danny Guo) and RichardLitt/standard-readme, each credited by a source line at the top of its file; their upstream licenses are not verified in the mirror. | Daniel Ávila (packaging); Kira Oakley, Danny Guo, Richard Littauer (references) |
 | `writing-guidelines` | [nexu-io/open-design · skills/writing-guidelines](https://github.com/nexu-io/open-design/tree/17e2559/skills/writing-guidelines) | `17e2559` (2026-10-10) | MIT (per-skill LICENSE, Vercel Labs). A pinned snapshot of [vercel-labs/writing-guidelines](https://github.com/vercel-labs/writing-guidelines) at `83e2316`, as the skill's own metadata records. | Vercel |
 | `to-questionnaire` | [mattpocock/skills · skills/productivity/to-questionnaire](https://github.com/mattpocock/skills/tree/49dd158/skills/productivity/to-questionnaire) | `49dd158` (2026-10-09) | MIT | Matt Pocock |
-| `drawio` | [Agents365-ai/drawio-skill · skills/drawio-skill](https://github.com/Agents365-ai/drawio-skill/tree/88fd923/skills/drawio-skill) | `88fd923` (2026-10-02) | MIT (per-skill LICENSE). `data/shape-index.json.gz` is derived from jgraph/drawio-mcp and the draw.io client shape libraries, Apache-2.0 (see `data/SHAPE-INDEX-NOTICE.md`); `data/lobe-icons.json` and `data/databricks-icons.json` are manifests pointing at lobehub/lobe-icons (MIT), simple-icons (CC0) and oieduardorabelo/databricks-architecture-icons; no icon files are bundled. | Agents365-ai |
 | `grounded-vault` | [wshobson/agents · plugins/documentation-standards/skills/grounded-vault](https://github.com/wshobson/agents/tree/46891e7/plugins/documentation-standards/skills/grounded-vault) | `46891e7` (2026-10-04) | MIT. The convention is adapted from PALAN-K/llm-wiki-loop (MIT), credited in `references/details.md`. | Seth Hobson |
 | `video-editor` | [exiao/skills · video/video-editor](https://github.com/exiao/skills/tree/7d2be64/video/video-editor) | `7d2be64` (2026-07-27) | MIT (stated in the repo README; no LICENSE file) | exiao |
 | `file-conversion` | [wshobson/agents · plugins/file-conversion/skills/file-conversion](https://github.com/wshobson/agents/tree/46891e7/plugins/file-conversion/skills/file-conversion) | `46891e7` (2026-10-04) | MIT | Seth Hobson |
 | `market-sizing-analysis` | [wshobson/agents · plugins/startup-business-analyst/skills/market-sizing-analysis](https://github.com/wshobson/agents/tree/46891e7/plugins/startup-business-analyst/skills/market-sizing-analysis) | `46891e7` (2026-10-04) | MIT | Seth Hobson |
 | `startup-metrics-framework` | [wshobson/agents · plugins/startup-business-analyst/skills/startup-metrics-framework](https://github.com/wshobson/agents/tree/46891e7/plugins/startup-business-analyst/skills/startup-metrics-framework) | `46891e7` (2026-10-04) | MIT | Seth Hobson |
+| `frontend-slides` | [exiao/skills — design/frontend-slides](https://github.com/exiao/skills/tree/7d2be64/design/frontend-slides) | `7d2be64` (2026-07-27) | MIT (repo README) | exiao; originally zarazhangrui's frontend-slides skill |
+| `technical-writing` | [cursor/plugins pstack/skills/technical-writing](https://github.com/cursor/plugins/tree/9d76bca/pstack/skills/technical-writing) | `9d76bca` (2026-10-11) | MIT (the pstack folder's own license, reproduced as `LICENSE-pstack.txt`) | Lauren Tan |
+| `humanize` (`refs/scrub-instructions.md`, `refs/voice-instructions.md`) | [blader/humanizer](https://github.com/blader/humanizer) | not recorded | MIT. The catalog is itself based on Wikipedia's "Signs of AI writing" (CC BY-SA, WikiProject AI Cleanup). | Siqi Chen |
+| `humanize` (`refs/compose-instructions.md`) | softaworks/agent-toolkit · `writing-clearly-and-concisely` | not recorded | MIT; based on William Strunk Jr.'s *The Elements of Style* (1918, public domain) | softaworks |
+| `mochi-deck` | First-party (moved from this repository's `tools` plugin) | — | No license stated (first-party) | Matt Scott |
 
 ## Changes made here
 
@@ -48,11 +54,18 @@ these copies differ from upstream as follows:
   `legal.local.md` "in local settings"; the playbook is now a document the user points to or a
   similarly named file in the working or home directory, with the same fallback to generic
   standards.
-- `sql-queries`, `statistical-analysis`, `data-visualization`, `variance-analysis`,
-  `file-conversion`: unchanged.
+- `sql-queries`, `data-visualization`, `variance-analysis`, `file-conversion`: unchanged.
 - `statistical-analyst`: script invocations use `${CLAUDE_PLUGIN_ROOT}/skills/statistical-analyst/scripts/`;
   the "Related Skills" table naming sibling skills from the upstream repository was dropped and
   its "when not to use" bullets became a short Scope paragraph.
+- `statistical-analysis` folded into `statistical-analyst` on 2026-11-05. Its descriptive
+  statistics, trend and forecasting, outlier detection and cautions sections became
+  `references/descriptive-trend-and-outliers.md` (wording unchanged; a new intro) and a new
+  Mode 4 in SKILL.md; the "Entry Points" heading became "Modes"; paired t-test and ANOVA joined
+  the test selection table; correlation-as-causation and survivorship bias joined the risk
+  triggers. Dropped as duplicates of `statistical-analyst`: its hypothesis-testing basics
+  (framework, test table, practical vs statistical significance, sample size rule of thumb) and
+  its multiple-comparisons and Simpson's Paradox notes; also its `user-invocable: false` flag.
 - `writing-clearly-and-concisely`: deleted the README.md that repeated SKILL.md (its attribution
   is recorded in the table above); "dispatch a subagent" names the Task/Agent tool; the reference
   table's file names carry their `elements-of-style/` directory.
@@ -67,13 +80,6 @@ these copies differ from upstream as follows:
   from metadata, the `triggers` and `od` host keys dropped, upstream URL and source commit kept
   under `metadata`. Body unchanged.
 - `to-questionnaire`: deleted `agents/openai.yaml`; the description gained a "Use when" clause.
-- `drawio`: deleted `agents/openai.yaml`; the frontmatter `metadata` lost its OpenClaw and Hermes
-  host blocks (author, version, homepage, compatibility and platforms kept). `references/mcp.md`,
-  `ci-gate.md`, `pr-bot.md` and `toolbox.md` pointed at files in the upstream repository root
-  (`.github/actions`, `.github/workflows`, `docs/CI.md`, `skills/drawio-skill/`); those now link
-  to the upstream GitHub paths at the pinned commit or use `${CLAUDE_PLUGIN_ROOT}/skills/drawio/`.
-  The suggested MCP server name `drawio-skill` became `drawio`. Scripts, data and styles are
-  byte-for-byte upstream.
 - `grounded-vault`: `scripts/check_vault.py` was written out verbatim from the code block in
   `references/details.md` (upstream ships the script only inline); SKILL.md says where it lives.
   The sentence pointing at the upstream repository's context-management and conductor plugins
@@ -82,3 +88,12 @@ these copies differ from upstream as follows:
 - `video-editor`: the `{baseDir}` example path is now `${CLAUDE_PLUGIN_ROOT}/skills/video-editor`
   instead of the author's `~/clawd/skills/video-editor`; the author's "Bloom" app in one recipe
   was generalised to a placeholder. `scripts/edit.sh` is unchanged.
+- `frontend-slides` — `source ~/.hermes/.env` removed; the Gemini SVG helper now runs only when `GEMINI_API_KEY` is already set; a Hermes Signal-gateway `MEDIA:` line and the `browser_vision` tool name removed; Surge deploys marked optional; `references/related-skills.md` repointed at `design:frontend-design` and `design:impeccable`.
+  Moved here from the `design` plugin in the v3 taxonomy (2026-11-05).
+- `technical-writing`: `disable-model-invocation: true` removed from the frontmatter (upstream set
+  it for Cursor's `poteto-mode` router, which was not vendored); `unslop` references became
+  `work:humanize`. Moved here from the `pstack` plugin in the v3 taxonomy (2026-11-05).
+- `humanize`, `mochi-deck`: moved here from the dissolved `tools` plugin in the v3 taxonomy
+  (2026-11-05), unchanged apart from cross-references. The credits above were carried from the
+  `tools` README.
+- `humanize`: `LICENSE-humanizer`, which the skill and its `refs/` cite, was missing in this repository; the MIT text was fetched from blader/humanizer (`LICENSE` at commit `0ef9fe5`) on 2026-11-05.

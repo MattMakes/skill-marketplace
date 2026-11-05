@@ -44,98 +44,17 @@ Detection methods:
 | SEC-17 | No hardcoded secrets in .env committed to repo | auto | critical | all |
 | SEC-18 | .env files listed in .gitignore | auto | critical | all |
 
-### SEC-01: No API keys or secrets in frontend code
+SEC is `security:security-sweep`'s job. Run the sweep for this category; its
+owasp-auditor and secret-scanner cover every auto check above with per-language catalogs
+(Node/TypeScript, Python, Go, .NET), verify each finding, and give the remediation. The
+scanner's SEC checks are a fallback for when the sweep did not run; their findings carry
+file and line but no remediation here, so point the user at the sweep.
 
-Scan all files in src/, app/, pages/, public/, components/ for patterns
-matching API keys, tokens, and secrets. See patterns.md for the full
-regex list.
+Kept here because the sweep does not cover them:
 
-Remediation: Move secrets to environment variables. Use server-side API
-routes to proxy requests that require secrets.
-
-### SEC-02: Every route checks authentication
-
-For Next.js: check middleware.ts/js exists and covers protected routes.
-For Express: check that auth middleware is applied to route handlers.
-For Django: check @login_required or permission decorators.
-For generic: search for unprotected route definitions.
-
-Remediation: Add authentication middleware. Audit every endpoint and
-classify as public or protected.
-
-### SEC-04: CORS not wildcard
-
-Search for `cors({ origin: '*' })`, `Access-Control-Allow-Origin: *`,
-or equivalent in the detected framework.
-
-Remediation: Set CORS origin to your specific domain(s).
-
-### SEC-05: CSRF protection
-
-Check for CSRF token generation and validation on POST/PUT/DELETE routes.
-For Next.js Server Actions, verify they use built-in CSRF protection.
-
-Remediation: Add CSRF middleware or use framework-native CSRF protection.
-
-### SEC-06: Input validation server-side
-
-Search for request body usage (req.body, request.json, request.form)
-without validation library imports (zod, yup, joi, class-validator,
-pydantic). Check if raw user input flows directly into database queries
-or business logic.
-
-Remediation: Add input validation with zod, yup, or joi on every
-endpoint that accepts user input.
-
-### SEC-07: Rate limiting
-
-Search for rate limiting middleware (express-rate-limit, @upstash/ratelimit,
-rate-limiter-flexible, slowapi). Check auth routes and sensitive endpoints.
-
-Remediation: Add rate limiting middleware. Start with auth endpoints
-(login, register, password reset) and any endpoint that sends emails
-or costs money.
-
-### SEC-09: Auth token expiry
-
-Search JWT sign calls for expiresIn/exp claims. Check if tokens are
-created without expiry. Search for `sign(`, `jwt.encode(`, `createToken`.
-
-Remediation: Set token expiry. Access tokens: 15-60 minutes.
-Refresh tokens: 7-30 days. Never issue tokens without expiry.
-
-### SEC-14: Sensitive data in URLs or logs
-
-Search for query parameters containing keywords like password, token,
-secret, key, ssn, credit_card. Search logging statements that log
-full request objects or sensitive fields.
-
-Remediation: Send sensitive data in request body or headers, never
-in URL parameters. Redact sensitive fields before logging.
-
-### SEC-16: File upload validation
-
-Search for file upload handlers (multer, formidable, busboy,
-UploadedFile). Check if file type, size, and path are validated.
-
-Remediation: Validate file MIME type against an allowlist. Set
-maximum file size. Sanitize filenames. Store outside webroot.
-
-### SEC-12: JWT security
-
-Search for `alg: 'none'`, `algorithm: 'none'`, or JWT secrets shorter
-than 32 characters.
-
-Remediation: Use RS256 or HS256 with a strong secret (32+ characters).
-Never allow alg:none.
-
-### SEC-17: No hardcoded secrets in .env committed
-
-Check git history for .env files: `git log --all --name-only | grep .env`
-Check if .env exists in the working tree and is not in .gitignore.
-
-Remediation: Add .env* to .gitignore. Rotate any exposed secrets.
-Use `git filter-branch` or BFG to remove from history if needed.
+- **SEC-03** HTTPS enforced at the edge, HTTP redirected. A deployment fact, not code; confirm
+  manually.
+- **SEC-10** Sessions invalidated server-side on logout. Confirm manually.
 
 ---
 

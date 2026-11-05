@@ -1,0 +1,8 @@
+{
+  "name": "architecture-ddd-toolchain",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  }
+}

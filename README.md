@@ -1,46 +1,47 @@
 # skill-marketplace
 
-A Claude Code plugin marketplace for engineering work. The plugins are grouped by the job they do:
-carry a change from idea to review (`dev`), design, diagram, understand
-and verify systems (`code`), design and measure user interfaces (`design-system`), review game work
-(`game`), design games (`game-design`), build a Godot game with bots and a balance model
-(`godot-incremental`), run a fleet of agents (`herdr`), think and finish well (`tools`), and make
-more skills (`meta`).
+A Claude Code plugin marketplace for engineering work, organised by the life of a change. Sixteen
+plugins hold 301 skills and six agents. Each plugin answers one question, so a user who knows the
+question knows the plugin:
 
-Eleven further plugins hold **two hundred and five skills harvested from the open skill ecosystem**
-(fifty-eight repositories reviewed, twenty-three contributed): engineering craft (`craft`), verification
-and testing (`verify`), Lauren Tan's pstack principles (`pstack`), product thinking and specs
-(`product`), design craft (`design`), stack references (`stack`), production operations (`ops`),
-security practice (`security`), agent engineering (`agentic`), LLM training (`ml`) and knowledge work
-(`work`). Every one is a supply-chain-controlled copy, adapted only as far as it takes to run standalone in
-Claude Code, and credited with its upstream repository, commit and license in the plugin's `NOTICE.md`.
-The harvest itself is written up in [docs/2026-10-11-skill-harvest.md](docs/2026-10-11-skill-harvest.md).
+- **Life of a change** — decide (`product`), shape (`architecture`), build (`dev`), verify
+  (`verify`), secure (`security`), ship (`ops`).
+- **Foundation**, used at every stage — understand existing code (`code`), engineering principles
+  (`craft`), library references (`stack`), agents and skills (`agentic`), multi-agent fleets
+  (`herdr`).
+- **Domains** — UX/UI design (`design`), game design and review (`game`), building in Godot
+  (`godot`), model training (`ml`), knowledge work and prose (`work`).
+
+Most skills are first-party pipelines; the rest are vendored from the open skill ecosystem. Every
+vendored skill is a supply-chain-controlled copy, adapted only as far as it takes to run
+standalone in Claude Code, and credited with its upstream repository, commit and license in its
+plugin's `NOTICE.md`. The harvest that brought most of them in is written up in
+[docs/2026-10-11-skill-harvest.md](docs/2026-10-11-skill-harvest.md).
 
 ## Install
 
 ```bash
 claude plugin marketplace add MattMakes/skill-marketplace
 
-claude plugin install dev@skill-marketplace
-claude plugin install code@skill-marketplace
-claude plugin install design-system@skill-marketplace
-claude plugin install game@skill-marketplace
-claude plugin install game-design@skill-marketplace
-claude plugin install godot-incremental@skill-marketplace
-claude plugin install herdr@skill-marketplace
-claude plugin install tools@skill-marketplace
-claude plugin install meta@skill-marketplace
-
-# harvested plugins
-claude plugin install craft@skill-marketplace
-claude plugin install verify@skill-marketplace
-claude plugin install pstack@skill-marketplace
+# life of a change
 claude plugin install product@skill-marketplace
-claude plugin install design@skill-marketplace
-claude plugin install stack@skill-marketplace
-claude plugin install ops@skill-marketplace
+claude plugin install architecture@skill-marketplace
+claude plugin install dev@skill-marketplace
+claude plugin install verify@skill-marketplace
 claude plugin install security@skill-marketplace
+claude plugin install ops@skill-marketplace
+
+# foundation
+claude plugin install code@skill-marketplace
+claude plugin install craft@skill-marketplace
+claude plugin install stack@skill-marketplace
 claude plugin install agentic@skill-marketplace
+claude plugin install herdr@skill-marketplace
+
+# domains
+claude plugin install design@skill-marketplace
+claude plugin install game@skill-marketplace
+claude plugin install godot@skill-marketplace
 claude plugin install ml@skill-marketplace
 claude plugin install work@skill-marketplace
 ```
@@ -48,161 +49,594 @@ claude plugin install work@skill-marketplace
 Or from inside a session: `/plugin marketplace add MattMakes/skill-marketplace`, then
 `/plugin install <name>@skill-marketplace`.
 
+## Migrating from 2.x
+
+Marketplace **3.0.0 is a breaking change.** The 2.x plugins grew by source, not by job, so one
+concept had two or three owners. In 3.0.0 every skill has one home, six plugins are gone, two are
+new, and many skills have a new `<plugin>:<skill>` name. Existing project workspaces (`ai_docs/`,
+`ddd/`, `docs/wiki/`, `graphify-out/`) need no conversion.
+
+**Removed plugins and where their skills went:**
+
+| Removed plugin | Its skills now live in |
+|---|---|
+| `tools` | `product` (adhd), `architecture` (api-design-principles), `dev` (pre-flight, unlazy, git worktrees, advanced git; post-flight, unlazy-lite, test-driven-development and systematic-debugging merged into dev skills), `verify` (code-review-excellence, receiving-code-review), `craft` (error-handling-patterns), `agentic` (model-router, persona), `work` (humanize, mochi-deck) |
+| `pstack` | `craft` (the sixteen `principle-*` skills), `architecture` (architect), `dev` (arena, show-me-your-work), `verify` (blast-radius, benchmark-checklist, create- and maintain-verification-skill), `code` (why), `agentic` (correct), `stack` (typescript-best-practices), `work` (technical-writing) |
+| `meta` | `agentic` (skill-creator, mcp-builder, harvest) |
+| `design-system` | `design` (the whole pipeline and the design-critic agent; a11y-audit and design-review merged with design's own); `product:grilling` (grill-me) |
+| `game-design` | `game` (the design studio; one-page-design merged into one-page-game-design) |
+| `godot-incremental` | `godot` (renamed; all thirteen skills, same names) |
+
+**New plugins:** `architecture` (DDD and Blueprint from `code`, module design and contracts from
+`craft`, `tools`, `pstack`, `stack` and `work`) and `godot` (the renamed `godot-incremental`).
+
+**What to do:**
+
+```bash
+claude plugin marketplace update skill-marketplace
+
+# 1. uninstall every removed plugin you have
+claude plugin uninstall tools@skill-marketplace
+claude plugin uninstall pstack@skill-marketplace
+claude plugin uninstall meta@skill-marketplace
+claude plugin uninstall design-system@skill-marketplace
+claude plugin uninstall game-design@skill-marketplace
+claude plugin uninstall godot-incremental@skill-marketplace
+
+# 2. install the plugins that now hold those skills
+claude plugin install architecture@skill-marketplace
+claude plugin install godot@skill-marketplace
+#    ...and any of product, dev, verify, code, craft, stack, agentic, design, game, work
+#    that you did not have before (see the table above)
+
+# 3. update the rest, then /reload-plugins or restart
+```
+
+Uninstall the removed plugins first. A 2.x plugin left installed beside its 3.0.0 successor loads
+the same skill twice under two names, and two near-identical descriptions make triggering a coin
+flip. Then update anything of yours that calls a skill by its old name — scripts, `AGENTS.md`
+files, saved prompts — using the tables below.
+
+**Merged skills.** These no longer exist under any name; their content is a mode or a reference of
+the skill they joined:
+
+| Old skill | Now part of | As |
+|---|---|---|
+| `product:write-spec` | `product:spec` | its quick PRD mode |
+| `product:grill-with-docs` | `product:grilling` | its docs-anchored mode |
+| `product:intent-driven-development` | `product:requirement-convergence` | — |
+| `design-system:grill-me` | `product:grilling` | its design-brief mode |
+| `tools:post-flight` | `dev:check-implementation` | its full post-flight mode |
+| `tools:unlazy-lite` | `dev:unlazy` | its lite mode |
+| `tools:test-driven-development` | `dev:tdd` | — |
+| `tools:systematic-debugging` | `dev:debug` | — |
+| `craft:diagnosing-bugs` | `dev:debug` | its hard-bug and performance-regression mode |
+| `dev:prime` | `code:core` | its quick mode (no graph) |
+| `dev:document-project` | `code:deepwiki` | its Brownfield mode |
+| `dev:review-git-changes` | `verify:code-sweep` | its light mode |
+| `verify:webapp-testing` | `verify:control-ui` | — |
+| `ops:shipping-and-launch` | `ops:ship-gate` | its launch checklist and launch-plan mode |
+| `design-system:a11y-audit` | `design:a11y-audit` | — |
+| `design:accessibility` | `design:a11y-audit` | — |
+| `design-system:design-review` | `design:design-review` | — |
+| `design:core-web-vitals` | `design:performance` | — |
+| `design:design-system-patterns` | `design:design-tokens` | — |
+| `design:design-is` | `design:critique` | its Dieter Rams lens (`rams`) |
+| `game-design:one-page-design` | `game:one-page-game-design` | its headless pipeline mode |
+| `work:statistical-analysis` | `work:statistical-analyst` | — |
+
+Two changes inside skills that kept their names: `code:core` no longer writes `CLAUDE.md` files
+or `AGENTS.md` symlinks; it builds the graph and hands the instruction files to `agentic:keys`
+(AGENTS.md only). `ops:ship-gate` calls `security:security-sweep` for its security section.
+
+**Every move, by old plugin.** One row per skill and agent that changed its name. A skill not
+listed kept its plugin and its name.
+
+<details>
+<summary><code>tools</code> (removed): 17 skills and agents</summary>
+
+| Old name | New name | Change |
+|---|---|---|
+| `tools:adhd` | `product:adhd` | moved |
+| `tools:api-design-principles` | `architecture:api-design-principles` | moved |
+| `tools:pre-flight` | `dev:pre-flight` | moved |
+| `tools:unlazy` | `dev:unlazy` | moved |
+| `tools:using-git-worktrees` | `dev:using-git-worktrees` | moved |
+| `tools:git-advanced-workflows` | `dev:git-advanced-workflows` | moved |
+| `tools:code-review-excellence` | `verify:code-review-excellence` | moved |
+| `tools:receiving-code-review` | `verify:receiving-code-review` | moved |
+| `tools:error-handling-patterns` | `craft:error-handling-patterns` | moved |
+| `tools:model-router` | `agentic:model-router` | moved |
+| `tools:persona` | `agentic:persona` | moved |
+| `tools:humanize` | `work:humanize` | moved |
+| `tools:mochi-deck` | `work:mochi-deck` | moved |
+| `tools:post-flight` | `dev:check-implementation` | merged |
+| `tools:unlazy-lite` | `dev:unlazy` | merged |
+| `tools:test-driven-development` | `dev:tdd` | merged |
+| `tools:systematic-debugging` | `dev:debug` | merged |
+
+</details>
+
+<details>
+<summary><code>pstack</code> (removed): 27 skills and agents</summary>
+
+| Old name | New name | Change |
+|---|---|---|
+| `pstack:architect` | `architecture:architect` | moved |
+| `pstack:arena` | `dev:arena` | moved |
+| `pstack:show-me-your-work` | `dev:show-me-your-work` | moved |
+| `pstack:blast-radius` | `verify:blast-radius` | moved |
+| `pstack:benchmark-checklist` | `verify:benchmark-checklist` | moved |
+| `pstack:create-verification-skill` | `verify:create-verification-skill` | moved |
+| `pstack:maintain-verification-skill` | `verify:maintain-verification-skill` | moved |
+| `pstack:why` | `code:why` | moved |
+| `pstack:principle-attack-the-premise` | `craft:principle-attack-the-premise` | moved |
+| `pstack:principle-boundary-discipline` | `craft:principle-boundary-discipline` | moved |
+| `pstack:principle-build-the-lever` | `craft:principle-build-the-lever` | moved |
+| `pstack:principle-encode-lessons-in-structure` | `craft:principle-encode-lessons-in-structure` | moved |
+| `pstack:principle-explain-the-number` | `craft:principle-explain-the-number` | moved |
+| `pstack:principle-foundational-thinking` | `craft:principle-foundational-thinking` | moved |
+| `pstack:principle-laziness-protocol` | `craft:principle-laziness-protocol` | moved |
+| `pstack:principle-make-operations-idempotent` | `craft:principle-make-operations-idempotent` | moved |
+| `pstack:principle-migrate-callers-then-delete-legacy-apis` | `craft:principle-migrate-callers-then-delete-legacy-apis` | moved |
+| `pstack:principle-minimize-reader-load` | `craft:principle-minimize-reader-load` | moved |
+| `pstack:principle-model-the-domain` | `craft:principle-model-the-domain` | moved |
+| `pstack:principle-separate-before-serializing-shared-state` | `craft:principle-separate-before-serializing-shared-state` | moved |
+| `pstack:principle-sequence-verifiable-units` | `craft:principle-sequence-verifiable-units` | moved |
+| `pstack:principle-subtract-before-you-add` | `craft:principle-subtract-before-you-add` | moved |
+| `pstack:principle-test-behavior-not-implementation` | `craft:principle-test-behavior-not-implementation` | moved |
+| `pstack:principle-type-system-discipline` | `craft:principle-type-system-discipline` | moved |
+| `pstack:typescript-best-practices` | `stack:typescript-best-practices` | moved |
+| `pstack:correct` | `agentic:correct` | moved |
+| `pstack:technical-writing` | `work:technical-writing` | moved |
+
+</details>
+
+<details>
+<summary><code>meta</code> (removed): 3 skills and agents</summary>
+
+| Old name | New name | Change |
+|---|---|---|
+| `meta:skill-creator` | `agentic:skill-creator` | moved |
+| `meta:mcp-builder` | `agentic:mcp-builder` | moved |
+| `meta:harvest` | `agentic:harvest` | moved |
+
+</details>
+
+<details>
+<summary><code>design-system</code> (removed): 25 skills and agents</summary>
+
+| Old name | New name | Change |
+|---|---|---|
+| `design-system:apply-aesthetic` | `design:apply-aesthetic` | moved |
+| `design-system:brandkit` | `design:brandkit` | moved |
+| `design-system:critique` | `design:critique` | moved |
+| `design-system:data-dashboard` | `design:data-dashboard` | moved |
+| `design-system:design-code` | `design:design-code` | moved |
+| `design-system:design-component` | `design:design-component` | moved |
+| `design-system:design-doctrine` | `design:design-doctrine` | moved |
+| `design-system:design-qa` | `design:design-qa` | moved |
+| `design-system:design-screen` | `design:design-screen` | moved |
+| `design-system:design-tokens` | `design:design-tokens` | moved |
+| `design-system:figma-integration` | `design:figma-integration` | moved |
+| `design-system:gate` | `design:gate` | moved |
+| `design-system:governance` | `design:governance` | moved |
+| `design-system:image-to-code` | `design:image-to-code` | moved |
+| `design-system:migrate-design-system` | `design:migrate-design-system` | moved |
+| `design-system:performance` | `design:performance` | moved |
+| `design-system:prototype` | `design:prototype` | moved |
+| `design-system:redesign` | `design:redesign` | moved |
+| `design-system:scaffold-project` | `design:scaffold-project` | moved |
+| `design-system:token-build` | `design:token-build` | moved |
+| `design-system:ux-writing` | `design:ux-writing` | moved |
+| `design-system:design-critic` (agent) | `design:design-critic` | moved |
+| `design-system:grill-me` | `product:grilling` | merged |
+| `design-system:a11y-audit` | `design:a11y-audit` | merged |
+| `design-system:design-review` | `design:design-review` | merged |
+
+</details>
+
+<details>
+<summary><code>game-design</code> (removed): 12 skills and agents</summary>
+
+| Old name | New name | Change |
+|---|---|---|
+| `game-design:art-direction` | `game:art-direction` | moved |
+| `game-design:core-loop` | `game:core-loop` | moved |
+| `game-design:design-diagrams` | `game:design-diagrams` | moved |
+| `game-design:fun-targeting` | `game:fun-targeting` | moved |
+| `game-design:game-brief` | `game:game-brief` | moved |
+| `game-design:game-ideation` | `game:game-ideation` | moved |
+| `game-design:level-ux` | `game:level-ux` | moved |
+| `game-design:one-page-game-design` | `game:one-page-game-design` | moved |
+| `game-design:progression-content` | `game:progression-content` | moved |
+| `game-design:prototype-plan` | `game:prototype-plan` | moved |
+| `game-design:systems-economy` | `game:systems-economy` | moved |
+| `game-design:one-page-design` | `game:one-page-game-design` | merged |
+
+</details>
+
+<details>
+<summary><code>godot-incremental</code> (removed): 13 skills and agents</summary>
+
+| Old name | New name | Change |
+|---|---|---|
+| `godot-incremental:balance-model-data` | `godot:balance-model-data` | moved |
+| `godot-incremental:bot-balance-loop` | `godot:bot-balance-loop` | moved |
+| `godot-incremental:feature-seams-and-saves` | `godot:feature-seams-and-saves` | moved |
+| `godot-incremental:fleet-game-dev` | `godot:fleet-game-dev` | moved |
+| `godot-incremental:game-audio` | `godot:game-audio` | moved |
+| `godot-incremental:godot-perf` | `godot:godot-perf` | moved |
+| `godot-incremental:godot-testing` | `godot:godot-testing` | moved |
+| `godot-incremental:headless-godot-runs` | `godot:headless-godot-runs` | moved |
+| `godot-incremental:pixel-art-pipeline` | `godot:pixel-art-pipeline` | moved |
+| `godot-incremental:release-and-store` | `godot:release-and-store` | moved |
+| `godot-incremental:safe-refactor-and-review` | `godot:safe-refactor-and-review` | moved |
+| `godot-incremental:upgrade-tree-design` | `godot:upgrade-tree-design` | moved |
+| `godot-incremental:visual-verification` | `godot:visual-verification` | moved |
+
+</details>
+
+<details>
+<summary><code>code</code>: 16 skills and agents</summary>
+
+| Old name | New name | Change |
+|---|---|---|
+| `code:ddd` | `architecture:ddd` | moved |
+| `code:ddd-understand` | `architecture:ddd-understand` | moved |
+| `code:ddd-discover` | `architecture:ddd-discover` | moved |
+| `code:ddd-decompose` | `architecture:ddd-decompose` | moved |
+| `code:ddd-strategize` | `architecture:ddd-strategize` | moved |
+| `code:ddd-connect` | `architecture:ddd-connect` | moved |
+| `code:ddd-organise` | `architecture:ddd-organise` | moved |
+| `code:ddd-define` | `architecture:ddd-define` | moved |
+| `code:ddd-code` | `architecture:ddd-code` | moved |
+| `code:ddd-contracts` | `architecture:ddd-contracts` | moved |
+| `code:blueprint` | `architecture:blueprint` | moved |
+| `code:complexity-sweep` | `verify:complexity-sweep` | moved |
+| `code:e2e-harness` | `verify:e2e-harness` | moved |
+| `code:security-sweep` | `security:security-sweep` | moved |
+| `code:keys` | `agentic:keys` | moved |
+| `code:ddd-decision-strategist` (agent) | `architecture:ddd-decision-strategist` | moved |
+
+</details>
+
+<details>
+<summary><code>dev</code>: 13 skills and agents</summary>
+
+| Old name | New name | Change |
+|---|---|---|
+| `dev:research-codebase` | `code:research-codebase` | moved |
+| `dev:trace` | `code:trace` | moved |
+| `dev:code-sweep` | `verify:code-sweep` | moved |
+| `dev:server-component-rules` | `stack:server-component-rules` | moved |
+| `dev:rules-from-code` | `agentic:rules-from-code` | moved |
+| `dev:engineering-rules` | `agentic:engineering-rules` | moved |
+| `dev:code-reviewer` (agent) | `verify:code-reviewer` | moved |
+| `dev:codebase-locator` (agent) | `code:codebase-locator` | moved |
+| `dev:codebase-analyzer` (agent) | `code:codebase-analyzer` | moved |
+| `dev:codebase-pattern-finder` (agent) | `code:codebase-pattern-finder` | moved |
+| `dev:prime` | `code:core` | merged |
+| `dev:document-project` | `code:deepwiki` | merged |
+| `dev:review-git-changes` | `verify:code-sweep` | merged |
+
+</details>
+
+<details>
+<summary><code>craft</code>: 13 skills and agents</summary>
+
+| Old name | New name | Change |
+|---|---|---|
+| `craft:domain-modeling` | `architecture:domain-modeling` | moved |
+| `craft:codebase-design` | `architecture:codebase-design` | moved |
+| `craft:improve-codebase-architecture` | `architecture:improve-codebase-architecture` | moved |
+| `craft:improve` | `architecture:improve` | moved |
+| `craft:architecture-decision-records` | `architecture:architecture-decision-records` | moved |
+| `craft:contract-first` | `architecture:contract-first` | moved |
+| `craft:verification-before-completion` | `dev:verification-before-completion` | moved |
+| `craft:doubt-driven-development` | `dev:doubt-driven-development` | moved |
+| `craft:finishing-a-development-branch` | `dev:finishing-a-development-branch` | moved |
+| `craft:make-pr-easy-to-review` | `dev:make-pr-easy-to-review` | moved |
+| `craft:code-tour` | `code:code-tour` | moved |
+| `craft:retro` | `agentic:retro` | moved |
+| `craft:diagnosing-bugs` | `dev:debug` | merged |
+
+</details>
+
+<details>
+<summary><code>product</code>: 5 skills and agents</summary>
+
+| Old name | New name | Change |
+|---|---|---|
+| `product:plan-design-review` | `design:plan-design-review` | moved |
+| `product:spec-driven-workflow` | `dev:spec-driven-workflow` | moved |
+| `product:write-spec` | `product:spec` | merged |
+| `product:grill-with-docs` | `product:grilling` | merged |
+| `product:intent-driven-development` | `product:requirement-convergence` | merged |
+
+</details>
+
+<details>
+<summary><code>design</code>: 6 skills and agents</summary>
+
+| Old name | New name | Change |
+|---|---|---|
+| `design:web-quality-audit` | `verify:web-quality-audit` | moved |
+| `design:frontend-slides` | `work:frontend-slides` | moved |
+| `design:accessibility` | `design:a11y-audit` | merged |
+| `design:core-web-vitals` | `design:performance` | merged |
+| `design:design-system-patterns` | `design:design-tokens` | merged |
+| `design:design-is` | `design:critique` | merged |
+
+</details>
+
+<details>
+<summary><code>stack</code>: 1 skills and agents</summary>
+
+| Old name | New name | Change |
+|---|---|---|
+| `stack:saga-orchestration` | `architecture:saga-orchestration` | moved |
+
+</details>
+
+<details>
+<summary><code>agentic</code>: 1 skills and agents</summary>
+
+| Old name | New name | Change |
+|---|---|---|
+| `agentic:human-gate` | `verify:human-gate` | moved |
+
+</details>
+
+<details>
+<summary><code>work</code>: 2 skills and agents</summary>
+
+| Old name | New name | Change |
+|---|---|---|
+| `work:drawio` | `architecture:drawio` | moved |
+| `work:statistical-analysis` | `work:statistical-analyst` | merged |
+
+</details>
+
+<details>
+<summary><code>verify</code>: 1 skills and agents</summary>
+
+| Old name | New name | Change |
+|---|---|---|
+| `verify:webapp-testing` | `verify:control-ui` | merged |
+
+</details>
+
+<details>
+<summary><code>ops</code>: 1 skills and agents</summary>
+
+| Old name | New name | Change |
+|---|---|---|
+| `ops:shipping-and-launch` | `ops:ship-gate` | merged |
+
+</details>
+
+Each plugin's README has a "Moved in v3" section with the same moves from that plugin's side.
+
 ---
+
+# Life of a change
+
+## `product` — Product Thinking and Specs
+
+**What should we build, and why?** From an idea to a spec someone can build from: discover,
+research, challenge, specify. Nineteen skills.
+
+| Skill | What it does |
+|---|---|
+| `product-brainstorming` | A thinking partner for a problem space: explore an opportunity, generate solutions, challenge assumptions. |
+| `office-hours` | YC office hours: six forcing questions for a startup idea, or design-thinking brainstorming for a builder. |
+| `deep-research` | A disciplined multi-source investigation with parallel subagents and triangulated sources. |
+| `grilling` | Grills a plan or idea in rounds over a design tree, with a recommended answer for each question; docs-anchored and design-brief modes. |
+| `spec` | Turns vague intent into an executable spec through strict phases; a quick PRD mode. |
+| `requirement-convergence` | Separates the outcome from the proposed requirements, then writes verifiable acceptance criteria. |
+
+Full list: [plugins/product/README.md](plugins/product/README.md).
+
+```bash
+claude plugin install product@skill-marketplace
+```
+
+## `architecture` — Architecture
+
+**How should the system be shaped?** Domain-driven design, module design, decision records,
+contracts and diagrams. Twenty-one skills and one agent. The DDD and Blueprint tools need Node.js
+18 or newer.
+
+| Skill | What it does |
+|---|---|
+| `ddd` | Starts or resumes the nine-step DDD Starter Modelling Process (`ddd-understand` … `ddd-contracts`) over one `ddd/` workspace, with validators, a review page and the `ddd-decision-strategist` agent. |
+| `blueprint` | Renders validated architecture, workflow, sequence, data-flow and lifecycle diagrams as explorable standalone HTML with image export. |
+| `domain-modeling` | The light DDD mode for an existing codebase: terminology, `GLOSSARY.md`, ADRs. |
+| `codebase-design` | Shared vocabulary for deep modules: interfaces, seams, testability. |
+| `architecture-decision-records` | Writes and maintains ADRs. |
+| `contract-first` | Coordinates services through one machine-checkable contract (OpenAPI, AsyncAPI, Protobuf, JSON Schema). |
+| `drawio` | Editable `.drawio` diagrams for humans to keep editing. |
+
+Full list: [plugins/architecture/README.md](plugins/architecture/README.md); the DDD guide is
+[plugins/architecture/docs/ddd.md](plugins/architecture/docs/ddd.md).
+
+```bash
+claude plugin install architecture@skill-marketplace
+```
 
 ## `dev` — Development Workflow
 
-A chained pipeline from rough idea to reviewed change, over an `ai_docs/` workspace in the repo you
-are working in. **Start with `workflow`**, which shows the paths and their order. A *change* means a
-merge request on GitLab or a pull request on GitHub; the skills detect `glab` or `gh` at runtime.
+**Build the change.** A chained pipeline over one `ai_docs/` workspace in the repository you work
+in: design, plan, execute, check, hand off. **Start with `workflow`.** A *change* means a merge
+request on GitLab or a pull request on GitHub; the skills detect `glab` or `gh` at runtime.
+Twenty-three skills.
 
 | Skill | What it does |
 |---|---|
-| `workflow` | The entry point. Shows the available paths and which skill comes next. |
-| `prime` | Loads project context by reading the files that matter for the stack it detects. |
-| `brainstorm` | Turns a rough idea into a formed design through structured questioning. |
-| `analyze-design` | Puts a design in front of several expert perspectives at once, via subagents. |
-| `breakdown` | Splits a design into Simple-Lovable-Complete phases, one plan document each. |
+| `workflow` | The entry point. Shows the paths and which skill comes next. |
+| `brainstorm` | Turns a rough idea into a formed technical design through structured questioning. |
 | `create-plan` | Writes an implementation plan an engineer with zero codebase context could follow. |
-| `execute-plan` | Executes that plan in batches, with review checkpoints and parallel dispatch. |
-| `swarm` | Orchestrates agent teams for build, research, review or debug work. |
-| `check-implementation` | Verifies the built code matches the plan: components, tests, build. |
-| `code-sweep` | Dispatches a panel of twelve specialized reviewers in parallel, one concern each, into one ranked report. |
-| `review-git-changes` | Grades a branch across several aspects from its git history and diff. |
+| `execute-plan` | Executes the plan in batches with reviewer subagents; `swarm` and `arena` are the parallel alternatives. |
+| `check-implementation` | Verifies the built code against the plan; full post-flight mode from the former `tools:post-flight`. |
+| `debug` | Systematic debugging before any fix; a hard-bug and performance-regression mode. |
+| `tdd` | Red-green-refactor discipline for features, bug fixes and skill authoring. |
 | `change-description` | Writes the description for a change from the ticket and the diff. |
-| `debug` | Systematic debugging that finds the cause before proposing a fix. |
-| `tdd` | Red-green-refactor discipline for features, bugfixes and skill authoring. |
-| `trace` | Follows an entry point upstream and downstream and writes the business logic in prose. |
-| `research-codebase` | Documents a codebase as it is, no critique, using parallel subagents. |
-| `rules-from-code` | Reverse-engineers a `rules.md` from the code a team is proud of. |
-| `engineering-rules` | States the SLC engineering ethos and coding standards up front. |
-| `server-component-rules` | Next.js App Router server components and server actions. |
-| `document-project` | Brownfield architecture documentation written for agents to consume. |
-| `whats-next` | A handoff document so a fresh context loses nothing. |
 
-Agents: `codebase-locator`, `codebase-analyzer`, `codebase-pattern-finder`, `code-reviewer`.
+Full list: [plugins/dev/README.md](plugins/dev/README.md).
+
+```bash
+claude plugin install dev@skill-marketplace
+```
+
+## `verify` — Review and Verification
+
+**Is it right, and does it work?** Review by reading, proof by running, in separate groups.
+Thirty-two skills and one agent.
+
+| Skill | What it does |
+|---|---|
+| `code-sweep` | Twelve parallel reviewers, one concern each, into one severity-ranked report; a light six-aspect mode. Uses the `code-reviewer` agent. |
+| `complexity-sweep` | Fourteen complexity metrics on TypeScript, JavaScript, Python, Rust and GDScript, then refactors or emits refactoring prompts. |
+| `blast-radius` | Finds what a change could break beyond the diff and proves the fact it is safe because of. |
+| `verify-feature` | Builds and runs the app and observes the change at its real surface, capturing runtime evidence. |
+| `e2e-harness` | Turns a documented polyglot system into a deterministic Playwright end-to-end suite. |
+| `playwright-pro` | Playwright test authoring, templates, anti-pattern review and flaky-test diagnosis. |
+| `dogfood` | Exploratory QA of a web app with screenshots and reproduction steps. |
+
+Full list: [plugins/verify/README.md](plugins/verify/README.md).
+
+```bash
+claude plugin install verify@skill-marketplace
+```
+
+## `security` — Security Practice
+
+**Is it safe?** **Start with `security-sweep`**, which orchestrates the rest. Nine skills.
+
+| Skill | What it does |
+|---|---|
+| `security-sweep` | A multi-agent OWASP, STRIDE, secrets, supply-chain and LLM-security audit with a verifier fan-out and a CSO report. |
+| `security-threat-model` | A repository-grounded threat model: trust boundaries, assets, abuse paths, mitigations. |
+| `agent-security-hardening` | Hardening for agent runtimes that process untrusted content, call tools or hold credentials. |
+| `skill-security-auditor` | Scans a third-party skill for malicious code before you install it. |
+| `git-guardrails-claude-code` | Installs Claude Code hooks that block destructive git commands, only when invoked. |
+
+Full list: [plugins/security/README.md](plugins/security/README.md).
+
+```bash
+claude plugin install security@skill-marketplace
+```
+
+## `ops` — Production Operations
+
+**Ship it and run it.** Release, instrument, set targets and learn from what breaks. Sixteen
+skills.
+
+| Skill | What it does |
+|---|---|
+| `ship-gate` | "Can this go to production?" A pre-launch audit with a launch-plan mode; calls `security:security-sweep` for its security section. |
+| `observability-and-instrumentation` | Structured logs, RED metrics, OpenTelemetry and alerts with runbooks. |
+| `slo-architect` | SLOs, SLIs, error budgets and burn-rate alerts. |
+| `feature-flags-architect` | Feature flags as a lifecycle: taxonomy, rollout plans, debt scanning. |
+| `migration-architect` | Zero-downtime database, service and infrastructure migrations with rollback paths. |
+| `postmortem-writing` | Blameless postmortems. |
+
+Full list: [plugins/ops/README.md](plugins/ops/README.md).
+
+```bash
+claude plugin install ops@skill-marketplace
+```
+
+---
+
+# Foundation
 
 ## `code` — Code Intelligence
 
-Design, understand, and verify systems. Choose the entry point for the job:
-
-| Start here | What it does |
-|---|---|
-| `ddd` | Starts or resumes domain modelling; routes through nine step skills with shared artifacts, validation gates, and a review page. |
-| `blueprint` | Creates standalone architecture, workflow, sequence, data-flow and state diagrams with animated walkthroughs, offline fonts, and image export. Also supplies diagrams to DDD and explain-diff. |
-| `core` | Primes an existing repo into a knowledge graph and `CLAUDE.md` contracts. |
-| `keys` | Stands up a self-maintaining `AGENTS.md` tree and folds `CLAUDE.md` and other agent-instruction files into it. |
-| `explain-diff` | Explains a diff, branch or PR with background, intuition, a code walkthrough, an interactive quiz, and embedded Blueprint diagrams. |
-| `deepwiki` | Generates and maintains wiki documentation with source citations and validated Mermaid. |
-| `security-sweep` | Audits security across stacks with OWASP, STRIDE, secrets and supply-chain checks. |
-| `complexity-sweep` | Measures TypeScript/JavaScript, Python, Rust and GDScript complexity and suggests or implements refactorings. |
-| `e2e-harness` | Generates runnable end-to-end suites from system documentation. |
-
-For DDD, invoke **`code:ddd`** rather than choosing a step first. It routes through
-`ddd-understand` → `ddd-discover` → `ddd-decompose` → `ddd-strategize` → `ddd-connect` →
-`ddd-organise` → `ddd-define` → `ddd-code` → `ddd-contracts`. The
-`code:ddd-decision-strategist` agent supports difficult design decisions.
-Node ≥ 18 runs the DDD and Blueprint tools. See the [DDD guide](plugins/code/docs/ddd.md)
-and [code plugin guide](plugins/code/README.md).
-
-The former `ddd` plugin is now part of `code`. Update/install `code@skill-marketplace`
-and remove the old `ddd` plugin to avoid duplicate skills. Replace `ddd:ddd-workflow`
-with `code:ddd`; existing project `ddd/` workspaces need no conversion.
-
-## `design-system` — UX/UI Design System
-
-A senior design architect: DTCG tokens, component specs with all eight interactive states, WCAG 2.2
-AA to AAA, a taste layer, 138 design-system specs, code for any framework, and render gates that
-measure accessibility in light and dark instead of claiming it. **Start with `design-doctrine`**,
-then `design-screen`. The render gates need Playwright once per install; the plugin README has the
-command.
+**What does this existing code do?** Prime a repository into a code graph, trace and research it,
+find out why it is shaped the way it is, document it, and explain a change. **Start with
+`core`.** Seven skills and three agents.
 
 | Skill | What it does |
 |---|---|
-| `design-doctrine` | The verification protocol and house rules every other design skill assumes. **Start here.** |
-| `design-screen` | A page, screen or app end to end: brief inference, direction, tokens, build, gates, critic. |
-| `design-component` | One component's spec: anatomy, variants, the eight states, tokens, accessibility. |
-| `design-code` | Accessible, token-driven code for React, Next.js, SwiftUI, Vue, Svelte, Flutter and more. |
-| `design-tokens` | DTCG tokens in three tiers: palettes, type, spacing, motion, theming. |
-| `data-dashboard` | Dense data screens with charts drawn from tokens. |
-| `apply-aesthetic` | An archetype or one of 138 named design systems, resolved into tokens. |
-| `a11y-audit` | WCAG 2.2 and ARIA findings, each with criterion, severity and fix. |
-| `design-review` | A six-dimension scored review with Nielsen's heuristics. |
-| `ux-writing` | Interface copy: buttons, errors, empty states, confirmations. |
-| `design-qa`, `performance`, `token-build`, `figma-integration` | CI gates, Core Web Vitals, token pipelines, Figma sync. |
+| `core` | Primes a repository once with a deterministic zero-token knowledge graph (graphify) and hands the `AGENTS.md` tree to `agentic:keys`; a quick read-only mode. |
+| `research-codebase` | Documents the codebase as it is, with the `codebase-locator`, `codebase-analyzer` and `codebase-pattern-finder` agents. |
+| `trace` | Follows an entry point upstream and downstream and writes the business logic in prose; parity sweeps. |
+| `why` | Design rationale from every source it can reach: git, issues, docs, chat, observability. |
+| `deepwiki` | A wiki with `file:line` citations and validated Mermaid; a Brownfield mode for agents. |
+| `explain-diff` | A diff, branch or PR as one self-contained HTML explainer with a quiz and Blueprint diagrams, narrated when the local service runs. |
 
-User-started commands: `/design-system:grill-me`, `/design-system:gate`, `/design-system:critique`, `/design-system:brandkit`,
-`/design-system:redesign`, `/design-system:image-to-code`, `/design-system:prototype`, `/design-system:migrate-design-system`,
-`/design-system:governance`, `/design-system:scaffold-project`. Agent: `design-critic`.
+Full list: [plugins/code/README.md](plugins/code/README.md).
 
-The kit is wired into the other plugins: `dev:code-sweep` has an interface auditor that runs its
-gates, `dev:analyze-design` and `dev:brainstorm` add a UX lens when there is a UI,
-`dev:check-implementation` gates the UI a plan built, and `code:explain-diff` measures its own
-pages. Adapted from [plugin87/ux-ui-agent-skills](https://github.com/plugin87/ux-ui-agent-skills), MIT.
+```bash
+claude plugin install code@skill-marketplace
+```
 
-## `game` — Game Dev Review Board
+## `craft` — Engineering Craft
 
-A review board for game work, each member backed by cited rules distilled from a shelf of
-game-development books. **Start with `game-studio-cpo`.**
+**What does good code look like?** Sixteen one-page engineering principles from Lauren Tan's
+pstack plus code-level practice. Twenty-six skills.
 
 | Skill | What it does |
 |---|---|
-| `game-studio-cpo` | A veteran studio Chief Product Officer for any "is this fun" question. |
-| `game-systems-reviewer` | Reviews a system: progression, combat, loot, crafting, inventory. |
-| `game-balance-auditor` | Internal economies, sources and drains, feedback loops, difficulty curves. |
-| `game-code-reviewer` | Game code and architecture: Unity scripts, systems wiring, decoupling. |
-| `game-performance-auditor` | Frame budget: CPU versus GPU bound, allocations, pooling, draw calls. |
-| `game-qa-reviewer` | Test plans, bug triage, severity, regression and ship-readiness. |
+| `principle-*` | Sixteen principles: type-system discipline, model the domain, minimize reader load, boundary discipline, idempotent operations, subtract before you add and more. |
+| `ponytail` | The smallest change that fully solves the task, and a reply a busy human reads once. |
+| `karpathy-coder` | Karpathy's four coding principles, with a pre-commit gate. |
+| `error-handling-patterns` | Exceptions, Result types, propagation and graceful degradation across languages. |
+| `prototype` | A throwaway prototype that answers one design question. |
+| `oh-my-issues` | Clusters an issue backlog by root cause. |
 
-## `game-design` — Game Design Studio
+Full list: [plugins/craft/README.md](plugins/craft/README.md).
 
-Choose the workflow for the job. Use `game-design:one-page-game-design` to work through decisions
-with the user and produce adaptive HTML or SVG plus PDF. Use the existing headless pipeline for
-generative design, then send its result to `game:game-studio-cpo` for critique. Start that pipeline
-with `fun-targeting`; use `game-design:one-page-design` for its headless JSON-spec rendering step.
+```bash
+claude plugin install craft@skill-marketplace
+```
 
-| Skill | What it does |
-|---|---|
-| `one-page-game-design` | Collaboratively produces light interactive HTML or a detailed standalone SVG, a one-page PDF, and a saved design record. |
-| `fun-targeting` | Picks 2–3 of the eight kinds of fun and traces every mechanic back to one (MDA). |
-| `game-ideation` | At least 6 concepts under a constraint card, a boundaries-first gate, a scored shortlist. |
-| `core-loop` | Moment-to-moment, session and long-term loops as Mermaid flowcharts. |
-| `design-diagrams` | Which diagram to draw when: storyboard, time-and-space map, triangle, matrix, module map. |
-| `game-brief` | The reader-facing brief, down to the smallest prototype that tests the fun. |
-| `one-page-design` | Librande's one-page method; renders a JSON spec to a dated SVG. |
-| `art-direction` | A style sheet, a shot list tied to the fun, and placeholder image prompts. |
+## `stack` — Stack References
 
-A3 is the default page size for light mode. A2 or larger is the default for heavy mode; these are
-defaults, not restrictions. The optional exporter requires Node.js, Playwright or `playwright-core`,
-and Chromium or Chrome. It does not install these dependencies.
-
-## `godot-incremental` — Godot Incremental Build
-
-Build a Godot game step by step with scripted bots, headless tests, a scripted balance model and a
-worker fleet. The 13 skills come from 527 agent sessions of one long build. **Start with
-`balance-model-data`, `feature-seams-and-saves`, `headless-godot-runs` and `godot-testing`.**
-Needs Godot 4 and Python 3; `ffmpeg` serves two skills.
+**What does this library get wrong?** Library and framework references with the gotchas a model
+gets wrong. Twenty-four skills.
 
 | Skill | What it does |
 |---|---|
-| `balance-model-data` | A scripted balance model as the source of the game's data, with parity to the game. |
-| `feature-seams-and-saves` | Adds content and modes behind data seams and flags; keeps saves safe across versions. |
-| `headless-godot-runs` | Runs Godot tools, probes and bots headless without side effects. |
-| `godot-testing` | The headless test loop, test quality and the finish gate of a unit. |
-| `bot-balance-loop` | Bot fights, measure tables and wall diagnosis against target bands. |
-| `upgrade-tree-design` | Upgrade trees, buy policies, fun bands and the human playtest that judges them. |
-| `safe-refactor-and-review` | Proves that a change keeps behaviour; finds every site; reviews and fixes in waves. |
-| `visual-verification` | Real window captures, visual gates and UI checks that a headless run cannot give. |
-| `godot-perf` | Measures and fixes frame cost: A/B pairs, hitch maps, stress, warm-up, batching. |
-| `pixel-art-pipeline` | Palette-locked pixel art and models from an image model or from scripts. |
-| `game-audio` | Deterministic sound, measured mix loudness and music sets. |
-| `release-and-store` | Exports, demo cuts, gamepad support, trailers and the store page. |
-| `fleet-game-dev` | Habits for a game built by many agent sessions: locks, worktrees, landing, verification. |
+| `gsap-*`, `motion-*`, `remotion-best-practices` | GreenSock's official GSAP set, a motion/react system in three layers, Remotion. |
+| `react-best-practices`, `react-useeffect`, `server-component-rules` | React and Next.js performance rules, `useEffect` discipline, Server Components and Server Actions. |
+| `typescript-best-practices` | Sixteen TypeScript rules with before/after code. |
+| `postgres-best-practices`, `prisma-patterns`, `database-migrations` | Postgres, Prisma, and per-tool database migrations. |
+| `cpp-coding-standards`, `dotnet-backend-patterns`, `swift-concurrency-expert` | C++ Core Guidelines, .NET backend patterns, Swift concurrency. |
+
+Full list: [plugins/stack/README.md](plugins/stack/README.md).
+
+```bash
+claude plugin install stack@skill-marketplace
+```
+
+## `agentic` — Agent Engineering
+
+**Make agents, skills and the agent harness.** Instruction files, learning from sessions, routing,
+building agents, making skills and MCP servers. Nineteen skills.
+
+| Skill | What it does |
+|---|---|
+| `keys` | A self-maintaining `AGENTS.md` hierarchy; folds `CLAUDE.md`, `.cursorrules` and similar files into it after you confirm. |
+| `writing-for-agents` | How to write skills and `AGENTS.md` files that agents use well. |
+| `agent-memory` | Lets an agent learn durable facts from its own sessions; can install hooks, only when invoked. |
+| `loop-design-check` | Designs or reviews an agent loop for spinning, verifier gaming and runaway wrong answers. |
+| `skill-creator` | Creates, edits and evaluates a skill, and measures whether its description triggers. |
+| `mcp-builder` | Builds an MCP server and a harness to evaluate it. |
+| `harvest` | Clones a GitHub repository you name and installs the skills it finds. |
+
+Full list: [plugins/agentic/README.md](plugins/agentic/README.md).
+
+```bash
+claude plugin install agentic@skill-marketplace
+```
 
 ## `herdr` — herdr Fleet
 
-Run a multi-agent worker fleet in persistent terminal panes. Needs the [herdr](https://herdr.dev)
-CLI, which is not bundled. **Start with `herdr-setup`.**
+**Run a fleet of agent sessions** in persistent terminal panes. Needs the
+[herdr](https://herdr.dev) CLI, which is not bundled. **Start with `herdr-setup`.** Four skills.
 
 | Skill | What it does |
 |---|---|
@@ -211,196 +645,120 @@ CLI, which is not bundled. **Start with `herdr-setup`.**
 | `herdr-worker` | The worker side: take a task, work independently, record progress, report done. |
 | `herdr-atomic` | Deterministic one-action-per-call scripts for driving herdr, returning JSON. |
 
-## `tools` — Matt's Toolkit
+Full list: [plugins/herdr/README.md](plugins/herdr/README.md).
 
-Cross-cutting skills that belong to no single domain.
-
-| Skill | What it does |
-|---|---|
-| `adhd` | Parallel divergent ideation: branches under different cognitive frames, scored and pruned. |
-| `humanize` | Writes and edits prose a person will read, then scrubs the AI tells. |
-| `persona` | A senior staff engineer who applies Simple-Lovable-Complete and refuses to ship phases. |
-| `model-router` | Decides which model should do the work and whether it should fan out across subagents. |
-| `pre-flight` | Reads a plan against the codebase for wiring and contract gaps, before you execute it. |
-| `post-flight` | Verifies executed code against both the plan and the original codebase, then reflects. |
-| `unlazy` | Completion discipline for long autonomous runs: acceptance gates written before execution. |
-| `unlazy-lite` | The same discipline with less ceremony. |
-| `mochi-deck` | Teaches a concept, then packages it as a spaced-repetition deck for Mochi. |
-| `systematic-debugging` | Four phases from symptom to root cause, with defense-in-depth and flaky-test references. |
-| `test-driven-development` | Strict red-green-refactor, plus what makes a test worth keeping. |
-| `receiving-code-review` | Handling review feedback with technical rigor rather than reflexive agreement. |
-| `using-git-worktrees` | Isolating feature work in a worktree before touching the main workspace. |
-| `git-advanced-workflows` | Rebase, cherry-pick, bisect, reflog recovery. |
-| `api-design-principles` | REST and GraphQL design and review standards. |
-| `error-handling-patterns` | Exceptions, Result types, propagation and graceful degradation across languages. |
-| `code-review-excellence` | Constructive review practice that catches bugs without costing morale. |
-
-## `meta` — Skill Authoring
-
-Make more skills and tools. **Start with `skill-creator`.**
-
-| Skill | What it does |
-|---|---|
-| `skill-creator` | Creates, edits and evaluates a skill, and measures whether its description triggers. |
-| `mcp-builder` | Builds an MCP server with well-designed tools, and a harness to evaluate it. |
-| `harvest` | Clones a GitHub repository you name and installs the skills it finds. |
-
-`skill-creator` and `mcp-builder` are owned copies from anthropics/skills, Apache-2.0.
+```bash
+claude plugin install herdr@skill-marketplace
+```
 
 ---
 
----
+# Domains
 
-# Harvested plugins
+## `design` — UX/UI Design
 
-These eleven plugins are vendored from other people's work. Each plugin's `README.md` says what every
-skill does and what it writes, runs or reaches outside its own directory; each `NOTICE.md` names the
-upstream repository, path, commit, date, license and author of every skill, and lists the edits made
-here. Skills that install hooks, download binaries or call the network only do so when you invoke them;
-installing a plugin wires nothing.
+**How should it look and feel?** A design-system spine with vendored directions attached, and
+render gates that measure accessibility in light and dark instead of claiming it. **Start with
+`design-doctrine`**, then `design-screen`. The render gates need Playwright once per install;
+the plugin README has the command. Thirty-four skills and the `design-critic` agent.
 
-## `craft` — Engineering Craft
-
-Twenty-two vendored skills on engineering practice: how to design modules and name domain concepts, how to keep changes small and honest while coding, how to diagnose bugs and performance, how to audit and migrate a codebase, and how to finish a branch. Each is a supply-chain-controlled copy of an upstream skill, adapted only as far as it takes to run standalone in Claude Code.
-
-| Group | Skills |
+| Skill | What it does |
 |---|---|
-| Designing code | `codebase-design`, `domain-modeling`, `architecture-decision-records`, `contract-first`, `prototype`, `improve-codebase-architecture` |
-| Discipline while coding | `ponytail`, `karpathy-coder`, `ai-development-guide`, `source-driven-development`, `constraint-driven-development`, `doubt-driven-development`, `verification-before-completion` |
-| Debugging and performance | `diagnosing-bugs`, `performance-optimization` |
-| Auditing and improving a codebase | `improve`, `deprecation-and-migration`, `oh-my-issues`, `retro`, `code-tour` |
-| Finishing a change | `finishing-a-development-branch`, `make-pr-easy-to-review` |
+| `design-doctrine` | The verification protocol and house rules every other design skill assumes. |
+| `design-screen` | A page, screen or app end to end: brief, direction, tokens, build, gates, critic. |
+| `design-tokens` | DTCG tokens in three tiers. |
+| `frontend-design` | Distinctive visual direction that does not read as a templated default. |
+| `gate` | The one-command quality gate with a real N/N result. |
+| `a11y-audit` | Scan, fix and verify WCAG 2.2 A and AA, or audit a design against WCAG and ARIA. |
+| `critique` | Adversarial design critique; a Dieter Rams lens with `rams`. |
 
-See [plugins/craft/README.md](plugins/craft/README.md) for what each skill does and what it reaches, and [plugins/craft/NOTICE.md](plugins/craft/NOTICE.md) for upstream credits.
+Full list: [plugins/design/README.md](plugins/design/README.md).
 
-## `verify` — Verification and Testing
+```bash
+claude plugin install design@skill-marketplace
+```
 
-Twenty-two skills for proving a change works: harnesses that capture runtime evidence, browser and desktop QA, test-suite authoring and auditing, load tests, and review lenses. All of them are vendored from upstream repositories and maintained here.
+## `game` — Game Design and Review
 
-| Group | Skills |
+**What game, and is it good?** Any engine. A design studio and a review board backed by cited
+rules distilled from 38 game-development books. **Start with `game-studio-cpo`** for review, or
+`one-page-game-design` for design. Seventeen skills.
+
+| Skill | What it does |
 |---|---|
-| Prove a change works | `verify-feature`, `verify-this`, `santa-method`, `control-cli`, `control-ui`, `full-page-screenshot` |
-| Browser and desktop QA | `dogfood`, `adversarial-ux-test`, `webapp-testing`, `ui-demo`, `ios-simulator`, `windows-desktop-e2e` |
-| Test suites | `playwright-pro`, `react-testing`, `integration-e2e-testing`, `bats-testing-patterns`, `test-audit`, `k6-load-testing` |
-| Review lenses | `click-path-audit`, `api-design-reviewer`, `python-anti-patterns`, `ai-debt-detector` |
+| `game-studio-cpo` | A veteran studio Chief Product Officer for any "is this fun" question, checking the work against a 2,970-rule studio rulebook. |
+| `one-page-game-design` | A one-page visual design as interactive HTML or SVG with a printable PDF, collaborative or headless. |
+| `fun-targeting` | Picks two or three kinds of fun and traces every mechanic back to one. |
+| `game-ideation` | Concepts under a constraint card, a boundaries-first gate and a scored shortlist. |
+| `core-loop` | Moment-to-moment, session and long-term loops. |
+| `game-balance-auditor` | Economies, sources and drains, feedback loops, difficulty curves. |
 
-See [plugins/verify/README.md](plugins/verify/README.md) for what each skill does and what it reaches, and [plugins/verify/NOTICE.md](plugins/verify/NOTICE.md) for upstream credits.
+Full list: [plugins/game/README.md](plugins/game/README.md).
 
-## `pstack` — pstack Principles
+```bash
+claude plugin install game@skill-marketplace
+```
 
-Lauren Tan's pstack, vendored from cursor/plugins: sixteen one-page engineering principles and eleven procedures that cite them (design, rationale archaeology, blast radius, benchmarks, writing, decision trails, repo hygiene, TypeScript, verification skills). The Cursor-only router (`poteto-mode`), its playbooks, the model-config rule and the sibling skills it leaned on are not vendored; everything here runs on Claude Code's Task tool and model aliases.
+## `godot` — Godot Build
 
-| Group | Skills |
+**Build it in Godot.** Thirteen skills from the agent sessions of one long Godot build: scripted
+bots, headless tests, a scripted balance model and a worker fleet. The rules each skill measures
+against live in `game`'s auditors. Needs Godot 4 and Python 3; `ffmpeg` serves two skills.
+
+| Skill | What it does |
 |---|---|
-| Principles | `principle-type-system-discipline`, `principle-model-the-domain`, `principle-minimize-reader-load`, `principle-boundary-discipline`, `principle-separate-before-serializing-shared-state`, `principle-make-operations-idempotent`, `principle-build-the-lever`, `principle-encode-lessons-in-structure`, `principle-test-behavior-not-implementation`, `principle-attack-the-premise`, `principle-laziness-protocol`, `principle-sequence-verifiable-units`, `principle-explain-the-number`, `principle-foundational-thinking`, `principle-migrate-callers-then-delete-legacy-apis`, `principle-subtract-before-you-add` |
-| Procedures | `architect`, `arena`, `why`, `blast-radius`, `benchmark-checklist`, `correct`, `technical-writing`, `show-me-your-work`, `typescript-best-practices`, `create-verification-skill`, `maintain-verification-skill` |
+| `balance-model-data` | A scripted balance model as the source of the game's data, with parity to the game. |
+| `feature-seams-and-saves` | Content and modes behind data seams and flags; saves safe across versions. |
+| `headless-godot-runs` | Runs Godot tools, probes and bots headless without side effects. |
+| `godot-testing` | The headless test loop, test quality and the finish gate of a unit. |
+| `bot-balance-loop` | Bot fights, measure tables and wall diagnosis against target bands. |
+| `fleet-game-dev` | Habits for a game built by many agent sessions: locks, worktrees, landing, verification. |
 
-See [plugins/pstack/README.md](plugins/pstack/README.md) for what each skill does and what it reaches, and [plugins/pstack/NOTICE.md](plugins/pstack/NOTICE.md) for upstream credits.
+Full list: [plugins/godot/README.md](plugins/godot/README.md).
 
-## `product` — Product Thinking and Specs
-
-Twenty-three skills for the stretch between "I have an idea" and a spec someone can build from: interviewing the user until the ask is clear, critiquing the idea from hostile angles, writing the PRD or issue, and doing the research that feeds all three. Every one is a vendored copy of an upstream skill, adapted to run standalone inside Claude Code.
-
-| Group | Skills |
-|---|---|
-| Interview and clarify | `interview-me`, `grilling`, `grill-with-docs`, `requirement-convergence`, `intent-driven-development`, `advanced-elicitation` |
-| Ideas and product critique | `office-hours`, `product-brainstorming`, `roast`, `prfaq`, `devil`, `plan-ceo-review`, `plan-design-review`, `scientific-problem-selection` |
-| Specs and PRDs | `write-spec`, `spec`, `spec-driven-workflow`, `code-to-prd`, `documentation-criteria` |
-| Research | `synthesize-research`, `deep-research`, `deepread`, `litreview` |
-
-See [plugins/product/README.md](plugins/product/README.md) for what each skill does and what it reaches, and [plugins/product/NOTICE.md](plugins/product/NOTICE.md) for upstream credits.
-
-## `design` — Design Craft
-
-Eighteen vendored skills for frontend design and UX craft: anti-slop design methods and design direction, motion rules and their reviewer, design and web-quality audits, accessibility, and HTML slide decks. Install the whole thing or copy out the one you want.
-
-| Group | Skills |
-|---|---|
-| Design direction and craft | `frontend-design`, `impeccable`, `hallmark`, `ui-ux-pro-max`, `make-interfaces-feel-better`, `design-system-patterns`, `design-md` |
-| Motion | `emil-design-eng`, `review-animations` |
-| Review and audit | `design-is`, `design-review`, `web-design-guidelines`, `web-quality-audit`, `core-web-vitals` |
-| Accessibility | `accessibility`, `a11y-audit`, `screen-reader-testing` |
-| Presentations | `frontend-slides` |
-
-See [plugins/design/README.md](plugins/design/README.md) for what each skill does and what it reaches, and [plugins/design/NOTICE.md](plugins/design/NOTICE.md) for upstream credits.
-
-## `stack` — Stack References
-
-Twenty-three reference skills for specific libraries, frameworks and languages, each carrying the API detail and the gotchas a model otherwise guesses at. All of them are vendored from upstream projects — several are the library authors' own official skills — and maintained here.
-
-| Group | Skills |
-|---|---|
-| Animation and video | `gsap-core`, `gsap-timeline`, `gsap-scrolltrigger`, `gsap-plugins`, `gsap-utils`, `gsap-react`, `gsap-frameworks`, `motion-foundations`, `motion-patterns`, `motion-advanced`, `remotion-best-practices` |
-| React and UI | `react-best-practices`, `react-useeffect`, `shadcn` |
-| Databases | `postgres-best-practices`, `postgresql-table-design`, `prisma-patterns`, `database-migrations` |
-| Systems languages | `cpp-coding-standards`, `boost-asio-pro`, `swift-concurrency-expert` |
-| Backend patterns | `dotnet-backend-patterns`, `saga-orchestration` |
-
-See [plugins/stack/README.md](plugins/stack/README.md) for what each skill does and what it reaches, and [plugins/stack/NOTICE.md](plugins/stack/NOTICE.md) for upstream credits.
-
-## `ops` — Production Operations
-
-Seventeen skills for running software in production, vendored from six upstream repositories and maintained here. They cover the whole loop: instrument and set targets, release safely, manage the infrastructure underneath, and learn from what breaks.
-
-| Group | Skills |
-|---|---|
-| Observe and set targets | `observability-and-instrumentation`, `slo-architect` |
-| Release safely | `feature-flags-architect`, `shipping-and-launch`, `ship-gate`, `changelog-generator`, `deployment-pipeline-design`, `github-actions-creator` |
-| Infrastructure | `docker-development`, `kubernetes-patterns`, `terraform-patterns`, `migration-architect`, `wizard` |
-| Keep it healthy | `chaos-engineering`, `dependency-updater`, `dependabot-review`, `postmortem-writing` |
-
-See [plugins/ops/README.md](plugins/ops/README.md) for what each skill does and what it reaches, and [plugins/ops/NOTICE.md](plugins/ops/NOTICE.md) for upstream credits.
-
-## `security` — Security Practice
-
-Eight vendored skills for securing application and agent code: threat modeling and hardening, per-framework security rules, hardening for agent runtimes, static review of MCP configs, a pre-install scanner for third-party skills, and two git guardrail hooks. Install the whole thing or copy out the one you want.
-
-| Group | Skills |
-|---|---|
-| Threat modeling and hardening | `security-and-hardening`, `security-threat-model`, `security-best-practices` |
-| Agent runtimes and supply chain | `agent-security-hardening`, `mcp-dependency-review`, `skill-security-auditor` |
-| Git guardrails (hook installers) | `git-guardrails-claude-code`, `block-no-verify-hook` |
-
-See [plugins/security/README.md](plugins/security/README.md) for what each skill does and what it reaches, and [plugins/security/NOTICE.md](plugins/security/NOTICE.md) for upstream credits.
-
-## `agentic` — Agent Engineering
-
-Ten skills for building and running agents: deciding whether a task deserves a loop and reviewing the loop for the ways it runs away, auditing a misbehaving agent stack, putting a human sign-off lane in front of irreversible work, running an autonomous optimize loop, giving an agent memory that earns promotion instead of asserting it, and writing the documents, prompts and CLIs that agents consume. All ten are vendored from upstream and maintained here.
-
-| Group | Skills |
-|---|---|
-| Designing, auditing and gating loops | `loop-design-check`, `agent-architecture-audit`, `human-gate`, `autoresearch-agent` |
-| Memory | `agent-memory`, `stow` |
-| Writing for agents | `writing-for-agents`, `llm-friendly-context`, `cli-for-agents`, `book-to-skill` |
-
-See [plugins/agentic/README.md](plugins/agentic/README.md) for what each skill does and what it reaches, and [plugins/agentic/NOTICE.md](plugins/agentic/NOTICE.md) for upstream credits.
+```bash
+claude plugin install godot@skill-marketplace
+```
 
 ## `ml` — LLM Training and ML Pipelines
 
-Nine vendored skills: seven that walk a language-model post-training run end to end — decide the method, build the eval harness first, curate the data, configure LoRA/QLoRA, preference optimization or GRPO/RLVR, then gate the checkpoint — and two that design retrieval and ranking pipelines. The seven fine-tuning skills are one lifecycle and hand off to each other by name; the other two stand alone.
+**Train and evaluate a model.** Seven skills walk a post-training run end to end, eval-gated; two
+design retrieval and ranking pipelines. Nine skills.
 
-| Group | Skills |
+| Skill | What it does |
 |---|---|
-| Fine-tuning lifecycle (in order) | `finetuning-method-selection`, `eval-harness-first`, `dataset-curation`, `lora-qlora-recipes`, `preference-optimization`, `grpo-rlvr-training`, `checkpoint-promotion` |
-| Pipeline design | `rag-architect`, `recsys-pipeline-architect` |
+| `finetuning-method-selection` | Whether to fine-tune at all, and which method for the data shape. |
+| `eval-harness-first` | The golden set, graders and baseline before any training config. |
+| `dataset-curation` | Formats, templates, packs and documents the training data. |
+| `lora-qlora-recipes` | The LoRA/QLoRA recipe with Unsloth defaults and failure signatures. |
+| `checkpoint-promotion` | Gates a trained checkpoint before it ships. |
+| `rag-architect` | Designs and evaluates RAG pipelines. |
 
-See [plugins/ml/README.md](plugins/ml/README.md) for what each skill does and what it reaches, and [plugins/ml/NOTICE.md](plugins/ml/NOTICE.md) for upstream credits.
+Full list: [plugins/ml/README.md](plugins/ml/README.md).
+
+```bash
+claude plugin install ml@skill-marketplace
+```
 
 ## `work` — Knowledge Work
 
-Twenty-six vendored skills for the parts of a working day that are not writing code: analysing data, running product operations, reviewing contracts and budgets, triaging support, writing clearly, and producing diagrams and media files. Fifteen come from Anthropic's knowledge-work plugins and the rest from eight other repositories; all are maintained here as copies.
+**Knowledge work and prose.** Data, product operations, support and legal, writing, media and
+files. Twenty-eight skills.
 
-| Group | Skills |
+| Skill | What it does |
 |---|---|
-| Data | `explore-data`, `validate-data`, `sql-queries`, `statistical-analysis`, `statistical-analyst`, `data-visualization`, `build-dashboard` |
-| Product operations | `metrics-review`, `roadmap-update`, `stakeholder-update`, `competitive-brief`, `market-sizing-analysis`, `startup-metrics-framework` |
-| Legal and finance | `review-contract`, `triage-nda`, `variance-analysis` |
-| Support | `ticket-triage`, `customer-escalation` |
-| Writing | `writing-clearly-and-concisely`, `crafting-effective-readmes`, `writing-guidelines`, `to-questionnaire` |
-| Diagrams, knowledge and files | `drawio`, `grounded-vault`, `video-editor`, `file-conversion` |
+| `technical-writing` | The entry for prose: Diátaxis structure, Google developer style, STE and Global English. |
+| `humanize` | Writes and edits prose a person will read, then scrubs the AI tells. |
+| `explore-data` | Profiles a dataset: shape, quality, distributions. |
+| `statistical-analyst` | Hypothesis tests, A/B results, sample sizes and descriptive statistics. |
+| `frontend-slides` | Zero-dependency HTML slide decks. |
+| `mochi-deck` | Teaches a concept, then packages it as a spaced-repetition Mochi deck. |
 
-See [plugins/work/README.md](plugins/work/README.md) for what each skill does and what it reaches, and [plugins/work/NOTICE.md](plugins/work/NOTICE.md) for upstream credits.
+Full list: [plugins/work/README.md](plugins/work/README.md).
 
+```bash
+claude plugin install work@skill-marketplace
+```
 
 ---
 
@@ -461,8 +819,7 @@ skill-marketplace/
 │       └── NOTICE.md           # upstream credits, where the plugin vendors third-party skills
 ├── services/
 │   └── <service>/              # long-running local companions, not plugins
-├── README.md
-└── SECURITY.md
+└── README.md
 ```
 
 Folder name, `plugin.json` `name`, and the marketplace entry `name` are always the same terse
@@ -471,28 +828,35 @@ locations, so no manifest field points at them. `shared/` is plain plugin payloa
 it through `${CLAUDE_PLUGIN_ROOT}`, which Claude Code expands to the install directory, so a
 plugin works wherever it lands.
 
-Some skills write outside their own install directory, on purpose, when you run them:
-`herdr`'s setup (`herdr-setup`, or the `install.sh` wrapper) symlinks `horch` into `~/.local/bin`
-(`HORCH_BIN_DIR` overrides) and, only for a cloned repo rather than a plugin install, links skills
-into `~/.claude/skills` (`CLAUDE_SKILLS_DIR` overrides); `core`'s prime installs `graphify` plus
-git and Claude Code hooks into the repo you point it at (`graph.sh --no-hooks` skips the hooks);
-and `meta`'s `harvest` clones the GitHub repository you name and copies its skills into
-`~/.claude/skills`; `design-system`'s render gates install Playwright into the plugin's own `shared/`
-when you run the install command its skills print, keep gate receipts in the plugin data directory
-or the OS temp directory, and its `scaffold-project` writes a new project where you point it. [SECURITY.md](SECURITY.md) spells them all out. The `dev` and `code:ddd` pipelines
-write their working documents inside the repository you run them in (`ai_docs/` and `ddd/`), which
-is the point.
+Installing a plugin wires nothing. Some skills write outside their own install directory, on
+purpose, when you run them:
+
+- `herdr`'s setup (`herdr-setup`, or the `install.sh` wrapper) symlinks `horch` into
+  `~/.local/bin` (`HORCH_BIN_DIR` overrides) and, only for a cloned repo rather than a plugin
+  install, links skills into `~/.claude/skills` (`CLAUDE_SKILLS_DIR` overrides).
+- `code:core` installs `graphify` (from PyPI, isolated) plus git and Claude Code hooks into the
+  repo you point it at (`graph.sh --no-hooks` skips the hooks).
+- `agentic:harvest` clones the GitHub repository you name and copies its skills into
+  `~/.claude/skills` (`CLAUDE_SKILLS_DIR` overrides). `agentic:agent-memory`,
+  `security:git-guardrails-claude-code` and `security:block-no-verify-hook` install hooks.
+- `design`'s render gates install Playwright into the plugin's own `shared/` when you run the
+  install command its skills print, and keep gate receipts in the plugin data directory or the OS
+  temp directory; `design:scaffold-project` writes a new project where you point it.
+- The `dev` and `architecture:ddd` pipelines write their working documents inside the repository
+  you run them in (`ai_docs/` and `ddd/`), which is the point.
+
+Each plugin README has a "What these write and where they reach" section with the details.
 
 ## Skill names are namespaced
 
 Installed as plugins, skills are addressed as `<plugin>:<skill>` — `dev:workflow`,
-`code:ddd`, `code:core`, `herdr:herdr-orchestrator`, `tools:humanize`, `craft:ponytail`,
-`product:grilling`, `pstack:blast-radius`. Agents too:
-`code:ddd-decision-strategist`, `dev:codebase-locator`. The skills that dispatch their siblings
-(`dev:workflow`, `code:ddd` and every agent-dispatch site) use the namespaced form,
-including across plugins: the `dev` pipeline calls `tools:pre-flight` and `tools:post-flight`,
-which stay in `tools` so existing installs keep working. A bare name may still resolve when it is
-unambiguous, but do not rely on it.
+`architecture:ddd`, `code:core`, `herdr:herdr-orchestrator`, `work:humanize`, `craft:ponytail`,
+`product:grilling`, `verify:blast-radius`. Agents too: `architecture:ddd-decision-strategist`,
+`code:codebase-locator`, `verify:code-reviewer`. The skills that dispatch their siblings
+(`dev:workflow`, `architecture:ddd` and every agent-dispatch site) use the namespaced form,
+including across plugins: the `dev` pipeline starts with `code:core`, and `ops:ship-gate` calls
+`security:security-sweep`. A bare name may still resolve when it is unambiguous, but do not rely
+on it.
 
 If you already have any of these skills loose in `~/.claude/skills`, move the loose copy aside
 before installing the plugin. Claude Code loads both, and two identical descriptions make
@@ -500,13 +864,14 @@ triggering a coin flip.
 
 ## What is not in the repo
 
-Most of a clone is the DDD golden test fixtures under `code/shared`. `.gitignore` keeps the rest out:
+Most of a clone is the DDD golden test fixtures under `architecture/shared`. `.gitignore` keeps
+the rest out:
 
 | Ignored | Why |
 |---|---|
-| `**/node_modules/` | the Playwright fixture install under `code/skills/e2e-harness/evals/fixtures/`, which dwarfs the fixture itself; also the install for `code/skills/complexity-sweep`'s bundled CLI, which the skill runs `npm install` for on first use; and `design/shared`'s Playwright and axe-core runtime for the render gates |
-| `**/e2e/artifacts/` | regenerated by `e2e run` |
-| `__pycache__/`, `.pytest_cache/` | test caches |
+| `**/node_modules/` | the Playwright fixture install under `verify/skills/e2e-harness/evals/fixtures/`, which dwarfs the fixture itself; also the install for `verify/skills/complexity-sweep`'s bundled CLI, which the skill runs `npm install` for on first use; and `design/shared`'s Playwright and axe-core runtime for the render gates |
+| `**/e2e/artifacts/`, `**/test-results/` | regenerated by `e2e run` and Playwright |
+| `__pycache__/`, `*.py[cod]`, `.pytest_cache/` | Python and test caches |
 | `services/*/models/`, `.venv/`, `jobs/` | model weights (gigabytes, and separately licensed), Python environments and generated audio — all rebuilt by the service's own `setup.sh` |
 
 ## Validate after editing

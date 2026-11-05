@@ -1,17 +1,24 @@
 {
   "name": "game",
-  "displayName": "Game Dev Review Board",
-  "version": "1.0.0",
-  "description": "A review board for game work, backed by cited rules distilled from 38 game-development books. game-studio-cpo is the generalist entry point; the five auditors cover systems, balance and economy, code architecture, performance, and QA and ship-readiness.",
+  "displayName": "Game Design and Review",
+  "version": "2.0.0",
+  "description": "What game, and is it good? Any engine. A design studio: game-ideation, fun-targeting, core-loop, systems-economy, progression-content, level-ux, art-direction, game-brief, prototype-plan, design-diagrams, and one-page-game-design for a one-page visual design as interactive HTML or standalone SVG with a printable PDF, collaborative or headless. A review board backed by cited rules distilled from 38 game-development books: game-studio-cpo as the entry point, and auditors for systems, balance and economy, code architecture, performance, and QA and ship-readiness.",
   "author": {
     "name": "Matt Scott"
   },
   "license": "MIT",
   "keywords": [
     "game-design",
+    "ideation",
+    "mda",
+    "core-loop",
+    "one-page-design",
+    "art-direction",
     "game-balance",
+    "economy",
     "unity",
     "performance",
-    "code-review"
+    "code-review",
+    "qa"
   ]
 }
