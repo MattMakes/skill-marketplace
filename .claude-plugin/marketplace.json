@@ -5,7 +5,7 @@
     "name": "Matt Scott"
   },
   "description": "Claude Code plugin marketplace in five plugins, one per kind of work. software takes a change from idea to production: specs, architecture and DDD with Blueprint diagrams, codebase priming and AGENTS.md, a planned build pipeline, review and verification, security and shipping, with principles and stack references as router skills. design builds UX/UI with measured accessibility and quality gates. game designs, reviews and builds games, with a Godot kit. agents builds AI agents, skills, MCP servers, multi-agent fleets and trained models. work covers research, decisions, data, writing and other knowledge work. Vendored skills are supply-chain-controlled copies, each credited in its plugin's NOTICE.md.",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "plugins": [
     {
       "name": "software",
@@ -84,7 +84,7 @@
       "displayName": "Game Design and Build",
       "source": "./plugins/game",
       "description": "Make a game, from idea to release. A design studio: ideation, fun targeting, core loop, systems and economy, progression, levels and UX, art direction, a game brief, a prototype plan, design diagrams and a one-page design as HTML, SVG and PDF. A review board backed by cited rules from 38 game-development books: game-studio-cpo and auditors for systems, balance, code, performance and QA. A Godot build kit: scripted bots and balance models, upgrade trees, feature seams and save migrations, headless runs and tests, frame-cost measurement, rendered-frame checks, pixel art, audio, release builds and store pages, and habits for a worker fleet.",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "author": {
         "name": "Matt Scott"
       },
