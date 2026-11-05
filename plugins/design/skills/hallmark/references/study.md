@@ -461,8 +461,7 @@ The two refusal layers do not match. A reference can clear the diagnosis bar and
 > *Before I write the file — `design.md` emission packages this DNA as a portable spec other AI tools can use, which is more extractive than a diagnosis. Is this URL:*
 >
 > *(a) your own site*
-> *(b) a public reference for your own brand (you have permission to learn from it)*
-> *(c) something else (a designer you admire, a stranger's site you stumbled on)*
+> *(b) a public reference for your own brand (you have permission to learn from it)* *(c) something else (a designer you admire, a stranger's site you stumbled on)*
 >
 > *Reply (a), (b), or (c).*
 

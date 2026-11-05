@@ -8,9 +8,7 @@ Use this template for projects intended for public use and contribution.
 
 [One-line description of what this project does]
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/[user]/[repo]/ci.yml)](https://github.com/[user]/[repo]/actions)
-[![npm version](https://img.shields.io/npm/v/[package-name])](https://www.npmjs.com/package/[package-name])
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![Build Status](https://img.shields.io/github/actions/workflow/status/[user]/[repo]/ci.yml)](https://github.com/[user]/[repo]/actions) [![npm version](https://img.shields.io/npm/v/[package-name])](https://www.npmjs.com/package/[package-name])
 
 ## About
 

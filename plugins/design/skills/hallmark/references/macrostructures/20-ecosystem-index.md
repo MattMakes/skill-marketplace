@@ -16,8 +16,6 @@ Avoid for single-product pages. Ecosystem needs multiple things to surface.
 Reference: Are.na, Figma Community, Behance.
 
 **Sample opening lines** (imitate the *specificity* — Ecosystem Index openings are surface labels, dated, with a count):
-> *"Featured · Latest · By category."* — three discovery surfaces named, divided
-> *"What's on this week · Editor's pick · The whole catalogue."* — names cadence, curation, breadth
-> *"A toolkit for assembling new worlds from the scraps of the old."* — are.na — second-position copy that breaks template
+> *"Featured · Latest · By category."* — three discovery surfaces named, divided *"What's on this week · Editor's pick · The whole catalogue."* — names cadence, curation, breadth *"A toolkit for assembling new worlds from the scraps of the old."* — are.na — second-position copy that breaks template
 
 ---

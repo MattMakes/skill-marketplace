@@ -87,8 +87,7 @@ Example whole-rule font exception:
 ${CLAUDE_PLUGIN_ROOT}/skills/impeccable/scripts/impeccable hooks ignore-rule overused-font --all-values --reason "User asked to ignore overused fonts generally"
 ```
 
-Example one-rule-in-one-file exception, for a file that is still worth reviewing
-for everything else:
+Example one-rule-in-one-file exception, for a file that is still worth reviewing for everything else:
 
 ```bash
 ${CLAUDE_PLUGIN_ROOT}/skills/impeccable/scripts/impeccable hooks ignore-value design-system-font-size "*" --file "src/overlay/widget.js" --reason "Injected widget builds its own type scale; DESIGN.md's ramp describes the site"

@@ -16,8 +16,6 @@ Avoid on mobile-first audiences without strong fallback. Sticky+scroll-sync is r
 Reference: Apple product pages, some Stripe Sessions pages, Read.cv onboarding.
 
 **Sample opening lines** (imitate the *specificity* — Feature Stack openings pin a single statement and then walk the user through):
-> *"Plan, build, ship."* — three verbs, three sticky panes
-> *"Read anything that emits lines."* — Streampipe (test 02) — names what's possible, then walks through it
-> *"From stdin, through the pipe, into your dashboard."* — names the data path, then explains each step
+> *"Plan, build, ship."* — three verbs, three sticky panes *"Read anything that emits lines."* — Streampipe (test 02) — names what's possible, then walks through it *"From stdin, through the pipe, into your dashboard."* — names the data path, then explains each step
 
 ---
