@@ -3,8 +3,7 @@ description: Review docs/prose for Vercel Writing Guidelines compliance
 argument-hint: <file-or-pattern>
 ---
 # Writing Guidelines
-Review these files for compliance: $ARGUMENTS
-Read files, check against rules below. Output concise but comprehensive: sacrifice grammar for brevity. High signal-to-noise.
+Review these files for compliance: $ARGUMENTS Read files, check against rules below. Output concise but comprehensive: sacrifice grammar for brevity. High signal-to-noise.
 ## Rules
 ### Planning & content type
 - Every page has a plan (overview, goal, audience, content plan, open questions) referenced or linked

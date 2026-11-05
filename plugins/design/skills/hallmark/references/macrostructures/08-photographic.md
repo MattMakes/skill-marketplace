@@ -16,9 +16,7 @@ Avoid without real photography. AI-generated stock undoes the macrostructure.
 Reference: Aimé Leon Dore, Mr Porter editorial, Stüssy lookbooks.
 
 **Sample opening lines** (imitate the *specificity* — captions for photographs are dates, places, plate numbers — not marketing):
-> *"Plate 47 · scored before the proof."* — Maple Street Bread (test 03) — a number, a moment in the process
-> *"Spring, 2026."* — Atelier-style — two words, full stop
-> *"From the working archive."* — gives the photograph provenance without explaining it
+> *"Plate 47 · scored before the proof."* — Maple Street Bread (test 03) — a number, a moment in the process *"Spring, 2026."* — Atelier-style — two words, full stop *"From the working archive."* — gives the photograph provenance without explaining it
 
 ```html
 <section class="photo-fold">

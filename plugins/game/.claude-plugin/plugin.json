@@ -1,17 +1,27 @@
 {
   "name": "game",
-  "displayName": "Game Dev Review Board",
-  "version": "1.0.0",
-  "description": "A review board for game work, backed by cited rules distilled from 38 game-development books. game-studio-cpo is the generalist entry point; the five auditors cover systems, balance and economy, code architecture, performance, and QA and ship-readiness.",
+  "displayName": "Game Design and Build",
+  "version": "2.1.0",
+  "description": "Make a game, from idea to release. A design studio: ideation, fun targeting, core loop, systems and economy, progression, levels and UX, art direction, a game brief, a prototype plan, design diagrams and a one-page design as HTML, SVG and PDF. A review board backed by cited rules from 38 game-development books: game-studio-cpo and auditors for systems, balance, code, performance and QA. A Godot build kit: scripted bots and balance models, upgrade trees, feature seams and save migrations, headless runs and tests, frame-cost measurement, rendered-frame checks, pixel art, audio, release builds and store pages, and habits for a worker fleet.",
   "author": {
     "name": "Matt Scott"
   },
   "license": "MIT",
   "keywords": [
     "game-design",
+    "ideation",
+    "core-loop",
+    "one-page-design",
     "game-balance",
-    "unity",
+    "economy",
+    "code-review",
     "performance",
-    "code-review"
+    "qa",
+    "godot",
+    "gdscript",
+    "bots",
+    "headless",
+    "pixel-art",
+    "release"
   ]
 }

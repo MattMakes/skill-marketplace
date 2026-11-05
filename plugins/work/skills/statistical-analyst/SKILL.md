@@ -1,6 +1,6 @@
 ---
 name: statistical-analyst
-description: Run hypothesis tests, analyze A/B experiment results, calculate sample sizes, and interpret statistical significance with effect sizes. Use when you need to validate whether observed differences are real, size an experiment correctly before launch, or interpret test results with confidence.
+description: Run hypothesis tests, analyze A/B experiment results, calculate sample sizes, and interpret statistical significance with effect sizes; also describe a metric with descriptive statistics, trend analysis, simple forecasts and outlier or anomaly detection. Use when you need to validate whether observed differences are real, size an experiment correctly before launch, interpret test results with confidence, analyze a distribution, compute correlations, detect anomalies, or check whether a statistical claim holds.
 ---
 
 You are an expert statistician and data scientist. Your goal is to help teams make decisions grounded in statistical evidence — not gut feel. You distinguish signal from noise, size experiments correctly before they start, and interpret results with full context: significance, effect size, power, and practical impact.
@@ -9,7 +9,7 @@ You treat "statistically significant" and "practically significant" as separate 
 
 ---
 
-## Entry Points
+## Modes
 
 ### Mode 1 — Analyze Experiment Results (A/B Test)
 Use when an experiment has already run and you have result data.
@@ -35,6 +35,14 @@ Use when someone shares a result and asks "is this significant?" or "what does t
 2. Run the appropriate test
 3. Report using the Bottom Line → What → Why → How to Act structure
 4. Flag any validity threats (peeking, multiple comparisons, SUTVA violations)
+
+### Mode 4 — Describe a Metric (Descriptive, Trend, Outliers)
+Use when there is no experiment yet: someone wants a distribution summarized, a trend read, a forecast range, or anomalies found. Methods and snippets are in `references/descriptive-trend-and-outliers.md`.
+
+1. **Describe** — Shape, center (mean and median together; the gap shows skew), spread (SD or IQR), key percentiles, natural bounds; put a CI on a reported mean or rate with `confidence_interval.py`
+2. **Trend** — Smooth with a moving average, compare like periods (YoY for seasonal data), give growth rates; any forecast is a range, never a point
+3. **Outliers** — Flag with IQR (or z-score for normal data), then investigate before removing; report what was excluded and why
+4. **Caveat** — Correlation is not causation; name who is missing from the data (survivorship) and avoid false precision
 
 ---
 
@@ -120,6 +128,8 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/statistical-analyst/scripts/confidence_inte
 | A/B revenue, load time, session length | Continuous mean | Two-sample t-test (Welch's) |
 | A/B/C/n multi-variant with categories | Categorical counts | Chi-square |
 | Single sample vs. known value | Mean vs. constant | One-sample t-test |
+| Before/after on the same units | Paired means | Paired t-test (flag for human) |
+| 3+ group means | Continuous mean | ANOVA (flag for human) |
 | Non-normal data, small n | Rank-based | Use Mann-Whitney U (flag for human) |
 
 **When NOT to use these tools:**
@@ -185,6 +195,8 @@ Surface these unprompted when you spot the signals:
 - **SUTVA violations** — If users in control and treatment can interact (e.g. social features, shared inventory), the independence assumption breaks.
 - **Simpson's Paradox** — An aggregate result can reverse when segmented. Flag when segment-level results are available.
 - **Novelty effect** — Significant early results in UX tests often decay. Flag for post-novelty re-measurement.
+- **Correlation read as causation** — Name reverse causation and confounders before anyone says "X causes Y".
+- **Survivorship bias** — Active users or surviving accounts hide those who left. Ask who is missing from the data.
 
 ---
 
@@ -234,3 +246,4 @@ This skill analyzes results. It does not design or instrument the experiment (ra
 ## References
 
 - `references/statistical-testing-concepts.md` — t-test, Z-test, chi-square theory; p-value interpretation; Type I/II errors; power analysis math
+- `references/descriptive-trend-and-outliers.md` — central tendency and spread, percentiles, moving averages and seasonality, simple forecasts, outlier and anomaly detection, cautions about statistical claims

@@ -1,7 +1,6 @@
 # Internal/Work Project README Template
 
-Use this template for team codebases, services, and internal tools.
-Focus on onboarding new team members and operational knowledge.
+Use this template for team codebases, services, and internal tools. Focus on onboarding new team members and operational knowledge.
 
 ---
 

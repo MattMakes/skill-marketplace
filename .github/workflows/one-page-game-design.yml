@@ -3,8 +3,8 @@ name: One-page game design browser validation
 on:
   pull_request:
     paths:
-      - "plugins/game-design/skills/one-page-game-design/**"
-      - "plugins/game-design/.claude-plugin/plugin.json"
+      - "plugins/game/skills/one-page-game-design/**"
+      - "plugins/game/.claude-plugin/plugin.json"
       - ".claude-plugin/marketplace.json"
       - ".github/workflows/one-page-game-design.yml"
       - ".github/scripts/check-one-page-game-design.mjs"
@@ -53,14 +53,17 @@ jobs:
 
       - name: Check JavaScript syntax
         run: |
-          node --check plugins/game-design/skills/one-page-game-design/scripts/export_pdf.mjs
-          node --check plugins/game-design/skills/one-page-game-design/scripts/export_pdf.test.mjs
+          node --check plugins/game/skills/one-page-game-design/scripts/export_pdf.mjs
+          node --check plugins/game/skills/one-page-game-design/scripts/export_pdf.test.mjs
           node --check .github/scripts/check-one-page-game-design.mjs
+
+      - name: Run headless-mode Python tests
+        run: python3 -m unittest discover -s plugins/game/skills/one-page-game-design/tests -t plugins/game/skills/one-page-game-design
 
       - name: Run focused exporter tests in strict browser mode
         env:
           REQUIRE_BROWSER_TESTS: "1"
-        run: node --test plugins/game-design/skills/one-page-game-design/scripts/export_pdf.test.mjs
+        run: node --test plugins/game/skills/one-page-game-design/scripts/export_pdf.test.mjs
 
       - name: Export and inspect PDF evidence
         if: always()

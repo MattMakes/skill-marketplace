@@ -1,11 +1,11 @@
 ---
 name: design-review
-description: Run a product design review on a feature or site. Answers 13 design questions, runs Nielsen Norman heuristic evaluation, builds before/after visual fixes into an HTML report, and optionally deploys it to Surge. Use when asked to review a design, audit UX, do a design review, or analyze a product's user experience.
+description: Review or audit a product design, feature, site or screen. The full review walks through it as a first-time user, answers 13 design questions, runs Nielsen's 10 heuristics and builds an HTML report with before/after fixes for the top 3 issues, optionally deployed to Surge. The scored review rates 6 weighted dimensions (hierarchy, consistency, accessibility, usability, responsiveness, performance) and returns a prioritized findings table with token-referenced fixes. Use when asked to review a design, audit UX, do a design review or heuristic evaluation, score or critique a screen, page or product, get a design quality score, or analyze a product's user experience before or after build.
 ---
 
 # Design Review
 
-Run a full product design review. Walk through the product as a first-time user, answer 13 design questions, run a heuristic evaluation, and build a shareable before/after report (optionally deployed to Surge).
+Run a product design review in one of two modes: a full review that ends in a shareable before/after report, or a scored review that ends in a weighted score and a prioritized findings table.
 
 ## Inputs
 
@@ -15,6 +15,31 @@ Run a full product design review. Walk through the product as a first-time user,
 | **Context** | No | Any additional context about the product, audience, or goals |
 
 Start immediately with defaults. Do not ask clarifying questions. Make your best assumptions for anything you don't know.
+
+## Modes
+
+| Mode | Pick it when |
+|------|--------------|
+| **Full review** (default) | A live product, URL or feature, and the audience is a PM or stakeholders who need a report they can forward. Follow the Workflow below. |
+| **Scored review** | A screen or page built with this plugin's tokens and gates, or the user asks for a score, a heuristic evaluation or a findings list rather than a report. Follow the steps below. |
+
+For an adversarial verdict on taste, or a Dieter Rams scorecard that ends in a plan, the user runs `/design:critique` instead.
+
+### Scored review
+
+> **Step 0 — doctrine first.** Load `design:design-doctrine` if it is not already loaded this session; every step below assumes its verification protocol and house rules. The render gates need Playwright once per install: `npm install --prefix "${CLAUDE_PLUGIN_ROOT}/shared" && npx --prefix "${CLAUDE_PLUGIN_ROOT}/shared" playwright install chromium`. Without it they print SKIPPED, which is not a pass.
+
+1. Read `${CLAUDE_PLUGIN_ROOT}/shared/workflows/design-review.md` (rubric, scoring guide, process).
+2. Gather context from the request and the files: the screen(s) or flow, target users, platform, constraints.
+3. Score the 6 dimensions (Visual Hierarchy 20%, Consistency 20%, Accessibility 20%, Usability 20%, Responsiveness 10%, Performance 10%) and compute the weighted overall.
+4. Run the accessibility lens with `${CLAUDE_PLUGIN_ROOT}/shared/accessibility/wcag-checklist.md`; use `${CLAUDE_PLUGIN_ROOT}/shared/scripts/contrast.py` for any color-pair doubt. For depth, `design:a11y-audit` (Design audit mode).
+5. Check against the anti-slop tells in `${CLAUDE_PLUGIN_ROOT}/shared/taste/design-taste.md` (Banned Defaults checklist).
+6. Apply the 10 heuristics from Workflow step 3; flag violations by number.
+
+Output:
+- The 6-dimension scored table and the overall score.
+- A prioritized findings table: # · Severity (Critical → Major → Minor → Enhancement) · Finding · Recommendation.
+- Concrete, token-referenced fixes.
 
 ## Workflow
 
@@ -84,18 +109,7 @@ For each issue, build two HTML renders side by side:
 
 These are rebuilt in HTML, not screenshots. Both versions should be crisp and consistent.
 
-**Render the fix INSIDE the real page chrome, not the component bare.** If the
-preview exists so the user can choose how a change looks on a real product surface,
-a stripped-down component render is wrong — it looks nothing like the live site and
-the user can't judge it (real correction: a component preview rendered bare looked
-"so different than the site" because it wasn't shown inside the card it lives in).
-Pull the app's actual CSS verbatim, reproduce the surrounding chrome (container,
-nav, breadcrumb, the component's own card wrapper), run the app's real client-side
-transform, and feed it real fixture content. For multiple options, build ONE
-in-context page with a fixed option switcher (radio groups toggling `body`
-data-attributes) plus a "Current" baseline, so the user flips variants live against
-the real surface. Full recipe, the exec-don't-regex helper-decode pitfall, and the
-pre-deploy verify step: `references/in-context-preview.md`.
+**Render the fix INSIDE the real page chrome, not the component bare.** If the preview exists so the user can choose how a change looks on a real product surface, a stripped-down component render is wrong — it looks nothing like the live site and the user can't judge it (real correction: a component preview rendered bare looked "so different than the site" because it wasn't shown inside the card it lives in). Pull the app's actual CSS verbatim, reproduce the surrounding chrome (container, nav, breadcrumb, the component's own card wrapper), run the app's real client-side transform, and feed it real fixture content. For multiple options, build ONE in-context page with a fixed option switcher (radio groups toggling `body` data-attributes) plus a "Current" baseline, so the user flips variants live against the real surface. Full recipe, the exec-don't-regex helper-decode pitfall, and the pre-deploy verify step: `references/in-context-preview.md`.
 
 Package everything into a single HTML page:
 

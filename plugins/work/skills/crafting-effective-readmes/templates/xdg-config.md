@@ -1,7 +1,6 @@
 # Config Directory README Template
 
-Use this template for XDG config directories, dotfiles, script folders,
-and any local directory you'll return to later wondering "what is this?"
+Use this template for XDG config directories, dotfiles, script folders, and any local directory you'll return to later wondering "what is this?"
 
 The audience is future-you, probably confused.
 

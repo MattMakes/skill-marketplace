@@ -16,9 +16,7 @@ Avoid for products whose value requires explanation in seconds. Marquee makes th
 Reference: 14islands.com, destroytoday.com, many design studio homepages.
 
 **Sample opening lines** (imitate the *specificity*, not the wording):
-> *"Type, set with care."* — Hallmark Specimen — refusal of the verb, treats type as material
-> *"A studio for what's next."* — italic editorial display, names the practice without explaining it
-> *"Design like print: warm, off-register, intentional."* — Hallmark Riso — declarative, three modifiers, full stop
+> *"Type, set with care."* — Hallmark Specimen — refusal of the verb, treats type as material *"A studio for what's next."* — italic editorial display, names the practice without explaining it *"Design like print: warm, off-register, intentional."* — Hallmark Riso — declarative, three modifiers, full stop
 
 ```html
 <section class="marquee">

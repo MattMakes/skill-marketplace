@@ -1,0 +1,40 @@
+{
+  "name": "software",
+  "displayName": "Software Engineering",
+  "version": "1.0.0",
+  "description": "Take a change from idea to production, in one plugin. Decide: interview-me, grilling, spec, requirement-convergence. Shape: ddd runs the nine-step DDD Starter Modelling Process with validators, a review page, diagrams and recorded decisions; Blueprint renders architecture, sequence, workflow, data-flow and lifecycle diagrams; ADRs, contracts, module design. Understand: core primes a repo with a knowledge graph and keys keeps one AGENTS.md tree; trace, research-codebase, deepwiki, explain-diff. Build: a planned pipeline from brainstorm to change-description, with tdd, debug, swarm and unlazy. Verify: code-sweep review, complexity, blast radius, verify-feature, harnesses and test suites. Secure: security-sweep. Ship: ship-gate, SLOs, flags, CI/CD, migrations. Principles and stack references are router skills that load one guide at a time. The DDD and Blueprint tools require Node.js 18 or newer. Vendored skills are credited in NOTICE.md.",
+  "author": {
+    "name": "Matt Scott"
+  },
+  "license": "MIT",
+  "keywords": [
+    "engineering",
+    "workflow",
+    "spec",
+    "requirements",
+    "architecture",
+    "ddd",
+    "domain-driven-design",
+    "blueprint",
+    "diagrams",
+    "codebase",
+    "knowledge-graph",
+    "agents-md",
+    "planning",
+    "tdd",
+    "debugging",
+    "code-review",
+    "verification",
+    "testing",
+    "playwright",
+    "security",
+    "owasp",
+    "devops",
+    "observability",
+    "principles",
+    "react",
+    "typescript",
+    "postgres",
+    "animation"
+  ]
+}

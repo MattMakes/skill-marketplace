@@ -16,9 +16,7 @@ Avoid as the *primary* page. FAQ usually pairs with another macrostructure that 
 Reference: many SaaS pricing pages, Casper, Substack help pages.
 
 **Sample opening lines** (imitate the *specificity* — questions are real questions, answers are short and concrete):
-> *"What is this for? — A single-binary CLI for parsing log streams from stdin."* — names the form factor, names the input
-> *"How is this different from X? — It's about time."* — cron.com — answers obliquely, with a phrase that has weight
-> *"Who built this? — Three of us, in Lisbon, since 2014."* — date + place + count, no marketing
+> *"What is this for? — A single-binary CLI for parsing log streams from stdin."* — names the form factor, names the input *"How is this different from X? — It's about time."* — cron.com — answers obliquely, with a phrase that has weight *"Who built this? — Three of us, in Lisbon, since 2014."* — date + place + count, no marketing
 
 ```html
 <section class="faq">
